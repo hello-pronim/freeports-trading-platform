@@ -3,9 +3,8 @@ import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
 import { Form, Field } from "react-final-form";
-import { FieldArray } from "react-final-form-arrays";
 import arrayMutators from "final-form-arrays";
-import { TextField, Select } from "mui-rff";
+import { TextField } from "mui-rff";
 import { useHistory } from "react-router";
 import {
   Button,
@@ -13,7 +12,6 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  Checkbox,
   Container,
   createStyles,
   Divider,
@@ -33,7 +31,6 @@ import {
   selectOrgPermissions,
   selectIsOrgPermissionsLoading,
 } from "./slice/selectors";
-import actions from "../../../../store/actions";
 import Loader from "../../../../components/Loader";
 
 interface RoleType {
@@ -177,6 +174,7 @@ const NewOrgRole = (): React.ReactElement => {
                             className={classes.roleNameInput}
                             label="Role Name"
                             name="name"
+                            variant="outlined"
                           />
                         </Grid>
                       </Grid>
@@ -251,7 +249,7 @@ const NewOrgRole = (): React.ReactElement => {
                       color="primary"
                       disabled={submitting || pristine}
                     >
-                      Create
+                      Create Role
                     </Button>
                   </Grid>
                 </CardActions>
