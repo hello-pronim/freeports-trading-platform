@@ -60,7 +60,7 @@ const validate = (values: any) => {
     errors.confirmpassword = "This Field Required";
   }
 
-  if (values.password != values.confirmpassword) {
+  if (values.password !== values.confirmpassword) {
     errors.confirmpassword = "Password doesn't match.";
   }
 
@@ -88,7 +88,7 @@ const ResetPassword = (): React.ReactElement => {
     setLoading(true);
     await resetPassword(userId, {
       password: values.password,
-      token: token
+      token
     })
       .then((data) => {
         history.push(`/signin`);
