@@ -22,6 +22,13 @@ interface LoginResponseType {
   token: LoginTokenResponseType;
   isOTPDefined: boolean;
 }
+interface ResetPasswordParamsType {
+  password: string;
+  token: string;
+}
+interface ResetPasswordResponseType {
+  success: boolean;
+}
 
 const login = (credentials: LoginParamsType): Promise<LoginResponseType> => {
   return new Promise((resolve, reject) => {
@@ -77,4 +84,17 @@ const publicKey = (): Promise<any> => {
   });
 };
 
-export { login as default, login, qrCodeGen, otpCheck, publicKey };
+const resetPassword = (userId:string, params: ResetPasswordParamsType): Promise<ResetPasswordResponseType> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/auth/${userId}/setpassword`, params)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+export { login as default, login, qrCodeGen, otpCheck, publicKey, resetPassword };

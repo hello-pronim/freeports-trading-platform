@@ -96,6 +96,11 @@ export default [
     auth: true,
     component: lazy(() => import("../components/Roles/Add/DeskRole")),
   },
+  {
+    path: "/reset-password/:userId/:token",
+    exact: true,
+    component: lazy(() => import("../components/Auth/ResetPassword")),
+  },
   /* {
     path: "/error",
     exact: true,l
