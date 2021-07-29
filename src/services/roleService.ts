@@ -198,6 +198,25 @@ const getAllMultiDeskRoles = (
   });
 };
 
+const createMultiDeskRole = (
+  organizationId: string,
+  role: {
+    name: string;
+    permissions: Array<string>;
+  }
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/organization/${organizationId}/multidesk/role`, role)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 const getAllMultiDeskPermissions = (
   organizationId: string,
   deskId?: string
@@ -257,6 +276,7 @@ export {
   deleteOrgRole,
   getAllOrgPermissions,
   getAllMultiDeskRoles,
+  createMultiDeskRole,
   getAllMultiDeskPermissions,
   getAllDeskRoles,
   getAllDeskPermissions,

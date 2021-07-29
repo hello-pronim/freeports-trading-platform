@@ -524,7 +524,7 @@ const Roles = (): React.ReactElement => {
                           <Typography variant="h5">Multi-desk roles</Typography>
                         </Grid>
                         <Grid item>
-                          <Link to="/desk/roles/add">
+                          <Link to="/multi-desk/roles/add">
                             <IconButton
                               color="inherit"
                               aria-label="Add Multi-Desk Role"
@@ -711,7 +711,7 @@ const Roles = (): React.ReactElement => {
                           <Typography variant="h5">Desk roles</Typography>
                         </Grid>
                         <Grid item>
-                          <Link to="/multi-desk/roles/add">
+                          <Link to="/desk/roles/add">
                             <IconButton
                               color="inherit"
                               aria-label="Add Desk Role"

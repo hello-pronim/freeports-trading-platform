@@ -13,6 +13,7 @@ import { NewOrgRoleState } from "./types";
 
 export const initialState: NewOrgRoleState = {
   orgRoleCreating: false,
+  multiDeskRoleCreating: false,
   orgPermissions: [],
   multiDeskPermissions: [],
   deskPermissions: [],
@@ -25,11 +26,23 @@ const slice = createSlice({
   name: "newOrgRole",
   initialState,
   reducers: {
-    addOrgRole(state, action: PayloadAction<string>) {
+    addOrgRole(
+      state,
+      action: PayloadAction<{ organizationId: string; role: Role }>
+    ) {
       state.orgRoleCreating = true;
     },
     addOrgRoleSuccess(state, action: PayloadAction<string>) {
       state.orgRoleCreating = false;
+    },
+    addMultiDeskRole(
+      state,
+      action: PayloadAction<{ organizationId: string; role: Role }>
+    ) {
+      state.multiDeskRoleCreating = true;
+    },
+    addMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.multiDeskRoleCreating = false;
     },
     getOrgPermissions(state, action: PayloadAction<string>) {
       state.orgPermissionsLoading = true;
