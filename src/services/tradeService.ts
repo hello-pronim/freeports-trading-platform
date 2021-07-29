@@ -1,5 +1,6 @@
 import axios from "../util/axios";
 import TradeRequest from "../types/TradeRequest";
+import PaginatedResponse from "../types/PaginatedResponse";
 
 const getAllTradeRequests = (): Promise<TradeRequest[]> => {
   return new Promise((resolve, reject) => {
@@ -18,7 +19,7 @@ const getInvestorTradeRequests = (
   organizationId: string,
   deskId: string,
   investorId: string
-): Promise<TradeRequest[]> => {
+): Promise<PaginatedResponse<TradeRequest[]>> => {
   return new Promise((resolve, reject) => {
     axios
       .get(

@@ -140,6 +140,7 @@ const InvestorDetail = (): React.ReactElement => {
   const investorsLoading = useSelector(selectIsInvestorsLoading);
   const investorDetailLoading = useSelector(selectIsDetailLoading);
   const tradeRequests = useSelector(selectTradeRequests);
+  console.log("tradeRequest", tradeRequests);
   const tradeRequestsLoading = useSelector(selectIsTradeRequestsLoading);
   const [searchText, setSearchText] = useState("");
   const [tradingAccounts, setTradingAccounts] = useState<
@@ -355,9 +356,13 @@ const InvestorDetail = (): React.ReactElement => {
                               title: "Commission",
                             },
                           ]}
-                          data={tradeRequests.map((trade: TradeRequest) => ({
-                            ...trade,
-                          }))}
+                          data={
+                            tradeRequests
+                              ? tradeRequests.content.map((trade) => ({
+                                  ...trade,
+                                }))
+                              : []
+                          }
                           options={{
                             search: false,
                           }}
