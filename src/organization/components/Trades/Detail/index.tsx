@@ -22,6 +22,7 @@ import {
   Tab,
   Theme,
   Typography,
+  TextField,
 } from "@material-ui/core";
 import HistoryOutlinedIcon from "@material-ui/icons/HistoryOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@material-ui/icons/ChatBubbleOutlineOutlined";
@@ -125,6 +126,35 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.primary.main,
       color: "white",
     },
+    currencyBtnGroup: {
+      width: 96,
+    },
+    numberInput: {
+      "& input": {
+        border: 0,
+        "&:focus": { outline: "none!important" },
+        "font-size": "3.75rem",
+        "font-family": '"Roboto", "Helvetica", "Arial", sans-serif',
+        "font-weight": 300,
+        "line-height": 1.2,
+        "letter-spacing": "-0.00833em",
+        backgroundColor: grey[300],
+        width: "100%",
+      },
+      "& input::-webkit-outer-spin-button": {
+        "-webkit-appearance": "none",
+        margin: 0,
+      },
+      "& input::-webkit-inner-spin-button": {
+        "-webkit-appearance": "none",
+        margin: 0,
+      },
+
+      /* Firefox */
+      "& input[type=number]": {
+        "-moz-appearance": "textfield",
+      },
+    },
   })
 );
 
@@ -199,7 +229,7 @@ const TradeDetail = (): React.ReactElement => {
                 <Card className={classes.greyCard}>
                   <CardContent>
                     <Grid container justify="space-between">
-                      <Grid item>
+                      <Grid item xs={4} md={2}>
                         <Grid
                           container
                           direction="column"
@@ -210,6 +240,7 @@ const TradeDetail = (): React.ReactElement => {
                             Trade value
                           </Typography>
                           <ButtonGroup
+                            className={classes.currencyBtnGroup}
                             variant="contained"
                             color="primary"
                             size="small"
@@ -219,62 +250,65 @@ const TradeDetail = (): React.ReactElement => {
                           </ButtonGroup>
                         </Grid>
                       </Grid>
-                      <Grid item>
+                      <Grid item xs={8} md={4}>
                         <Box
+                          className={classes.numberInput}
                           display="flex"
                           flexDirection="row"
                           alignItems="flex-end"
                           bgcolor="grey.300"
                           borderRadius={16}
-                          width={250}
                           height={100}
                           p={2}
                         >
                           <Typography variant="subtitle2">BTC</Typography>
-                          <Typography variant="h2">30</Typography>
+                          {/* <Typography variant="h3">30</Typography> */}
+                          <input id="filled-number" type="number" />
                         </Box>
                       </Grid>
-                      <Grid item>
-                        <Box
-                          display="flex"
-                          flexDirection="row"
-                          alignItems="flex-end"
-                          borderRadius={16}
-                          width={250}
-                          height={100}
-                          p={2}
-                        >
-                          <Typography variant="subtitle2">BTC</Typography>
-                          <Typography variant="h2">1&#39;024</Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item>
-                        <Box
-                          display="flex"
-                          flexDirection="row"
-                          alignItems="flex-end"
-                          borderRadius={16}
-                          height={100}
-                          p={2}
-                        >
-                          <Typography variant="subtitle2">
-                            remaining of
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item>
-                        <Box
-                          display="flex"
-                          flexDirection="row"
-                          alignItems="flex-end"
-                          borderRadius={16}
-                          width={250}
-                          height={100}
-                          p={2}
-                        >
-                          <Typography variant="subtitle2">BTC</Typography>
-                          <Typography variant="h2">1&#39;400</Typography>
-                        </Box>
+                      <Grid item xs={12} md={6}>
+                        <Grid container>
+                          <Grid item xs={4}>
+                            <Box
+                              display="flex"
+                              flexDirection="row"
+                              alignItems="flex-end"
+                              borderRadius={16}
+                              height={100}
+                              p={2}
+                            >
+                              <Typography variant="subtitle2">BTC</Typography>
+                              <Typography variant="h3">1&#39;024</Typography>
+                            </Box>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Box
+                              display="flex"
+                              flexDirection="row"
+                              alignItems="flex-end"
+                              borderRadius={16}
+                              height={100}
+                              p={2}
+                            >
+                              <Typography variant="subtitle2">
+                                remaining of
+                              </Typography>
+                            </Box>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Box
+                              display="flex"
+                              flexDirection="row"
+                              alignItems="flex-end"
+                              borderRadius={16}
+                              height={100}
+                              p={2}
+                            >
+                              <Typography variant="subtitle2">BTC</Typography>
+                              <Typography variant="h3">1&#39;400</Typography>
+                            </Box>
+                          </Grid>
+                        </Grid>
                       </Grid>
                     </Grid>
                   </CardContent>
