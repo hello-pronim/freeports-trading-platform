@@ -250,33 +250,16 @@ const Roles = (): React.ReactElement => {
       }); */
   };
 
-  const onRoleRemove = async (roleId: string) => {
-    // const newRoles = roles.filter((role: any) => role.id !== roleId);
-    /* setRemoving(true);
-    setShowAlert(false);
-    setSubmitResponse({ type: "", message: "" });
-    await removeRole(roleId)
-      .then((data: string) => {
-        if (data !== "") {
-          setRemoving(false);
-          setSubmitResponse({
-            type: "success",
-            message: "Role has been removed successfully.",
-          });
-          setShowAlert(true);
+  const onOrgRoleRemove = async (roleId: string) => {
+    dispatch(rolesActions.deleteOrgRole({ organizationId, roleId }));
+  };
 
-          const newRoles = roles.filter((role) => role.id !== roleId);
-          setRoles(newRoles);
-        }
-      })
-      .catch((err: any) => {
-        setSaving(false);
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-        setShowAlert(true);
-      }); */
+  const onMultiDeskRoleRemove = async (roleId: string) => {
+    dispatch(rolesActions.deleteMultiDeskRole({ organizationId, roleId }));
+  };
+
+  const onDeskRoleRemove = async (deskId: string, roleId: string) => {
+    dispatch(rolesActions.deleteDeskRole({ organizationId, deskId, roleId }));
   };
 
   return (
@@ -467,7 +450,9 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           disabled={roleRemoving}
-                                          onClick={() => onRoleRemove(role.id)}
+                                          onClick={() =>
+                                            onOrgRoleRemove(role.id)
+                                          }
                                         >
                                           Remove
                                         </Button>
@@ -655,7 +640,9 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           disabled={roleRemoving}
-                                          onClick={() => onRoleRemove(role.id)}
+                                          onClick={() =>
+                                            onMultiDeskRoleRemove(role.id)
+                                          }
                                         >
                                           Remove
                                         </Button>
@@ -842,7 +829,9 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           disabled={roleRemoving}
-                                          onClick={() => onRoleRemove(role.id)}
+                                          onClick={() =>
+                                            onOrgRoleRemove(role.id)
+                                          }
                                         >
                                           Remove
                                         </Button>

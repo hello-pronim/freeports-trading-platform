@@ -19,8 +19,11 @@ export const initialState: OrgRolesState = {
   multiDeskPermissions: [],
   deskPermissions: [],
   orgRolesLoading: false,
+  orgRoleDeleting: false,
   multiDeskRolesLoading: false,
+  multiDeskRoleDeleting: false,
   deskRolesLoading: false,
+  deskRoleDeleting: false,
   orgPermissionsLoading: false,
   multiDeskPermissionsLoading: false,
   deskPermissionsLoading: false,
@@ -40,6 +43,15 @@ const slice = createSlice({
       state.orgRolesLoading = false;
       state.orgRoles = action.payload;
     },
+    deleteOrgRole(
+      state,
+      action: PayloadAction<{ organizationId: string; roleId: string }>
+    ) {
+      state.orgRoleDeleting = true;
+    },
+    deleteOrgRoleSuccess(state, action: PayloadAction<string>) {
+      state.orgRoleDeleting = false;
+    },
     getMultiDeskRoles(state, action: PayloadAction<string>) {
       state.multiDeskRolesLoading = true;
       state.multiDeskRoles = [];
@@ -48,6 +60,15 @@ const slice = createSlice({
       state.multiDeskRolesLoading = false;
       state.multiDeskRoles = action.payload;
     },
+    deleteMultiDeskRole(
+      state,
+      action: PayloadAction<{ organizationId: string; roleId: string }>
+    ) {
+      state.multiDeskRoleDeleting = true;
+    },
+    deleteMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.multiDeskRoleDeleting = false;
+    },
     getDeskRoles(state, action: PayloadAction<string>) {
       state.deskRolesLoading = true;
       state.deskRoles = [];
@@ -55,6 +76,19 @@ const slice = createSlice({
     getDeskRolesSuccess(state, action: PayloadAction<Role[]>) {
       state.deskRolesLoading = false;
       state.deskRoles = action.payload;
+    },
+    deleteDeskRole(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        roleId: string;
+      }>
+    ) {
+      state.deskRoleDeleting = true;
+    },
+    deleteDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.deskRoleDeleting = false;
     },
     getOrgPermissions(state, action: PayloadAction<string>) {
       state.orgPermissionsLoading = true;
