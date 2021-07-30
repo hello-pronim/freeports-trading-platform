@@ -11,6 +11,7 @@ import {
   createTradeRequest,
 } from "../../../../../services/tradeService";
 import { snackbarActions } from "../../../../../components/Snackbar/slice";
+import PaginatedResponse from "../../../../../types/PaginatedResponse";
 
 export function* retrieveInvestor({
   payload,
@@ -53,7 +54,9 @@ export function* retrieveInvestorTradeRequests({
     );
     if (response)
       yield put(
-        actions.getInvestorTradeRequestsSuccess(response as Array<TradeRequest>)
+        actions.getInvestorTradeRequestsSuccess(
+          (response as PaginatedResponse<TradeRequest>).content
+        )
       );
   } catch (error) {
     yield put(
