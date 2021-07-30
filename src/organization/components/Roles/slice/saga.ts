@@ -48,6 +48,8 @@ export function* deleteOrgRole({
     );
     if (response) {
       yield put(actions.deleteOrgRoleSuccess(response as string));
+      yield put(actions.getOrgRoles(payload.organizationId));
+      yield take(actions.getOrgRolesSuccess);
       yield put(
         snackbarActions.showSnackbar({
           message: "Organization role has been deleted successfully",
@@ -113,6 +115,8 @@ export function* deleteMultiDeskRole({
     );
     if (response) {
       yield put(actions.deleteMultiDeskRoleSuccess(response as string));
+      yield put(actions.getMultiDeskRoles(payload.organizationId));
+      yield take(actions.getMultiDeskRolesSuccess);
       yield put(
         snackbarActions.showSnackbar({
           message: "Multi-desk role has been deleted successfully",
