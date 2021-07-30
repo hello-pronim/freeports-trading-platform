@@ -3,7 +3,7 @@ import TradeRequest from "../../../../../types/TradeRequest";
 
 export interface InvestorDetailState {
   selectedInvestor: Investor;
-  tradeRequests: Array<TradeRequest>;
+  tradeRequests: TradeRequest[];
   loadingDetail: boolean;
   loadingTradeRequests: boolean;
   creatingTradeRequest: boolean;

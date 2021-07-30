@@ -10,6 +10,7 @@ import Investor from "../../../../../types/Investor";
 import TradeRequest from "../../../../../types/TradeRequest";
 import { investorDetailSaga } from "./saga";
 import { InvestorDetailState } from "./types";
+import PaginatedResponse from "../../../../../types/PaginatedResponse";
 
 const defaultInvestor = {
   id: "",
@@ -58,7 +59,7 @@ const slice = createSlice({
     },
     getInvestorTradeRequestsSuccess(
       state,
-      action: PayloadAction<Array<TradeRequest>>
+      action: PayloadAction<TradeRequest[]>
     ) {
       state.loadingTradeRequests = false;
       state.tradeRequests = action.payload;
