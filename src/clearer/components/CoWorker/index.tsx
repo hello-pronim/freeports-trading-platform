@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   margin: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(2),
   },
   accordionSummary: {
     justifyContent: "space-between",
@@ -154,6 +154,13 @@ const CoWorker = (): React.ReactElement => {
       dispatch(actions.resumeCoWorker({ id: selectedCoWorker.id }));
     }
   };
+
+  const handleSendResetPasswordLink = async () => {
+    if (selectedCoWorker.id) {
+      dispatch(actions.sendCoWorkerResetPasswordEmail({ id: selectedCoWorker.id }));
+    }
+  };
+
   return (
     <Grid>
       <Grid container className={classes.root}>
@@ -248,6 +255,11 @@ const CoWorker = (): React.ReactElement => {
                   }
                   coWorker={selectedCoWorker}
                 />
+              )}
+              {selectedCoWorker.id && (
+                <Button className={classes.margin} onClick={handleSendResetPasswordLink} color="primary">
+                  Send Reset Password Link
+                </Button>
               )}
             </Accordion>
           )}{" "}

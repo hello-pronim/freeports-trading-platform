@@ -16,6 +16,7 @@ import getClearerUsers, {
   suspendClearerUser,
   resumeClearerUser,
   updateClearerUser,
+  sendResetPasswordEmail
 } from "../../../../services/clearerUsersService";
 import {
   assignClearerRolesToUser,
@@ -202,6 +203,30 @@ export function* resumeCoWorker({
   }
 }
 
+export function* sendCoWorkerResetPasswordEmail({
+  payload,
+}: PayloadAction<{ id: string }>): Generator<any> {
+  try {
+    if (payload.id) {
+      yield call(sendResetPasswordEmail, payload.id);
+      yield put(actions.sendCoWorkerResetPasswordEmailSuccess());
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Successfully sent reset password email",
+          type: "success",
+        })
+      );
+    }
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
 export function* coWorkersSaga(): Generator<any> {
   yield takeLatest(actions.getCoWorkers, getCoWorkers);
   yield takeEvery(actions.createCoWorker, createCoWorker);
@@ -209,4 +234,5 @@ export function* coWorkersSaga(): Generator<any> {
   yield takeEvery(actions.updateCoWorker, updateCoWorker);
   yield takeEvery(actions.suspendCoWorker, suspendCoWorker);
   yield takeEvery(actions.resumeCoWorker, resumeCoWorker);
+  yield takeEvery(actions.sendCoWorkerResetPasswordEmail, sendCoWorkerResetPasswordEmail);
 }
