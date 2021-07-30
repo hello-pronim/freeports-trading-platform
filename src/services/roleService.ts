@@ -262,6 +262,26 @@ const getAllDeskRoles = (organizationId: string): Promise<Array<RoleType>> => {
   });
 };
 
+const createDeskRole = (
+  organizationId: string,
+  deskId: string,
+  role: {
+    name: string;
+    permissions: Array<string>;
+  }
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/organization/${organizationId}/desk/${deskId}/role`, role)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 const removeDeskRole = (
   organizationId: string,
   deskId: string,
@@ -313,6 +333,7 @@ export {
   removeMultiDeskRole,
   getAllMultiDeskPermissions,
   getAllDeskRoles,
+  createDeskRole,
   removeDeskRole,
   getAllDeskPermissions,
 };

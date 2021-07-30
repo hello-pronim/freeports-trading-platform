@@ -1,6 +1,7 @@
 import { takeEvery, takeLatest, call, put, take } from "redux-saga/effects";
 import { PayloadAction } from "@reduxjs/toolkit";
 import Role from "../../../../types/Role";
+import DeskRole from "../../../../types/DeskRole";
 import Permission from "../../../../types/Permission";
 
 import { rolesActions as actions } from ".";
@@ -162,7 +163,8 @@ export function* getDeskRoles({
 }: PayloadAction<string>): Generator<any> {
   try {
     const response = yield call(getAllDeskRoles, payload);
-    if (response) yield put(actions.getDeskRolesSuccess(response as Role[]));
+    if (response)
+      yield put(actions.getDeskRolesSuccess(response as DeskRole[]));
   } catch (error) {
     yield put(
       snackbarActions.showSnackbar({

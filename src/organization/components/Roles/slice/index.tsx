@@ -7,6 +7,7 @@ import {
   useInjectSaga,
 } from "../../../../util/redux-injectors";
 import Role from "../../../../types/Role";
+import DeskRole from "../../../../types/DeskRole";
 import Permission from "../../../../types/Permission";
 import { rolesSaga } from "./saga";
 import { OrgRolesState } from "./types";
@@ -73,7 +74,7 @@ const slice = createSlice({
       state.deskRolesLoading = true;
       state.deskRoles = [];
     },
-    getDeskRolesSuccess(state, action: PayloadAction<Role[]>) {
+    getDeskRolesSuccess(state, action: PayloadAction<DeskRole[]>) {
       state.deskRolesLoading = false;
       state.deskRoles = action.payload;
     },
