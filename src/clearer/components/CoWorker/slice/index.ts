@@ -79,6 +79,12 @@ const slice = createSlice({
     resumeCoWorkerSuccess(state) {
       state.suspendStateLoading = false;
     },
+    sendCoWorkerResetPasswordEmail(state, action: PayloadAction<{ id: string }>) {
+      state.formLoading = true;
+    },
+    sendCoWorkerResetPasswordEmailSuccess(state) {
+      state.formLoading = false;
+    },
   },
 });
 

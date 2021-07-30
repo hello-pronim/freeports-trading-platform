@@ -21,7 +21,7 @@ const defaultInvestor = {
 
 export const initialState: InvestorDetailState = {
   selectedInvestor: defaultInvestor,
-  tradeRequests: null,
+  tradeRequests: [],
   loadingDetail: false,
   loadingTradeRequests: false,
   creatingTradeRequest: false,
@@ -55,11 +55,11 @@ const slice = createSlice({
       }>
     ) {
       state.loadingTradeRequests = true;
-      state.tradeRequests = null;
+      state.tradeRequests = [];
     },
     getInvestorTradeRequestsSuccess(
       state,
-      action: PayloadAction<PaginatedResponse<TradeRequest[]>>
+      action: PayloadAction<TradeRequest[]>
     ) {
       state.loadingTradeRequests = false;
       state.tradeRequests = action.payload;

@@ -55,7 +55,7 @@ export function* retrieveInvestorTradeRequests({
     if (response)
       yield put(
         actions.getInvestorTradeRequestsSuccess(
-          response as PaginatedResponse<TradeRequest[]>
+          (response as PaginatedResponse<TradeRequest>).content
         )
       );
   } catch (error) {

@@ -356,13 +356,9 @@ const InvestorDetail = (): React.ReactElement => {
                               title: "Commission",
                             },
                           ]}
-                          data={
-                            tradeRequests
-                              ? tradeRequests.content.map((trade) => ({
-                                  ...trade,
-                                }))
-                              : []
-                          }
+                          data={tradeRequests.map((trade) => ({
+                            ...trade,
+                          }))}
                           options={{
                             search: false,
                           }}

@@ -143,6 +143,10 @@ const NewMultiDeskRole = (): React.ReactElement => {
     history.push("/roles");
   };
 
+  const handleCancelClick = () => {
+    history.push("/roles");
+  };
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -243,15 +247,22 @@ const NewMultiDeskRole = (): React.ReactElement => {
                 </CardContent>
                 <Divider />
                 <CardActions>
-                  <Grid container justify="flex-end">
-                    <Button
-                      variant="contained"
-                      type="submit"
-                      color="primary"
-                      disabled={submitting || pristine}
-                    >
-                      Create Role
-                    </Button>
+                  <Grid container justify="flex-end" spacing={2}>
+                    <Grid item>
+                      <Button variant="contained" onClick={handleCancelClick}>
+                        Cancel
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        variant="contained"
+                        type="submit"
+                        color="primary"
+                        disabled={submitting || pristine}
+                      >
+                        Create Role
+                      </Button>
+                    </Grid>
                   </Grid>
                 </CardActions>
               </Card>

@@ -52,6 +52,7 @@ import {
   selectIsDeskPermissionsLoading,
 } from "./slice/selectors";
 import Role from "../../../types/Role";
+import DeskRole from "../../../types/DeskRole";
 import Permission from "../../../types/Permission";
 import Loader from "../../../components/Loader";
 
@@ -250,33 +251,16 @@ const Roles = (): React.ReactElement => {
       }); */
   };
 
-  const onRoleRemove = async (roleId: string) => {
-    // const newRoles = roles.filter((role: any) => role.id !== roleId);
-    /* setRemoving(true);
-    setShowAlert(false);
-    setSubmitResponse({ type: "", message: "" });
-    await removeRole(roleId)
-      .then((data: string) => {
-        if (data !== "") {
-          setRemoving(false);
-          setSubmitResponse({
-            type: "success",
-            message: "Role has been removed successfully.",
-          });
-          setShowAlert(true);
+  const onOrgRoleRemove = async (roleId: string) => {
+    dispatch(rolesActions.deleteOrgRole({ organizationId, roleId }));
+  };
 
-          const newRoles = roles.filter((role) => role.id !== roleId);
-          setRoles(newRoles);
-        }
-      })
-      .catch((err: any) => {
-        setSaving(false);
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-        setShowAlert(true);
-      }); */
+  const onMultiDeskRoleRemove = async (roleId: string) => {
+    dispatch(rolesActions.deleteMultiDeskRole({ organizationId, roleId }));
+  };
+
+  const onDeskRoleRemove = async (deskId: string, roleId: string) => {
+    dispatch(rolesActions.deleteDeskRole({ organizationId, deskId, roleId }));
   };
 
   return (
@@ -364,18 +348,20 @@ const Roles = (): React.ReactElement => {
                                       expandIcon={<ExpandMoreIcon />}
                                       aria-controls="panel1c-content"
                                     >
-                                      <div className={classes.column}>
-                                        <Typography
-                                          className={classes.roleName}
-                                        >
-                                          {role.name}
-                                        </Typography>
-                                      </div>
-                                      <div className={classes.column}>
-                                        <Typography
-                                          className={classes.roleDescription}
-                                        />
-                                      </div>
+                                      <Grid container alignItems="center">
+                                        <Grid item>
+                                          <Typography
+                                            className={classes.roleName}
+                                          >
+                                            {role.name}
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item>
+                                          <Typography
+                                            className={classes.roleDescription}
+                                          />
+                                        </Grid>
+                                      </Grid>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                       <Grid container item xs={12}>
@@ -385,6 +371,7 @@ const Roles = (): React.ReactElement => {
                                             label="Role Name"
                                             value={role.name}
                                             onChange={(e) =>
+                                              role.id &&
                                               onRoleNameChange(e, role.id)
                                             }
                                           />
@@ -438,6 +425,7 @@ const Roles = (): React.ReactElement => {
                                                               )
                                                             )}
                                                             onChange={(e) =>
+                                                              role.id &&
                                                               onPermissionChange(
                                                                 e,
                                                                 role.id
@@ -467,7 +455,9 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           disabled={roleRemoving}
-                                          onClick={() => onRoleRemove(role.id)}
+                                          onClick={() =>
+                                            role.id && onOrgRoleRemove(role.id)
+                                          }
                                         >
                                           Remove
                                         </Button>
@@ -487,7 +477,9 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           color="primary"
-                                          onClick={() => onRoleSave(role.id)}
+                                          onClick={() =>
+                                            role.id && onRoleSave(role.id)
+                                          }
                                           disabled={roleUpdating}
                                         >
                                           Save
@@ -552,18 +544,15 @@ const Roles = (): React.ReactElement => {
                                       expandIcon={<ExpandMoreIcon />}
                                       aria-controls="panel1c-content"
                                     >
-                                      <div className={classes.column}>
-                                        <Typography
-                                          className={classes.roleName}
-                                        >
-                                          {role.name}
-                                        </Typography>
-                                      </div>
-                                      <div className={classes.column}>
-                                        <Typography
-                                          className={classes.roleDescription}
-                                        />
-                                      </div>
+                                      <Grid container alignItems="center">
+                                        <Grid item>
+                                          <Typography
+                                            className={classes.roleName}
+                                          >
+                                            {role.name}
+                                          </Typography>
+                                        </Grid>
+                                      </Grid>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                       <Grid container item xs={12}>
@@ -573,6 +562,7 @@ const Roles = (): React.ReactElement => {
                                             label="Role Name"
                                             value={role.name}
                                             onChange={(e) =>
+                                              role.id &&
                                               onRoleNameChange(e, role.id)
                                             }
                                           />
@@ -626,6 +616,7 @@ const Roles = (): React.ReactElement => {
                                                               )
                                                             )}
                                                             onChange={(e) =>
+                                                              role.id &&
                                                               onPermissionChange(
                                                                 e,
                                                                 role.id
@@ -655,7 +646,10 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           disabled={roleRemoving}
-                                          onClick={() => onRoleRemove(role.id)}
+                                          onClick={() =>
+                                            role.id &&
+                                            onMultiDeskRoleRemove(role.id)
+                                          }
                                         >
                                           Remove
                                         </Button>
@@ -675,7 +669,9 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           color="primary"
-                                          onClick={() => onRoleSave(role.id)}
+                                          onClick={() =>
+                                            role.id && onRoleSave(role.id)
+                                          }
                                           disabled={roleUpdating}
                                         >
                                           Save
@@ -731,26 +727,35 @@ const Roles = (): React.ReactElement => {
                             <Grid item xs={12}>
                               {deskRoles
                                 .filter(
-                                  (role: Role) => role.name !== "_default"
+                                  (role: DeskRole) => role.name !== "_default"
                                 )
-                                .map((role: Role) => (
+                                .map((role: DeskRole) => (
                                   <Accordion key={role.id}>
                                     <AccordionSummary
                                       expandIcon={<ExpandMoreIcon />}
                                       aria-controls="panel1c-content"
                                     >
-                                      <div className={classes.column}>
-                                        <Typography
-                                          className={classes.roleName}
-                                        >
-                                          {role.name}
-                                        </Typography>
-                                      </div>
-                                      <div className={classes.column}>
-                                        <Typography
-                                          className={classes.roleDescription}
-                                        />
-                                      </div>
+                                      <Grid
+                                        container
+                                        alignItems="center"
+                                        spacing={2}
+                                      >
+                                        <Grid item>
+                                          <Typography
+                                            className={classes.roleName}
+                                          >
+                                            {role.name}
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item>
+                                          <Typography
+                                            color="textSecondary"
+                                            className={classes.roleDescription}
+                                          >
+                                            {`(${role.desk.name})`}
+                                          </Typography>
+                                        </Grid>
+                                      </Grid>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                       <Grid container item xs={12}>
@@ -760,6 +765,7 @@ const Roles = (): React.ReactElement => {
                                             label="Role Name"
                                             value={role.name}
                                             onChange={(e) =>
+                                              role.id &&
                                               onRoleNameChange(e, role.id)
                                             }
                                           />
@@ -813,6 +819,7 @@ const Roles = (): React.ReactElement => {
                                                               )
                                                             )}
                                                             onChange={(e) =>
+                                                              role.id &&
                                                               onPermissionChange(
                                                                 e,
                                                                 role.id
@@ -842,7 +849,9 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           disabled={roleRemoving}
-                                          onClick={() => onRoleRemove(role.id)}
+                                          onClick={() =>
+                                            role.id && onOrgRoleRemove(role.id)
+                                          }
                                         >
                                           Remove
                                         </Button>
@@ -862,7 +871,9 @@ const Roles = (): React.ReactElement => {
                                           variant="contained"
                                           size="small"
                                           color="primary"
-                                          onClick={() => onRoleSave(role.id)}
+                                          onClick={() =>
+                                            role.id && onRoleSave(role.id)
+                                          }
                                           disabled={roleUpdating}
                                         >
                                           Save

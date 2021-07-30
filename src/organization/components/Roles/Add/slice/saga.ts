@@ -11,6 +11,8 @@ import {
   getAllOrgPermissions,
   createMultiDeskRole,
   getAllMultiDeskPermissions,
+  createDeskRole,
+  getAllDeskPermissions,
 } from "../../../../../services/roleService";
 import { snackbarActions } from "../../../../../components/Snackbar/slice";
 
@@ -106,9 +108,61 @@ export function* addMultiDeskRole({
   }
 }
 
+export function* getDeskPermissions({
+  payload,
+}: PayloadAction<string>): Generator<any> {
+  try {
+    const response = yield call(getAllDeskPermissions, payload);
+    if (response)
+      yield put(actions.getDeskPermissionsSuccess(response as Permission[]));
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* addDeskRole({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  role: Role;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      createDeskRole,
+      payload.organizationId,
+      payload.deskId,
+      payload.role
+    );
+    if (response) {
+      yield put(actions.addDeskRoleSuccess(response as string));
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "New desk role has been created successfully",
+          type: "success",
+        })
+      );
+    }
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
 export function* newOrgRoleSaga(): Generator<any> {
   yield takeEvery(actions.getOrgPermissions, getOrgPermissions);
-  yield takeEvery(actions.getMultiDeskPermissions, getMultiDeskPermissions);
   yield takeEvery(actions.addOrgRole, addOrgRole);
+  yield takeEvery(actions.getMultiDeskPermissions, getMultiDeskPermissions);
   yield takeEvery(actions.addMultiDeskRole, addMultiDeskRole);
+  yield takeEvery(actions.getDeskPermissions, getDeskPermissions);
+  yield takeEvery(actions.addDeskRole, addDeskRole);
 }

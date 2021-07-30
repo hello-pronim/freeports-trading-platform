@@ -152,7 +152,7 @@ const createOrgRole = (
   });
 };
 
-const deleteOrgRole = (
+const removeOrgRole = (
   organizationId: string,
   roleId: string
 ): Promise<string> => {
@@ -217,6 +217,22 @@ const createMultiDeskRole = (
   });
 };
 
+const removeMultiDeskRole = (
+  organizationId: string,
+  roleId: string
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .delete(`/organization/${organizationId}/multidesk/role/${roleId}`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 const getAllMultiDeskPermissions = (
   organizationId: string,
   deskId?: string
@@ -237,6 +253,43 @@ const getAllDeskRoles = (organizationId: string): Promise<Array<RoleType>> => {
   return new Promise((resolve, reject) => {
     axios
       .get(`/organization/${organizationId}/deskrole`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const createDeskRole = (
+  organizationId: string,
+  deskId: string,
+  role: {
+    name: string;
+    permissions: Array<string>;
+  }
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/organization/${organizationId}/desk/${deskId}/role`, role)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const removeDeskRole = (
+  organizationId: string,
+  deskId: string,
+  roleId: string
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .delete(`/organization/${organizationId}/desk/${deskId}/role/${roleId}`)
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -273,11 +326,14 @@ export {
   updateClearerRolesToUser,
   getAllOrgRoles,
   createOrgRole,
-  deleteOrgRole,
+  removeOrgRole,
   getAllOrgPermissions,
   getAllMultiDeskRoles,
   createMultiDeskRole,
+  removeMultiDeskRole,
   getAllMultiDeskPermissions,
   getAllDeskRoles,
+  createDeskRole,
+  removeDeskRole,
   getAllDeskPermissions,
 };
