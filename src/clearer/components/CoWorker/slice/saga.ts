@@ -208,14 +208,23 @@ export function* sendCoWorkerResetPasswordEmail({
 }: PayloadAction<{ id: string }>): Generator<any> {
   try {
     if (payload.id) {
-      yield call(sendResetPasswordEmail, payload.id);
+      const response: any = yield call(sendResetPasswordEmail, payload.id);
       yield put(actions.sendCoWorkerResetPasswordEmailSuccess());
-      yield put(
-        snackbarActions.showSnackbar({
-          message: "Successfully sent reset password email",
-          type: "success",
-        })
-      );
+      if(response.success) {
+        yield put(
+          snackbarActions.showSnackbar({
+            message: "Successfully sent reset password email",
+            type: "success",
+          })
+        );
+      } else {
+        yield put(
+          snackbarActions.showSnackbar({
+            message: 'Failed to send email',
+            type: "error",
+          })
+        );
+      }
     }
   } catch (error) {
     yield put(
