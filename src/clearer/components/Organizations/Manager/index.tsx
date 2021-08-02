@@ -87,6 +87,10 @@ interface managerType {
   avatar: string;
 }
 
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
 const Manager = (props: any): React.ReactElement => {
   const classes = useStyle();
   const { getOrganizedManager } = useOrganization();
@@ -205,10 +209,6 @@ const Manager = (props: any): React.ReactElement => {
 
   const handleAlertClose = () => {
     setShowAlert(false);
-  };
-
-  const Alert = (props: AlertProps) => {
-    return <MuiAlert elevation={6} variant="filled" {...props} />;
   };
 
   return (
