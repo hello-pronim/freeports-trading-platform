@@ -1,7 +1,7 @@
 import axios from "../util/axios";
 
 interface RoleType {
-  id: string;
+  id?: string;
   name: string;
   permissions: Array<string>;
 }
@@ -143,6 +143,23 @@ const createOrgRole = (
   return new Promise((resolve, reject) => {
     axios
       .post(`/organization/${organizationId}/role`, role)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const updateOrgRole = (
+  organizationId: string,
+  roleId: string,
+  role: RoleType
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(`/organization/${organizationId}/role/${roleId}`, role)
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -326,6 +343,7 @@ export {
   updateClearerRolesToUser,
   getAllOrgRoles,
   createOrgRole,
+  updateOrgRole,
   removeOrgRole,
   getAllOrgPermissions,
   getAllMultiDeskRoles,

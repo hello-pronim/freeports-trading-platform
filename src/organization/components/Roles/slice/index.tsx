@@ -20,10 +20,13 @@ export const initialState: OrgRolesState = {
   multiDeskPermissions: [],
   deskPermissions: [],
   orgRolesLoading: false,
+  orgRoleUpdating: false,
   orgRoleDeleting: false,
   multiDeskRolesLoading: false,
+  multiDeskRoleUpdating: false,
   multiDeskRoleDeleting: false,
   deskRolesLoading: false,
+  deskRoleUpdating: false,
   deskRoleDeleting: false,
   orgPermissionsLoading: false,
   multiDeskPermissionsLoading: false,
@@ -44,6 +47,19 @@ const slice = createSlice({
       state.orgRolesLoading = false;
       state.orgRoles = action.payload;
     },
+    editOrgRole(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        roleId: string;
+        role: Role;
+      }>
+    ) {
+      state.orgRoleUpdating = true;
+    },
+    editOrgRoleSuccess(state, action: PayloadAction<string>) {
+      state.orgRoleUpdating = false;
+    },
     deleteOrgRole(
       state,
       action: PayloadAction<{ organizationId: string; roleId: string }>
@@ -53,6 +69,15 @@ const slice = createSlice({
     deleteOrgRoleSuccess(state, action: PayloadAction<string>) {
       state.orgRoleDeleting = false;
     },
+    getOrgPermissions(state, action: PayloadAction<string>) {
+      state.orgPermissionsLoading = true;
+      state.orgPermissions = [];
+    },
+    getOrgPermissionsSuccess(state, action: PayloadAction<Permission[]>) {
+      state.orgPermissionsLoading = false;
+      state.orgPermissions = action.payload;
+    },
+    // multi-desk roles
     getMultiDeskRoles(state, action: PayloadAction<string>) {
       state.multiDeskRolesLoading = true;
       state.multiDeskRoles = [];
@@ -70,6 +95,18 @@ const slice = createSlice({
     deleteMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
       state.multiDeskRoleDeleting = false;
     },
+    getMultiDeskPermissions(
+      state,
+      action: PayloadAction<{ organizationId: string; deskId?: string }>
+    ) {
+      state.multiDeskPermissionsLoading = true;
+      state.multiDeskPermissions = [];
+    },
+    getMultiDeskPermissionsSuccess(state, action: PayloadAction<Permission[]>) {
+      state.multiDeskPermissionsLoading = false;
+      state.multiDeskPermissions = action.payload;
+    },
+    // desk roles
     getDeskRoles(state, action: PayloadAction<string>) {
       state.deskRolesLoading = true;
       state.deskRoles = [];
@@ -90,25 +127,6 @@ const slice = createSlice({
     },
     deleteDeskRoleSuccess(state, action: PayloadAction<string>) {
       state.deskRoleDeleting = false;
-    },
-    getOrgPermissions(state, action: PayloadAction<string>) {
-      state.orgPermissionsLoading = true;
-      state.orgPermissions = [];
-    },
-    getOrgPermissionsSuccess(state, action: PayloadAction<Permission[]>) {
-      state.orgPermissionsLoading = false;
-      state.orgPermissions = action.payload;
-    },
-    getMultiDeskPermissions(
-      state,
-      action: PayloadAction<{ organizationId: string; deskId?: string }>
-    ) {
-      state.multiDeskPermissionsLoading = true;
-      state.multiDeskPermissions = [];
-    },
-    getMultiDeskPermissionsSuccess(state, action: PayloadAction<Permission[]>) {
-      state.multiDeskPermissionsLoading = false;
-      state.multiDeskPermissions = action.payload;
     },
     getDeskPermissions(
       state,
