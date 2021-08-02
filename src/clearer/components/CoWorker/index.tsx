@@ -257,7 +257,11 @@ const CoWorker = (): React.ReactElement => {
                 />
               )}
               {selectedCoWorker.id && (
-                <Button className={classes.margin} onClick={handleSendResetPasswordLink} color="primary">
+                <Button
+                  className={classes.margin}
+                  onClick={handleSendResetPasswordLink}
+                  color="primary"
+                >
                   Send Reset Password Link
                 </Button>
               )}
