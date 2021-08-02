@@ -234,6 +234,23 @@ const createMultiDeskRole = (
   });
 };
 
+const updateMultiDeskRole = (
+  organizationId: string,
+  roleId: string,
+  role: RoleType
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(`/organization/${organizationId}/multidesk/role/${roleId}`, role)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 const removeMultiDeskRole = (
   organizationId: string,
   roleId: string
@@ -348,6 +365,7 @@ export {
   getAllOrgPermissions,
   getAllMultiDeskRoles,
   createMultiDeskRole,
+  updateMultiDeskRole,
   removeMultiDeskRole,
   getAllMultiDeskPermissions,
   getAllDeskRoles,

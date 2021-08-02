@@ -86,6 +86,19 @@ const slice = createSlice({
       state.multiDeskRolesLoading = false;
       state.multiDeskRoles = action.payload;
     },
+    editMultiDeskRole(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        roleId: string;
+        role: Role;
+      }>
+    ) {
+      state.multiDeskRoleUpdating = true;
+    },
+    editMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.multiDeskRoleUpdating = false;
+    },
     deleteMultiDeskRole(
       state,
       action: PayloadAction<{ organizationId: string; roleId: string }>
