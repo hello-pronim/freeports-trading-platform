@@ -2,11 +2,16 @@
 import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
+import { Form, Field } from "react-final-form";
+import arrayMutators from "final-form-arrays";
+import { TextField, Select } from "mui-rff";
 import { useHistory } from "react-router";
 import {
   Button,
-  Checkbox,
-  CircularProgress,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
   Container,
   createStyles,
   Divider,
@@ -15,16 +20,21 @@ import {
   FormLabel,
   Grid,
   makeStyles,
-  Snackbar,
-  TextField,
+  MenuItem,
   Theme,
   Typography,
 } from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import { useRole } from "../../../../hooks";
+import { useNewOrgRoleSlice } from "./slice";
+import { useDesksSlice } from "../../Desks/slice";
+import {
+  selectDeskPermissions,
+  selectIsDeskPermissionsLoading,
+} from "./slice/selectors";
+import { selectDesks, selectIsDesksLoading } from "../../Desks/slice/selectors";
+import Loader from "../../../../components/Loader";
 
 interface RoleType {
   name: string;
@@ -34,6 +44,24 @@ interface PermissionType {
   name: string;
   permissions: Array<{ code: string; name: string }>;
 }
+interface deskType {
+  id?: string;
+  name: string;
+}
+
+const validate = (values: any) => {
+  const errors: Partial<any> = {};
+
+  if (!values.name) {
+    errors.name = "This Field Required";
+  }
+
+  if (!values.deskId) {
+    errors.deskId = "This Field Required";
+  }
+
+  return errors;
+};
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -89,33 +117,28 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Alert = (props: AlertProps) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-};
-
 const NewDeskRole = (): React.ReactElement => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const history = useHistory();
-  const { retrievePermissions, createNewRole } = useRole();
-  const [role, setRole] = useState<RoleType>({ name: "", permissions: [] });
-  const [permissions, setPermissions] = useState([] as any[]);
-  const [loading, setLoading] = useState(false);
-  const [submitResponse, setSubmitResponse] = useState({
-    type: "success",
-    message: "",
+  const { organizationId } = Lockr.get("USER_DATA");
+  const { actions: newOrgRoleActions } = useNewOrgRoleSlice();
+  const { actions: desksActions } = useDesksSlice();
+  const deskPermissions = useSelector(selectDeskPermissions);
+  const deskPermissionsLoading = useSelector(selectIsDeskPermissionsLoading);
+  const desks = useSelector(selectDesks);
+  const desksLoading = useSelector(selectIsDesksLoading);
+  const [deskRole, setDeskRole] = useState<RoleType>({
+    name: "",
+    permissions: [],
   });
-  const [showAlert, setShowAlert] = useState(false);
-  const timer = React.useRef<number>();
 
   useEffect(() => {
     let unmounted = false;
 
     const init = async () => {
-      const permissionList = await retrievePermissions();
-
-      if (!unmounted) {
-        setPermissions(permissionList);
-      }
+      await dispatch(desksActions.getDesks(organizationId));
+      await dispatch(newOrgRoleActions.getDeskPermissions(organizationId));
     };
 
     init();
@@ -125,151 +148,165 @@ const NewDeskRole = (): React.ReactElement => {
     };
   }, []);
 
-  const onPermissionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
-
-    const newRole = { ...role };
-
-    if (checked) newRole.permissions.push(name);
-    else {
-      for (let i = 0; i < newRole.permissions.length; i += 1) {
-        if (newRole.permissions[i] === name) {
-          newRole.permissions.splice(i, 1);
-          break;
-        }
-      }
-    }
-    console.log(newRole);
-
-    setRole(newRole);
-  };
-
-  const onRoleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
-    const newRole = { ...role };
-    newRole.name = value;
-
-    setRole(newRole);
-  };
-
-  const onRoleCreate = async () => {
-    setLoading(true);
-    setShowAlert(false);
-    await createNewRole(role)
-      .then((data: string) => {
-        if (data !== "") {
-          setSubmitResponse({
-            type: "success",
-            message: "New role has been created successfully.",
-          });
-          setShowAlert(true);
-          timer.current = window.setTimeout(() => {
-            setLoading(false);
-            history.push("/roles");
-          }, 2000);
-        }
+  const handleRoleCreate = async (values: {
+    name: string;
+    deskId: string;
+    permissions: string[];
+  }) => {
+    const { deskId } = values;
+    const role = { name: values.name, permissions: values.permissions };
+    await dispatch(
+      newOrgRoleActions.addDeskRole({
+        organizationId,
+        deskId,
+        role,
       })
-      .catch((err: any) => {
-        setLoading(false);
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-        setShowAlert(true);
-      });
+    );
+    history.push("/roles");
   };
 
-  const handleAlertClose = () => {
-    setShowAlert(false);
+  const handleCancelClick = () => {
+    history.push("/roles");
   };
 
   return (
     <div className="main-wrapper">
       <Container>
-        <Grid container spacing={2}>
-          <Grid container item xs={12}>
-            <Typography variant="h4">Create new Desk role</Typography>
-          </Grid>
-          <Grid container item xs={12}>
-            <Grid item xs={4}>
-              <TextField
-                className={classes.roleNameInput}
-                label="Role Name"
-                value={role.name}
-                onChange={onRoleNameChange}
-              />
-            </Grid>
-          </Grid>
-          <Grid container item xs={12}>
-            {permissions.map((perm: PermissionType) => (
-              <Grid item key={perm.name} xs={12}>
-                <FormGroup className={classes.permissionContainer}>
-                  <FormLabel
-                    component="legend"
-                    className={classes.permissionName}
-                  >
-                    {perm.name}
-                  </FormLabel>
-                  <Grid container>
-                    {perm.permissions.map(
-                      (avail: { name: string; code: string }) => (
-                        <Grid item key={avail.code} xs={2}>
-                          <FormControlLabel
-                            className={classes.checkboxLabel}
-                            control={
-                              <Checkbox
-                                color="primary"
-                                name={avail.code}
-                                checked={Boolean(
-                                  role.permissions.includes(avail.code)
-                                )}
-                                onChange={onPermissionChange}
-                              />
-                            }
-                            label={avail.name}
+        <Form
+          onSubmit={handleRoleCreate}
+          mutators={{
+            ...arrayMutators,
+          }}
+          initialValues={deskRole}
+          validate={validate}
+          render={({
+            handleSubmit,
+            submitting,
+            pristine,
+            form: {
+              mutators: { push },
+            },
+            values,
+          }) => (
+            <form onSubmit={handleSubmit} noValidate>
+              <Card>
+                <CardHeader title="Create new Desk role" />
+                <Divider />
+                <CardContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={4}>
+                          <TextField
+                            className={classes.roleNameInput}
+                            label="Role Name"
+                            name="name"
+                            variant="outlined"
                           />
                         </Grid>
-                      )
+                        <Grid item xs={4}>
+                          <Select
+                            native
+                            name="deskId"
+                            label="Desk"
+                            variant="outlined"
+                            fullWidth
+                          >
+                            <option value="0">Select...</option>
+                            {desks.map((deskItem: deskType) => (
+                              <option key={deskItem.id} value={deskItem.id}>
+                                {deskItem.name}
+                              </option>
+                            ))}
+                          </Select>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    {deskPermissionsLoading && <Loader />}
+                    {!deskPermissionsLoading && (
+                      <Grid item xs={12}>
+                        <Grid container>
+                          {deskPermissions.map((perm: PermissionType) => (
+                            <Grid item key={perm.name} xs={12}>
+                              <FormGroup
+                                className={classes.permissionContainer}
+                              >
+                                <FormLabel
+                                  component="legend"
+                                  className={classes.permissionName}
+                                >
+                                  {perm.name}
+                                </FormLabel>
+                                <Grid container>
+                                  {perm.permissions.map(
+                                    (avail: { name: string; code: string }) => (
+                                      <Grid item key={avail.code} xs={2}>
+                                        <Grid
+                                          container
+                                          alignItems="center"
+                                          spacing={1}
+                                        >
+                                          <Grid item>
+                                            <Field
+                                              name="permissions[]"
+                                              component="input"
+                                              type="checkbox"
+                                              value={avail.code}
+                                            />
+                                          </Grid>
+                                          <Grid item>
+                                            <Typography variant="body1">
+                                              {avail.name}
+                                            </Typography>
+                                          </Grid>
+                                        </Grid>
+                                        {/* <FormControlLabel
+                                          className={classes.checkboxLabel}
+                                          control={
+                                            <Checkbox
+                                              color="primary"
+                                              name="permissions[]"
+                                              value={avail.code}
+                                            />
+                                          }
+                                          label={avail.name}
+                                        /> */}
+                                      </Grid>
+                                    )
+                                  )}
+                                </Grid>
+                              </FormGroup>
+                            </Grid>
+                          ))}
+                        </Grid>
+                      </Grid>
                     )}
                   </Grid>
-                </FormGroup>
-              </Grid>
-            ))}
-          </Grid>
-          <Divider variant="middle" />
-          <Grid container justify="flex-end">
-            <div className={classes.progressButtonWrapper}>
-              <Button
-                variant="contained"
-                size="large"
-                color="primary"
-                onClick={onRoleCreate}
-                disabled={loading}
-              >
-                Create Role
-              </Button>
-              {loading && (
-                <CircularProgress
-                  size={24}
-                  className={classes.progressButton}
-                />
-              )}
-            </div>
-          </Grid>
-          <Snackbar
-            autoHideDuration={2000}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            open={showAlert}
-            onClose={handleAlertClose}
-          >
-            <Alert
-              onClose={handleAlertClose}
-              severity={submitResponse.type === "success" ? "success" : "error"}
-            >
-              {submitResponse.message}
-            </Alert>
-          </Snackbar>
-        </Grid>
+                </CardContent>
+                <Divider />
+                <CardActions>
+                  <Grid container justify="flex-end" spacing={2}>
+                    <Grid item>
+                      <Button variant="contained" onClick={handleCancelClick}>
+                        Cancel
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        variant="contained"
+                        type="submit"
+                        color="primary"
+                        disabled={submitting || pristine}
+                      >
+                        Create Role
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </CardActions>
+              </Card>
+            </form>
+          )}
+        />
       </Container>
     </div>
   );
