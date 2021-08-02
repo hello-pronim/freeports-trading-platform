@@ -95,6 +95,11 @@ export default [
     auth: true,
     component: lazy(() => import("../components/Settings")),
   },
+  {
+    path: "/reset-password/:userId/:token",
+    exact: true,
+    component: lazy(() => import("../components/Auth/ResetPassword")),
+  },
   /* {
     path: "/error",
     exact: true,
