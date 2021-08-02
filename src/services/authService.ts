@@ -29,6 +29,10 @@ interface ResetPasswordParamsType {
 interface ResetPasswordResponseType {
   success: boolean;
 }
+interface UpdatePasswordParamsType {
+  currentPassword: string;
+  newPassword: string;
+}
 
 const login = (credentials: LoginParamsType): Promise<LoginResponseType> => {
   return new Promise((resolve, reject) => {
@@ -84,7 +88,10 @@ const publicKey = (): Promise<any> => {
   });
 };
 
-const resetPassword = (userId:string, params: ResetPasswordParamsType): Promise<ResetPasswordResponseType> => {
+const resetPassword = (
+  userId:string, 
+  params: ResetPasswordParamsType
+): Promise<ResetPasswordResponseType> => {
   return new Promise((resolve, reject) => {
     axios
       .post(`/auth/${userId}/setpassword`, params)
@@ -97,4 +104,28 @@ const resetPassword = (userId:string, params: ResetPasswordParamsType): Promise<
   });
 };
 
-export { login as default, login, qrCodeGen, otpCheck, publicKey, resetPassword };
+const updatePassword = (
+  userId:string, 
+  params: UpdatePasswordParamsType
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/auth/${userId}/password`, params)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+export {
+  login as default,
+  login,
+  qrCodeGen,
+  otpCheck,
+  publicKey,
+  resetPassword,
+  updatePassword
+};
