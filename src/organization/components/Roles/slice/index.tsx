@@ -128,6 +128,20 @@ const slice = createSlice({
       state.deskRolesLoading = false;
       state.deskRoles = action.payload;
     },
+    editDeskRole(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        roleId: string;
+        role: Role;
+      }>
+    ) {
+      state.deskRoleUpdating = true;
+    },
+    editDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.deskRoleUpdating = false;
+    },
     deleteDeskRole(
       state,
       action: PayloadAction<{

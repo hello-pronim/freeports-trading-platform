@@ -16,6 +16,7 @@ import {
   removeMultiDeskRole,
   getAllMultiDeskPermissions,
   getAllDeskRoles,
+  updateDeskRole,
   removeDeskRole,
   getAllDeskPermissions,
 } from "../../../../services/roleService";
@@ -247,6 +248,43 @@ export function* getDeskRoles({
   }
 }
 
+export function* editDeskRole({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  roleId: string;
+  role: Role;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      updateDeskRole,
+      payload.organizationId,
+      payload.deskId,
+      payload.roleId,
+      payload.role
+    );
+    if (response) {
+      yield put(actions.editDeskRoleSuccess(response as string));
+      yield put(actions.getDeskRoles(payload.organizationId));
+      yield take(actions.getDeskRolesSuccess);
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Desk role has been updated successfully",
+          type: "success",
+        })
+      );
+    }
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
 export function* deleteDeskRole({
   payload,
 }: PayloadAction<{
@@ -263,6 +301,8 @@ export function* deleteDeskRole({
     );
     if (response) {
       yield put(actions.deleteDeskRoleSuccess(response as string));
+      yield put(actions.getDeskRoles(payload.organizationId));
+      yield take(actions.getDeskRolesSuccess);
       yield put(
         snackbarActions.showSnackbar({
           message: "Desk role has been deleted successfully",
@@ -343,6 +383,7 @@ export function* rolesSaga(): Generator<any> {
   yield takeEvery(actions.deleteMultiDeskRole, deleteMultiDeskRole);
   yield takeEvery(actions.getMultiDeskPermissions, getMultiDeskPermissions);
   yield takeEvery(actions.getDeskRoles, getDeskRoles);
+  yield takeEvery(actions.editDeskRole, editDeskRole);
   yield takeEvery(actions.deleteDeskRole, deleteDeskRole);
   yield takeEvery(actions.getDeskPermissions, getDeskPermissions);
 }
