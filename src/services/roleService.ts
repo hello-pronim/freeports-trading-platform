@@ -1,7 +1,7 @@
 import axios from "../util/axios";
 
 interface RoleType {
-  id: string;
+  id?: string;
   name: string;
   permissions: Array<string>;
 }
@@ -152,6 +152,23 @@ const createOrgRole = (
   });
 };
 
+const updateOrgRole = (
+  organizationId: string,
+  roleId: string,
+  role: RoleType
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(`/organization/${organizationId}/role/${roleId}`, role)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 const removeOrgRole = (
   organizationId: string,
   roleId: string
@@ -208,6 +225,23 @@ const createMultiDeskRole = (
   return new Promise((resolve, reject) => {
     axios
       .post(`/organization/${organizationId}/multidesk/role`, role)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const updateMultiDeskRole = (
+  organizationId: string,
+  roleId: string,
+  role: RoleType
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(`/organization/${organizationId}/multidesk/role/${roleId}`, role)
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -326,10 +360,12 @@ export {
   updateClearerRolesToUser,
   getAllOrgRoles,
   createOrgRole,
+  updateOrgRole,
   removeOrgRole,
   getAllOrgPermissions,
   getAllMultiDeskRoles,
   createMultiDeskRole,
+  updateMultiDeskRole,
   removeMultiDeskRole,
   getAllMultiDeskPermissions,
   getAllDeskRoles,
