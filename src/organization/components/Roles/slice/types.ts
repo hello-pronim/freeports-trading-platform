@@ -10,10 +10,13 @@ export interface OrgRolesState {
   multiDeskPermissions: Permission[];
   deskPermissions: Permission[];
   orgRolesLoading: boolean;
+  orgRoleUpdating: boolean;
   orgRoleDeleting: boolean;
   multiDeskRolesLoading: boolean;
+  multiDeskRoleUpdating: boolean;
   multiDeskRoleDeleting: boolean;
   deskRolesLoading: boolean;
+  deskRoleUpdating: boolean;
   deskRoleDeleting: boolean;
   orgPermissionsLoading: boolean;
   multiDeskPermissionsLoading: boolean;

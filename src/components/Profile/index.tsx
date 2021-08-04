@@ -17,10 +17,13 @@ import {
   Divider,
   Grid,
   makeStyles,
+  Snackbar,
   TextField,
   Typography,
 } from "@material-ui/core";
-
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import { Form } from "react-final-form";
+import { TextField as MuiTextField } from "mui-rff";
 import { useProfileSlice } from "./slice";
 import { selectProfile } from "./slice/selectors";
 
@@ -37,6 +40,7 @@ import {
   importPrivateKeyFromFile,
 } from "../../util/keyStore/functions";
 import defaultAvatar from "../../assets/images/profile.jpg";
+import { updatePassword } from "../../services/authService";
 
 const useStyles = makeStyles((theme) => ({
   saveBtn: {
@@ -93,6 +97,32 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
+const validate = (values: any) => {
+  const errors: { [key: string]: string } = {};
+
+  if (!values.currentPassword) {
+    errors.currentPassword = "This Field Required";
+  }
+
+  if (!values.newPassword) {
+    errors.newPassword = "This Field Required";
+  }
+
+  if (!values.confirmNewPassword) {
+    errors.confirmNewPassword = "This Field Required";
+  }
+
+  if (values.newPassword !== values.confirmNewPassword) {
+    errors.confirmNewPassword = "Password doesn't match.";
+  }
+
+  return errors;
+};
+
 const Profile = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -115,9 +145,12 @@ const Profile = (): React.ReactElement => {
     }>
   >([]);
   const [loading, setLoading] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [submitResponse, setSubmitResponse] = useState({
+    type: "success",
+    message: "",
+  });
 
   useEffect(() => {
     dispatch(actions.getProfile());
@@ -242,29 +275,37 @@ const Profile = (): React.ReactElement => {
     link.click();
   };
 
-  const onResetPassword = () => {
-    console.log(currentPassword, newPassword, confirmNewPassword);
+  const onResetPassword = async (values: any) => {
+    setUpdatingPassword(true);
+    await updatePassword(profile.id, {
+      currentPassword: values.currentPassword,
+      newPassword: values.newPassword
+    })
+    .then((data) => {
+      if(data) {
+        setSubmitResponse({
+          type: "success",
+          message: "Successfully reset your password!",
+        });
+      } else {
+        setSubmitResponse({
+          type: "error",
+          message: "Failed to reset password.",
+        });
+      }
+    })
+    .catch((err) => {
+      setSubmitResponse({
+        type: "error",
+        message: err.message,
+      });
+    });
+    setUpdatingPassword(false);
+    setShowAlert(true);
   };
 
-  const onCurrentPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = e.target;
-    setCurrentPassword(value);
-  };
-
-  const onNewPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = e.target;
-    setNewPassword(value);
-  };
-
-  const onConfirmNewPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = e.target;
-    setConfirmNewPassword(value);
+  const handleAlertClose = () => {
+    setShowAlert(false);
   };
 
   return (
@@ -404,75 +445,90 @@ const Profile = (): React.ReactElement => {
             </Card>
           </Grid>
           <Grid item xs={12}>
-            <Card>
-              <CardHeader title="Password update" />
-              <Divider />
-              <CardContent>
-                <Grid container alignItems="flex-start" spacing={2}>
-                  <Grid item xs={12}>
-                    <Grid container>
-                      <Grid item sm={12} md={6}>
-                        <Grid container spacing={3}>
-                          <Grid item sm={12}>
-                            <TextField
-                              onChange={onCurrentPasswordChange}
-                              required
-                              id="currentPassword"
-                              name="currentPassword"
-                              type="password"
-                              label="Current Password"
-                              variant="outlined"
-                              fullWidth
-                            />
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={3}>
-                          <Grid item sm={12}>
-                            <TextField
-                              onChange={onNewPasswordChange}
-                              required
-                              id="newPassword"
-                              name="newPassword"
-                              type="password"
-                              label="New Password"
-                              variant="outlined"
-                              fullWidth
-                            />
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={3}>
-                          <Grid item sm={12}>
-                            <TextField
-                              onChange={onConfirmNewPasswordChange}
-                              required
-                              id="confirmNewPassword"
-                              name="confirmNewPassword"
-                              type="password"
-                              label="Confirm New Password"
-                              variant="outlined"
-                              fullWidth
-                            />
+            <Form
+              onSubmit={onResetPassword}
+              validate={validate}
+              render={({
+                handleSubmit
+              }) => (
+                <form onSubmit={handleSubmit} noValidate>
+                  <Card>
+                    <CardHeader title="Password update" />
+                    <Divider />
+                    <CardContent>
+                      <Grid container alignItems="flex-start" spacing={2}>
+                        <Grid item xs={12}>
+                          <Grid container>
+                            <Grid item sm={12} md={6}>
+                              <Grid container spacing={3}>
+                                <Grid item sm={12}>
+                                  <MuiTextField
+                                    required
+                                    id="currentPassword"
+                                    name="currentPassword"
+                                    type="password"
+                                    label="Current Password"
+                                    variant="outlined"
+                                    fullWidth
+                                  />
+                                </Grid>
+                              </Grid>
+                              <Grid container spacing={3}>
+                                <Grid item sm={12}>
+                                  <MuiTextField
+                                    required
+                                    id="newPassword"
+                                    name="newPassword"
+                                    type="password"
+                                    label="New Password"
+                                    variant="outlined"
+                                    fullWidth
+                                  />
+                                </Grid>
+                              </Grid>
+                              <Grid container spacing={3}>
+                                <Grid item sm={12}>
+                                  <MuiTextField
+                                    required
+                                    id="confirmNewPassword"
+                                    name="confirmNewPassword"
+                                    type="password"
+                                    label="Confirm New Password"
+                                    variant="outlined"
+                                    fullWidth
+                                  />
+                                </Grid>
+                              </Grid>
+                            </Grid>
                           </Grid>
                         </Grid>
                       </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </CardContent>
-              <Divider />
-              <CardActions>
-                <Grid container direction="row-reverse">
-                  <Button
-                    onClick={onResetPassword}
-                    color="primary"
-                    variant="contained"
-                    type="submit"
-                  >
-                    Reset
-                  </Button>
-                </Grid>
-              </CardActions>
-            </Card>
+                    </CardContent>
+                    <Divider />
+                    <CardActions>
+                      <Grid container direction="row-reverse">
+                        <div className={classes.progressButtonWrapper}>
+                          <Button
+                            color="primary"
+                            variant="contained"
+                            type="submit"
+                            disabled={updatingPassword}
+                          >
+                            Reset
+                          </Button>
+                          {updatingPassword && (
+                            <CircularProgress
+                              size={24}
+                              className={classes.progressButton}
+                            />
+                          )}
+                        </div>
+                      </Grid>
+                    </CardActions>
+                  </Card>
+                </form>
+              )}
+            />
           </Grid>
           <Dialog
             open={createDialogOpen}
@@ -587,6 +643,21 @@ const Profile = (): React.ReactElement => {
             </DialogActions>
           </Dialog>
         </Grid>
+        <Snackbar
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={showAlert}
+          onClose={handleAlertClose}
+        >
+          <Alert
+            onClose={handleAlertClose}
+            severity={
+              submitResponse.type === "success" ? "success" : "error"
+            }
+          >
+            {submitResponse.message}
+          </Alert>
+        </Snackbar>
       </Container>
     </div>
   );

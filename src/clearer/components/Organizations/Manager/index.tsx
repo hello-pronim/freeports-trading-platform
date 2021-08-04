@@ -15,12 +15,16 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Snackbar,
   TextField,
   Typography,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useOrganization } from "../../../../hooks";
+import {
+  sendResetPasswordEmail
+} from "../../../../services/clearerUsersService";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -83,6 +87,10 @@ interface managerType {
   avatar: string;
 }
 
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
 const Manager = (props: any): React.ReactElement => {
   const classes = useStyle();
   const { getOrganizedManager } = useOrganization();
@@ -93,6 +101,12 @@ const Manager = (props: any): React.ReactElement => {
     email: "string",
     phone: "string",
     avatar: "/assets/user4.png",
+  });
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [submitResponse, setSubmitResponse] = useState({
+    type: "success",
+    message: "",
   });
   const { orgId, managerId, managerUpdating, onHandleManagerUpdate } = props;
 
@@ -170,6 +184,31 @@ const Manager = (props: any): React.ReactElement => {
       };
       reader.readAsDataURL(files[0]);
     }
+  };
+
+  const handleSendResetPasswordLink = async () => {
+    if (managerId) {
+      setSendingEmail(true);
+      await sendResetPasswordEmail(managerId)
+      .then((data) => {
+        setSubmitResponse({
+          type: "success",
+          message: "Successfully sent reset password email",
+        });
+      })
+      .catch((err) => {
+        setSubmitResponse({
+          type: "error",
+          message: err.message,
+        });
+      });
+      setSendingEmail(false);
+      setShowAlert(true);
+    }
+  };
+
+  const handleAlertClose = () => {
+    setShowAlert(false);
   };
 
   return (
@@ -273,7 +312,15 @@ const Manager = (props: any): React.ReactElement => {
       </AccordionDetails>
       <Divider />
       <AccordionActions>
-        <Grid item container xs={8} justify="flex-end">
+        <Grid item container xs={12} justify="space-between">
+          <div className={classes.progressButtonWrapper}>
+            <Button color="primary" onClick={handleSendResetPasswordLink}>
+              Send Reset Password Link
+            </Button>
+            {sendingEmail && (
+              <CircularProgress size={24} className={classes.progressButton} />
+            )}
+          </div>
           <div className={classes.progressButtonWrapper}>
             <Button
               variant="contained"
@@ -288,6 +335,21 @@ const Manager = (props: any): React.ReactElement => {
             )}
           </div>
         </Grid>
+        <Snackbar
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={showAlert}
+          onClose={handleAlertClose}
+        >
+          <Alert
+            onClose={handleAlertClose}
+            severity={
+              submitResponse.type === "success" ? "success" : "error"
+            }
+          >
+            {submitResponse.message}
+          </Alert>
+        </Snackbar>
       </AccordionActions>
     </Accordion>
   );

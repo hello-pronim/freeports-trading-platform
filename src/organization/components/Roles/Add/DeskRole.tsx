@@ -56,7 +56,7 @@ const validate = (values: any) => {
     errors.name = "This Field Required";
   }
 
-  if (!values.deskId) {
+  if (!values.deskId || values.deskId === "0") {
     errors.deskId = "This Field Required";
   }
 
@@ -260,17 +260,6 @@ const NewDeskRole = (): React.ReactElement => {
                                             </Typography>
                                           </Grid>
                                         </Grid>
-                                        {/* <FormControlLabel
-                                          className={classes.checkboxLabel}
-                                          control={
-                                            <Checkbox
-                                              color="primary"
-                                              name="permissions[]"
-                                              value={avail.code}
-                                            />
-                                          }
-                                          label={avail.name}
-                                        /> */}
                                       </Grid>
                                     )
                                   )}

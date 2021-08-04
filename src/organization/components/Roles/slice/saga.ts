@@ -8,12 +8,15 @@ import { rolesActions as actions } from ".";
 
 import {
   getAllOrgRoles,
+  updateOrgRole,
   removeOrgRole,
   getAllOrgPermissions,
   getAllMultiDeskRoles,
+  updateMultiDeskRole,
   removeMultiDeskRole,
   getAllMultiDeskPermissions,
   getAllDeskRoles,
+  updateDeskRole,
   removeDeskRole,
   getAllDeskPermissions,
 } from "../../../../services/roleService";
@@ -25,6 +28,41 @@ export function* getOrgRoles({
   try {
     const response = yield call(getAllOrgRoles, payload);
     if (response) yield put(actions.getOrgRolesSuccess(response as Role[]));
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* editOrgRole({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  roleId: string;
+  role: Role;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      updateOrgRole,
+      payload.organizationId,
+      payload.roleId,
+      payload.role
+    );
+    if (response) {
+      yield put(actions.editOrgRoleSuccess(response as string));
+      yield put(actions.getOrgRoles(payload.organizationId));
+      yield take(actions.getOrgRolesSuccess);
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Organization role has been updated successfully",
+          type: "success",
+        })
+      );
+    }
   } catch (error) {
     yield put(
       snackbarActions.showSnackbar({
@@ -92,6 +130,41 @@ export function* getMultiDeskRoles({
     const response = yield call(getAllMultiDeskRoles, payload);
     if (response)
       yield put(actions.getMultiDeskRolesSuccess(response as Role[]));
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* editMultiDeskRole({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  roleId: string;
+  role: Role;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      updateMultiDeskRole,
+      payload.organizationId,
+      payload.roleId,
+      payload.role
+    );
+    if (response) {
+      yield put(actions.editMultiDeskRoleSuccess(response as string));
+      yield put(actions.getMultiDeskRoles(payload.organizationId));
+      yield take(actions.getMultiDeskRolesSuccess);
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Multi-desk role has been updated successfully",
+          type: "success",
+        })
+      );
+    }
   } catch (error) {
     yield put(
       snackbarActions.showSnackbar({
@@ -175,6 +248,43 @@ export function* getDeskRoles({
   }
 }
 
+export function* editDeskRole({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  roleId: string;
+  role: Role;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      updateDeskRole,
+      payload.organizationId,
+      payload.deskId,
+      payload.roleId,
+      payload.role
+    );
+    if (response) {
+      yield put(actions.editDeskRoleSuccess(response as string));
+      yield put(actions.getDeskRoles(payload.organizationId));
+      yield take(actions.getDeskRolesSuccess);
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Desk role has been updated successfully",
+          type: "success",
+        })
+      );
+    }
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
 export function* deleteDeskRole({
   payload,
 }: PayloadAction<{
@@ -191,6 +301,8 @@ export function* deleteDeskRole({
     );
     if (response) {
       yield put(actions.deleteDeskRoleSuccess(response as string));
+      yield put(actions.getDeskRoles(payload.organizationId));
+      yield take(actions.getDeskRolesSuccess);
       yield put(
         snackbarActions.showSnackbar({
           message: "Desk role has been deleted successfully",
@@ -263,12 +375,15 @@ export function* getDeskPermissions({
 
 export function* rolesSaga(): Generator<any> {
   yield takeEvery(actions.getOrgRoles, getOrgRoles);
+  yield takeEvery(actions.editOrgRole, editOrgRole);
   yield takeEvery(actions.deleteOrgRole, deleteOrgRole);
   yield takeEvery(actions.getOrgPermissions, getOrgPermissions);
   yield takeEvery(actions.getMultiDeskRoles, getMultiDeskRoles);
+  yield takeEvery(actions.editMultiDeskRole, editMultiDeskRole);
   yield takeEvery(actions.deleteMultiDeskRole, deleteMultiDeskRole);
   yield takeEvery(actions.getMultiDeskPermissions, getMultiDeskPermissions);
   yield takeEvery(actions.getDeskRoles, getDeskRoles);
+  yield takeEvery(actions.editDeskRole, editDeskRole);
   yield takeEvery(actions.deleteDeskRole, deleteDeskRole);
   yield takeEvery(actions.getDeskPermissions, getDeskPermissions);
 }

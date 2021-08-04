@@ -63,8 +63,7 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.text.secondary,
     },
     permissionContainer: {
-      padding: theme.spacing(1),
-      border: theme.palette.warning.main,
+      padding: theme.spacing(2),
     },
     permissionDetails: {
       maxHeight: "40px",
