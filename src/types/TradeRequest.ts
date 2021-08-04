@@ -1,3 +1,5 @@
+import { TradeOrderResponse } from "./TradeOrderResponse";
+
 export default interface TradeRequest {
   id?: string;
 
@@ -20,4 +22,6 @@ export default interface TradeRequest {
   limitTime: string;
 
   createdAt?: string;
+
+  orders?: TradeOrderResponse[];
 }
