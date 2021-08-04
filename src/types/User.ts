@@ -33,6 +33,8 @@ export default interface User {
   publicKeys: PublicKeyDoc[];
 
   vaultUserId?: string;
+
+  organization?: string;
 }
 
 export interface CurrentUser extends Omit<User, "roles"> {

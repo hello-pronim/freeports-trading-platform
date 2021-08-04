@@ -1,15 +1,11 @@
+import { CurrentUser } from "../types/User";
 import axios from "../util/axios";
 
 interface LoginParamsType {
   email: string;
   password: string;
 }
-interface LoginUserResponseType {
-  id: string;
-  nickname: string;
-  email: string;
-  organization?: string;
-}
+
 interface LoginTokenResponseType {
   tokenType: string;
   accessToken: string;
@@ -17,8 +13,8 @@ interface LoginTokenResponseType {
   refreshToken: string;
   refreshTokenExpires: string;
 }
-interface LoginResponseType {
-  user: LoginUserResponseType;
+export interface LoginResponseType {
+  user: CurrentUser;
   token: LoginTokenResponseType;
   isOTPDefined: boolean;
 }
@@ -89,7 +85,7 @@ const publicKey = (): Promise<any> => {
 };
 
 const resetPassword = (
-  userId:string, 
+  userId: string,
   params: ResetPasswordParamsType
 ): Promise<ResetPasswordResponseType> => {
   return new Promise((resolve, reject) => {
@@ -105,7 +101,7 @@ const resetPassword = (
 };
 
 const updatePassword = (
-  userId:string, 
+  userId: string,
   params: UpdatePasswordParamsType
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
@@ -127,5 +123,5 @@ export {
   otpCheck,
   publicKey,
   resetPassword,
-  updatePassword
+  updatePassword,
 };

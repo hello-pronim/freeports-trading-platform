@@ -90,6 +90,7 @@ function useAuth(): any {
     await otpCheck(password)
       .then((data) => {
         dispatch(authOTPCheckSuccess(data));
+        dispatch(actions.setCurrentUser(data.user));
       })
       .catch((err) => {
         dispatch(setError(err));
