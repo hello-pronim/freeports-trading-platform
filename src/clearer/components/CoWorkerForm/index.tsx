@@ -23,6 +23,7 @@ import { useCoWorkerFormSlice } from "./slice";
 import { selectRoles } from "./slice/selectors";
 import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
+import { GetVaultOrganizationResponseDto } from "../../../vault/dto/get-vault-organizations.dto";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -139,10 +140,12 @@ interface CoWorkerFormProps {
   // eslint-disable-next-line react/require-default-props
   coWorker: Partial<User>;
   onSubmit: (coWorker: User) => void;
+  onSendResetPasswordLink: () => void;
 }
 
 const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   onSubmit,
+  onSendResetPasswordLink,
   coWorker,
 }: CoWorkerFormProps) => {
   const classes = useStyles();
@@ -361,16 +364,28 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid container direction="row-reverse">
-                <Button
-                  className={classes.saveBtn}
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disabled={submitting || pristine}
-                >
-                  Save Changes
-                </Button>
+              <Grid item xs={12}>
+                <Grid container justify="flex-end" spacing={2}>
+                  <Grid item>
+                    <Button
+                      onClick={onSendResetPasswordLink}
+                      color="primary"
+                      variant="contained"
+                    >
+                      Send Reset Password Link
+                    </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      disabled={submitting || pristine}
+                    >
+                      Save Changes
+                    </Button>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </form>

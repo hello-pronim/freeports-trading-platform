@@ -6,10 +6,11 @@ import ListItemText from "@material-ui/core/ListItemText";
 import {
   Accordion,
   AccordionSummary,
+  Button,
+  Divider,
   IconButton,
   InputAdornment,
   Typography,
-  Button,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
@@ -33,6 +34,7 @@ import {
 } from "./slice/selectors";
 
 import Loader from "../../../components/Loader";
+import clearerUsersService from "../../../services/clearerUsersService";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -264,26 +266,21 @@ const CoWorker = (): React.ReactElement => {
                   </Grid>
                 </Grid>
               </AccordionSummary>
-              {formLoading && <Loader />}
-              {!formLoading && selectedCoWorker && (
-                <CoWorkerForm
-                  onSubmit={
-                    selectedCoWorker.id
-                      ? handleCoWorkerUpdate
-                      : handleNewCoWorker
-                  }
-                  coWorker={selectedCoWorker}
-                />
-              )}
-              {selectedCoWorker.id && (
-                <Button
-                  className={classes.margin}
-                  onClick={handleSendResetPasswordLink}
-                  color="primary"
-                >
-                  Send Reset Password Link
-                </Button>
-              )}
+              <Divider />
+              <div className={classes.margin}>
+                {formLoading && <Loader />}
+                {!formLoading && selectedCoWorker && (
+                  <CoWorkerForm
+                    onSubmit={
+                      selectedCoWorker.id
+                        ? handleCoWorkerUpdate
+                        : handleNewCoWorker
+                    }
+                    onSendResetPasswordLink={handleSendResetPasswordLink}
+                    coWorker={selectedCoWorker}
+                  />
+                )}
+              </div>
             </Accordion>
           )}{" "}
         </Grid>
