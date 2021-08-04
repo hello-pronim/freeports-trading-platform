@@ -37,10 +37,10 @@ import {
 import {
   generateKeyPair,
   importPrivateKeyFromFile,
+  publicKeyToString,
 } from "../../util/keyStore/functions";
 import defaultAvatar from "../../assets/images/profile.jpg";
 import { updatePassword } from "../../services/authService";
-import { publicKeyToString } from "../../util/keyStore/functions";
 import { generateCertificationEmojis } from "../../util/sas";
 
 const useStyles = makeStyles((theme) => ({
@@ -349,9 +349,9 @@ const Profile = (): React.ReactElement => {
                 title="Certificate"
                 action={
                   keyList.length > 0 ? (
-                    keyList.map((listItem: any, i: number) => {
+                    keyList.map((listItem: any) => {
                       return (
-                        <div key={i}>
+                        <div key={listItem}>
                           <Button
                             onClick={() => onViewCertification(listItem)}
                             color="primary"
@@ -702,9 +702,9 @@ const Profile = (): React.ReactElement => {
             <DialogContent>
               <Grid container>
                 <Grid item xs={12}>
-                  {certificationEmojis.map((emoji: any, i: number) => {
+                  {certificationEmojis.map((emoji: any) => {
                     return (
-                      <div className={classes.emojiBlock} key={i}>
+                      <div className={classes.emojiBlock} key={emoji}>
                         <div className={classes.emojiIcon}>
                             { emoji[0] }
                         </div>
