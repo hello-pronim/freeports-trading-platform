@@ -250,4 +250,31 @@ const listKeys = (): Promise<any> => {
   });
 };
 
-export { open as default, open, saveKey, getKey, listKeys, close };
+// Clear the keys saved in IndexedDB
+
+const clearKey = async (
+): Promise<any> => {
+  const result = await new Promise((fulfill, reject) => {
+    if (!db) {
+      reject(new Error("KeyStore is not open."));
+    }
+    
+    const transaction = db.transaction([objectStoreName], "readwrite");
+    
+    transaction.onerror = (evt: any) => {
+      reject(evt.error);
+    };
+    transaction.onabort = (evt: any) => {
+      reject(evt.error);
+    };
+    transaction.oncomplete = (evt: any) => {
+      fulfill(true);
+    };
+
+    transaction.objectStore(objectStoreName).clear();
+  });
+
+  return result;
+};
+
+export { open as default, open, saveKey, getKey, listKeys, close, clearKey };
