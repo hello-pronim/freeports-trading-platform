@@ -8,6 +8,7 @@ import {
   Button,
   Grid,
   IconButton,
+  InputAdornment,
   List,
   ListItem,
   ListItemText,
@@ -175,7 +176,7 @@ const CoWorker = (): React.ReactElement => {
             <Grid xs={2} item>
               <IconButton
                 color="inherit"
-                aria-label="Add Role"
+                aria-label="Add Coworker"
                 onClick={handleAddCoWorker}
               >
                 <AddCircleIcon fontSize="large" color="primary" />
@@ -183,13 +184,18 @@ const CoWorker = (): React.ReactElement => {
             </Grid>
           </Grid>
           <Grid container>
-            <Grid xs={2} item>
-              <SearchIcon />
-            </Grid>
-            <Grid sm={8} item>
+            <Grid item xs={12}>
               <TextField
                 onChange={handleSearchChange}
                 id="input-with-icon-grid"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                fullWidth
               />
             </Grid>
           </Grid>

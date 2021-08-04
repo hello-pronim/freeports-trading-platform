@@ -1,7 +1,13 @@
 import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { Container, IconButton, Divider, Button } from "@material-ui/core";
+import {
+  Avatar,
+  Container,
+  IconButton,
+  Divider,
+  Button,
+} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
@@ -68,6 +74,31 @@ const useStyles = makeStyles((theme) => ({
       maxWidth: 1000,
       transition: "max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms",
     },
+  },
+  logoImageContainer: {
+    position: "relative",
+    width: 200,
+    height: 200,
+    margin: "auto",
+    "&:hover, &:focus": {
+      "& $logoImage": {
+        opacity: 0.5,
+      },
+    },
+  },
+  logoImage: {
+    width: "100%",
+    height: "100%",
+    opacity: 1,
+  },
+  logoFileInput: {
+    opacity: 0,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    cursor: "pointer",
   },
 }));
 
@@ -169,15 +200,14 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         }) => (
           <form onSubmit={handleSubmit} noValidate>
             <Grid container alignItems="flex-start" spacing={2}>
-              <Grid item xs={8}>
+              <Grid item xs={12}>
                 <FieldArray name="roles">
                   {({ fields }) =>
                     fields.map((name, i) => (
                       <Grid container key={name} spacing={2}>
                         <Grid
                           item
-                          sm={10}
-                          md={8}
+                          xs={6}
                           className={
                             values.roles[i] ? classes.fixSelectLabel : ""
                           }
@@ -189,7 +219,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                               name: "role",
                               id: "role-select",
                             }}
-                            autoWidth
+                            fullWidth
                             label="Role"
                             variant="outlined"
                             inputLabelProps={{
@@ -198,7 +228,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             }}
                           >
                             <option aria-label="None" value="" />
-
                             {existingRoles
                               .filter((role) => {
                                 if (!values.roles || !values.roles.length) {
@@ -242,35 +271,30 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   }
                 </FieldArray>
               </Grid>
-
               <Grid item xs={12}>
                 <Divider variant="fullWidth" />
               </Grid>
               <Grid item xs={12}>
-                <Grid container spacing={3}>
-                  <Grid item xs={8}>
-                    <Select
-                      label="Status"
-                      native
-                      name="status"
-                      variant="outlined"
-                      inputProps={{
-                        name: "status",
-                        id: "status-select",
-                      }}
-                    >
-                      <option aria-label="None" value="" />
-                      <option value="ACTIVE">Active</option>
-                      <option value="DISABLED">Disabled</option>
-                    </Select>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item xs={12}>
                 <Grid container>
-                  <Grid item sm={12} md={9}>
-                    <Grid container spacing={3}>
-                      <Grid item sm={12}>
+                  <Grid item xs={8}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}>
+                        <Select
+                          label="Status"
+                          native
+                          name="suspended"
+                          variant="outlined"
+                          inputProps={{
+                            name: "status",
+                            id: "status-select",
+                          }}
+                        >
+                          <option aria-label="None" value="" />
+                          <option value="true">Active</option>
+                          <option value="false">Disabled</option>
+                        </Select>
+                      </Grid>
+                      <Grid item xs={12}>
                         <TextField
                           required
                           id="nickname"
@@ -279,9 +303,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                    </Grid>
-                    <Grid container spacing={3}>
-                      <Grid item sm={12} md={6}>
+                      <Grid item xs={6}>
                         <TextField
                           required
                           id="email"
@@ -290,7 +312,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                      <Grid item sm={12} md={6}>
+                      <Grid item xs={6}>
                         <TextField
                           required
                           label="Phone"
@@ -299,10 +321,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                    </Grid>
-
-                    <Grid container spacing={3}>
-                      <Grid item sm={12} md={6}>
+                      <Grid item xs={6}>
                         <TextField
                           id="job-title"
                           label="Job title"
@@ -325,20 +344,20 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       </Grid>
                     )}
                   </Grid>
-                  <Grid
-                    item
-                    sm={12}
-                    md={3}
-                    className={classes.profileImageContainer}
-                  >
-                    <img
-                      src={profile}
-                      alt="Co-worker"
-                      className={classes.profileImage}
-                    />
-                    <Button fullWidth className={classes.changeImageBtn}>
-                      Change image
-                    </Button>
+                  <Grid item xs={4}>
+                    <div className={classes.logoImageContainer}>
+                      <Avatar
+                        src={profile}
+                        alt="Avatar"
+                        className={classes.logoImage}
+                      />
+                      {/* <input
+                        type="file"
+                        name="avatar"
+                        className={classes.logoFileInput}
+                        onChange={onLogoFileChange}
+                      /> */}
+                    </div>
                   </Grid>
                 </Grid>
               </Grid>
@@ -346,6 +365,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Button
                   className={classes.saveBtn}
                   type="submit"
+                  variant="contained"
+                  color="primary"
                   disabled={submitting || pristine}
                 >
                   Save Changes

@@ -7,6 +7,7 @@ import {
   Accordion,
   AccordionSummary,
   IconButton,
+  InputAdornment,
   Typography,
   Button,
 } from "@material-ui/core";
@@ -157,7 +158,9 @@ const CoWorker = (): React.ReactElement => {
 
   const handleSendResetPasswordLink = async () => {
     if (selectedCoWorker.id) {
-      dispatch(actions.sendCoWorkerResetPasswordEmail({ id: selectedCoWorker.id }));
+      dispatch(
+        actions.sendCoWorkerResetPasswordEmail({ id: selectedCoWorker.id })
+      );
     }
   };
 
@@ -180,13 +183,18 @@ const CoWorker = (): React.ReactElement => {
             </Grid>
           </Grid>
           <Grid container>
-            <Grid xs={2} item>
-              <SearchIcon />
-            </Grid>
-            <Grid sm={8} item>
+            <Grid xs={12} item>
               <TextField
                 onChange={handleSearchChange}
                 id="input-with-icon-grid"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                fullWidth
               />
             </Grid>
           </Grid>
@@ -216,34 +224,45 @@ const CoWorker = (): React.ReactElement => {
                 classes={{ content: classes.accordionSummary }}
                 aria-controls="panel1c-content"
               >
-                <div className={classes.accordionCoWorker}>
-                  <ExpandMoreIcon />
-                  <img
-                    className={`${classes.accordionProfile}
+                <Grid container alignItems="center" justify="space-between">
+                  <Grid item>
+                    <Grid container spacing={1} alignItems="center">
+                      <Grid item>
+                        <ExpandMoreIcon />
+                      </Grid>
+                      <Grid item>
+                        <img
+                          className={`${classes.accordionProfile}
                     ${classes.paddingSmall}`}
-                    src={profile}
-                    alt="Co-worker"
-                  />
-                  {selectedCoWorker && (
-                    <Typography>{selectedCoWorker.nickname}</Typography>
-                  )}
-                </div>
-
-                {!selectedCoWorker.suspended && !suspendStateLoading && (
-                  <Button onClick={handleOnSuspend} color="secondary">
-                    Disable
-                  </Button>
-                )}
-                {selectedCoWorker.suspended && !suspendStateLoading && (
-                  <Button onClick={handleOnResume} color="primary">
-                    Activate
-                  </Button>
-                )}
-                {suspendStateLoading && (
-                  <Button className={classes.userStateLoader} disabled>
-                    <Loader />
-                  </Button>
-                )}
+                          src={profile}
+                          alt="Co-worker"
+                        />
+                      </Grid>
+                      <Grid item>
+                        {selectedCoWorker && (
+                          <Typography>{selectedCoWorker.nickname}</Typography>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item>
+                    {!selectedCoWorker.suspended && !suspendStateLoading && (
+                      <Button onClick={handleOnSuspend} color="secondary">
+                        Disable
+                      </Button>
+                    )}
+                    {selectedCoWorker.suspended && !suspendStateLoading && (
+                      <Button onClick={handleOnResume} color="primary">
+                        Activate
+                      </Button>
+                    )}
+                    {suspendStateLoading && (
+                      <Button className={classes.userStateLoader} disabled>
+                        <Loader />
+                      </Button>
+                    )}
+                  </Grid>
+                </Grid>
               </AccordionSummary>
               {formLoading && <Loader />}
               {!formLoading && selectedCoWorker && (
