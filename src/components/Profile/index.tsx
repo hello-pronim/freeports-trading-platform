@@ -32,15 +32,16 @@ import {
   listKeys,
   close,
   SavedKeyObject,
+  clearKey,
 } from "../../util/keyStore/keystore";
 import {
-  createDataUrlFromByteArray,
-  escapeHTML,
   generateKeyPair,
   importPrivateKeyFromFile,
+  publicKeyToString,
 } from "../../util/keyStore/functions";
 import defaultAvatar from "../../assets/images/profile.jpg";
 import { updatePassword } from "../../services/authService";
+import { generateCertificationEmojis } from "../../util/sas";
 
 const useStyles = makeStyles((theme) => ({
   saveBtn: {
@@ -95,6 +96,18 @@ const useStyles = makeStyles((theme) => ({
     marginTop: -12,
     marginLeft: -12,
   },
+  emojiBlock: {
+    display: "inline-block",
+    margin: theme.spacing(1),
+    textAlign: "center"
+  },
+  emojiIcon: {
+    fontSize: "24px"
+  },
+  emojiName: {
+    textTransform: "uppercase",
+    fontSize: "12px"
+  }
 }));
 
 const Alert = (props: AlertProps) => {
@@ -151,6 +164,8 @@ const Profile = (): React.ReactElement => {
     type: "success",
     message: "",
   });
+  const [emojisDialogOpen, setEmojisDialogOpen] = useState(false);
+  const [certificationEmojis, setCertificationEmojis] = useState<any>([]);
 
   useEffect(() => {
     dispatch(actions.getProfile());
@@ -268,13 +283,6 @@ const Profile = (): React.ReactElement => {
     }
   };
 
-  const onDownload = (name: string, dataUrl: string) => {
-    const link = document.createElement("a");
-    link.download = `${name}.publickey`;
-    link.href = dataUrl;
-    link.click();
-  };
-
   const onResetPassword = async (values: any) => {
     setUpdatingPassword(true);
     await updatePassword(profile.id, {
@@ -308,6 +316,28 @@ const Profile = (): React.ReactElement => {
     setShowAlert(false);
   };
 
+  const onViewCertification = async (listItem: any) => {
+    const keyString = await publicKeyToString(listItem.publicKey);
+    const emojis = generateCertificationEmojis(keyString);
+    setCertificationEmojis(emojis);
+    setEmojisDialogOpen(true);
+  }
+
+  const onDeleteCertification = async () => {
+    await open();
+    const res = await clearKey();
+    await close();
+    if(res === true) {
+      setKeyList([]);
+    } else {
+      setSubmitResponse({
+        type: "error",
+        message: res,
+      });
+      setShowAlert(true);
+    }
+  }
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -320,19 +350,23 @@ const Profile = (): React.ReactElement => {
                 action={
                   keyList.length > 0 ? (
                     keyList.map((listItem: any) => {
-                      const dataUrl = createDataUrlFromByteArray(
-                        new Uint8Array(listItem.spki)
-                      );
-                      const name = escapeHTML(listItem.name);
                       return (
-                        <Button
-                          key={name}
-                          onClick={() => onDownload(name, dataUrl)}
-                          color="primary"
-                          variant="contained"
-                        >
-                          Download
-                        </Button>
+                        <div key={listItem}>
+                          <Button
+                            onClick={() => onViewCertification(listItem)}
+                            color="primary"
+                            variant="contained"
+                          >
+                            View
+                          </Button>
+                          <Button
+                            onClick={() => onDeleteCertification()}
+                            color="primary"
+                            variant="contained"
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       );
                     })
                   ) : (
@@ -658,6 +692,41 @@ const Profile = (): React.ReactElement => {
             {submitResponse.message}
           </Alert>
         </Snackbar>
+        <Dialog
+            open={emojisDialogOpen}
+            onClose={() => setEmojisDialogOpen(false)}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">Certification</DialogTitle>
+            <Divider />
+            <DialogContent>
+              <Grid container>
+                <Grid item xs={12}>
+                  {certificationEmojis.map((emoji: any) => {
+                    return (
+                      <div className={classes.emojiBlock} key={emoji}>
+                        <div className={classes.emojiIcon}>
+                            { emoji[0] }
+                        </div>
+                        <div className={classes.emojiName}>
+                            { emoji[1] }
+                        </div>
+                      </div>
+                    )
+                  })}
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <Divider />
+            <DialogActions>
+              <Button 
+                onClick={() => setEmojisDialogOpen(false)}
+                variant="contained"
+              >
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
       </Container>
     </div>
   );
