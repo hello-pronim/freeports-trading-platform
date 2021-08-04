@@ -228,7 +228,6 @@ const TradeDetail = (): React.ReactElement => {
   };
 
   const handleAmountChange = (event: any) => {
-    console.log("value ", event.target.value);
     if (
       event.target.value &&
       new BigNumber(remainingQuantity).gte(event.target.value)
