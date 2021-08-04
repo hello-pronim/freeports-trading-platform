@@ -1,7 +1,7 @@
 import User from "../../../../types/User";
 
 /* --- STATE --- */
-export interface ClearerCoWorkersState {
+export interface OrgCoWorkersState {
   coWorkers: User[];
   selectedCoWorker: User;
   loading: boolean;
