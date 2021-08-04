@@ -4,29 +4,28 @@ import { initialState } from ".";
 import { RootState } from "../../../../util/types/RootState";
 
 // First select the relevant part from the state
-const selectDomain = (state: RootState) =>
-  state.clearerCoWorkers || initialState;
+const selectDomain = (state: RootState) => state.orgCoWorkers || initialState;
 
 // eslint-disable-next-line import/prefer-default-export
 export const selectCoWorkers = createSelector(
   [selectDomain],
-  (coWorkerState) => coWorkerState.coWorkers
+  (orgCoWorkerState) => orgCoWorkerState.coWorkers
 );
 
 export const selectIsFormLoading = createSelector(
   [selectDomain],
-  (coWorkerState) => coWorkerState.formLoading
+  (orgCoWorkerState) => orgCoWorkerState.formLoading
 );
 export const selectIsLoading = createSelector(
   [selectDomain],
-  (coWorkerState) => coWorkerState.loading
+  (orgCoWorkerState) => orgCoWorkerState.loading
 );
 
 export const selectSelectedCoWorker = createSelector(
   [selectDomain],
-  (coWorkerState) => coWorkerState.selectedCoWorker
+  (orgCoWorkerState) => orgCoWorkerState.selectedCoWorker
 );
 export const selectSuspendStateLoading = createSelector(
   [selectDomain],
-  (coWorkerState) => coWorkerState.suspendStateLoading
+  (orgCoWorkerState) => orgCoWorkerState.suspendStateLoading
 );

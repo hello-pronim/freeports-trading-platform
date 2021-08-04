@@ -2,8 +2,8 @@
 
 import { AccountsState } from "../../clearer/components/NostroAccounts/slice/types";
 import { AccountDetailState } from "../../clearer/components/NostroAccounts/Detail/slice/types";
-import { CoWorkersState } from "../../clearer/components/CoWorker/slice/types";
-import { CoWorkerFormState } from "../../clearer/components/CoWorkerForm/slice/types";
+import { ClearerCoWorkersState } from "../../clearer/components/CoWorker/slice/types";
+import { ClearerCoWorkerFormState } from "../../clearer/components/CoWorkerForm/slice/types";
 import { DesksState } from "../../organization/components/Desks/slice/types";
 import { DeskDetailState } from "../../organization/components/Desks/Detail/slice/types";
 import { InvestorsState } from "../../organization/components/Investors/slice/types";
@@ -12,6 +12,8 @@ import { TradesState } from "../../organization/components/Trades/slice/types";
 import { TradeDetailState } from "../../organization/components/Trades/Detail/slice/types";
 import { OrgRolesState } from "../../organization/components/Roles/slice/types";
 import { NewOrgRoleState } from "../../organization/components/Roles/Add/slice/types";
+import { OrgCoWorkersState } from "../../organization/components/CoWorker/slice/types";
+import { OrgCoWorkerFormState } from "../../organization/components/CoWorkerForm/slice/types";
 import { SnackbarState } from "../../components/Snackbar/slice/types";
 import { ProfileState } from "../../components/Profile/slice/types";
 import { GlobalState } from "../../slice/types";
@@ -27,7 +29,8 @@ import { GlobalState } from "../../slice/types";
 export interface RootState {
   accounts?: AccountsState;
   accountDetail?: AccountDetailState;
-  coWorkers?: CoWorkersState;
+  clearerCoWorkers?: ClearerCoWorkersState;
+  clearerCoWorkerForm: ClearerCoWorkerFormState;
   desks?: DesksState;
   deskDetail?: DeskDetailState;
   global?: GlobalState;
@@ -37,8 +40,9 @@ export interface RootState {
   tradeDetail?: TradeDetailState;
   orgRoles?: OrgRolesState;
   newOrgRole?: NewOrgRoleState;
+  orgCoWorkers?: OrgCoWorkersState;
+  orgCoWorkerForm: OrgCoWorkerFormState;
   auth?: any;
-  coWorkerForm: CoWorkerFormState;
   profileForm?: ProfileState;
   snackbar: SnackbarState;
   // [INSERT NEW REDUCER KEY ABOVE] < Needed for

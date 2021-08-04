@@ -9,7 +9,7 @@ import {
   useInjectSaga,
 } from "../../../../util/redux-injectors";
 import { coWorkersSaga } from "./saga";
-import { ClearerCoWorkersState } from "./types";
+import { OrgCoWorkersState } from "./types";
 
 const defaultCoWorker = {
   roles: [],
@@ -21,7 +21,7 @@ const defaultCoWorker = {
   suspended: false,
   publicKeys: [],
 };
-export const initialState: ClearerCoWorkersState = {
+export const initialState: OrgCoWorkersState = {
   coWorkers: [],
   selectedCoWorker: defaultCoWorker,
   loading: false,
@@ -30,10 +30,13 @@ export const initialState: ClearerCoWorkersState = {
 };
 
 const slice = createSlice({
-  name: "clearerCoWorkers",
+  name: "orgCoWorkers",
   initialState,
   reducers: {
-    getCoWorkers(state, action?: PayloadAction<{ search?: string }>) {
+    getCoWorkers(
+      state,
+      action?: PayloadAction<{ organizationId: string; search?: string }>
+    ) {
       state.loading = true;
       state.coWorkers = [];
     },

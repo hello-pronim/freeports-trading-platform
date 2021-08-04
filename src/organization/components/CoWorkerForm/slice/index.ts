@@ -7,24 +7,24 @@ import {
   useInjectReducer,
   useInjectSaga,
 } from "../../../../util/redux-injectors";
-import { RoleType } from "../../Roles";
+import Role from "../../../../types/Role";
 import { coWorkerFormSaga } from "./saga";
-import { ClearerCoWorkerFormState } from "./types";
+import { OrgCoWorkerFormState } from "./types";
 
-export const initialState: ClearerCoWorkerFormState = {
+export const initialState: OrgCoWorkerFormState = {
   roles: [],
   loading: false,
 };
 
 const slice = createSlice({
-  name: "clearerCoWorkerForm",
+  name: "orgCoWorkerForm",
   initialState,
   reducers: {
     getRoles(state) {
       state.loading = true;
       state.roles = [];
     },
-    getRolesSuccess(state, action: PayloadAction<RoleType[]>) {
+    getRolesSuccess(state, action: PayloadAction<Role[]>) {
       state.loading = true;
       state.roles = action.payload;
     },

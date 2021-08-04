@@ -1,7 +1,7 @@
 import { RoleType } from "../../Roles";
 
 /* --- STATE --- */
-export interface CoWorkerFormState {
+export interface ClearerCoWorkerFormState {
   roles: RoleType[];
   loading: boolean;
 }

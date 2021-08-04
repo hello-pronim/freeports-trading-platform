@@ -101,6 +101,18 @@ export default [
     exact: true,
     component: lazy(() => import("../components/Auth/ResetPassword")),
   },
+  {
+    path: "/co-workers",
+    exact: true,
+    auth: true,
+    component: lazy(() => import("../components/CoWorker")),
+  },
+  {
+    path: "/co-workers/:coWorkerId",
+    exact: true,
+    auth: true,
+    component: lazy(() => import("../components/CoWorker")),
+  },
   /* {
     path: "/error",
     exact: true,l
