@@ -111,7 +111,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { organizationId } = Lockr.get("USER_DATA");
-  const { actions: newOrgRoleActions } = useNewOrgRoleSlice();
+  const { actions: newMultiDeskRoleActions } = useNewOrgRoleSlice();
   const multiDeskPermissions = useSelector(selectMultiDeskPermissions);
   const multiDeskPermissionsLoading = useSelector(
     selectIsMultiDeskPermissionsLoading
@@ -125,7 +125,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
     let unmounted = false;
 
     const init = async () => {
-      dispatch(newOrgRoleActions.getMultiDeskPermissions(organizationId));
+      dispatch(newMultiDeskRoleActions.getMultiDeskPermissions(organizationId));
     };
 
     init();
@@ -138,7 +138,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
   const handleRoleCreate = async (values: any) => {
     /* console.log(values); */
     await dispatch(
-      newOrgRoleActions.addMultiDeskRole({ organizationId, role: values })
+      newMultiDeskRoleActions.addMultiDeskRole({ organizationId, role: values })
     );
     history.push("/roles");
   };

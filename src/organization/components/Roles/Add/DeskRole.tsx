@@ -122,7 +122,7 @@ const NewDeskRole = (): React.ReactElement => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { organizationId } = Lockr.get("USER_DATA");
-  const { actions: newOrgRoleActions } = useNewOrgRoleSlice();
+  const { actions: newDeskRoleActions } = useNewOrgRoleSlice();
   const { actions: desksActions } = useDesksSlice();
   const deskPermissions = useSelector(selectDeskPermissions);
   const deskPermissionsLoading = useSelector(selectIsDeskPermissionsLoading);
@@ -138,7 +138,7 @@ const NewDeskRole = (): React.ReactElement => {
 
     const init = async () => {
       await dispatch(desksActions.getDesks(organizationId));
-      await dispatch(newOrgRoleActions.getDeskPermissions(organizationId));
+      await dispatch(newDeskRoleActions.getDeskPermissions(organizationId));
     };
 
     init();
@@ -156,7 +156,7 @@ const NewDeskRole = (): React.ReactElement => {
     const { deskId } = values;
     const role = { name: values.name, permissions: values.permissions };
     await dispatch(
-      newOrgRoleActions.addDeskRole({
+      newDeskRoleActions.addDeskRole({
         organizationId,
         deskId,
         role,
