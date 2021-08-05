@@ -6,6 +6,7 @@ import {
   Accordion,
   AccordionSummary,
   Button,
+  Divider,
   Grid,
   IconButton,
   InputAdornment,
@@ -123,13 +124,19 @@ const CoWorker = (): React.ReactElement => {
   }, []);
 
   const handleNewCoWorker = (coWorker: User) => {
-    dispatch(actions.createCoWorker({ user: coWorker }));
+    dispatch(actions.createCoWorker({ organizationId, user: coWorker }));
   };
 
   const handleCoWorkerUpdate = (updates: User) => {
     console.log("CoWorker update", updates, selectedCoWorker);
     if (selectedCoWorker.id) {
-      dispatch(actions.updateCoWorker({ updates, id: selectedCoWorker.id }));
+      dispatch(
+        actions.updateCoWorker({
+          organizationId,
+          id: selectedCoWorker.id,
+          updates,
+        })
+      );
     }
   };
 
@@ -225,55 +232,61 @@ const CoWorker = (): React.ReactElement => {
                 classes={{ content: classes.accordionSummary }}
                 aria-controls="panel1c-content"
               >
-                <div className={classes.accordionCoWorker}>
-                  <ExpandMoreIcon />
-                  <img
-                    className={`${classes.accordionProfile}
-                    ${classes.paddingSmall}`}
-                    src={profile}
-                    alt="Co-worker"
-                  />
-                  {selectedCoWorker && (
-                    <Typography>{selectedCoWorker.nickname}</Typography>
-                  )}
-                </div>
-
-                {!selectedCoWorker.suspended && !suspendStateLoading && (
-                  <Button onClick={handleOnSuspend} color="secondary">
-                    Disable
-                  </Button>
-                )}
-                {selectedCoWorker.suspended && !suspendStateLoading && (
-                  <Button onClick={handleOnResume} color="primary">
-                    Activate
-                  </Button>
-                )}
-                {suspendStateLoading && (
-                  <Button className={classes.userStateLoader} disabled>
-                    <Loader />
-                  </Button>
-                )}
+                <Grid container alignItems="center" justify="space-between">
+                  <Grid item>
+                    <Grid container spacing={1} alignItems="center">
+                      <Grid item>
+                        <ExpandMoreIcon />
+                      </Grid>
+                      <Grid item>
+                        <img
+                          className={`${classes.accordionProfile}
+                          ${classes.paddingSmall}`}
+                          src={profile}
+                          alt="Co-worker"
+                        />
+                      </Grid>
+                      <Grid item>
+                        {selectedCoWorker && (
+                          <Typography>{selectedCoWorker.nickname}</Typography>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item>
+                    {!selectedCoWorker.suspended && !suspendStateLoading && (
+                      <Button onClick={handleOnSuspend} color="secondary">
+                        Disable
+                      </Button>
+                    )}
+                    {selectedCoWorker.suspended && !suspendStateLoading && (
+                      <Button onClick={handleOnResume} color="primary">
+                        Activate
+                      </Button>
+                    )}
+                    {suspendStateLoading && (
+                      <Button className={classes.userStateLoader} disabled>
+                        <Loader />
+                      </Button>
+                    )}
+                  </Grid>
+                </Grid>
               </AccordionSummary>
-              {formLoading && <Loader />}
-              {!formLoading && selectedCoWorker && (
-                <CoWorkerForm
-                  onSubmit={
-                    selectedCoWorker.id
-                      ? handleCoWorkerUpdate
-                      : handleNewCoWorker
-                  }
-                  coWorker={selectedCoWorker}
-                />
-              )}
-              {selectedCoWorker.id && (
-                <Button
-                  className={classes.margin}
-                  onClick={handleSendResetPasswordLink}
-                  color="primary"
-                >
-                  Send Reset Password Link
-                </Button>
-              )}
+              <Divider />
+              <div className={classes.margin}>
+                {formLoading && <Loader />}
+                {!formLoading && selectedCoWorker && (
+                  <CoWorkerForm
+                    onSubmit={
+                      selectedCoWorker.id
+                        ? handleCoWorkerUpdate
+                        : handleNewCoWorker
+                    }
+                    onSendResetPasswordLink={handleSendResetPasswordLink}
+                    coWorker={selectedCoWorker}
+                  />
+                )}
+              </div>
             </Accordion>
           )}{" "}
         </Grid>

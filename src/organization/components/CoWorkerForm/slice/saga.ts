@@ -6,16 +6,22 @@ import { coWorkActions as actions } from ".";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
 import { createVaultUser } from "../../../../services/clearerUsersService";
 
-import getClearerRoles from "../../../../services/roleService";
+import {
+  getAllOrgRoles,
+  getAllMultiDeskRoles,
+  getAllDeskRoles,
+} from "../../../../services/roleService";
 import { VaultRequestDto } from "../../../../services/vaultService";
 import { PublicKeyDoc } from "../../../../types/User";
 import vault from "../../../../vault";
 import Role from "../../../../types/Role";
 
-export function* getRoles(): Generator<any> {
+export function* getOrgRoles({
+  payload,
+}: PayloadAction<string>): Generator<any> {
   try {
-    const response = yield call(getClearerRoles);
-    yield put(actions.getRolesSuccess(response as Array<Role>));
+    const response = yield call(getAllOrgRoles, payload);
+    yield put(actions.getOrgRolesSuccess(response as Array<Role>));
   } catch (error) {
     snackbarActions.showSnackbar({
       message: error.data.message,
@@ -24,6 +30,33 @@ export function* getRoles(): Generator<any> {
   }
 }
 
+export function* getMultiDeskRoles({
+  payload,
+}: PayloadAction<string>): Generator<any> {
+  try {
+    const response = yield call(getAllMultiDeskRoles, payload);
+    yield put(actions.getMultiDeskRolesSuccess(response as Array<Role>));
+  } catch (error) {
+    snackbarActions.showSnackbar({
+      message: error.data.message,
+      type: "error",
+    });
+  }
+}
+
+export function* getDeskRoles({
+  payload,
+}: PayloadAction<string>): Generator<any> {
+  try {
+    const response = yield call(getAllDeskRoles, payload);
+    yield put(actions.getDeskRolesSuccess(response as Array<Role>));
+  } catch (error) {
+    snackbarActions.showSnackbar({
+      message: error.data.message,
+      type: "error",
+    });
+  }
+}
 export function* addUserToVault({
   payload: { publicKey, userId },
 }: PayloadAction<{
@@ -59,6 +92,8 @@ export function* addUserToVault({
   }
 }
 export function* coWorkerFormSaga(): Generator<any> {
-  yield takeEvery(actions.getRoles, getRoles);
+  yield takeEvery(actions.getOrgRoles, getOrgRoles);
+  yield takeEvery(actions.getMultiDeskRoles, getMultiDeskRoles);
+  yield takeEvery(actions.getDeskRoles, getDeskRoles);
   yield takeLatest(actions.addUserToVault, addUserToVault);
 }

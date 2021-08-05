@@ -1,22 +1,21 @@
 import React, { useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-
-import {
-  Avatar,
-  Container,
-  IconButton,
-  Divider,
-  Button,
-} from "@material-ui/core";
-import Grid from "@material-ui/core/Grid";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+import { useDispatch, useSelector } from "react-redux";
 import { Form } from "react-final-form";
 import { TextField, Select } from "mui-rff";
 import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
-import { useDispatch, useSelector } from "react-redux";
 import { diff } from "deep-object-diff";
+import {
+  Avatar,
+  Button,
+  Container,
+  Divider,
+  Grid,
+  IconButton,
+  makeStyles,
+} from "@material-ui/core";
+import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 
 import profile from "../../../assets/images/profile.jpg";
 import { useCoWorkerFormSlice } from "./slice";

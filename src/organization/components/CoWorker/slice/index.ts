@@ -45,7 +45,10 @@ const slice = createSlice({
       state.coWorkers = action.payload;
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createCoWorker(state, action: PayloadAction<{ user: User }>) {
+    createCoWorker(
+      state,
+      action: PayloadAction<{ organizationId: string; user: User }>
+    ) {
       state.formLoading = true;
     },
     createCoWorkerSuccess(
@@ -56,7 +59,11 @@ const slice = createSlice({
     },
     updateCoWorker(
       state,
-      action: PayloadAction<{ updates: Partial<User>; id: string }>
+      action: PayloadAction<{
+        organizationId: string;
+        id: string;
+        updates: Partial<User>;
+      }>
     ) {
       state.formLoading = true;
     },

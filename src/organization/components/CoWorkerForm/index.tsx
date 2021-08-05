@@ -1,20 +1,29 @@
 import React, { useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-
-import { Container, IconButton, Divider, Button } from "@material-ui/core";
-import Grid from "@material-ui/core/Grid";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+import Lockr from "lockr";
+import { useDispatch, useSelector } from "react-redux";
 import { Form } from "react-final-form";
 import { TextField, Select } from "mui-rff";
 import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
-import { useDispatch, useSelector } from "react-redux";
 import { diff } from "deep-object-diff";
+import {
+  Button,
+  Container,
+  Divider,
+  Grid,
+  IconButton,
+  makeStyles,
+} from "@material-ui/core";
+import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 
 import profile from "../../../assets/images/profile.jpg";
 import { useCoWorkerFormSlice } from "./slice";
-import { selectRoles } from "./slice/selectors";
+import {
+  selectOrgRoles,
+  selectMultiDeskRoles,
+  selectDeskRoles,
+} from "./slice/selectors";
 import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
 
@@ -108,16 +117,21 @@ interface CoWorkerFormProps {
   // eslint-disable-next-line react/require-default-props
   coWorker: Partial<User>;
   onSubmit: (coWorker: User) => void;
+  onSendResetPasswordLink: () => void;
 }
 
 const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   onSubmit,
+  onSendResetPasswordLink,
   coWorker,
 }: CoWorkerFormProps) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const { organizationId } = Lockr.get("USER_DATA");
   const { actions } = useCoWorkerFormSlice();
-  const existingRoles = useSelector(selectRoles);
+  const orgRoles = useSelector(selectOrgRoles);
+  const multiDeskRoles = useSelector(selectMultiDeskRoles);
+  const deskRoles = useSelector(selectDeskRoles);
 
   const currentUser = useSelector(selectUser);
 
@@ -129,7 +143,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     !coWorker.vaultUserId;
 
   useEffect(() => {
-    dispatch(actions.getRoles());
+    dispatch(actions.getOrgRoles(organizationId));
+    dispatch(actions.getMultiDeskRoles(organizationId));
+    dispatch(actions.getDeskRoles(organizationId));
   }, []);
 
   const handleOnSubmit = (values: any) => {
@@ -198,21 +214,60 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             }}
                           >
                             <option aria-label="None" value="" />
-
-                            {existingRoles
-                              .filter((role) => {
-                                if (!values.roles || !values.roles.length) {
-                                  return true;
-                                }
-                                return values.roles[i] === role.id
-                                  ? true
-                                  : !values.roles.includes(role.id);
-                              })
-                              .map((r) => (
-                                <option key={r.id} value={r.id}>
-                                  {r.name}
-                                </option>
-                              ))}
+                            {orgRoles.length && (
+                              <optgroup label="Organization roles">
+                                {orgRoles
+                                  .filter((role) => {
+                                    if (!values.roles || !values.roles.length) {
+                                      return true;
+                                    }
+                                    return values.roles[i] === role.id
+                                      ? true
+                                      : !values.roles.includes(role.id);
+                                  })
+                                  .map((r) => (
+                                    <option key={r.id} value={r.id}>
+                                      {r.name}
+                                    </option>
+                                  ))}
+                              </optgroup>
+                            )}
+                            {multiDeskRoles.length && (
+                              <optgroup label="Multi-desk roles">
+                                {multiDeskRoles
+                                  .filter((role) => {
+                                    if (!values.roles || !values.roles.length) {
+                                      return true;
+                                    }
+                                    return values.roles[i] === role.id
+                                      ? true
+                                      : !values.roles.includes(role.id);
+                                  })
+                                  .map((r) => (
+                                    <option key={r.id} value={r.id}>
+                                      {r.name}
+                                    </option>
+                                  ))}
+                              </optgroup>
+                            )}
+                            {deskRoles.length && (
+                              <optgroup label="Desk roles">
+                                {deskRoles
+                                  .filter((role) => {
+                                    if (!values.roles || !values.roles.length) {
+                                      return true;
+                                    }
+                                    return values.roles[i] === role.id
+                                      ? true
+                                      : !values.roles.includes(role.id);
+                                  })
+                                  .map((r) => (
+                                    <option key={r.id} value={r.id}>
+                                      {r.name}
+                                    </option>
+                                  ))}
+                              </optgroup>
+                            )}
                           </Select>
                         </Grid>
                         {i !== 0 && (
@@ -227,7 +282,10 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                         )}
                         {fields &&
                           i === (fields.length || 0) - 1 &&
-                          (fields.length || 0) < existingRoles.length && (
+                          (fields.length || 0) <
+                            orgRoles.length +
+                              multiDeskRoles.length +
+                              deskRoles.length && (
                             <Grid item xs={1}>
                               <IconButton
                                 onClick={() => push("roles", undefined)}
@@ -242,7 +300,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   }
                 </FieldArray>
               </Grid>
-
               <Grid item xs={12}>
                 <Divider variant="fullWidth" />
               </Grid>
@@ -342,14 +399,26 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid container direction="row-reverse">
-                <Button
-                  className={classes.saveBtn}
-                  type="submit"
-                  disabled={submitting || pristine}
-                >
-                  Save Changes
-                </Button>
+              <Grid container justify="flex-end" spacing={2}>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={onSendResetPasswordLink}
+                  >
+                    Send Reset Password Link
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={submitting || pristine}
+                  >
+                    Save Changes
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
           </form>

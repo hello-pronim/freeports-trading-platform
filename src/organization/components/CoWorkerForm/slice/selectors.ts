@@ -8,7 +8,17 @@ const selectDomain = (state: RootState) =>
   state.orgCoWorkerForm || initialState;
 
 // eslint-disable-next-line import/prefer-default-export
-export const selectRoles = createSelector(
+export const selectOrgRoles = createSelector(
   [selectDomain],
-  (orgCoWorkerFormState) => orgCoWorkerFormState.roles
+  (orgCoWorkerFormState) => orgCoWorkerFormState.orgRoles
+);
+
+export const selectMultiDeskRoles = createSelector(
+  [selectDomain],
+  (orgCoWorkerFormState) => orgCoWorkerFormState.multiDeskRoles
+);
+
+export const selectDeskRoles = createSelector(
+  [selectDomain],
+  (orgCoWorkerFormState) => orgCoWorkerFormState.deskRoles
 );

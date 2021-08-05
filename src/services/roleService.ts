@@ -185,6 +185,42 @@ const removeOrgRole = (
   });
 };
 
+const assignOrgRolesToUser = (
+  organizationId: string,
+  userId: string,
+  roles: string[]
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/organization/${organizationId}/user/${userId}/role/assign`, {
+        roles,
+      })
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const updateOrgRolesToUser = (
+  organizationId: string,
+  userId: string,
+  roles: string[]
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(`/organization/${organizationId}/user/${userId}/role`, { roles })
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 const getAllOrgPermissions = (
   organizationId: string
 ): Promise<Array<PermissionType>> => {
@@ -258,6 +294,47 @@ const removeMultiDeskRole = (
   return new Promise((resolve, reject) => {
     axios
       .delete(`/organization/${organizationId}/multidesk/role/${roleId}`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const assignMultiDeskRolesToUser = (
+  organizationId: string,
+  userId: string,
+  roles: string[]
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `/organization/${organizationId}/multidesk/user/${userId}/role/assign`,
+        {
+          roles,
+        }
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const updateMultiDeskRolesToUser = (
+  organizationId: string,
+  userId: string,
+  roles: string[]
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(`/organization/${organizationId}/multidesk/user/${userId}/role`, {
+        roles,
+      })
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -354,6 +431,52 @@ const removeDeskRole = (
   });
 };
 
+const assignDeskRolesToUser = (
+  organizationId: string,
+  deskId: string,
+  userId: string,
+  roles: string[]
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `/organization/${organizationId}/desk/${deskId}/user/${userId}/role/assign`,
+        {
+          roles,
+        }
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const updateDeskRolesToUser = (
+  organizationId: string,
+  deskId: string,
+  userId: string,
+  roles: string[]
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(
+        `/organization/${organizationId}/desk/${deskId}/user/${userId}/role`,
+        {
+          roles,
+        }
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 const getAllDeskPermissions = (
   organizationId: string,
   deskId?: string
@@ -383,15 +506,21 @@ export {
   createOrgRole,
   updateOrgRole,
   removeOrgRole,
+  assignOrgRolesToUser,
+  updateOrgRolesToUser,
   getAllOrgPermissions,
   getAllMultiDeskRoles,
   createMultiDeskRole,
   updateMultiDeskRole,
   removeMultiDeskRole,
+  assignMultiDeskRolesToUser,
+  updateMultiDeskRolesToUser,
   getAllMultiDeskPermissions,
   getAllDeskRoles,
   createDeskRole,
   updateDeskRole,
   removeDeskRole,
+  assignDeskRolesToUser,
+  updateDeskRolesToUser,
   getAllDeskPermissions,
 };

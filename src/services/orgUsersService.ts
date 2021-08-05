@@ -26,10 +26,13 @@ const getOrgUsers = (
   });
 };
 
-const createOrgUser = (user: User): Promise<ResourceCreatedResponse> => {
+const createOrgUser = (
+  organizationId: string,
+  user: User
+): Promise<ResourceCreatedResponse> => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`/user`, user)
+      .post(`/organization/${organizationId}/user`, user)
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -39,10 +42,10 @@ const createOrgUser = (user: User): Promise<ResourceCreatedResponse> => {
   });
 };
 
-const getOrgUser = (id: string): Promise<User> => {
+const getOrgUser = (organizationId: string, userId: string): Promise<User> => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`/user/${id}`)
+      .get(`/organization/${organizationId}/user/${userId}`)
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -52,13 +55,15 @@ const getOrgUser = (id: string): Promise<User> => {
   });
 };
 
-const updateOrgUser = (id: string, user: Partial<User>): Promise<User> => {
+const updateOrgUser = (
+  organizationId: string,
+  id: string,
+  user: Partial<User>
+): Promise<User> => {
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/user/${id}`, user)
+      .patch(`/organization/${organizationId}/user/${id}`, user)
       .then((res: any) => {
-        console.log(" user update response ", res.data);
-
         return resolve(res.data);
       })
       .catch((err) => {

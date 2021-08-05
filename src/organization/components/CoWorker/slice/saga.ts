@@ -13,15 +13,16 @@ import { coWorkActions as actions } from ".";
 import {
   createOrgUser,
   getOrgUsers,
+  getOrgUser,
   suspendOrgUser,
   resumeOrgUser,
   updateOrgUser,
   sendResetPasswordEmail,
 } from "../../../../services/orgUsersService";
-/* import {
+import {
   assignOrgRolesToUser,
   updateOrgRolesToUser,
-} from "../../../../services/roleService"; */
+} from "../../../../services/roleService";
 import PaginatedResponse from "../../../../types/PaginatedResponse";
 import { ResourceCreatedResponse } from "../../../../types/ResourceCreatedResponse";
 import User from "../../../../types/User";
@@ -51,16 +52,21 @@ export function* getCoWorkers({
   }
 }
 
-/* export function* createCoWorker({
+export function* createCoWorker({
   payload,
-}: PayloadAction<{ user: User }>): Generator<any> {
+}: PayloadAction<{ organizationId: string; user: User }>): Generator<any> {
   try {
-    const response = yield call(createOrgUser, payload.user);
+    const response = yield call(
+      createOrgUser,
+      payload.organizationId,
+      payload.user
+    );
 
     // assign user roles
     if (payload.user.roles?.length) {
       yield call(
         assignOrgRolesToUser,
+        payload.organizationId,
         (response as ResourceCreatedResponse).id,
         payload.user.roles
       );
@@ -74,7 +80,7 @@ export function* getCoWorkers({
         type: "success",
       })
     );
-    yield put(actions.getCoWorkers({}));
+    yield put(actions.getCoWorkers({ organizationId: payload.organizationId }));
 
     yield take(actions.getCoWorkersSuccess);
 
@@ -94,13 +100,28 @@ export function* getCoWorkers({
     );
   }
 }
+
 export function* updateCoWorker({
   payload,
-}: PayloadAction<{ updates: Partial<User>; id: string }>): Generator<any> {
+}: PayloadAction<{
+  organizationId: string;
+  id: string;
+  updates: Partial<User>;
+}>): Generator<any> {
   try {
-    const response = yield call(updateOrgUser, payload.id, payload.updates);
+    const response = yield call(
+      updateOrgUser,
+      payload.organizationId,
+      payload.id,
+      payload.updates
+    );
     if (payload.updates.roles) {
-      yield call(updateOrgRolesToUser, payload.id, payload.updates.roles);
+      yield call(
+        updateOrgRolesToUser,
+        payload.organizationId,
+        payload.id,
+        payload.updates.roles
+      );
     }
 
     yield put(
@@ -112,7 +133,7 @@ export function* updateCoWorker({
         type: "success",
       })
     );
-    yield put(actions.getCoWorkers({organizationId}));
+    yield put(actions.getCoWorkers({ organizationId: payload.organizationId }));
 
     yield take(actions.getCoWorkersSuccess);
 
@@ -135,8 +156,12 @@ export function* updateCoWorker({
 
 export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
   try {
-    if (payload.id) {
-      const response: any = yield call(getOrgUser, payload.id);
+    if (payload.organization && payload.id) {
+      const response: any = yield call(
+        getOrgUser,
+        payload.organization,
+        payload.id
+      );
 
       if (!(response as User).roles || !(response as User).roles?.length) {
         (response as User).roles = [""];
@@ -156,6 +181,7 @@ export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
     );
   }
 }
+/* 
 export function* suspendCoWorker({
   payload,
 }: PayloadAction<{ id: string }>): Generator<any> {
@@ -242,10 +268,10 @@ export function* sendCoWorkerResetPasswordEmail({
 
 export function* coWorkersSaga(): Generator<any> {
   yield takeLatest(actions.getCoWorkers, getCoWorkers);
-  /* yield takeEvery(actions.createCoWorker, createCoWorker);
+  /* yield takeEvery(actions.createCoWorker, createCoWorker); */
   yield takeEvery(actions.selectCoWorker, getCoWorker);
   yield takeEvery(actions.updateCoWorker, updateCoWorker);
-  yield takeEvery(actions.suspendCoWorker, suspendCoWorker);
+  /* yield takeEvery(actions.suspendCoWorker, suspendCoWorker);
   yield takeEvery(actions.resumeCoWorker, resumeCoWorker);
   yield takeEvery(
     actions.sendCoWorkerResetPasswordEmail,

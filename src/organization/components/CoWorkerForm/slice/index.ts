@@ -12,7 +12,9 @@ import { coWorkerFormSaga } from "./saga";
 import { OrgCoWorkerFormState } from "./types";
 
 export const initialState: OrgCoWorkerFormState = {
-  roles: [],
+  orgRoles: [],
+  multiDeskRoles: [],
+  deskRoles: [],
   loading: false,
 };
 
@@ -20,13 +22,29 @@ const slice = createSlice({
   name: "orgCoWorkerForm",
   initialState,
   reducers: {
-    getRoles(state) {
+    getOrgRoles(state, action: PayloadAction<string>) {
       state.loading = true;
-      state.roles = [];
+      state.orgRoles = [];
     },
-    getRolesSuccess(state, action: PayloadAction<Role[]>) {
+    getOrgRolesSuccess(state, action: PayloadAction<Role[]>) {
+      state.loading = false;
+      state.orgRoles = action.payload;
+    },
+    getMultiDeskRoles(state, action: PayloadAction<string>) {
       state.loading = true;
-      state.roles = action.payload;
+      state.multiDeskRoles = [];
+    },
+    getMultiDeskRolesSuccess(state, action: PayloadAction<Role[]>) {
+      state.loading = false;
+      state.multiDeskRoles = action.payload;
+    },
+    getDeskRoles(state, action: PayloadAction<string>) {
+      state.loading = true;
+      state.deskRoles = [];
+    },
+    getDeskRolesSuccess(state, action: PayloadAction<Role[]>) {
+      state.loading = false;
+      state.deskRoles = action.payload;
     },
     addUserToVault(
       state,
