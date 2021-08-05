@@ -287,8 +287,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           name="suspended"
                           variant="outlined"
                           inputProps={{
-                            name: "status",
-                            id: "status-select",
+                            name: "suspended",
+                            id: "suspended-select",
                           }}
                         >
                           <option aria-label="None" value="" />

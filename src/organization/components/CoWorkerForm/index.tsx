@@ -337,11 +337,11 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                         <Select
                           label="Status"
                           native
-                          name="status"
+                          name="suspended"
                           variant="outlined"
                           inputProps={{
-                            name: "status",
-                            id: "status-select",
+                            name: "suspended",
+                            id: "suspended-select",
                           }}
                         >
                           <option aria-label="None" value="" />
