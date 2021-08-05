@@ -11,3 +11,8 @@ export const selectUser = createSelector(
   [selectDomain],
   (globalState) => globalState.user
 );
+
+export const selectKeyList = createSelector(
+  [selectDomain],
+  (globalState) => globalState.keyList
+);

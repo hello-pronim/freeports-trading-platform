@@ -11,6 +11,7 @@ import PrivateRoute from "../../routes/private";
 import PublicRoute from "../../routes/public";
 import Header from "../components/Header";
 import NotificationCenter from "../../components/NotificationCenter";
+import CertificationBanner from "../../components/CertificationBanner";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -54,6 +55,7 @@ const Routes = (): React.ReactElement => {
             </Switch>
           </main>
           <NotificationCenter {...drawerProps} />
+          <CertificationBanner />
         </>
       </Router>
     </div>
