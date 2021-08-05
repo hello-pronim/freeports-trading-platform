@@ -17,6 +17,7 @@ export const initialState: GlobalState = {
   loading: false,
   theme: "light",
   error: { errorType: "", message: "" },
+  keyList: []
 };
 
 const slice = createSlice({
@@ -42,6 +43,9 @@ const slice = createSlice({
     setError(state, action: PayloadAction<ErrorResponseType>) {
       state.loading = false;
       state.error = action.payload;
+    },
+    setKeyList(state, action: PayloadAction<any>) {
+      state.keyList = action.payload;
     },
   },
 });

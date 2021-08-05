@@ -106,10 +106,12 @@ function useAuth(): any {
 
     await publicKey()
       .then((data) => {
-        console.log(data);
         if (data.length === 0) {
           result.success = false;
           result.data = "You don't have any key yet";
+        } else {
+          result.success = true;
+          result.data = data[data.length - 1].key;
         }
       })
       .catch((err) => {

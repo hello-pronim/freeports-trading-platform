@@ -6,4 +6,5 @@ export interface GlobalState {
   loading: boolean;
   theme: string;
   error: { errorType: string; message: string } | undefined;
+  keyList: Array<any>
 }
