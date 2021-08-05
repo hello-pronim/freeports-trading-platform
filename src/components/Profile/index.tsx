@@ -29,10 +29,9 @@ import { selectProfile } from "./slice/selectors";
 
 import {
   open,
-  listKeys,
   close,
-  SavedKeyObject,
   clearKey,
+  saveKey
 } from "../../util/keyStore/keystore";
 import {
   generateKeyPair,
@@ -42,6 +41,9 @@ import {
 import defaultAvatar from "../../assets/images/profile.jpg";
 import { updatePassword } from "../../services/authService";
 import { generateCertificationEmojis } from "../../util/sas";
+import { selectKeyList } from "../../slice/selectors";
+import { globalActions } from "../../slice";
+import { addPublicKey } from "../../services/profileService";
 
 const useStyles = makeStyles((theme) => ({
   saveBtn: {
@@ -149,14 +151,7 @@ const Profile = (): React.ReactElement => {
   const [key, setKey] = useState("");
   const [passphrase, setPassPhrase] = useState("");
   const [importKeyPassword, setImportKeyPassword] = useState("");
-  const [keyList, setKeyList] = useState<
-    Array<{
-      publicKey: CryptoKey;
-      privateKey: CryptoKey;
-      name: string;
-      spki?: ArrayBuffer;
-    }>
-  >([]);
+  const keyList = useSelector(selectKeyList);
   const [loading, setLoading] = useState(false);
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -169,26 +164,6 @@ const Profile = (): React.ReactElement => {
 
   useEffect(() => {
     dispatch(actions.getProfile());
-
-    const getKeyList = async () => {
-      await open();
-      await listKeys()
-        .then((list) => {
-          console.log("list ", list);
-          const storedKeyList: Array<SavedKeyObject> = [];
-          list.forEach((item: { id: number; value: SavedKeyObject }) =>
-            storedKeyList.push(item.value)
-          );
-          setKeyList(storedKeyList);
-        })
-        .catch((err) => {
-          alert(`Could not list keys: ${err.message}`);
-        });
-
-      await close();
-    };
-
-    getKeyList();
   }, []);
 
   useEffect(() => {
@@ -248,35 +223,35 @@ const Profile = (): React.ReactElement => {
     setImportKeyPassword(value);
   };
 
-  const addToKeyList = (savedObject: any) => {
-    const newList = [...keyList];
+  const addCertification = async (cert: any) => {
+    const keyString = await publicKeyToString(cert.publicKey);
+    await addPublicKey(keyString, cert.name);
+    await saveKey(cert.publicKey, cert.privateKey, cert.name);
 
-    newList.push(savedObject);
-    setKeyList(newList);
-  };
+    const newList = [...keyList];
+    newList.push(cert);
+    dispatch(globalActions.setKeyList(newList));
+  }
 
   const onCreateCertificate = async () => {
     setLoading(true);
 
     const results = await generateKeyPair(key, passphrase);
-
-    dispatch(actions.addPublicKey(results));
-    addToKeyList(results);
+    await addCertification(results);
 
     setLoading(false);
     setCreateDialogOpen(false);
   };
 
   const onImportKey = async () => {
-    setLoading(true);
-
     if (importedFile !== null) {
+      setLoading(true);
+
       const results = await importPrivateKeyFromFile(
         importedFile,
         importKeyPassword
       );
-      dispatch(actions.addPublicKey(results));
-      addToKeyList(results);
+      await addCertification(results);
 
       setLoading(false);
       setImportKeyDialogOpen(false);
@@ -328,7 +303,7 @@ const Profile = (): React.ReactElement => {
     const res = await clearKey();
     await close();
     if(res === true) {
-      setKeyList([]);
+      dispatch(globalActions.setKeyList([]));
     } else {
       setSubmitResponse({
         type: "error",
