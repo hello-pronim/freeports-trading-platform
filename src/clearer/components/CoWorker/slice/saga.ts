@@ -152,6 +152,7 @@ export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
     );
   }
 }
+
 export function* suspendCoWorker({
   payload,
 }: PayloadAction<{ id: string }>): Generator<any> {
@@ -169,14 +170,16 @@ export function* suspendCoWorker({
       );
     }
   } catch (error) {
+    yield put(actions.suspendCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
   }
 }
+
 export function* resumeCoWorker({
   payload,
 }: PayloadAction<{ id: string }>): Generator<any> {

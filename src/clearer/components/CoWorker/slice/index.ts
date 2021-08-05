@@ -73,6 +73,9 @@ const slice = createSlice({
     suspendCoWorkerSuccess(state) {
       state.suspendStateLoading = false;
     },
+    suspendCoWorkerError(state) {
+      state.suspendStateLoading = false;
+    },
     resumeCoWorker(state, action: PayloadAction<{ id: string }>) {
       state.suspendStateLoading = true;
     },
