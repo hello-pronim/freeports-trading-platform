@@ -101,7 +101,7 @@ function useAuth(): any {
   const checkPublicKey = async () => {
     const result: {
       success?: boolean;
-      data?: string;
+      data?: any;
     } = {};
 
     await publicKey()
@@ -111,7 +111,7 @@ function useAuth(): any {
           result.data = "You don't have any key yet";
         } else {
           result.success = true;
-          result.data = data[data.length - 1].key;
+          result.data = data[data.length - 1];
         }
       })
       .catch((err) => {

@@ -17,7 +17,8 @@ export const initialState: GlobalState = {
   loading: false,
   theme: "light",
   error: { errorType: "", message: "" },
-  keyList: []
+  keyList: [],
+  remoteKey: null
 };
 
 const slice = createSlice({
@@ -46,6 +47,13 @@ const slice = createSlice({
     },
     setKeyList(state, action: PayloadAction<any>) {
       state.keyList = action.payload;
+    },
+    setRemoteKey(state, action: PayloadAction<any>) {
+      state.remoteKey = action.payload;
+    },
+    setCertification(state, action: PayloadAction<any>) {
+      state.keyList = action.payload.keyList;
+      state.remoteKey = action.payload.remoteKey;
     },
   },
 });

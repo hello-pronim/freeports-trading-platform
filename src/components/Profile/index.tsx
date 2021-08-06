@@ -41,9 +41,11 @@ import {
 import defaultAvatar from "../../assets/images/profile.jpg";
 import { updatePassword } from "../../services/authService";
 import { generateCertificationEmojis } from "../../util/sas";
-import { selectKeyList } from "../../slice/selectors";
+import { selectKeyList, selectRemoteKey } from "../../slice/selectors";
 import { globalActions } from "../../slice";
-import { addPublicKey } from "../../services/profileService";
+import { addPublicKey, revokeKey } from "../../services/profileService";
+import { userPublicKeyStatus } from "../../util/constants";
+import { useAuth } from "../../hooks";
 
 const useStyles = makeStyles((theme) => ({
   saveBtn: {
@@ -152,6 +154,7 @@ const Profile = (): React.ReactElement => {
   const [passphrase, setPassPhrase] = useState("");
   const [importKeyPassword, setImportKeyPassword] = useState("");
   const keyList = useSelector(selectKeyList);
+  const remoteKey = useSelector(selectRemoteKey);
   const [loading, setLoading] = useState(false);
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -161,6 +164,8 @@ const Profile = (): React.ReactElement => {
   });
   const [emojisDialogOpen, setEmojisDialogOpen] = useState(false);
   const [certificationEmojis, setCertificationEmojis] = useState<any>([]);
+  const [revokeKeyDlgOpen, setRevokeKeyDlgOpen] = useState(false);
+  const { checkPublicKey } = useAuth();
 
   useEffect(() => {
     dispatch(actions.getProfile());
@@ -227,10 +232,20 @@ const Profile = (): React.ReactElement => {
     const keyString = await publicKeyToString(cert.publicKey);
     await addPublicKey(keyString, cert.name);
     await saveKey(cert.publicKey, cert.privateKey, cert.name);
+    
+    let newRemoteKey = null;
+    const res = await checkPublicKey();
+    if(res.success) {
+      newRemoteKey = res.data;
+    }
 
     const newList = [...keyList];
     newList.push(cert);
-    dispatch(globalActions.setKeyList(newList));
+
+    dispatch(globalActions.setCertification({
+      keyList: newList, 
+      remoteKey: newRemoteKey
+    }));
   }
 
   const onCreateCertificate = async () => {
@@ -313,6 +328,32 @@ const Profile = (): React.ReactElement => {
     }
   }
 
+  const onRevokeKey = async () => {
+    setLoading(true);
+    await revokeKey(remoteKey.id)
+    .then((data) => {
+      const newRemoteKey = {...remoteKey};
+      newRemoteKey.status = userPublicKeyStatus.revoked;
+      dispatch(globalActions.setRemoteKey(newRemoteKey));
+      setRevokeKeyDlgOpen(false);
+    })
+    .catch((err) => {
+      setSubmitResponse({
+        type: "error",
+        message: "Sorry, Failed to revoke your certificate.",
+      });
+    });
+    setLoading(false);
+  };
+
+  const handleRevokeKey = () => {
+    setRevokeKeyDlgOpen(true);
+  };
+
+  const onCloseRevokeKeyDlg = () => {
+    setRevokeKeyDlgOpen(false);
+  }
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -346,28 +387,41 @@ const Profile = (): React.ReactElement => {
                     })
                   ) : (
                     <>
-                      <Button
-                        color="primary"
-                        variant="contained"
-                        onClick={handleCreateDialogOpen}
-                      >
-                        Create Certificate
-                      </Button>
-                      <Button
-                        color="primary"
-                        variant="contained"
-                        onClick={handleImportFileDialogOpen}
-                      >
-                        Import Key
-                      </Button>
-                      <input
-                        ref={keyfileRef}
-                        type="file"
-                        id="keyfile"
-                        name="keyfile"
-                        className={classes.hiddenFileInput}
-                        onChange={onFileImport}
-                      />
+                      { remoteKey && 
+                        remoteKey.status !== userPublicKeyStatus.revoked ? (
+                        <Button
+                          color="primary"
+                          variant="contained"
+                          onClick={handleRevokeKey}
+                        >
+                          Revoke
+                        </Button>  
+                      ) : (
+                        <>
+                          <Button
+                            color="primary"
+                            variant="contained"
+                            onClick={handleCreateDialogOpen}
+                          >
+                            Create Certificate
+                          </Button>
+                          <Button
+                            color="primary"
+                            variant="contained"
+                            onClick={handleImportFileDialogOpen}
+                          >
+                            Import Key
+                          </Button>
+                          <input
+                            ref={keyfileRef}
+                            type="file"
+                            id="keyfile"
+                            name="keyfile"
+                            className={classes.hiddenFileInput}
+                            onChange={onFileImport}
+                          />
+                        </>
+                      )}
                     </>
                   )
                 }
@@ -700,6 +754,38 @@ const Profile = (): React.ReactElement => {
               >
                 Close
               </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={revokeKeyDlgOpen}
+            onClose={onCloseRevokeKeyDlg}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">Revoke Certificate</DialogTitle>
+            <Divider />
+            <DialogContent>
+              You are about to rekove your certificate.
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={onCloseRevokeKeyDlg} variant="contained">
+                Cancel
+              </Button>
+              <div className={classes.progressButtonWrapper}>
+                <Button
+                  onClick={onRevokeKey}
+                  color="primary"
+                  variant="contained"
+                  disabled={loading}
+                >
+                  Revoke
+                </Button>
+                {loading && (
+                  <CircularProgress
+                    size={24}
+                    className={classes.progressButton}
+                  />
+                )}
+              </div>
             </DialogActions>
           </Dialog>
       </Container>
