@@ -293,8 +293,10 @@ const TradeDetail = (): React.ReactElement => {
                               color="primary"
                               size="small"
                             >
-                              <Button>BTC</Button>
-                              <Button disabled>CHF</Button>
+                              <Button>{tradeRequest.currencyTo}</Button>
+                              <Button disabled>
+                                {tradeRequest.currencyFrom}
+                              </Button>
                             </ButtonGroup>
                           </Grid>
                         </Grid>
@@ -309,7 +311,9 @@ const TradeDetail = (): React.ReactElement => {
                             height={100}
                             p={2}
                           >
-                            <Typography variant="subtitle2">BTC</Typography>
+                            <Typography variant="subtitle2">
+                              {tradeRequest.currencyTo}
+                            </Typography>
                             {/* <Typography variant="h3">30</Typography> */}
                             <input
                               onChange={handleAmountChange}
@@ -328,7 +332,9 @@ const TradeDetail = (): React.ReactElement => {
                                 height={100}
                                 p={2}
                               >
-                                <Typography variant="subtitle2">BTC</Typography>
+                                <Typography variant="subtitle2">
+                                  {tradeRequest.currencyTo}
+                                </Typography>
                                 <Typography variant="h3">
                                   {remainingQuantity}
                                 </Typography>
@@ -357,7 +363,9 @@ const TradeDetail = (): React.ReactElement => {
                                 height={100}
                                 p={2}
                               >
-                                <Typography variant="subtitle2">BTC</Typography>
+                                <Typography variant="subtitle2">
+                                  {tradeRequest.currencyTo}
+                                </Typography>
                                 <Typography variant="h3">
                                   {tradeRequest.quantity}
                                 </Typography>
@@ -380,7 +388,7 @@ const TradeDetail = (): React.ReactElement => {
                             variant="subtitle2"
                             style={{ fontWeight: 600 }}
                           >
-                            CHF 120&#39;000
+                            {tradeRequest.currencyFrom} 120&#39;000
                           </Typography>
                         </Grid>
                       </Grid>
@@ -420,9 +428,9 @@ const TradeDetail = (): React.ReactElement => {
                                 Rate
                               </Typography>
                               <Typography variant="h5">
-                                CHF{" "}
+                                {tradeRequest.currencyTo}{" "}
                                 {calculateRate(bestRfq.price, bestRfq.quantity)}
-                                /BTC
+                                /{tradeRequest.currencyFrom}
                               </Typography>
                             </Grid>
                             <Grid
@@ -435,7 +443,7 @@ const TradeDetail = (): React.ReactElement => {
                                 variant="body2"
                                 style={{ fontWeight: 600, marginRight: "10px" }}
                               >
-                                CHF
+                                {tradeRequest.currencyTo}
                               </Typography>
                               <Typography variant="body2">
                                 {bestRfq.price}
@@ -495,7 +503,7 @@ const TradeDetail = (): React.ReactElement => {
                                         marginRight: "10px",
                                       }}
                                     >
-                                      CHF
+                                      {tradeRequest.currencyTo}
                                     </Typography>
                                     <Typography variant="h5">
                                       {rfq.price}

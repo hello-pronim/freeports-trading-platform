@@ -30,7 +30,7 @@ export default function configureAppStore() {
 
   const defaultMiddleware = getDefaultMiddleware({
     serializableCheck: {
-      ignoredActions: ["profileForm/addPublicKey"],
+      ignoredActions: ["profileForm/addPublicKey", "global/setKeyList"],
     },
   });
   const store = configureStore({
