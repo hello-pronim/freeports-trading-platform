@@ -121,6 +121,19 @@ const sendResetPasswordEmail = (userId:string): Promise<any> => {
   });
 };
 
+const resetOTP = (userId:string): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/user/${userId}/reset-otp`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 export {
   createClearerUser,
   getClearerUsers as default,
@@ -129,5 +142,6 @@ export {
   suspendClearerUser,
   resumeClearerUser,
   createVaultUser,
-  sendResetPasswordEmail
+  sendResetPasswordEmail,
+  resetOTP
 };
