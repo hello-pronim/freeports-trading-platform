@@ -11,9 +11,11 @@ import {
   Button,
   Container,
   Divider,
+  FormControl,
   Grid,
   IconButton,
   makeStyles,
+  MenuItem,
 } from "@material-ui/core";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
@@ -27,6 +29,8 @@ import {
 } from "./slice/selectors";
 import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
+import { useDesksSlice } from "../Desks/slice";
+import { selectDesks } from "../Desks/slice/selectors";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -145,6 +149,10 @@ interface CoWorkerFormProps {
   onSubmit: (coWorker: User) => void;
   onSendResetPasswordLink: () => void;
 }
+interface deskType {
+  id?: string;
+  name: string;
+}
 
 const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   onSubmit,
@@ -154,13 +162,13 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const classes = useStyles();
   const dispatch = useDispatch();
   const { organizationId } = Lockr.get("USER_DATA");
-  const { actions } = useCoWorkerFormSlice();
+  const { actions: coworkerActions } = useCoWorkerFormSlice();
+  const { actions: desksActions } = useDesksSlice();
+  const desks = useSelector(selectDesks);
   const orgRoles = useSelector(selectOrgRoles);
   const multiDeskRoles = useSelector(selectMultiDeskRoles);
   const deskRoles = useSelector(selectDeskRoles);
-
   const currentUser = useSelector(selectUser);
-
   const canCreateVaultUser =
     currentUser &&
     currentUser.vaultUserId &&
@@ -169,22 +177,24 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     !coWorker.vaultUserId;
 
   useEffect(() => {
-    dispatch(actions.getOrgRoles(organizationId));
-    dispatch(actions.getMultiDeskRoles(organizationId));
-    dispatch(actions.getDeskRoles(organizationId));
+    dispatch(coworkerActions.getOrgRoles(organizationId));
+    dispatch(coworkerActions.getMultiDeskRoles(organizationId));
+    dispatch(desksActions.getDesks(organizationId));
+    dispatch(coworkerActions.getDeskRoles(organizationId));
   }, []);
 
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
     updates.roles = values.roles;
-    onSubmit(updates as User);
+    console.log(updates);
+    // onSubmit(updates as User);
   };
 
   const handleAddVaultUser = () => {
     console.log("handle add to vault ", coWorker, currentUser);
     if (coWorker.id && coWorker.publicKeys && coWorker.publicKeys[0]) {
       dispatch(
-        actions.addUserToVault({
+        coworkerActions.addUserToVault({
           userId: coWorker.id,
           publicKey: coWorker.publicKeys[0],
         })
@@ -211,15 +221,14 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         }) => (
           <form onSubmit={handleSubmit} noValidate>
             <Grid container alignItems="flex-start" spacing={2}>
-              <Grid item xs={8}>
+              <Grid item xs={12}>
                 <FieldArray name="roles">
                   {({ fields }) =>
                     fields.map((name, i) => (
                       <Grid container key={name} spacing={2}>
                         <Grid
                           item
-                          sm={10}
-                          md={8}
+                          xs={5}
                           className={
                             values.roles[i] ? classes.fixSelectLabel : ""
                           }
@@ -296,39 +305,66 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             )}
                           </Select>
                         </Grid>
-                        {i !== 0 && (
-                          <Grid item xs={1}>
-                            <IconButton
-                              onClick={() => fields.remove(i)}
-                              aria-label="Add role"
+                        {multiDeskRoles.filter(
+                          (role) => values.roles[i] === role.id
+                        ).length > 0 && (
+                          <Grid item xs={5}>
+                            <Select
+                              multiple
+                              displayEmpty
+                              name="deskId"
+                              variant="outlined"
+                              label="Desks"
                             >
-                              <DeleteForeverIcon />
-                            </IconButton>
+                              <MenuItem disabled value="">
+                                <em>Select</em>
+                              </MenuItem>
+                              {desks.map((item: deskType) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                  {item.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
                           </Grid>
                         )}
-                        {fields &&
-                          i === (fields.length || 0) - 1 &&
-                          (fields.length || 0) <
-                            orgRoles.length +
-                              multiDeskRoles.length +
-                              deskRoles.length && (
-                            <Grid item xs={1}>
-                              <IconButton
-                                onClick={() => push("roles", undefined)}
-                                aria-label="Add role"
-                              >
-                                <AddCircleOutlineIcon />
-                              </IconButton>
+                        {i !== 0 && (
+                          <Grid item xs={2}>
+                            <Grid container spacing={1}>
+                              <Grid item>
+                                <IconButton
+                                  onClick={() => fields.remove(i)}
+                                  aria-label="Remove role"
+                                >
+                                  <DeleteForeverIcon />
+                                </IconButton>
+                              </Grid>
+                              {i === (fields.length || 0) - 1 &&
+                                (fields.length || 0) <
+                                  orgRoles.length +
+                                    multiDeskRoles.length +
+                                    deskRoles.length && (
+                                  <Grid item>
+                                    <IconButton
+                                      onClick={() => push("roles", undefined)}
+                                      aria-label="Add role"
+                                    >
+                                      <AddCircleOutlineIcon />
+                                    </IconButton>
+                                  </Grid>
+                                )}
                             </Grid>
-                          )}
+                          </Grid>
+                        )}
                       </Grid>
                     ))
                   }
                 </FieldArray>
               </Grid>
-              <Grid item xs={12}>
-                <Divider variant="fullWidth" />
-              </Grid>
+              {coWorker.roles && coWorker.roles.length > 0 && (
+                <Grid item xs={12}>
+                  <Divider variant="fullWidth" />
+                </Grid>
+              )}
               <Grid item xs={12}>
                 <Grid container>
                   <Grid item xs={8}>
@@ -399,7 +435,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       </Grid>
                     )}
                   </Grid>
-
                   <Grid item xs={4}>
                     <div className={classes.logoImageContainer}>
                       <Avatar

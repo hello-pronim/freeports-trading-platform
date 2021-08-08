@@ -273,9 +273,11 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   }
                 </FieldArray>
               </Grid>
-              <Grid item xs={12}>
-                <Divider variant="fullWidth" />
-              </Grid>
+              {coWorker.roles && coWorker.roles.length > 0 && (
+                <Grid item xs={12}>
+                  <Divider variant="fullWidth" />
+                </Grid>
+              )}
               <Grid item xs={12}>
                 <Grid container>
                   <Grid item xs={8}>
