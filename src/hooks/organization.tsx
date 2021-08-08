@@ -1,29 +1,25 @@
 import { useDispatch } from "react-redux";
 import {
-  getOrganizations,
-  getOrganizationDetail,
-  getOrganizationManagers,
-  getOrganizerManager,
-  addOrganizationManager,
+  retrieveOrganizations,
+  retrieveOrganization,
   createOrganization,
-  addAccount,
-  updateOrganizer,
-  updateOrganizerManager,
-  suspendManager,
-  resumeManager,
+  updateOrganization,
+  retrieveOrganizationManagers,
+  retrieveOrganizationManager,
+  createOrganizationManager,
+  updateOrganizationManager,
+  suspendOrganizationManager,
+  resumeOrganizationManager,
 } from "../services/organizationService";
 import { useGlobalSlice } from "../slice";
 
 function useOrganization(): any {
   const dispatch = useDispatch();
   const { actions } = useGlobalSlice();
-  const organizers = async (
-    pageNum: number,
-    pagelimit: number,
-    searchVal: string
-  ) => {
+
+  const getOrganizations = async () => {
     dispatch(actions.clearError());
-    const organizations = await getOrganizations(pageNum, pagelimit, searchVal)
+    const organizations = await retrieveOrganizations()
       .then((data: any) => {
         return data;
       })
@@ -32,9 +28,9 @@ function useOrganization(): any {
       });
     return organizations;
   };
-  const getOrganizerdetail = async (id: string) => {
+  const getOrganization = async (id: string) => {
     dispatch(actions.clearError());
-    const organizationDetail = await getOrganizationDetail(id)
+    const organizationDetail = await retrieveOrganization(id)
       .then((data) => {
         return data;
       })
@@ -42,59 +38,6 @@ function useOrganization(): any {
         dispatch(actions.setError(err));
       });
     return organizationDetail;
-  };
-
-  const getManagers = async (id: string) => {
-    dispatch(actions.clearError());
-    const managers = await getOrganizationManagers(id)
-      .then((data) => {
-        return data.content;
-      })
-      .catch((err) => {
-        dispatch(actions.setError(err));
-      });
-    return managers;
-  };
-
-  const addManager = async (
-    organizerId: string,
-    nickname: string,
-    email: string,
-    password: string,
-    phone: string,
-    avatar: string
-  ) => {
-    dispatch(actions.clearError());
-    const manager = await addOrganizationManager(
-      organizerId,
-      nickname,
-      email,
-      password,
-      phone,
-      avatar
-    )
-      .then((data) => {
-        return data;
-      })
-      .catch((err) => {
-        dispatch(actions.setError(err));
-      });
-    return manager;
-  };
-
-  const getOrganizedManager = async (
-    organizedId: string,
-    managerId: string
-  ) => {
-    dispatch(actions.clearError());
-    const manager = await getOrganizerManager(organizedId, managerId)
-      .then((data) => {
-        return data;
-      })
-      .catch((err) => {
-        dispatch(actions.setError(err));
-      });
-    return manager;
   };
 
   const addOrganization = async (
@@ -109,7 +52,7 @@ function useOrganization(): any {
     commissionClearer: string
   ) => {
     dispatch(actions.clearError());
-    const newOrganization = await createOrganization(
+    const newOrganization = await createOrganization({
       name,
       street,
       street2,
@@ -118,8 +61,8 @@ function useOrganization(): any {
       country,
       logo,
       commissionOrganization,
-      commissionClearer
-    )
+      commissionClearer,
+    })
       .then((data) => {
         return data;
       })
@@ -129,35 +72,7 @@ function useOrganization(): any {
     return newOrganization;
   };
 
-  const additionAccount = async (
-    organizerId: string,
-    name: string,
-    currency: string,
-    type: string,
-    iban: string,
-    publicAddress: string,
-    vaultWalletId: string
-  ) => {
-    dispatch(actions.clearError());
-    const newAddAccount = await addAccount(
-      organizerId,
-      name,
-      currency,
-      type,
-      iban,
-      publicAddress,
-      vaultWalletId
-    )
-      .then((data) => {
-        return data;
-      })
-      .catch((err) => {
-        dispatch(actions.setError(err));
-      });
-    return newAddAccount;
-  };
-
-  const updateOrganization = async (
+  const editOrganization = async (
     organizerId: string,
     createdAt: Date,
     name: string,
@@ -166,7 +81,7 @@ function useOrganization(): any {
     commissionClearer: string
   ) => {
     dispatch(actions.clearError());
-    const updatedOrganization = await updateOrganizer(
+    const updatedOrganization = await updateOrganization(
       organizerId,
       createdAt,
       name,
@@ -183,7 +98,57 @@ function useOrganization(): any {
     return updatedOrganization;
   };
 
-  const updateOrganizationManager = async (
+  const getManagers = async (id: string) => {
+    dispatch(actions.clearError());
+    const managers = await retrieveOrganizationManagers(id)
+      .then((data) => {
+        return data.content;
+      })
+      .catch((err) => {
+        dispatch(actions.setError(err));
+      });
+    return managers;
+  };
+
+  const getManager = async (organizedId: string, managerId: string) => {
+    dispatch(actions.clearError());
+    const manager = await retrieveOrganizationManager(organizedId, managerId)
+      .then((data) => {
+        return data;
+      })
+      .catch((err) => {
+        dispatch(actions.setError(err));
+      });
+    return manager;
+  };
+
+  const addManager = async (
+    organizerId: string,
+    nickname: string,
+    email: string,
+    password: string,
+    phone: string,
+    avatar: string
+  ) => {
+    dispatch(actions.clearError());
+    const manager = await createOrganizationManager(
+      organizerId,
+      nickname,
+      email,
+      password,
+      phone,
+      avatar
+    )
+      .then((data) => {
+        return data;
+      })
+      .catch((err) => {
+        dispatch(actions.setError(err));
+      });
+    return manager;
+  };
+
+  const editManager = async (
     organizerId: string,
     managerId: string,
     nickname: string,
@@ -192,7 +157,7 @@ function useOrganization(): any {
     avatar: string
   ) => {
     dispatch(actions.clearError());
-    const updatedOrganizationManager = await updateOrganizerManager(
+    const updatedOrganizationManager = await updateOrganizationManager(
       organizerId,
       managerId,
       nickname,
@@ -209,12 +174,9 @@ function useOrganization(): any {
     return updatedOrganizationManager;
   };
 
-  const suspendOrganizationManager = async (
-    organizerId: string,
-    managerId: string
-  ) => {
+  const suspendManager = async (organizerId: string, managerId: string) => {
     dispatch(actions.clearError());
-    const suspend = await suspendManager(organizerId, managerId)
+    const suspend = await suspendOrganizationManager(organizerId, managerId)
       .then((data) => {
         return data;
       })
@@ -224,12 +186,9 @@ function useOrganization(): any {
     return suspend;
   };
 
-  const resumeOrganizationManager = async (
-    organizerId: string,
-    managerId: string
-  ) => {
+  const resumeManager = async (organizerId: string, managerId: string) => {
     dispatch(actions.clearError());
-    const resume = await resumeManager(organizerId, managerId)
+    const resume = await resumeOrganizationManager(organizerId, managerId)
       .then((data) => {
         return data;
       })
@@ -240,17 +199,16 @@ function useOrganization(): any {
   };
 
   return {
-    organizers,
-    getOrganizerdetail,
-    getManagers,
-    addManager,
-    getOrganizedManager,
+    getOrganizations,
+    getOrganization,
     addOrganization,
-    additionAccount,
-    updateOrganization,
-    updateOrganizationManager,
-    suspendOrganizationManager,
-    resumeOrganizationManager,
+    editOrganization,
+    getManagers,
+    getManager,
+    addManager,
+    editManager,
+    suspendManager,
+    resumeManager,
   };
 }
 

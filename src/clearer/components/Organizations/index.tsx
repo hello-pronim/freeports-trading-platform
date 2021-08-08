@@ -1,71 +1,53 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import {
   Container,
+  createStyles,
   Grid,
   IconButton,
   Icon,
-  TextField,
+  makeStyles,
+  Theme,
+  Typography,
 } from "@material-ui/core";
 import MaterialTable from "material-table";
 
 import axios from "../../../util/axios";
+import { useOrganizationsSlice } from "./slice";
+import { selectOrganizations } from "./slice/selectors";
 
-interface rowfield {
-  id: string;
-  organization: string;
-  createdate: string;
-  activeusers: string;
-  disableusers: string;
-}
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    addButton: {
+      fontWeight: "bold",
+      padding: 0,
+    },
+    currencyDropdown: {
+      margin: theme.spacing(1),
+      minWidth: 120,
+    },
+    errorMessage: {
+      marginTop: theme.spacing(8),
+    },
+  })
+);
 
 const Organizations = (): React.ReactElement => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
   const history = useHistory();
+  const { actions } = useOrganizationsSlice();
+  const organizations = useSelector(selectOrganizations);
+
+  useEffect(() => {
+    dispatch(actions.getOrganizations());
+  }, []);
 
   const newOrganizer = () => {
     history.push("/organizations/add");
   };
-
-  const [state, setState] = useState({
-    column: [
-      {
-        field: "name",
-        title: "Organization",
-        cellStyle: {
-          width: "25%",
-        },
-        render: (rowData: any) => {
-          const { id, name: names } = rowData;
-
-          return <Link to={`organizations/edit/${id}`}>{names}</Link>;
-        },
-      },
-      {
-        field: "createdAt",
-        title: "Create Date",
-        type: "date",
-        dateSetting: { locale: "en-GB" },
-        cellStyle: {
-          width: "25%",
-        },
-      },
-      {
-        field: "userActive",
-        title: "Active Users",
-        cellStyle: {
-          width: "25%",
-        },
-      },
-      {
-        field: "userSuspended",
-        title: "Disable Users",
-        cellStyle: {
-          width: "25%",
-        },
-      },
-    ] as any[],
-  });
 
   return (
     <div className="main-wrapper">
@@ -75,33 +57,61 @@ const Organizations = (): React.ReactElement => {
             <Grid item xs={12}>
               <MaterialTable
                 title={
-                  <h2>
-                    Organization{" "}
-                    <IconButton onClick={newOrganizer}>
-                      <Icon style={{ fontSize: 45 }} color="primary">
-                        add_circle
-                      </Icon>
-                    </IconButton>
-                  </h2>
+                  <Grid container alignItems="center" spacing={2}>
+                    <Grid item>
+                      <Typography variant="h5">Organization</Typography>
+                    </Grid>
+                    <Grid item>
+                      <IconButton
+                        className={classes.addButton}
+                        color="primary"
+                        onClick={newOrganizer}
+                      >
+                        <Icon fontSize="large">add_circle</Icon>
+                      </IconButton>
+                    </Grid>
+                  </Grid>
                 }
-                columns={state.column}
-                data={(query) =>
-                  new Promise((resolve, reject) => {
-                    axios
-                      .get(
-                        `/organization?page=${query.page + 1}&limit=${
-                          query.pageSize
-                        }&search=${query.search}`
-                      )
-                      .then((res: any) => {
-                        return resolve({
-                          data: res.data.content,
-                          page: res.data.currentPage - 1,
-                          totalCount: res.data.totalRecords,
-                        });
-                      });
-                  })
-                }
+                columns={[
+                  {
+                    field: "name",
+                    title: "Organization",
+                    cellStyle: {
+                      width: "25%",
+                    },
+                    render: (rowData: any) => {
+                      const { id, name } = rowData;
+
+                      return (
+                        <Link to={`organizations/edit/${id}`}>{name}</Link>
+                      );
+                    },
+                  },
+                  {
+                    field: "createdAt",
+                    title: "Create Date",
+                    type: "date",
+                    dateSetting: { locale: "en-GB" },
+                    cellStyle: {
+                      width: "25%",
+                    },
+                  },
+                  {
+                    field: "userActive",
+                    title: "Active Users",
+                    cellStyle: {
+                      width: "25%",
+                    },
+                  },
+                  {
+                    field: "userSuspended",
+                    title: "Disable Users",
+                    cellStyle: {
+                      width: "25%",
+                    },
+                  },
+                ]}
+                data={organizations.map((orgItem: any) => ({ ...orgItem }))}
               />
             </Grid>
           </Grid>

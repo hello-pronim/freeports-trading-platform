@@ -1,16 +1,11 @@
 import axios from "../util/axios";
 import vault from "../vault";
+import Organization from "../types/Organization";
 
-const getOrganizations = (
-  pageNum: number,
-  pagelimit: number,
-  searchVal: string
-): Promise<Array<any>> => {
+const retrieveOrganizations = (): Promise<Array<any>> => {
   return new Promise((resolve, reject) => {
     axios
-      .get(
-        `/organization?page=${pageNum}&limit=${pagelimit}&search=${searchVal}`
-      )
+      .get(`/organization`)
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -20,7 +15,7 @@ const getOrganizations = (
   });
 };
 
-const getOrganizationDetail = (id: string): Promise<any> => {
+const retrieveOrganization = (id: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
       .get(`/organization/${id}`)
@@ -33,7 +28,36 @@ const getOrganizationDetail = (id: string): Promise<any> => {
   });
 };
 
-const addOrganizationManager = (
+const retrieveOrganizationManagers = (id: string): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`/organization/${id}/manager`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const retrieveOrganizationManager = (
+  organizerId: string,
+  managerid: string
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`/organization/${organizerId}/manager/${managerid}`)
+      .then((res) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const createOrganizationManager = (
   organizationId: string,
   nickname: string,
   email: string,
@@ -59,36 +83,7 @@ const addOrganizationManager = (
   });
 };
 
-const getOrganizationManagers = (id: string): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(`/organization/${id}/manager`)
-      .then((res: any) => {
-        return resolve(res.data);
-      })
-      .catch((err) => {
-        return reject(err.response.data);
-      });
-  });
-};
-
-const getOrganizerManager = (
-  organizerId: string,
-  managerid: string
-): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(`/organization/${organizerId}/manager/${managerid}`)
-      .then((res) => {
-        return resolve(res.data);
-      })
-      .catch((err) => {
-        return reject(err.response.data);
-      });
-  });
-};
-
-const updateOrganizerManager = (
+const updateOrganizationManager = (
   organizerId: string,
   managerId: string,
   nickname: string,
@@ -113,30 +108,12 @@ const updateOrganizerManager = (
   });
 };
 
-const createOrganization = async (
-  name: string,
-  street: string,
-  street2: string,
-  zip: string,
-  city: string,
-  country: string,
-  logo: string,
-  commissionOrganization: string,
-  commissionClearer: string
-): Promise<any> => {
+const createOrganization = async (organization: Organization): Promise<any> => {
   const vaultRequest = await vault.createOrganization();
   return new Promise((resolve, reject) => {
     axios
       .post(`/organization`, {
-        name,
-        street,
-        street2,
-        zip,
-        city,
-        country,
-        logo,
-        commissionOrganization,
-        commissionClearer,
+        ...organization,
         vaultRequest,
       })
       .then((res: any) => {
@@ -148,7 +125,7 @@ const createOrganization = async (
   });
 };
 
-const updateOrganizer = (
+const updateOrganization = (
   organization: string,
   createdAt: Date,
   name: string,
@@ -174,35 +151,7 @@ const updateOrganizer = (
   });
 };
 
-const addAccount = (
-  organizerId: string,
-  name: string,
-  currency: string,
-  type: string,
-  iban: string,
-  publicAddress: string,
-  vaultWalletId: string
-): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    axios
-      .post(`/organization/${organizerId}/account`, {
-        name,
-        currency,
-        type,
-        iban,
-        publicAddress,
-        vaultWalletId,
-      })
-      .then((res: any) => {
-        return resolve(res.data);
-      })
-      .catch((err) => {
-        return reject(err.response.data);
-      });
-  });
-};
-
-const suspendManager = (
+const suspendOrganizationManager = (
   organizerId: string,
   managerId: string
 ): Promise<any> => {
@@ -218,7 +167,7 @@ const suspendManager = (
   });
 };
 
-const resumeManager = (
+const resumeOrganizationManager = (
   organizerId: string,
   managerId: string
 ): Promise<any> => {
@@ -235,16 +184,15 @@ const resumeManager = (
 };
 
 export {
-  getOrganizations as default,
-  getOrganizations,
-  getOrganizationDetail,
-  getOrganizationManagers,
-  getOrganizerManager,
-  addOrganizationManager,
+  retrieveOrganizations as default,
+  retrieveOrganizations,
+  retrieveOrganization,
   createOrganization,
-  addAccount,
-  updateOrganizer,
-  updateOrganizerManager,
-  suspendManager,
-  resumeManager,
+  updateOrganization,
+  retrieveOrganizationManagers,
+  retrieveOrganizationManager,
+  createOrganizationManager,
+  updateOrganizationManager,
+  suspendOrganizationManager,
+  resumeOrganizationManager,
 };
