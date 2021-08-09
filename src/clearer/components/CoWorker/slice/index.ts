@@ -91,6 +91,15 @@ const slice = createSlice({
     sendCoWorkerResetPasswordEmailSuccess(state) {
       state.formLoading = false;
     },
+    resetOTP(
+      state,
+      action: PayloadAction<{ id: string }>
+    ) {
+      state.formLoading = true;
+    },
+    resetOTPSuccess(state) {
+      state.formLoading = false;
+    },
   },
 });
 

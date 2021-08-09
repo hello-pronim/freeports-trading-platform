@@ -10,11 +10,12 @@ import {
   SavedKeyObject,
 } from "../../util/keyStore/keystore";
 import { globalActions } from "../../slice";
-import { selectKeyList } from "../../slice/selectors";
+import { selectKeyList, selectRemoteKey } from "../../slice/selectors";
 import {
   publicKeyToString,
 } from "../../util/keyStore/functions";
 import messages from "./messages";
+import { userPublicKeyStatus } from "../../util/constants";
 
 const CertificationBanner = (): React.ReactElement => {
   const dispatch = useDispatch();
@@ -22,43 +23,48 @@ const CertificationBanner = (): React.ReactElement => {
   const [bannerMessage, setBannerMessage] = useState('');
   const { isAuthenticated, checkPublicKey } = useAuth();
   const keyList = useSelector(selectKeyList);
+  const remoteKey = useSelector(selectRemoteKey);
 
   useEffect(() => {
-    const getKeyList = async () => {
+    const getCertification = async () => {
+      const storedKeyList: Array<SavedKeyObject> = [];
       await open();
       await listKeys()
         .then((list) => {
-          const storedKeyList: Array<SavedKeyObject> = [];
           list.forEach((item: { id: number; value: SavedKeyObject }) =>
             storedKeyList.push(item.value)
           );
-          dispatch(globalActions.setKeyList(storedKeyList));
         })
         .catch((err) => {
           alert(`Could not list keys: ${err.message}`);
         });
       await close();
+
+      const res = await checkPublicKey();
+      dispatch(globalActions.setCertification({
+        keyList: storedKeyList, 
+        remoteKey: res.success ? res.data : null
+      }));
     };
 
-    getKeyList();
+    getCertification();
   }, []);
 
   const displayBanner = async () => {
-    let remoteKey = '';
-    const res = await checkPublicKey();
-    if(res.success) {
-      remoteKey = res.data;
+    let remoteKeyStr = '';
+    if(remoteKey && remoteKey.status !== userPublicKeyStatus.revoked) {
+      remoteKeyStr = remoteKey.key;
     }
-
-    if(!keyList.length && !remoteKey) {
+    
+    if(!keyList.length && !remoteKeyStr) {
       setShowBanner(true);
       setBannerMessage(messages.key_not_created);
-    } else if(!keyList.length && remoteKey) {
+    } else if(!keyList.length && remoteKeyStr) {
       setShowBanner(true);
       setBannerMessage(messages.missing_browser_key);
-    } else if(keyList.length && remoteKey) {
+    } else if(keyList.length && remoteKeyStr) {
       const localKey = await publicKeyToString(keyList[0].publicKey);
-      if(localKey !== remoteKey) {
+      if(localKey !== remoteKeyStr) {
         setShowBanner(true);
         setBannerMessage(messages.key_mismatch);
       }
@@ -72,7 +78,7 @@ const CertificationBanner = (): React.ReactElement => {
     if(isAuthenticated) {
       displayBanner();
     }
-  }, [isAuthenticated, keyList]);
+  }, [isAuthenticated, keyList, remoteKey]);
 
   const onCloseBanner = () => {
     setShowBanner(false);

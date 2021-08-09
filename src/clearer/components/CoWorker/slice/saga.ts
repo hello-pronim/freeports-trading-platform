@@ -16,7 +16,8 @@ import getClearerUsers, {
   suspendClearerUser,
   resumeClearerUser,
   updateClearerUser,
-  sendResetPasswordEmail
+  sendResetPasswordEmail,
+  resetOTP
 } from "../../../../services/clearerUsersService";
 import {
   assignClearerRolesToUser,
@@ -239,6 +240,39 @@ export function* sendCoWorkerResetPasswordEmail({
   }
 }
 
+export function* resetOTPSaga({
+  payload,
+}: PayloadAction<{ id: string }>): Generator<any> {
+  try {
+    if (payload.id) {
+      const response: any = yield call(resetOTP, payload.id);
+      yield put(actions.resetOTPSuccess());
+      if(response.success) {
+        yield put(
+          snackbarActions.showSnackbar({
+            message: "Successfully reset OTP key",
+            type: "success",
+          })
+        );
+      } else {
+        yield put(
+          snackbarActions.showSnackbar({
+            message: 'Failed to reset OTP key',
+            type: "error",
+          })
+        );
+      }
+    }
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
 export function* coWorkersSaga(): Generator<any> {
   yield takeLatest(actions.getCoWorkers, getCoWorkers);
   yield takeEvery(actions.createCoWorker, createCoWorker);
@@ -247,4 +281,5 @@ export function* coWorkersSaga(): Generator<any> {
   yield takeEvery(actions.suspendCoWorker, suspendCoWorker);
   yield takeEvery(actions.resumeCoWorker, resumeCoWorker);
   yield takeEvery(actions.sendCoWorkerResetPasswordEmail, sendCoWorkerResetPasswordEmail);
+  yield takeEvery(actions.resetOTP, resetOTPSaga);
 }

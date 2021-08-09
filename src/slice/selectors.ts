@@ -16,3 +16,8 @@ export const selectKeyList = createSelector(
   [selectDomain],
   (globalState) => globalState.keyList
 );
+
+export const selectRemoteKey = createSelector(
+  [selectDomain],
+  (globalState) => globalState.remoteKey
+);

@@ -39,4 +39,17 @@ const addPublicKey = (key: string, name: string): Promise<any> => {
   });
 };
 
-export { getUserProfile as default, getUserProfile, addPublicKey };
+const revokeKey = (keyId: string): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/my/public-key/${keyId}/revoke`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+export { getUserProfile as default, getUserProfile, addPublicKey, revokeKey };

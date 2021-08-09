@@ -166,6 +166,14 @@ const CoWorker = (): React.ReactElement => {
     }
   };
 
+  const handleResetOTP = async () => {
+    if (selectedCoWorker.id) {
+      dispatch(
+        actions.resetOTP({ id: selectedCoWorker.id })
+      );
+    }
+  };
+
   return (
     <Grid>
       <Grid container className={classes.root}>
@@ -278,6 +286,7 @@ const CoWorker = (): React.ReactElement => {
                     }
                     onSendResetPasswordLink={handleSendResetPasswordLink}
                     coWorker={selectedCoWorker}
+                    onResetOTP={handleResetOTP}
                   />
                 )}
               </div>

@@ -140,11 +140,13 @@ interface CoWorkerFormProps {
   coWorker: Partial<User>;
   onSubmit: (coWorker: User) => void;
   onSendResetPasswordLink: () => void;
+  onResetOTP: () => void;
 }
 
 const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   onSubmit,
   onSendResetPasswordLink,
+  onResetOTP,
   coWorker,
 }: CoWorkerFormProps) => {
   const classes = useStyles();
@@ -282,7 +284,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Grid container>
                   <Grid item xs={8}>
                     <Grid container spacing={2}>
-                      <Grid item xs={6}>
+                      {/* <Grid item xs={6}>
                         <Select
                           label="Status"
                           native
@@ -297,7 +299,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           <option value="true">Active</option>
                           <option value="false">Disabled</option>
                         </Select>
-                      </Grid>
+                      </Grid> */}
                       <Grid item xs={12}>
                         <TextField
                           required
@@ -367,15 +369,28 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
               </Grid>
               <Grid item xs={12}>
                 <Grid container justify="flex-end" spacing={2}>
-                  <Grid item>
-                    <Button
-                      onClick={onSendResetPasswordLink}
-                      color="primary"
-                      variant="contained"
-                    >
-                      Send Reset Password Link
-                    </Button>
-                  </Grid>
+                  {coWorker.id && (
+                    <Grid item>
+                      <Button
+                        onClick={onResetOTP}
+                        color="primary"
+                        variant="contained"
+                      >
+                        Reset OTP Key
+                      </Button>
+                    </Grid>
+                  )}
+                  {coWorker.id && (
+                    <Grid item>
+                      <Button
+                        onClick={onSendResetPasswordLink}
+                        color="primary"
+                        variant="contained"
+                      >
+                        Send Reset Password Link
+                      </Button>
+                    </Grid>
+                  )}
                   <Grid item>
                     <Button
                       type="submit"
