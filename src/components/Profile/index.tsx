@@ -397,31 +397,29 @@ const Profile = (): React.ReactElement => {
                           Revoke
                         </Button>  
                       ) : (
-                        <>
-                          <Button
-                            color="primary"
-                            variant="contained"
-                            onClick={handleCreateDialogOpen}
-                          >
-                            Create Certificate
-                          </Button>
-                          <Button
-                            color="primary"
-                            variant="contained"
-                            onClick={handleImportFileDialogOpen}
-                          >
-                            Import Key
-                          </Button>
-                          <input
-                            ref={keyfileRef}
-                            type="file"
-                            id="keyfile"
-                            name="keyfile"
-                            className={classes.hiddenFileInput}
-                            onChange={onFileImport}
-                          />
-                        </>
+                        <Button
+                          color="primary"
+                          variant="contained"
+                          onClick={handleCreateDialogOpen}
+                        >
+                          Create Certificate
+                        </Button>
                       )}
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        onClick={handleImportFileDialogOpen}
+                      >
+                        Import Key
+                      </Button>
+                      <input
+                        ref={keyfileRef}
+                        type="file"
+                        id="keyfile"
+                        name="keyfile"
+                        className={classes.hiddenFileInput}
+                        onChange={onFileImport}
+                      />
                     </>
                   )
                 }
