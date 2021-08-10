@@ -49,6 +49,7 @@ import {
 import Loader from "../../../../components/Loader";
 import { useOrganization } from "../../../../hooks";
 import TradeRequest from "../../../../types/TradeRequest";
+import { CryptoCurrencies } from "../../../../types/Currencies";
 
 interface tradeType {
   accountFrom: string;
@@ -155,6 +156,34 @@ const InvestorDetail = (): React.ReactElement => {
     limitPrice: "",
     limitTime: "",
   });
+
+  const getQuantityLabel = (values: any): string => {
+    if (values) {
+      const accountFrom = tradingAccounts.find(
+        (account) => account.account === values.accountFrom
+      );
+      const accountTo = tradingAccounts.find(
+        (account) => account.account === values.accountTo
+      );
+      if (
+        accountTo &&
+        Object.values(CryptoCurrencies).includes(
+          accountTo.currency.toUpperCase() as CryptoCurrencies
+        )
+      ) {
+        return `Quantity ${accountTo.currency}`;
+      }
+      if (
+        accountFrom &&
+        Object.values(CryptoCurrencies).includes(
+          accountFrom.currency.toUpperCase() as CryptoCurrencies
+        )
+      ) {
+        return `Quantity ${accountFrom.currency}`;
+      }
+    }
+    return "Quantity";
+  };
 
   useEffect(() => {
     let mounted = false;
@@ -644,7 +673,7 @@ const InvestorDetail = (): React.ReactElement => {
                     <Grid item xs={6}>
                       <MuiTextField
                         required
-                        label="Quantity"
+                        label={getQuantityLabel(values)}
                         type="text"
                         name="quantity"
                         variant="outlined"

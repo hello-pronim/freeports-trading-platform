@@ -10,12 +10,14 @@ import PaginatedResponse from "../../../../types/PaginatedResponse";
 export function* getTradeRequests(): Generator<any> {
   try {
     const response = yield call(getAllTradeRequests);
-    if (response)
+
+    if (response) {
       yield put(
         actions.getTradeRequestsSuccess(
           (response as PaginatedResponse<TradeRequest>).content
         )
       );
+    }
   } catch (error) {
     yield put(
       snackbarActions.showSnackbar({
