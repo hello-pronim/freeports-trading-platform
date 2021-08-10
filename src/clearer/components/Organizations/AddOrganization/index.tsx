@@ -7,11 +7,13 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  Checkbox,
   CircularProgress,
   Container,
   Divider,
   Grid,
   FormControl,
+  ListItemText,
   makeStyles,
   MenuItem,
   Select,
@@ -333,7 +335,14 @@ const AddOrganizer = (): React.ReactElement => {
                                 </MenuItem>
                                 {accounts.map((item) => (
                                   <MenuItem key={item.id} value={item.id}>
-                                    {`${item.name} (${item.currency})`}
+                                    <Checkbox
+                                      checked={
+                                        selectedAccounts.indexOf(item.id) > -1
+                                      }
+                                    />
+                                    <ListItemText>
+                                      {`${item.name} (${item.currency})`}
+                                    </ListItemText>
                                   </MenuItem>
                                 ))}
                               </Select>
