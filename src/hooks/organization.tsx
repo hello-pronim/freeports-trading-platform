@@ -126,7 +126,6 @@ function useOrganization(): any {
     organizerId: string,
     nickname: string,
     email: string,
-    password: string,
     phone: string,
     avatar: string
   ) => {
@@ -135,7 +134,6 @@ function useOrganization(): any {
       organizerId,
       nickname,
       email,
-      password,
       phone,
       avatar
     )
