@@ -2,6 +2,7 @@ import { createSelector } from "@reduxjs/toolkit";
 
 import { BigNumber } from "bignumber.js";
 import { initialState } from ".";
+import { CryptoCurrencies } from "../../../../../types/Currencies";
 import { RootState } from "../../../../../util/types/RootState";
 
 // First select the relevant part from the state
@@ -67,4 +68,25 @@ export const selectBestRfq = createSelector(
     }
     return bestRfq;
   }
+);
+
+export const selectBaseCurrency = createSelector(
+  [selectDomain],
+  (tradeRequestDetailState) => {
+    const { selectedTradeRequest } = tradeRequestDetailState;
+
+    if (selectedTradeRequest) {
+      return Object.values(CryptoCurrencies).includes(
+        selectedTradeRequest.currencyFrom as CryptoCurrencies
+      )
+        ? selectedTradeRequest.currencyFrom
+        : selectedTradeRequest.currencyTo;
+    }
+    return "";
+  }
+);
+
+export const selectTradeAmount = createSelector(
+  [selectDomain],
+  (tradeRequestDetailState) => tradeRequestDetailState.tradeAmount
 );
