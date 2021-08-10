@@ -10,16 +10,12 @@ import PaginatedResponse from "../../../../types/PaginatedResponse";
 export function* getTradeRequests(): Generator<any> {
   try {
     const response = yield call(getAllTradeRequests);
+
     if (response) {
-      const sortedTrades = (
-        response as PaginatedResponse<TradeRequest>
-      ).content.sort(
-        (a, b) =>
-          new Date(b.createdAt || 0).getTime() -
-          new Date(a.createdAt || 0).getTime()
-      );
       yield put(
-        actions.getTradeRequestsSuccess(sortedTrades as TradeRequest[])
+        actions.getTradeRequestsSuccess(
+          (response as PaginatedResponse<TradeRequest>).content
+        )
       );
     }
   } catch (error) {

@@ -6,7 +6,7 @@ import { RfqResponse } from "../types/RfqResponse";
 const getAllTradeRequests = (): Promise<TradeRequest[]> => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`/my/request/trade`)
+      .get(`/my/request/trade?orderBy=createdAt&orderDirection=DESC`)
       .then((res: any) => {
         return resolve(res.data);
       })
