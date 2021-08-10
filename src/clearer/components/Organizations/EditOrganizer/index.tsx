@@ -106,12 +106,12 @@ const EditOrganizer = (): React.ReactElement => {
   const { allAccounts, assignAccount, unassignAccount } = useAccounts();
   const showingIcon = false;
   const {
-    getOrganizerdetail,
-    getManagers,
+    getOrganization,
     updateOrganization,
-    updateOrganizationManager,
-    suspendOrganizationManager,
-    resumeOrganizationManager,
+    getManagers,
+    editManager,
+    suspendManager,
+    resumeManager,
   } = useOrganization();
   const [orgDetail, setOrgDetail] = useState({
     id: "",
@@ -145,7 +145,7 @@ const EditOrganizer = (): React.ReactElement => {
     let mounted = false;
     const init = async () => {
       const all = await allAccounts(); // get all clearer accounts
-      const detail = await getOrganizerdetail(id);
+      const detail = await getOrganization(id);
       const managerList = await getManagers(id);
       if (!mounted) {
         setAccounts(all);
@@ -356,7 +356,7 @@ const EditOrganizer = (): React.ReactElement => {
     setManagerUpdating(true);
     setShowAlert(false);
     setSubmitResponse({ type: "", message: "" });
-    await updateOrganizationManager(
+    await editManager(
       id,
       manager.id,
       manager.nickname,
@@ -366,9 +366,9 @@ const EditOrganizer = (): React.ReactElement => {
     )
       .then(async (data: string) => {
         if (manager.suspended === "undefined") {
-          await resumeOrganizationManager(id, manager.id);
+          await resumeManager(id, manager.id);
         } else {
-          await suspendOrganizationManager(id, manager.id);
+          await suspendManager(id, manager.id);
         }
         setManagerUpdating(false);
         setSubmitResponse({
