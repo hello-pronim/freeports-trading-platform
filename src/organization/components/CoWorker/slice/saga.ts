@@ -115,7 +115,6 @@ export function* updateCoWorker({
   updates: Partial<User>;
 }>): Generator<any> {
   try {
-    const { roles } = payload.updates;
     const response = yield call(
       updateOrgUser,
       payload.organizationId,
@@ -123,30 +122,55 @@ export function* updateCoWorker({
       payload.updates
     );
     if (payload.updates.roles) {
-      yield call(
-        updateOrgRolesToUser,
-        payload.organizationId,
-        payload.id,
-        payload.updates.roles
-          .filter((role: any) => role.kind === "RoleOrganization")
-          .map((role: any) => role.id)
-      );
-      /* yield call(
-        updateDeskRolesToUser,
-        payload.organizationId,
-        payload.id,
-        payload.updates.roles
-          .filter((role: any) => role.kind === "RoleDesk")
-          .map((role: any) => role.id)
-      ); */
-      yield call(
-        updateMultiDeskRolesToUser,
-        payload.organizationId,
-        payload.id,
-        payload.updates.roles
-          .filter((role: any) => role.kind === "RoleMultiDesk")
-          .map((role: any) => role.id)
-      );
+      // assign organization roles to user
+      if (
+        payload.updates.roles.filter(
+          (role: any) => role.kind === "RoleOrganization"
+        ).length > 0
+      ) {
+        yield call(
+          updateOrgRolesToUser,
+          payload.organizationId,
+          payload.id,
+          payload.updates.roles
+            .filter((role: any) => role.kind === "RoleOrganization")
+            .map((role: any) => role.id)
+        );
+      }
+      // assign desk roles to user
+      if (
+        payload.updates.roles.filter((role: any) => role.kind === "RoleDesk")
+          .length > 0
+      ) {
+        const deskRoles = payload.updates.roles.filter(
+          (role: any) => role.kind === "RoleDesk"
+        );
+        console.log(deskRoles);
+        yield deskRoles.map((deskRole: any) =>
+          call(
+            updateDeskRolesToUser,
+            payload.organizationId,
+            deskRole.desk,
+            payload.id,
+            [deskRole.id]
+          )
+        );
+      }
+      // assign mult-desk roles to user
+      if (
+        payload.updates.roles.filter(
+          (role: any) => role.kind === "RoleMultidesk"
+        ).length > 0
+      ) {
+        yield call(
+          updateMultiDeskRolesToUser,
+          payload.organizationId,
+          payload.id,
+          payload.updates.roles
+            .filter((role: any) => role.kind === "RoleMultidesk")
+            .map((role: any) => ({ role: role.id, desks: role.effectiveDesks }))
+        );
+      }
     }
 
     yield put(
@@ -191,11 +215,14 @@ export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
       if (!(response as User).roles || !(response as User).roles?.length) {
         (response as User).roles = [];
       } else {
-        response.roles = response.roles?.map((r: any) => ({
-          id: r.id,
-          desk: r.desk,
-          effectiveDesks: r.effectiveDesks,
-        }));
+        response.roles = response.roles
+          ?.filter((r: any) => !r.system)
+          .map((r: any) => ({
+            id: r.id,
+            kind: r.kind,
+            desk: r.desk,
+            effectiveDesks: r.effectiveDesks,
+          }));
       }
       yield put(actions.selectCoWorkerSuccess(response as User));
     } else {
@@ -210,7 +237,7 @@ export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
     );
   }
 }
-/* 
+
 export function* suspendCoWorker({
   payload,
 }: PayloadAction<{ id: string }>): Generator<any> {
@@ -293,17 +320,17 @@ export function* sendCoWorkerResetPasswordEmail({
       })
     );
   }
-} */
+}
 
 export function* coWorkersSaga(): Generator<any> {
   yield takeLatest(actions.getCoWorkers, getCoWorkers);
-  /* yield takeEvery(actions.createCoWorker, createCoWorker); */
+  yield takeEvery(actions.createCoWorker, createCoWorker);
   yield takeEvery(actions.selectCoWorker, getCoWorker);
   yield takeEvery(actions.updateCoWorker, updateCoWorker);
-  /* yield takeEvery(actions.suspendCoWorker, suspendCoWorker);
+  yield takeEvery(actions.suspendCoWorker, suspendCoWorker);
   yield takeEvery(actions.resumeCoWorker, resumeCoWorker);
   yield takeEvery(
     actions.sendCoWorkerResetPasswordEmail,
     sendCoWorkerResetPasswordEmail
-  ); */
+  );
 }

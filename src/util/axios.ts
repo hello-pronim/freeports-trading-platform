@@ -20,7 +20,7 @@ axios.interceptors.request.use(
   (config: any) => {
     const jwtToken = Lockr.get("ACCESS_TOKEN");
 
-    window.store.dispatch(clearError());
+    // window.store.dispatch(clearError());
 
     if (jwtToken) {
       // eslint-disable-next-line no-param-reassign
@@ -46,7 +46,6 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.log(error.response.data);
     window.store.dispatch(setError(error.response.data));
     if (error.response.status === 401) {
       const jwtToken = Lockr.get("ACCESS_TOKEN");
