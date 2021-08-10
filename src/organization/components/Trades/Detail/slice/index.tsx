@@ -34,8 +34,9 @@ export const initialState: TradeDetailState = {
   rfqs: [],
   loadingRfqs: false,
   orderLoading: false,
+  tradeAmount: "",
 };
-
+export const MAX_TRADE_AMOUNT = 10;
 const slice = createSlice({
   name: "tradeDetail",
   initialState,
@@ -73,6 +74,9 @@ const slice = createSlice({
       state.rfqs = action.payload;
       state.loadingRfqs = false;
     },
+    getRfqsFail(state, action: PayloadAction<any>) {
+      state.loadingRfqs = false;
+    },
     order(
       state,
       action: PayloadAction<{
@@ -87,7 +91,6 @@ const slice = createSlice({
       state.orderLoading = true;
     },
     orderSuccess(state, action: PayloadAction<TradeOrderResponse>) {
-      console.log("order success", action);
       const selectedTradeRequest = { ...state.selectedTradeRequest };
       if (selectedTradeRequest.orders) {
         selectedTradeRequest.orders.push(action.payload);
@@ -96,6 +99,12 @@ const slice = createSlice({
       }
       state.selectedTradeRequest = selectedTradeRequest;
       state.orderLoading = false;
+    },
+    orderFail(state, action: PayloadAction<any>) {
+      state.orderLoading = false;
+    },
+    setTradeAmount(state, action: PayloadAction<any>) {
+      state.tradeAmount = action.payload;
     },
   },
 });

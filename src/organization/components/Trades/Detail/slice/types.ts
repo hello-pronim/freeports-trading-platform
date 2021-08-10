@@ -7,4 +7,5 @@ export interface TradeDetailState {
   rfqs: RfqResponse[];
   loadingRfqs: boolean;
   orderLoading: boolean;
+  tradeAmount: "";
 }
