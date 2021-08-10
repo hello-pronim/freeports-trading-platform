@@ -66,9 +66,6 @@ const validate = (values: any) => {
   if (!values.email) {
     errors.email = "This Field Required";
   }
-  if (!values.password) {
-    errors.password = "This Field Required";
-  }
   if (!values.phone) {
     errors.phone = "This Field Required";
   }
@@ -101,7 +98,6 @@ const AddManager = (): React.ReactElement => {
       organizationId,
       values.nickname,
       values.email,
-      values.password,
       values.phone,
       managerAvatar
     ).then((res: any) => {
@@ -118,7 +114,6 @@ const AddManager = (): React.ReactElement => {
           initialValues={{
             nickname: "",
             email: "",
-            password: "",
             phone: "",
           }}
           mutators={{
@@ -188,22 +183,6 @@ const AddManager = (): React.ReactElement => {
                               </FormControl>
                             </Grid>
                           </Grid>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <FormControl
-                            fullWidth
-                            className={classes.margin}
-                            variant="outlined"
-                          >
-                            <TextField
-                              required
-                              type="password"
-                              id="outlined-adornment-amount"
-                              label="Password"
-                              name="password"
-                              variant="outlined"
-                            />
-                          </FormControl>
                         </Grid>
                       </Grid>
                     </Grid>
