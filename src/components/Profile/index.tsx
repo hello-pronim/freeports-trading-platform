@@ -228,31 +228,36 @@ const Profile = (): React.ReactElement => {
     setImportKeyPassword(value);
   };
 
-  const addCertification = async (cert: any) => {
-    const keyString = await publicKeyToString(cert.publicKey);
-    await addPublicKey(keyString, cert.name);
+  const addCertification = async (cert: any, saveToServer: boolean) => {
     await saveKey(cert.publicKey, cert.privateKey, cert.name);
     
-    let newRemoteKey = null;
-    const res = await checkPublicKey();
-    if(res.success) {
-      newRemoteKey = res.data;
-    }
-
     const newList = [...keyList];
     newList.push(cert);
 
-    dispatch(globalActions.setCertification({
-      keyList: newList, 
-      remoteKey: newRemoteKey
-    }));
+    if(saveToServer) {
+      const keyString = await publicKeyToString(cert.publicKey);
+      await addPublicKey(keyString, cert.name);
+
+      let newRemoteKey = null;
+      const res = await checkPublicKey();
+      if(res.success) {
+        newRemoteKey = res.data;
+      }
+
+      dispatch(globalActions.setCertification({
+        keyList: newList, 
+        remoteKey: newRemoteKey
+      }));
+    } else {
+      dispatch(globalActions.setKeyList(newList));
+    }
   }
 
   const onCreateCertificate = async () => {
     setLoading(true);
 
     const results = await generateKeyPair(key, passphrase);
-    await addCertification(results);
+    await addCertification(results, true);
 
     setLoading(false);
     setCreateDialogOpen(false);
@@ -266,7 +271,8 @@ const Profile = (): React.ReactElement => {
         importedFile,
         importKeyPassword
       );
-      await addCertification(results);
+      const saveToServer = remoteKey && remoteKey.status !== userPublicKeyStatus.revoked;
+      await addCertification(results, !saveToServer);
 
       setLoading(false);
       setImportKeyDialogOpen(false);
