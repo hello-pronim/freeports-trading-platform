@@ -17,7 +17,7 @@ import getClearerUsers, {
   resumeClearerUser,
   updateClearerUser,
   sendResetPasswordEmail,
-  resetOTP
+  resetOTP,
 } from "../../../../services/clearerUsersService";
 import {
   assignClearerRolesToUser,
@@ -59,7 +59,7 @@ export function* createCoWorker({
       yield call(
         assignClearerRolesToUser,
         (response as ResourceCreatedResponse).id,
-        payload.user.roles
+        payload.user.roles.map((role: any) => role.roleId)
       );
     }
     yield put(
@@ -97,7 +97,11 @@ export function* updateCoWorker({
   try {
     const response = yield call(updateClearerUser, payload.id, payload.updates);
     if (payload.updates.roles) {
-      yield call(updateClearerRolesToUser, payload.id, payload.updates.roles);
+      yield call(
+        updateClearerRolesToUser,
+        payload.id,
+        payload.updates.roles.map((role: any) => role.id)
+      );
     }
 
     yield put(
@@ -136,9 +140,11 @@ export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
       const response: any = yield call(getClearerUser, payload.id);
 
       if (!(response as User).roles || !(response as User).roles?.length) {
-        (response as User).roles = [""];
+        (response as User).roles = [];
       } else {
-        response.roles = response.roles?.map((r: any) => r.id);
+        response.roles = response.roles?.map((r: any) => ({
+          id: r.id,
+        }));
       }
       yield put(actions.selectCoWorkerSuccess(response as User));
     } else {
@@ -214,7 +220,7 @@ export function* sendCoWorkerResetPasswordEmail({
     if (payload.id) {
       const response: any = yield call(sendResetPasswordEmail, payload.id);
       yield put(actions.sendCoWorkerResetPasswordEmailSuccess());
-      if(response.success) {
+      if (response.success) {
         yield put(
           snackbarActions.showSnackbar({
             message: "Successfully sent reset password email",
@@ -224,7 +230,7 @@ export function* sendCoWorkerResetPasswordEmail({
       } else {
         yield put(
           snackbarActions.showSnackbar({
-            message: 'Failed to send email',
+            message: "Failed to send email",
             type: "error",
           })
         );
@@ -247,7 +253,7 @@ export function* resetOTPSaga({
     if (payload.id) {
       const response: any = yield call(resetOTP, payload.id);
       yield put(actions.resetOTPSuccess());
-      if(response.success) {
+      if (response.success) {
         yield put(
           snackbarActions.showSnackbar({
             message: "Successfully reset OTP key",
@@ -257,7 +263,7 @@ export function* resetOTPSaga({
       } else {
         yield put(
           snackbarActions.showSnackbar({
-            message: 'Failed to reset OTP key',
+            message: "Failed to reset OTP key",
             type: "error",
           })
         );
@@ -280,6 +286,9 @@ export function* coWorkersSaga(): Generator<any> {
   yield takeEvery(actions.updateCoWorker, updateCoWorker);
   yield takeEvery(actions.suspendCoWorker, suspendCoWorker);
   yield takeEvery(actions.resumeCoWorker, resumeCoWorker);
-  yield takeEvery(actions.sendCoWorkerResetPasswordEmail, sendCoWorkerResetPasswordEmail);
+  yield takeEvery(
+    actions.sendCoWorkerResetPasswordEmail,
+    sendCoWorkerResetPasswordEmail
+  );
   yield takeEvery(actions.resetOTP, resetOTPSaga);
 }
