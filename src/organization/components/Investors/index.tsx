@@ -123,7 +123,7 @@ const validateTrade = (values: any) => {
 const Investors = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const { getOrganizerdetail } = useOrganization();
+  const { getOrganization } = useOrganization();
   const investors = useSelector(selectInvestors);
   const investorsLoading = useSelector(selectIsInvestorsLoading);
   const desks = useSelector(selectDesks);
@@ -196,7 +196,7 @@ const Investors = (): React.ReactElement => {
   useEffect(() => {
     let mounted = false;
     const init = async () => {
-      const orgDetail = await getOrganizerdetail(organizationId);
+      const orgDetail = await getOrganization(organizationId);
       if (!mounted && orgDetail.clearing) {
         setTradingAccounts(orgDetail.clearing);
       }

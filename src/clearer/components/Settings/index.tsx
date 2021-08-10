@@ -100,7 +100,7 @@ const Alert = (props: AlertProps) => {
 const Settings = (): React.ReactElement => {
   const { organizationId } = Lockr.get("USER_DATA");
   const classes = useStyle();
-  const { getOrganizerdetail, updateOrganization } = useOrganization();
+  const { getOrganization, updateOrganization } = useOrganization();
   const [orgDetail, setOrgDetail] = useState({
     id: "",
     name: "",
@@ -123,7 +123,7 @@ const Settings = (): React.ReactElement => {
   useEffect(() => {
     let mounted = false;
     const init = async () => {
-      const detail = await getOrganizerdetail(organizationId);
+      const detail = await getOrganization(organizationId);
 
       if (!mounted) {
         if (detail) {
