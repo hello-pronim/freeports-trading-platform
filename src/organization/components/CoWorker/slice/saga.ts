@@ -22,6 +22,10 @@ import {
 import {
   assignOrgRolesToUser,
   updateOrgRolesToUser,
+  assignDeskRolesToUser,
+  updateDeskRolesToUser,
+  assignMultiDeskRolesToUser,
+  updateMultiDeskRolesToUser,
 } from "../../../../services/roleService";
 import PaginatedResponse from "../../../../types/PaginatedResponse";
 import { ResourceCreatedResponse } from "../../../../types/ResourceCreatedResponse";
@@ -69,6 +73,8 @@ export function* createCoWorker({
         payload.organizationId,
         (response as ResourceCreatedResponse).id,
         payload.user.roles
+          .filter((role: any) => role.deskId === undefined)
+          .map((role: any) => role.id)
       );
     }
     yield put(
@@ -109,6 +115,7 @@ export function* updateCoWorker({
   updates: Partial<User>;
 }>): Generator<any> {
   try {
+    const { roles } = payload.updates;
     const response = yield call(
       updateOrgUser,
       payload.organizationId,
@@ -121,6 +128,24 @@ export function* updateCoWorker({
         payload.organizationId,
         payload.id,
         payload.updates.roles
+          .filter((role: any) => role.kind === "RoleOrganization")
+          .map((role: any) => role.id)
+      );
+      /* yield call(
+        updateDeskRolesToUser,
+        payload.organizationId,
+        payload.id,
+        payload.updates.roles
+          .filter((role: any) => role.kind === "RoleDesk")
+          .map((role: any) => role.id)
+      ); */
+      yield call(
+        updateMultiDeskRolesToUser,
+        payload.organizationId,
+        payload.id,
+        payload.updates.roles
+          .filter((role: any) => role.kind === "RoleMultiDesk")
+          .map((role: any) => role.id)
       );
     }
 
@@ -164,9 +189,13 @@ export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
       );
 
       if (!(response as User).roles || !(response as User).roles?.length) {
-        (response as User).roles = [""];
+        (response as User).roles = [];
       } else {
-        response.roles = response.roles?.map((r: any) => r.id);
+        response.roles = response.roles?.map((r: any) => ({
+          id: r.id,
+          desk: r.desk,
+          effectiveDesks: r.effectiveDesks,
+        }));
       }
       yield put(actions.selectCoWorkerSuccess(response as User));
     } else {

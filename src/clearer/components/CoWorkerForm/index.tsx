@@ -218,7 +218,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                         >
                           <Select
                             native
-                            name={name}
+                            name={`${name}.id`}
                             inputProps={{
                               name: "role",
                               id: "role-select",
@@ -227,20 +227,19 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             label="Role"
                             variant="outlined"
                             inputLabelProps={{
-                              shrink: !!values.roles[i],
+                              shrink: !!values.roles[i].id,
                               filled: true,
                             }}
                           >
                             <option aria-label="None" value="" />
                             {existingRoles
-                              .filter((role) => {
-                                if (!values.roles || !values.roles.length) {
-                                  return true;
-                                }
-                                return values.roles[i] === role.id
-                                  ? true
-                                  : !values.roles.includes(role.id);
-                              })
+                              .filter(
+                                (role) =>
+                                  values.roles[i].id === role.id ||
+                                  values.roles.filter(
+                                    (r: any) => r.id === role.id
+                                  ).length === 0
+                              )
                               .map((r) => (
                                 <option key={r.id} value={r.id}>
                                   {r.name}
@@ -263,7 +262,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           (fields.length || 0) < existingRoles.length && (
                             <Grid item xs={1}>
                               <IconButton
-                                onClick={() => push("roles", undefined)}
+                                onClick={() => push("roles", { id: "" })}
                                 aria-label="Add role"
                               >
                                 <AddCircleOutlineIcon />
@@ -366,6 +365,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                     </div>
                   </Grid>
                 </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
               </Grid>
               <Grid item xs={12}>
                 <Grid container justify="flex-end" spacing={2}>

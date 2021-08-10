@@ -26,7 +26,12 @@ export default interface User {
 
   jobTitle: string;
 
-  roles?: string[];
+  roles?: Array<{
+    id: string;
+    kind: string;
+    effectiveDesks?: string[];
+    desk?: string;
+  }>;
 
   suspended: boolean;
 
