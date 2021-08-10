@@ -22,9 +22,7 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useOrganization } from "../../../../hooks";
-import {
-  sendResetPasswordEmail
-} from "../../../../services/clearerUsersService";
+import { sendResetPasswordEmail } from "../../../../services/clearerUsersService";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -93,7 +91,7 @@ const Alert = (props: AlertProps) => {
 
 const Manager = (props: any): React.ReactElement => {
   const classes = useStyle();
-  const { getOrganizedManager } = useOrganization();
+  const { getManager } = useOrganization();
   const [organizerStatus, setOrganizerStatus] = useState(true);
   const [manager, setManager] = useState({
     id: "string",
@@ -113,7 +111,7 @@ const Manager = (props: any): React.ReactElement => {
   useEffect(() => {
     let mounted = false;
     const init = async () => {
-      const managerData = await getOrganizedManager(orgId, managerId);
+      const managerData = await getManager(orgId, managerId);
 
       if (!mounted) {
         setManager({
@@ -190,18 +188,18 @@ const Manager = (props: any): React.ReactElement => {
     if (managerId) {
       setSendingEmail(true);
       await sendResetPasswordEmail(managerId)
-      .then((data) => {
-        setSubmitResponse({
-          type: "success",
-          message: "Successfully sent reset password email",
+        .then((data) => {
+          setSubmitResponse({
+            type: "success",
+            message: "Successfully sent reset password email",
+          });
+        })
+        .catch((err) => {
+          setSubmitResponse({
+            type: "error",
+            message: err.message,
+          });
         });
-      })
-      .catch((err) => {
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-      });
       setSendingEmail(false);
       setShowAlert(true);
     }
@@ -343,9 +341,7 @@ const Manager = (props: any): React.ReactElement => {
         >
           <Alert
             onClose={handleAlertClose}
-            severity={
-              submitResponse.type === "success" ? "success" : "error"
-            }
+            severity={submitResponse.type === "success" ? "success" : "error"}
           >
             {submitResponse.message}
           </Alert>
