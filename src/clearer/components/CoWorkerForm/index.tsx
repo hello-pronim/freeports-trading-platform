@@ -247,7 +247,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                               ))}
                           </Select>
                         </Grid>
-                        {i !== 0 && (
+                        {fields.length !== 1 && (
                           <Grid item xs={1}>
                             <IconButton
                               onClick={() => fields.remove(i)}
@@ -257,8 +257,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             </IconButton>
                           </Grid>
                         )}
-                        {fields &&
-                          i === (fields.length || 0) - 1 &&
+                        {i === (fields.length || 0) - 1 &&
                           (fields.length || 0) < existingRoles.length && (
                             <Grid item xs={1}>
                               <IconButton

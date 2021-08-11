@@ -183,15 +183,58 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     dispatch(coworkerActions.getDeskRoles(organizationId));
   }, []);
 
+  const getRoleDetail = (roleId: string) => {
+    if (orgRoles.filter((role: any) => role.id === roleId).length > 0)
+      return {
+        kind: "RoleOrganization",
+        ...orgRoles.filter((role: any) => role.id === roleId)[0],
+      };
+    if (multiDeskRoles.filter((role: any) => role.id === roleId).length > 0)
+      return {
+        kind: "RoleMultidesk",
+        ...multiDeskRoles.filter((role: any) => role.id === roleId)[0],
+      };
+    if (deskRoles.filter((role: any) => role.id === roleId).length > 0)
+      return {
+        kind: "RoleDesk",
+        ...deskRoles.filter((role: any) => role.id === roleId)[0],
+      };
+    return {
+      id: roleId,
+      kind: "",
+      desk: { id: "", name: "" },
+      effectiveDesks: [],
+    };
+  };
+
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
-    updates.roles = values.roles;
-    console.log(updates);
+    updates.roles = values.roles.map((role: any) => {
+      const roleDetail = getRoleDetail(role.id);
+
+      if (roleDetail.kind === "RoleOrganization") {
+        return { id: role.id, kind: roleDetail.kind };
+      }
+      if (roleDetail.kind === "RoleMultidesk") {
+        return {
+          id: role.id,
+          kind: roleDetail.kind,
+          effectiveDesks: role.effectiveDesks,
+        };
+      }
+      if (roleDetail.kind === "RoleDesk") {
+        return {
+          id: role.id,
+          kind: roleDetail.kind,
+          desk: roleDetail.desk ? roleDetail.desk.id : "",
+        };
+      }
+      return role;
+    });
     onSubmit(updates as User);
   };
 
   const handleAddVaultUser = () => {
-    console.log("handle add to vault ", coWorker, currentUser);
     if (coWorker.id && coWorker.publicKeys && coWorker.publicKeys[0]) {
       dispatch(
         coworkerActions.addUserToVault({
@@ -324,9 +367,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             </Select>
                           </Grid>
                         )}
-                        {i !== 0 && (
-                          <Grid item xs={2}>
-                            <Grid container spacing={1}>
+                        <Grid item xs={2}>
+                          <Grid container spacing={1}>
+                            {fields.length !== 1 && (
                               <Grid item>
                                 <IconButton
                                   onClick={() => fields.remove(i)}
@@ -335,23 +378,30 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                                   <DeleteForeverIcon />
                                 </IconButton>
                               </Grid>
-                              {i === (fields.length || 0) - 1 &&
-                                (fields.length || 0) <
-                                  orgRoles.length +
-                                    multiDeskRoles.length +
-                                    deskRoles.length && (
-                                  <Grid item>
-                                    <IconButton
-                                      onClick={() => push("roles", { id: "" })}
-                                      aria-label="Add role"
-                                    >
-                                      <AddCircleOutlineIcon />
-                                    </IconButton>
-                                  </Grid>
-                                )}
-                            </Grid>
+                            )}
+                            {i === (fields.length || 0) - 1 &&
+                              (fields.length || 0) <
+                                orgRoles.length +
+                                  multiDeskRoles.length +
+                                  deskRoles.length && (
+                                <Grid item>
+                                  <IconButton
+                                    onClick={() =>
+                                      push("roles", {
+                                        id: "",
+                                        kind: "",
+                                        desk: "",
+                                        effectiveDesks: [],
+                                      })
+                                    }
+                                    aria-label="Add role"
+                                  >
+                                    <AddCircleOutlineIcon />
+                                  </IconButton>
+                                </Grid>
+                              )}
                           </Grid>
-                        )}
+                        </Grid>
                       </Grid>
                     ))
                   }
