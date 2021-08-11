@@ -288,32 +288,30 @@ const Detail = (): React.ReactElement => {
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.currentTarget;
     if (files && files.length) {
-      Papa.parse(files[0], {
-        skipEmptyLines: true,
-        complete: (results: any) => {
-          const { data } = results;
-          const keys = data[0];
-          const values = data.slice(1);
-          const objects = values.map((array: Array<any>) => {
-            const object: any = {
-              label: "",
-              date: "",
-              type: "credit",
-              amount: 0,
-            };
-            keys.forEach((key: string, i: number) => (object[key] = array[i]));
-            return object;
-          });
-          objects.map(async (object: operationType) => {
-            await dispatch(
-              accountDetailActions.addOperation({
-                accountId,
-                operation: object,
-              })
-            );
-          });
-        },
-      });
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Parse camt.053 xml
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(reader.result as string, 'text/xml');
+
+        const entries = xml.getElementsByTagName('Ntry');
+        for (let i = 0; i < entries.length; i += 1) {
+          const entry = entries[i];
+          const entryObj = {
+            amount: Number(entry.querySelector('Amt')?.textContent),
+            date: String(entry.querySelector('BookgDt Dt')?.textContent),
+            label: String(entry.querySelector('NtryRef')?.textContent),
+            type: entry.querySelector('CdtDbtInd')?.textContent === 'CRDT' ? 'credit' : 'debit',
+          }
+          dispatch(
+            accountDetailActions.addOperation({
+              accountId,
+              operation: entryObj,
+            })
+          );
+        }
+      };
+      reader.readAsText(files[0]);
     }
   };
 
@@ -398,7 +396,7 @@ const Detail = (): React.ReactElement => {
                     <input
                       type="file"
                       ref={fileRef}
-                      accept=".csv, .xlsx, .xls"
+                      accept=".xml"
                       className={classes.fileInput}
                       onChange={handleFileImport}
                     />
