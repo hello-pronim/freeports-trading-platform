@@ -12,4 +12,6 @@ export default interface Operation {
   type: string;
 
   createdAt?: string;
+
+  importId?: string;
 }

@@ -53,7 +53,7 @@ export function* getOperations({
 
 export function* addOperation({
   payload,
-}: PayloadAction<{ accountId: string; operation: Operation }>): Generator<any> {
+}: PayloadAction<{ accountId: string; operation: Array<Operation> }>): Generator<any> {
   try {
     const response = yield call(
       createOperation,
