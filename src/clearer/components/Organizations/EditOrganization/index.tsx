@@ -8,6 +8,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  Checkbox,
   CircularProgress,
   Container,
   Divider,
@@ -18,6 +19,7 @@ import {
   InputAdornment,
   List,
   ListItem,
+  ListItemText,
   MenuItem,
   Select,
   Snackbar,
@@ -147,6 +149,7 @@ const EditOrganizer = (): React.ReactElement => {
       const all = await allAccounts(); // get all clearer accounts
       const detail = await getOrganization(id);
       const managerList = await getManagers(id);
+      console.log(managerList);
       if (!mounted) {
         setAccounts(all);
         setOrgDetail({
@@ -455,7 +458,12 @@ const EditOrganizer = (): React.ReactElement => {
                                   )
                                   .map((item: accountType) => (
                                     <MenuItem key={item.id} value={item.id}>
-                                      {`${item.name} (${item.currency})`}
+                                      <Checkbox
+                                        checked={
+                                          selectedAccounts.indexOf(item.id) > -1
+                                        }
+                                      />
+                                      <ListItemText>{`${item.name} (${item.currency})`}</ListItemText>
                                     </MenuItem>
                                   ))}
                               </Select>

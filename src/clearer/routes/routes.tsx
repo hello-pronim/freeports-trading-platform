@@ -27,13 +27,17 @@ export default [
     path: "/organizations/add",
     exact: true,
     auth: true,
-    component: lazy(() => import("../components/Organizations/AddOrganizer")),
+    component: lazy(
+      () => import("../components/Organizations/AddOrganization")
+    ),
   },
   {
     path: "/organizations/edit/:id",
     exact: true,
     auth: true,
-    component: lazy(() => import("../components/Organizations/EditOrganizer")),
+    component: lazy(
+      () => import("../components/Organizations/EditOrganization")
+    ),
   },
   {
     path: "/organizations/:organizationId/managers/add",

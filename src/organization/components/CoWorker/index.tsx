@@ -82,7 +82,6 @@ const CoWorker = (): React.ReactElement => {
   const formLoading = useSelector(selectIsFormLoading);
   const loading = useSelector(selectIsLoading);
   const selectedCoWorker: User = useSelector(selectSelectedCoWorker);
-  console.log(selectedCoWorker);
   const suspendStateLoading: boolean = useSelector(selectSuspendStateLoading);
   const [coWorkerSearch, setCoWorkerSearch] = useState("");
   if (

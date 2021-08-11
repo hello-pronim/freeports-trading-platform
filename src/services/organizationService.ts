@@ -61,7 +61,6 @@ const createOrganizationManager = (
   organizationId: string,
   nickname: string,
   email: string,
-  password: string,
   phone: string,
   avatar: string
 ): Promise<any> => {
@@ -70,7 +69,6 @@ const createOrganizationManager = (
       .post(`/organization/${organizationId}/manager`, {
         nickname,
         email,
-        password,
         phone,
         avatar,
       })

@@ -1,5 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
+import { Form } from "react-final-form";
+import arrayMutators from "final-form-arrays";
+import { TextField } from "mui-rff";
 import {
   Avatar,
   Button,
@@ -7,19 +11,18 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  Checkbox,
   CircularProgress,
   Container,
   Divider,
   Grid,
   FormControl,
+  ListItemText,
   makeStyles,
   MenuItem,
   Select,
   Snackbar,
 } from "@material-ui/core";
-import { Form } from "react-final-form";
-import { TextField } from "mui-rff";
-import { useHistory } from "react-router";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import { useOrganization, useAccounts } from "../../../../hooks";
@@ -103,8 +106,8 @@ const Alert = (props: AlertProps) => {
 };
 
 const AddOrganizer = (): React.ReactElement => {
-  const history = useHistory();
   const classes = useStyles();
+  const history = useHistory();
   const [avatar, setAvatar] = useState();
   const [accounts, setAccounts] = useState([] as accountType[]);
   const [selectedAccounts, setSelectedAccounts] = useState([] as string[]);
@@ -174,15 +177,15 @@ const AddOrganizer = (): React.ReactElement => {
     if (handleAssignCheck(value as string[]))
       setSelectedAccounts(value as string[]);
     else {
+      setShowAlert(true);
       setSubmitResponse({
         type: "error",
         message: "You can't select the accounts with the same currency",
       });
-      setShowAlert(true);
     }
   };
 
-  const onsubmit = async (values: any) => {
+  const onSubmit = async (values: any) => {
     setLoading(true);
     setShowAlert(false);
     setSubmitResponse({ type: "", message: "" });
@@ -232,7 +235,10 @@ const AddOrganizer = (): React.ReactElement => {
     <div className="main-wrapper">
       <Container>
         <Form
-          onSubmit={onsubmit}
+          onSubmit={onSubmit}
+          mutators={{
+            ...arrayMutators,
+          }}
           initialValues={{
             name: "",
             street1: "",
@@ -244,7 +250,15 @@ const AddOrganizer = (): React.ReactElement => {
             commissionClearer: "",
           }}
           validate={onValidate}
-          render={({ handleSubmit, values }) => (
+          render={({
+            handleSubmit,
+            submitting,
+            pristine,
+            form: {
+              mutators: { push },
+            },
+            values,
+          }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Card>
                 <CardHeader title="Create new organization" />
@@ -333,7 +347,14 @@ const AddOrganizer = (): React.ReactElement => {
                                 </MenuItem>
                                 {accounts.map((item) => (
                                   <MenuItem key={item.id} value={item.id}>
-                                    {`${item.name} (${item.currency})`}
+                                    <Checkbox
+                                      checked={
+                                        selectedAccounts.indexOf(item.id) > -1
+                                      }
+                                    />
+                                    <ListItemText>
+                                      {`${item.name} (${item.currency})`}
+                                    </ListItemText>
                                   </MenuItem>
                                 ))}
                               </Select>
@@ -395,7 +416,7 @@ const AddOrganizer = (): React.ReactElement => {
                         variant="contained"
                         color="primary"
                         type="submit"
-                        disabled={loading}
+                        disabled={submitting || pristine}
                       >
                         Submit
                       </Button>

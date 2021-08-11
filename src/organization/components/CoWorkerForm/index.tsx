@@ -183,15 +183,58 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     dispatch(coworkerActions.getDeskRoles(organizationId));
   }, []);
 
+  const getRoleDetail = (roleId: string) => {
+    if (orgRoles.filter((role: any) => role.id === roleId).length > 0)
+      return {
+        kind: "RoleOrganization",
+        ...orgRoles.filter((role: any) => role.id === roleId)[0],
+      };
+    if (multiDeskRoles.filter((role: any) => role.id === roleId).length > 0)
+      return {
+        kind: "RoleMultidesk",
+        ...multiDeskRoles.filter((role: any) => role.id === roleId)[0],
+      };
+    if (deskRoles.filter((role: any) => role.id === roleId).length > 0)
+      return {
+        kind: "RoleDesk",
+        ...deskRoles.filter((role: any) => role.id === roleId)[0],
+      };
+    return {
+      id: roleId,
+      kind: "",
+      desk: { id: "", name: "" },
+      effectiveDesks: [],
+    };
+  };
+
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
-    updates.roles = values.roles;
-    console.log(updates);
-    // onSubmit(updates as User);
+    updates.roles = values.roles.map((role: any) => {
+      const roleDetail = getRoleDetail(role.id);
+
+      if (roleDetail.kind === "RoleOrganization") {
+        return { id: role.id, kind: roleDetail.kind };
+      }
+      if (roleDetail.kind === "RoleMultidesk") {
+        return {
+          id: role.id,
+          kind: roleDetail.kind,
+          effectiveDesks: role.effectiveDesks,
+        };
+      }
+      if (roleDetail.kind === "RoleDesk") {
+        return {
+          id: role.id,
+          kind: roleDetail.kind,
+          desk: roleDetail.desk ? roleDetail.desk.id : "",
+        };
+      }
+      return role;
+    });
+    onSubmit(updates as User);
   };
 
   const handleAddVaultUser = () => {
-    console.log("handle add to vault ", coWorker, currentUser);
     if (coWorker.id && coWorker.publicKeys && coWorker.publicKeys[0]) {
       dispatch(
         coworkerActions.addUserToVault({
@@ -235,7 +278,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                         >
                           <Select
                             native
-                            name={name}
+                            name={`${name}.id`}
                             inputProps={{
                               name: "role",
                               id: "role-select",
@@ -252,14 +295,13 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             {orgRoles.length && (
                               <optgroup label="Organization roles">
                                 {orgRoles
-                                  .filter((role) => {
-                                    if (!values.roles || !values.roles.length) {
-                                      return true;
-                                    }
-                                    return values.roles[i] === role.id
-                                      ? true
-                                      : !values.roles.includes(role.id);
-                                  })
+                                  .filter(
+                                    (role) =>
+                                      values.roles[i].id === role.id ||
+                                      values.roles.filter(
+                                        (r: any) => r.id === role.id
+                                      ).length === 0
+                                  )
                                   .map((r) => (
                                     <option key={r.id} value={r.id}>
                                       {r.name}
@@ -270,14 +312,13 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             {multiDeskRoles.length && (
                               <optgroup label="Multi-desk roles">
                                 {multiDeskRoles
-                                  .filter((role) => {
-                                    if (!values.roles || !values.roles.length) {
-                                      return true;
-                                    }
-                                    return values.roles[i] === role.id
-                                      ? true
-                                      : !values.roles.includes(role.id);
-                                  })
+                                  .filter(
+                                    (role) =>
+                                      values.roles[i].id === role.id ||
+                                      values.roles.filter(
+                                        (r: any) => r.id === role.id
+                                      ).length === 0
+                                  )
                                   .map((r) => (
                                     <option key={r.id} value={r.id}>
                                       {r.name}
@@ -288,14 +329,13 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             {deskRoles.length && (
                               <optgroup label="Desk roles">
                                 {deskRoles
-                                  .filter((role) => {
-                                    if (!values.roles || !values.roles.length) {
-                                      return true;
-                                    }
-                                    return values.roles[i] === role.id
-                                      ? true
-                                      : !values.roles.includes(role.id);
-                                  })
+                                  .filter(
+                                    (role) =>
+                                      values.roles[i].id === role.id ||
+                                      values.roles.filter(
+                                        (r: any) => r.id === role.id
+                                      ).length === 0
+                                  )
                                   .map((r) => (
                                     <option key={r.id} value={r.id}>
                                       {r.name}
@@ -306,13 +346,13 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           </Select>
                         </Grid>
                         {multiDeskRoles.filter(
-                          (role) => values.roles[i] === role.id
+                          (role) => values.roles[i].id === role.id
                         ).length > 0 && (
                           <Grid item xs={5}>
                             <Select
                               multiple
                               displayEmpty
-                              name="deskId"
+                              name={`${name}.effectiveDesks`}
                               variant="outlined"
                               label="Desks"
                             >
@@ -327,9 +367,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             </Select>
                           </Grid>
                         )}
-                        {i !== 0 && (
-                          <Grid item xs={2}>
-                            <Grid container spacing={1}>
+                        <Grid item xs={2}>
+                          <Grid container spacing={1}>
+                            {fields.length !== 1 && (
                               <Grid item>
                                 <IconButton
                                   onClick={() => fields.remove(i)}
@@ -338,23 +378,30 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                                   <DeleteForeverIcon />
                                 </IconButton>
                               </Grid>
-                              {i === (fields.length || 0) - 1 &&
-                                (fields.length || 0) <
-                                  orgRoles.length +
-                                    multiDeskRoles.length +
-                                    deskRoles.length && (
-                                  <Grid item>
-                                    <IconButton
-                                      onClick={() => push("roles", undefined)}
-                                      aria-label="Add role"
-                                    >
-                                      <AddCircleOutlineIcon />
-                                    </IconButton>
-                                  </Grid>
-                                )}
-                            </Grid>
+                            )}
+                            {i === (fields.length || 0) - 1 &&
+                              (fields.length || 0) <
+                                orgRoles.length +
+                                  multiDeskRoles.length +
+                                  deskRoles.length && (
+                                <Grid item>
+                                  <IconButton
+                                    onClick={() =>
+                                      push("roles", {
+                                        id: "",
+                                        kind: "",
+                                        desk: "",
+                                        effectiveDesks: [],
+                                      })
+                                    }
+                                    aria-label="Add role"
+                                  >
+                                    <AddCircleOutlineIcon />
+                                  </IconButton>
+                                </Grid>
+                              )}
                           </Grid>
-                        )}
+                        </Grid>
                       </Grid>
                     ))
                   }
@@ -452,25 +499,30 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid container justify="flex-end" spacing={2}>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={onSendResetPasswordLink}
-                  >
-                    Send Reset Password Link
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={submitting || pristine}
-                  >
-                    Save Changes
-                  </Button>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container justify="flex-end" spacing={2}>
+                  <Grid item>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={onSendResetPasswordLink}
+                    >
+                      Send Reset Password Link
+                    </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={submitting || pristine}
+                    >
+                      Save Changes
+                    </Button>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>

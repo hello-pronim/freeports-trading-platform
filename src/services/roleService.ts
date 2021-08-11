@@ -328,13 +328,14 @@ const assignMultiDeskRolesToUser = (
 const updateMultiDeskRolesToUser = (
   organizationId: string,
   userId: string,
-  roles: string[]
+  roles: Array<{ role: string; desks: string[] }>
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/organization/${organizationId}/multidesk/user/${userId}/role`, {
-        roles,
-      })
+      .patch(
+        `/organization/${organizationId}/multidesk/user/${userId}/role`,
+        roles
+      )
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -460,6 +461,7 @@ const updateDeskRolesToUser = (
   userId: string,
   roles: string[]
 ): Promise<string> => {
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
   return new Promise((resolve, reject) => {
     axios
       .patch(
@@ -469,6 +471,7 @@ const updateDeskRolesToUser = (
         }
       )
       .then((res: any) => {
+        console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", res.data);
         return resolve(res.data);
       })
       .catch((err) => {

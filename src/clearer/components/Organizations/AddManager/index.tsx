@@ -1,5 +1,9 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from "react";
 import { useParams, useHistory } from "react-router";
+import { Form } from "react-final-form";
+import { TextField, Select } from "mui-rff";
+import arrayMutators from "final-form-arrays";
 import {
   Avatar,
   Button,
@@ -7,18 +11,14 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  CardMedia,
   Container,
   Divider,
   Grid,
   FormControl,
   makeStyles,
-  Typography,
+  Snackbar,
 } from "@material-ui/core";
-import ImageUploader from "react-images-upload";
-import { Form } from "react-final-form";
-import { TextField, Select } from "mui-rff";
-import arrayMutators from "final-form-arrays";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import { useOrganization } from "../../../../hooks";
 
@@ -66,24 +66,29 @@ const validate = (values: any) => {
   if (!values.email) {
     errors.email = "This Field Required";
   }
-  if (!values.password) {
-    errors.password = "This Field Required";
-  }
   if (!values.phone) {
     errors.phone = "This Field Required";
   }
   return errors;
 };
 
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
 const AddManager = (): React.ReactElement => {
-  const { organizationId }: any = useParams();
   const classes = useStyle();
-  const showingIcon = false;
   const history = useHistory();
-
   const { addManager } = useOrganization();
-
+  const { organizationId }: any = useParams();
   const [managerAvatar, setManagerAvatar] = useState("");
+  const [submitResponse, setSubmitResponse] = useState({
+    type: "success",
+    message: "",
+  });
+  const [showAlert, setShowAlert] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const timer = React.useRef<number>();
 
   const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.currentTarget;
@@ -96,18 +101,40 @@ const AddManager = (): React.ReactElement => {
     }
   };
 
+  const handleAlertClose = () => {
+    setShowAlert(false);
+  };
+
   const onSubmit = async (values: any) => {
+    setLoading(true);
+    setShowAlert(false);
+    setSubmitResponse({ type: "", message: "" });
     const additional = await addManager(
       organizationId,
       values.nickname,
       values.email,
-      values.password,
       values.phone,
       managerAvatar
-    ).then((res: any) => {
-      console.log(res);
-      history.push(`/organizations/edit/${organizationId}`);
-    });
+    )
+      .then((res: any) => {
+        setSubmitResponse({
+          type: "success",
+          message: "Manager has been created successfully.",
+        });
+        setShowAlert(true);
+        timer.current = window.setTimeout(() => {
+          setLoading(false);
+          history.push(`/organizations/edit/${organizationId}`);
+        }, 2000);
+      })
+      .catch((err: any) => {
+        setLoading(false);
+        setSubmitResponse({
+          type: "error",
+          message: err.message,
+        });
+        setShowAlert(true);
+      });
   };
 
   return (
@@ -118,7 +145,6 @@ const AddManager = (): React.ReactElement => {
           initialValues={{
             nickname: "",
             email: "",
-            password: "",
             phone: "",
           }}
           mutators={{
@@ -189,22 +215,6 @@ const AddManager = (): React.ReactElement => {
                             </Grid>
                           </Grid>
                         </Grid>
-                        <Grid item xs={12}>
-                          <FormControl
-                            fullWidth
-                            className={classes.margin}
-                            variant="outlined"
-                          >
-                            <TextField
-                              required
-                              type="password"
-                              id="outlined-adornment-amount"
-                              label="Password"
-                              name="password"
-                              variant="outlined"
-                            />
-                          </FormControl>
-                        </Grid>
                       </Grid>
                     </Grid>
                     <Grid item xs={6}>
@@ -238,6 +248,20 @@ const AddManager = (): React.ReactElement => {
             </form>
           )}
         />
+
+        <Snackbar
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={showAlert}
+          onClose={handleAlertClose}
+        >
+          <Alert
+            onClose={handleAlertClose}
+            severity={submitResponse.type === "success" ? "success" : "error"}
+          >
+            {submitResponse.message}
+          </Alert>
+        </Snackbar>
       </Container>
     </div>
   );
