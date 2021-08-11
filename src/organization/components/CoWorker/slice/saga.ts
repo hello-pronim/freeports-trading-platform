@@ -145,15 +145,22 @@ export function* updateCoWorker({
         const deskRoles = payload.updates.roles.filter(
           (role: any) => role.kind === "RoleDesk"
         );
-        console.log(deskRoles);
-        yield deskRoles.map((deskRole: any) =>
-          call(
-            updateDeskRolesToUser,
-            payload.organizationId,
-            deskRole.desk,
-            payload.id,
-            [deskRole.id]
-          )
+        yield call(
+          (organizationId, id, roles) => {
+            return Promise.all(
+              roles.map((role: any) => {
+                return updateDeskRolesToUser(
+                  organizationId,
+                  role.desk,
+                  id,
+                  new Array(role.id)
+                );
+              })
+            );
+          },
+          payload.organizationId,
+          payload.id,
+          deskRoles
         );
       }
       // assign mult-desk roles to user

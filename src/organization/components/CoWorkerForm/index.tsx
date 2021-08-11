@@ -9,11 +9,13 @@ import { diff } from "deep-object-diff";
 import {
   Avatar,
   Button,
+  Checkbox,
   Container,
   Divider,
   FormControl,
   Grid,
   IconButton,
+  ListItemText,
   makeStyles,
   MenuItem,
 } from "@material-ui/core";
@@ -355,13 +357,32 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                               name={`${name}.effectiveDesks`}
                               variant="outlined"
                               label="Desks"
+                              renderValue={(selected: any) => {
+                                if (selected.length === 0) {
+                                  return <em>Desks</em>;
+                                }
+
+                                return desks
+                                  .filter((desk: deskType) =>
+                                    selected.includes(desk.id)
+                                  )
+                                  .map((desk: deskType) => desk.name)
+                                  .join(", ");
+                              }}
                             >
                               <MenuItem disabled value="">
                                 <em>Select</em>
                               </MenuItem>
                               {desks.map((item: deskType) => (
                                 <MenuItem key={item.id} value={item.id}>
-                                  {item.name}
+                                  <Checkbox
+                                    checked={
+                                      values.roles[i].effectiveDesks.indexOf(
+                                        item.id
+                                      ) > -1
+                                    }
+                                  />
+                                  <ListItemText>{item.name}</ListItemText>
                                 </MenuItem>
                               ))}
                             </Select>

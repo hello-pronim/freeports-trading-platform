@@ -461,7 +461,6 @@ const updateDeskRolesToUser = (
   userId: string,
   roles: string[]
 ): Promise<string> => {
-  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
   return new Promise((resolve, reject) => {
     axios
       .patch(
@@ -471,7 +470,6 @@ const updateDeskRolesToUser = (
         }
       )
       .then((res: any) => {
-        console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", res.data);
         return resolve(res.data);
       })
       .catch((err) => {
