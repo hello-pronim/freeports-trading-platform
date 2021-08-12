@@ -155,12 +155,16 @@ const CoWorker = (): React.ReactElement => {
 
   const handleOnSuspend = () => {
     if (selectedCoWorker.id) {
-      dispatch(actions.suspendCoWorker({ id: selectedCoWorker.id }));
+      dispatch(
+        actions.suspendCoWorker({ organizationId, id: selectedCoWorker.id })
+      );
     }
   };
   const handleOnResume = () => {
     if (selectedCoWorker.id) {
-      dispatch(actions.resumeCoWorker({ id: selectedCoWorker.id }));
+      dispatch(
+        actions.resumeCoWorker({ organizationId, id: selectedCoWorker.id })
+      );
     }
   };
 
