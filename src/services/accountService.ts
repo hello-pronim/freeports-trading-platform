@@ -101,7 +101,7 @@ const getAllOperations = (accountId: string): Promise<Operation[]> => {
 
 const createOperation = (
   accountId: string,
-  operation: Operation
+  operation: Array<Operation>
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios

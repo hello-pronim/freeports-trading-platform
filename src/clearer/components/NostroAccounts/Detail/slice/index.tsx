@@ -53,7 +53,7 @@ const slice = createSlice({
     },
     addOperation(
       state,
-      action: PayloadAction<{ accountId: string; operation: Operation }>
+      action: PayloadAction<{ accountId: string; operation: Array<Operation> }>
     ) {
       state.creatingOperation = true;
     },
