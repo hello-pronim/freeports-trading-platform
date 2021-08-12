@@ -83,7 +83,10 @@ const slice = createSlice({
       state.selectedCoWorker = action.payload;
       state.formLoading = false;
     },
-    suspendCoWorker(state, action: PayloadAction<{ id: string }>) {
+    suspendCoWorker(
+      state,
+      action: PayloadAction<{ organizationId: string; id: string }>
+    ) {
       state.suspendStateLoading = true;
     },
     suspendCoWorkerSuccess(state) {
@@ -92,7 +95,10 @@ const slice = createSlice({
     suspendCoWorkerError(state) {
       state.suspendStateLoading = false;
     },
-    resumeCoWorker(state, action: PayloadAction<{ id: string }>) {
+    resumeCoWorker(
+      state,
+      action: PayloadAction<{ organizationId: string; id: string }>
+    ) {
       state.suspendStateLoading = true;
     },
     resumeCoWorkerSuccess(state) {
