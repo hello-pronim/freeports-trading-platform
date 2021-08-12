@@ -306,8 +306,8 @@ const removeMultiDeskRole = (
 const assignMultiDeskRolesToUser = (
   organizationId: string,
   userId: string,
-  roles: string[]
-): Promise<string> => {
+  roles: Array<{ role: string; desks: string[] }>
+): Promise<{ role: string; desks: string[] }> => {
   return new Promise((resolve, reject) => {
     axios
       .post(
