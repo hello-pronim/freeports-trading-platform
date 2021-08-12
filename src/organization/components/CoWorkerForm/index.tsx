@@ -253,7 +253,11 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         mutators={{
           ...arrayMutators,
         }}
-        initialValues={coWorker}
+        initialValues={
+          coWorker.roles && coWorker.roles.length > 0
+            ? coWorker
+            : { ...coWorker, roles: [{ id: "" }] }
+        }
         validate={validate}
         render={({
           handleSubmit,
@@ -358,10 +362,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                               variant="outlined"
                               label="Desks"
                               renderValue={(selected: any) => {
-                                if (selected.length === 0) {
-                                  return <em>Desks</em>;
-                                }
-
                                 return desks
                                   .filter((desk: deskType) =>
                                     selected.includes(desk.id)

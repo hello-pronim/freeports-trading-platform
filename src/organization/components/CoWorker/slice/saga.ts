@@ -68,21 +68,69 @@ export function* createCoWorker({
 
     // assign user roles
     if (payload.user.roles?.length) {
+      // assign organization roles to user
+      /* if (
+        payload.user.roles.filter(
+          (role: any) => role.kind === "RoleOrganization"
+        ).length > 0
+      ) { */
       yield call(
-        assignOrgRolesToUser,
+        updateOrgRolesToUser,
         payload.organizationId,
         (response as ResourceCreatedResponse).id,
         payload.user.roles
-          .filter((role: any) => role.deskId === undefined)
+          .filter((role: any) => role.kind === "RoleOrganization")
           .map((role: any) => role.id)
       );
+      // }
+      // assign desk roles to user
+      /* if (
+          payload.user.roles.filter((role: any) => role.kind === "RoleDesk")
+            .length > 0
+        ) { */
+      const deskRoles = payload.user.roles.filter(
+        (role: any) => role.kind === "RoleDesk"
+      );
+      yield call(
+        (organizationId, id, roles) => {
+          return Promise.all(
+            roles.map((role: any) => {
+              return updateDeskRolesToUser(
+                organizationId,
+                role.desk,
+                id,
+                new Array(role.id)
+              );
+            })
+          );
+        },
+        payload.organizationId,
+        (response as ResourceCreatedResponse).id,
+        deskRoles
+      );
+      /* } */
+      // assign mult-desk roles to user
+      /* if (
+          payload.user.roles.filter(
+            (role: any) => role.kind === "RoleMultidesk"
+          ).length > 0
+        ) { */
+      yield call(
+        updateMultiDeskRolesToUser,
+        payload.organizationId,
+        (response as ResourceCreatedResponse).id,
+        payload.user.roles
+          .filter((role: any) => role.kind === "RoleMultidesk")
+          .map((role: any) => ({ role: role.id, desks: role.effectiveDesks }))
+      );
+      /* } */
     }
     yield put(
       actions.createCoWorkerSuccess(response as ResourceCreatedResponse)
     );
     yield put(
       snackbarActions.showSnackbar({
-        message: "Co-Worker Created",
+        message: "Co-Worker has been created successfully",
         type: "success",
       })
     );
@@ -98,9 +146,10 @@ export function* createCoWorker({
       yield put(actions.selectCoWorker(selectedCoWorker));
     }
   } catch (error) {
+    yield put(actions.createCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -123,61 +172,61 @@ export function* updateCoWorker({
     );
     if (payload.updates.roles) {
       // assign organization roles to user
-      if (
+      /* if (
         payload.updates.roles.filter(
           (role: any) => role.kind === "RoleOrganization"
         ).length > 0
-      ) {
-        yield call(
-          updateOrgRolesToUser,
-          payload.organizationId,
-          payload.id,
-          payload.updates.roles
-            .filter((role: any) => role.kind === "RoleOrganization")
-            .map((role: any) => role.id)
-        );
-      }
+      ) { */
+      yield call(
+        updateOrgRolesToUser,
+        payload.organizationId,
+        payload.id,
+        payload.updates.roles
+          .filter((role: any) => role.kind === "RoleOrganization")
+          .map((role: any) => role.id)
+      );
+      // }
       // assign desk roles to user
-      if (
+      /* if (
         payload.updates.roles.filter((role: any) => role.kind === "RoleDesk")
           .length > 0
-      ) {
-        const deskRoles = payload.updates.roles.filter(
-          (role: any) => role.kind === "RoleDesk"
-        );
-        yield call(
-          (organizationId, id, roles) => {
-            return Promise.all(
-              roles.map((role: any) => {
-                return updateDeskRolesToUser(
-                  organizationId,
-                  role.desk,
-                  id,
-                  new Array(role.id)
-                );
-              })
-            );
-          },
-          payload.organizationId,
-          payload.id,
-          deskRoles
-        );
-      }
+      ) { */
+      const deskRoles = payload.updates.roles.filter(
+        (role: any) => role.kind === "RoleDesk"
+      );
+      yield call(
+        (organizationId, id, roles) => {
+          return Promise.all(
+            roles.map((role: any) => {
+              return updateDeskRolesToUser(
+                organizationId,
+                role.desk,
+                id,
+                new Array(role.id)
+              );
+            })
+          );
+        },
+        payload.organizationId,
+        payload.id,
+        deskRoles
+      );
+      /* } */
       // assign mult-desk roles to user
-      if (
+      /* if (
         payload.updates.roles.filter(
           (role: any) => role.kind === "RoleMultidesk"
         ).length > 0
-      ) {
-        yield call(
-          updateMultiDeskRolesToUser,
-          payload.organizationId,
-          payload.id,
-          payload.updates.roles
-            .filter((role: any) => role.kind === "RoleMultidesk")
-            .map((role: any) => ({ role: role.id, desks: role.effectiveDesks }))
-        );
-      }
+      ) { */
+      yield call(
+        updateMultiDeskRolesToUser,
+        payload.organizationId,
+        payload.id,
+        payload.updates.roles
+          .filter((role: any) => role.kind === "RoleMultidesk")
+          .map((role: any) => ({ role: role.id, desks: role.effectiveDesks }))
+      );
+      /* } */
     }
 
     yield put(
@@ -185,7 +234,7 @@ export function* updateCoWorker({
     );
     yield put(
       snackbarActions.showSnackbar({
-        message: "Co-Worker updated",
+        message: "Co-Worker has been updated successfully.",
         type: "success",
       })
     );
@@ -201,6 +250,7 @@ export function* updateCoWorker({
       yield put(actions.selectCoWorker(selectedCoWorker));
     }
   } catch (error) {
+    yield put(actions.updateCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -256,15 +306,16 @@ export function* suspendCoWorker({
       yield put(actions.selectCoWorker(selectedCoWorker as User));
       yield put(
         snackbarActions.showSnackbar({
-          message: "User Suspended",
+          message: "User has been suspended successfully.",
           type: "success",
         })
       );
     }
   } catch (error) {
+    yield put(actions.suspendCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -281,15 +332,16 @@ export function* resumeCoWorker({
       yield put(actions.selectCoWorker(selectedCoWorker as User));
       yield put(
         snackbarActions.showSnackbar({
-          message: "User reactivated",
+          message: "User has been reactivated successfully.",
           type: "success",
         })
       );
     }
   } catch (error) {
+    yield put(actions.resumeCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -306,7 +358,7 @@ export function* sendCoWorkerResetPasswordEmail({
       if (response.success) {
         yield put(
           snackbarActions.showSnackbar({
-            message: "Successfully sent reset password email",
+            message: "Reset password email has been sent successfully.",
             type: "success",
           })
         );
@@ -320,6 +372,7 @@ export function* sendCoWorkerResetPasswordEmail({
       }
     }
   } catch (error) {
+    yield put(actions.sendCoWorkerResetPasswordEmailError());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,

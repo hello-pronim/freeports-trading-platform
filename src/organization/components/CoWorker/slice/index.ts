@@ -57,6 +57,9 @@ const slice = createSlice({
     ) {
       state.formLoading = false;
     },
+    createCoWorkerError(state) {
+      state.formLoading = false;
+    },
     updateCoWorker(
       state,
       action: PayloadAction<{
@@ -68,6 +71,9 @@ const slice = createSlice({
       state.formLoading = true;
     },
     updateCoWorkerSuccess(state, action: any) {
+      state.formLoading = false;
+    },
+    updateCoWorkerError(state) {
       state.formLoading = false;
     },
     selectCoWorker(state, action: PayloadAction<User>) {
@@ -83,10 +89,16 @@ const slice = createSlice({
     suspendCoWorkerSuccess(state) {
       state.suspendStateLoading = false;
     },
+    suspendCoWorkerError(state) {
+      state.suspendStateLoading = false;
+    },
     resumeCoWorker(state, action: PayloadAction<{ id: string }>) {
       state.suspendStateLoading = true;
     },
     resumeCoWorkerSuccess(state) {
+      state.suspendStateLoading = false;
+    },
+    resumeCoWorkerError(state) {
       state.suspendStateLoading = false;
     },
     sendCoWorkerResetPasswordEmail(
@@ -96,6 +108,9 @@ const slice = createSlice({
       state.formLoading = true;
     },
     sendCoWorkerResetPasswordEmailSuccess(state) {
+      state.formLoading = false;
+    },
+    sendCoWorkerResetPasswordEmailError(state) {
       state.formLoading = false;
     },
   },
