@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import {
@@ -32,6 +32,8 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import GroupIcon from "@material-ui/icons/Group";
 import SendIcon from "@material-ui/icons/Send";
 import { useAuth, useTheme } from "../../../hooks";
+import { useGlobalSlice } from "../../../slice";
+import { selectTheme } from "../../../slice/selectors";
 
 const navLinks = [
   { title: `Dashboard`, path: `/dashboard`, hasChildren: false },
@@ -67,7 +69,8 @@ const Header = ({
   const dispatch = useDispatch();
   const { isAuthenticated, signOut } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { theme, toggleTheme } = useTheme();
+  const theme = useSelector(selectTheme);
+  const { actions: globalActions } = useGlobalSlice();
 
   const redirect = (path: string) => {
     setAnchorEl(null);
@@ -85,7 +88,7 @@ const Header = ({
   };
 
   const switchTheme = () => {
-    dispatch(toggleTheme);
+    dispatch(globalActions.toggleTheme());
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import {
@@ -34,6 +34,8 @@ import GroupIcon from "@material-ui/icons/Group";
 import { useAuth, useTheme } from "../../../hooks";
 import { usePermissions } from "../../../hooks/permissions";
 import { PermissionClearer } from "../../../types/Permissions";
+import { useGlobalSlice } from "../../../slice";
+import { selectTheme } from "../../../slice/selectors";
 
 const navLinks = [
   { title: `Dashboard`, path: `/dashboard`, hasChildren: false },
@@ -68,7 +70,8 @@ const Header = ({
   const dispatch = useDispatch();
   const { isAuthenticated, signOut } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { theme, toggleTheme } = useTheme();
+  const theme = useSelector(selectTheme);
+  const { actions: globalActions } = useGlobalSlice();
 
   const { userHasPermissions } = usePermissions();
   const redirect = (path: string) => {
@@ -87,7 +90,7 @@ const Header = ({
   };
 
   const switchTheme = () => {
-    dispatch(toggleTheme);
+    dispatch(globalActions.toggleTheme());
   };
 
   return (

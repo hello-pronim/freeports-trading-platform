@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
+import Lockr from "lockr";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { CurrentUser } from "../types/User";
 import { createSlice } from "../util/@reduxjs/toolkit";
@@ -15,10 +16,10 @@ interface ErrorResponseType {
 export const initialState: GlobalState = {
   user: undefined,
   loading: false,
-  theme: "light",
+  theme: Lockr.get("THEME") ? Lockr.get("THEME") : "light",
   error: { errorType: "", message: "" },
   keyList: [],
-  remoteKey: null
+  remoteKey: null,
 };
 
 const slice = createSlice({
@@ -38,8 +39,10 @@ const slice = createSlice({
     clearError(state) {
       state.error = undefined;
     },
-    setTheme(state, action: PayloadAction<string>) {
-      state.theme = action.payload;
+    toggleTheme(state) {
+      state.loading = true;
+      state.theme = state.theme === "light" ? "dark" : "light";
+      Lockr.set("THEME", state.theme);
     },
     setError(state, action: PayloadAction<ErrorResponseType>) {
       state.loading = false;

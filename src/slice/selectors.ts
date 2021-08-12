@@ -21,3 +21,8 @@ export const selectRemoteKey = createSelector(
   [selectDomain],
   (globalState) => globalState.remoteKey
 );
+
+export const selectTheme = createSelector(
+  [selectDomain],
+  (globalState) => globalState.theme
+);
