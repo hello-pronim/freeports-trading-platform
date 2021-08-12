@@ -312,6 +312,7 @@ export function* suspendCoWorker({
       );
     }
   } catch (error) {
+    yield put(actions.suspendCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,
@@ -337,6 +338,7 @@ export function* resumeCoWorker({
       );
     }
   } catch (error) {
+    yield put(actions.resumeCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,
@@ -370,6 +372,7 @@ export function* sendCoWorkerResetPasswordEmail({
       }
     }
   } catch (error) {
+    yield put(actions.sendCoWorkerResetPasswordEmailError());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
