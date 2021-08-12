@@ -51,6 +51,9 @@ const slice = createSlice({
     ) {
       state.formLoading = false;
     },
+    createCoWorkerError(state) {
+      state.formLoading = false;
+    },
     updateCoWorker(
       state,
       action: PayloadAction<{ updates: Partial<User>; id: string }>
@@ -58,6 +61,9 @@ const slice = createSlice({
       state.formLoading = true;
     },
     updateCoWorkerSuccess(state, action: any) {
+      state.formLoading = false;
+    },
+    updateCoWorkerError(state) {
       state.formLoading = false;
     },
     selectCoWorker(state, action: PayloadAction<User>) {
@@ -82,6 +88,9 @@ const slice = createSlice({
     resumeCoWorkerSuccess(state) {
       state.suspendStateLoading = false;
     },
+    resumeCoWorkerError(state) {
+      state.suspendStateLoading = false;
+    },
     sendCoWorkerResetPasswordEmail(
       state,
       action: PayloadAction<{ id: string }>
@@ -91,13 +100,16 @@ const slice = createSlice({
     sendCoWorkerResetPasswordEmailSuccess(state) {
       state.formLoading = false;
     },
-    resetOTP(
-      state,
-      action: PayloadAction<{ id: string }>
-    ) {
+    sendCoWorkerResetPasswordEmailError(state) {
+      state.formLoading = false;
+    },
+    resetOTP(state, action: PayloadAction<{ id: string }>) {
       state.formLoading = true;
     },
     resetOTPSuccess(state) {
+      state.formLoading = false;
+    },
+    resetOTPError(state) {
       state.formLoading = false;
     },
   },
