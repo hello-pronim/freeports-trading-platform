@@ -55,6 +55,7 @@ interface operationType {
   date: string;
   label?: string;
   type: string;
+  importId?: string;
 }
 
 const passedTransactionsColumns = [
@@ -162,6 +163,7 @@ const Detail = (): React.ReactElement => {
     date: "",
     label: "",
     type: "credit",
+    importId: "",
   });
   const selectedAccount = useSelector(selectAccountDetail);
   const accountsLoading = useSelector(selectIsAccountsLoading);
@@ -270,7 +272,7 @@ const Detail = (): React.ReactElement => {
 
   const handleOperationCreate = async (values: operationType) => {
     await dispatch(
-      accountDetailActions.addOperation({ accountId, operation: values })
+      accountDetailActions.addOperation({ accountId, operation: [values] })
     );
     setCreateModalOpen(false);
   };
@@ -285,13 +287,19 @@ const Detail = (): React.ReactElement => {
     if (fileRef.current !== null) fileRef.current.click();
   };
 
-  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { files } = e.currentTarget;
-    if (files && files.length) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        // Parse camt.053 xml
-        const parser = new DOMParser();
+  const readMultiFiles = (files: any) => {
+    function readFile(index: number) {
+      if(index >= files.length) {
+        if(entryObjArray.length) {
+          dispatch(
+            accountDetailActions.addOperation({ accountId, operation: entryObjArray })
+          );
+        }
+        return;
+      }
+
+      const file = files[index];
+      reader.onload = () => {  
         const xml = parser.parseFromString(reader.result as string, 'text/xml');
 
         const entries = xml.getElementsByTagName('Ntry');
@@ -300,18 +308,27 @@ const Detail = (): React.ReactElement => {
           const entryObj = {
             amount: Number(entry.querySelector('Amt')?.textContent),
             date: String(entry.querySelector('BookgDt Dt')?.textContent),
-            label: String(entry.querySelector('NtryRef')?.textContent),
+            label: String(entry.querySelector('NtryDtls RmtInf Ustrd')?.textContent || 'None'),
             type: entry.querySelector('CdtDbtInd')?.textContent === 'CRDT' ? 'credit' : 'debit',
+            importId: String(entry.querySelector('NtryRef')?.textContent),
           }
-          dispatch(
-            accountDetailActions.addOperation({
-              accountId,
-              operation: entryObj,
-            })
-          );
+          entryObjArray.push(entryObj);
         }
-      };
-      reader.readAsText(files[0]);
+        readFile(index + 1)
+      }
+      reader.readAsText(file);
+    }
+
+    let entryObjArray: Array<operationType> = [];
+    const reader = new FileReader();
+    const parser = new DOMParser();
+    readFile(0);
+  }
+
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.currentTarget;
+    if (files && files.length) {
+      readMultiFiles(files);
     }
   };
 
@@ -399,6 +416,7 @@ const Detail = (): React.ReactElement => {
                       accept=".xml"
                       className={classes.fileInput}
                       onChange={handleFileImport}
+                      multiple
                     />
                     <Button
                       variant="contained"
