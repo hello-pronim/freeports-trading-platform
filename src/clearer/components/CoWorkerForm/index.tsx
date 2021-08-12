@@ -191,7 +191,11 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         mutators={{
           ...arrayMutators,
         }}
-        initialValues={coWorker}
+        initialValues={
+          coWorker.roles && coWorker.roles.length > 0
+            ? coWorker
+            : { ...coWorker, roles: [{ id: "" }] }
+        }
         validate={validate}
         render={({
           handleSubmit,
@@ -227,7 +231,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             label="Role"
                             variant="outlined"
                             inputLabelProps={{
-                              shrink: !!values.roles[i].id,
+                              shrink: !!values.roles[i],
                               filled: true,
                             }}
                           >

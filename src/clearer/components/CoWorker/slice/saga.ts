@@ -67,7 +67,7 @@ export function* createCoWorker({
     );
     yield put(
       snackbarActions.showSnackbar({
-        message: "Co-Worker Created",
+        message: "Co-Worker has been created successfully.",
         type: "success",
       })
     );
@@ -83,9 +83,10 @@ export function* createCoWorker({
       yield put(actions.selectCoWorker(selectedCoWorker));
     }
   } catch (error) {
+    yield put(actions.createCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -109,7 +110,7 @@ export function* updateCoWorker({
     );
     yield put(
       snackbarActions.showSnackbar({
-        message: "Co-Worker updated",
+        message: "Co-Worker has been updated successfully.",
         type: "success",
       })
     );
@@ -125,9 +126,10 @@ export function* updateCoWorker({
       yield put(actions.selectCoWorker(selectedCoWorker));
     }
   } catch (error) {
+    yield put(actions.updateCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -204,9 +206,10 @@ export function* resumeCoWorker({
       );
     }
   } catch (error) {
+    yield put(actions.resumeCoWorkerError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -223,7 +226,7 @@ export function* sendCoWorkerResetPasswordEmail({
       if (response.success) {
         yield put(
           snackbarActions.showSnackbar({
-            message: "Successfully sent reset password email",
+            message: "Reset password email has been sent successfully.",
             type: "success",
           })
         );
@@ -237,9 +240,10 @@ export function* sendCoWorkerResetPasswordEmail({
       }
     }
   } catch (error) {
+    yield put(actions.sendCoWorkerResetPasswordEmailError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -256,7 +260,7 @@ export function* resetOTPSaga({
       if (response.success) {
         yield put(
           snackbarActions.showSnackbar({
-            message: "Successfully reset OTP key",
+            message: "OTP key has been reset successfully.",
             type: "success",
           })
         );
@@ -270,9 +274,10 @@ export function* resetOTPSaga({
       }
     }
   } catch (error) {
+    yield put(actions.resetOTPError());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );

@@ -297,10 +297,10 @@ export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
 
 export function* suspendCoWorker({
   payload,
-}: PayloadAction<{ id: string }>): Generator<any> {
+}: PayloadAction<{ organizationId: string; id: string }>): Generator<any> {
   try {
     if (payload.id) {
-      yield call(suspendOrgUser, payload.id);
+      yield call(suspendOrgUser, payload.organizationId, payload.id);
       yield put(actions.suspendCoWorkerSuccess());
       const selectedCoWorker = yield select(selectSelectedCoWorker);
       yield put(actions.selectCoWorker(selectedCoWorker as User));
@@ -323,10 +323,10 @@ export function* suspendCoWorker({
 }
 export function* resumeCoWorker({
   payload,
-}: PayloadAction<{ id: string }>): Generator<any> {
+}: PayloadAction<{ organizationId: string; id: string }>): Generator<any> {
   try {
     if (payload.id) {
-      yield call(resumeOrgUser, payload.id);
+      yield call(resumeOrgUser, payload.organizationId, payload.id);
       yield put(actions.resumeCoWorkerSuccess());
       const selectedCoWorker = yield select(selectSelectedCoWorker);
       yield put(actions.selectCoWorker(selectedCoWorker as User));

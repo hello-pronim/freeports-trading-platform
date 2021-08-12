@@ -8,7 +8,6 @@ const getOrgUsers = (
   organizationId: string,
   search?: string
 ): Promise<PaginatedResponse<User>> => {
-  console.log("Get organization users", search);
   return new Promise((resolve, reject) => {
     axios
       .get(
@@ -20,7 +19,6 @@ const getOrgUsers = (
         return resolve(res.data);
       })
       .catch((err) => {
-        console.error(err);
         return reject(err.response.data);
       });
   });
@@ -72,13 +70,11 @@ const updateOrgUser = (
   });
 };
 
-const suspendOrgUser = (id: string): Promise<any> => {
+const suspendOrgUser = (organizationId: string, id: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
-      .put(`/user/${id}/suspend`)
+      .put(`/organization/${organizationId}/user/${id}/suspend`)
       .then((res: any) => {
-        console.log(" user update response ", res.data);
-
         return resolve(res.data);
       })
       .catch((err) => {
@@ -87,13 +83,11 @@ const suspendOrgUser = (id: string): Promise<any> => {
   });
 };
 
-const resumeOrgUser = (id: string): Promise<any> => {
+const resumeOrgUser = (organizationId: string, id: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
-      .put(`/user/${id}/resume`)
+      .put(`/organization/${organizationId}/user/${id}/resume`)
       .then((res: any) => {
-        console.log(" user update response ", res.data);
-
         return resolve(res.data);
       })
       .catch((err) => {
@@ -110,8 +104,6 @@ const createVaultUser = (
     axios
       .post(`/user/${id}/vault-user`, { vaultRequest })
       .then((res: any) => {
-        console.log(" user update response ", res.data);
-
         return resolve(res.data);
       })
       .catch((err) => {
