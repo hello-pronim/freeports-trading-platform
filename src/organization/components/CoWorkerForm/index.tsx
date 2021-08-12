@@ -358,10 +358,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                               variant="outlined"
                               label="Desks"
                               renderValue={(selected: any) => {
-                                if (selected.length === 0) {
-                                  return <em>Desks</em>;
-                                }
-
                                 return desks
                                   .filter((desk: deskType) =>
                                     selected.includes(desk.id)

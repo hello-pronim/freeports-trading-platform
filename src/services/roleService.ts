@@ -110,7 +110,7 @@ const updateClearerRolesToUser = (
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/user/${userId}/role`, { roles })
+      .post(`/user/${userId}/role`, { roles })
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -211,7 +211,7 @@ const updateOrgRolesToUser = (
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/organization/${organizationId}/user/${userId}/role`, { roles })
+      .post(`/organization/${organizationId}/user/${userId}/role`, { roles })
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -332,7 +332,7 @@ const updateMultiDeskRolesToUser = (
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
-      .patch(
+      .post(
         `/organization/${organizationId}/multidesk/user/${userId}/role`,
         roles
       )
@@ -463,7 +463,7 @@ const updateDeskRolesToUser = (
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
-      .patch(
+      .post(
         `/organization/${organizationId}/desk/${deskId}/user/${userId}/role`,
         {
           roles,
