@@ -57,6 +57,9 @@ const slice = createSlice({
     ) {
       state.formLoading = false;
     },
+    createCoWorkerError(state) {
+      state.formLoading = false;
+    },
     updateCoWorker(
       state,
       action: PayloadAction<{
@@ -68,6 +71,9 @@ const slice = createSlice({
       state.formLoading = true;
     },
     updateCoWorkerSuccess(state, action: any) {
+      state.formLoading = false;
+    },
+    updateCoWorkerError(state) {
       state.formLoading = false;
     },
     selectCoWorker(state, action: PayloadAction<User>) {
