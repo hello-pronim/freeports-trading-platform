@@ -1,9 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 
 import { call, put, takeLatest } from "redux-saga/effects";
+import Lockr from "lockr";
+import { PayloadAction } from "@reduxjs/toolkit";
 import { globalActions as actions } from ".";
+
 import { CurrentUser } from "../types/User";
 import { getClearerUser } from "../services/clearerUsersService";
+import { snackbarActions } from "../components/Snackbar/slice";
 
 function* getCurrentClearerUser(): Generator<any> {
   try {
@@ -14,7 +18,10 @@ function* getCurrentClearerUser(): Generator<any> {
       yield put(actions.setCurrentUser(user as CurrentUser));
     }
   } catch (error) {
-    console.log("error", error);
+    snackbarActions.showSnackbar({
+      message: error.message,
+      type: "error",
+    });
   }
 }
 

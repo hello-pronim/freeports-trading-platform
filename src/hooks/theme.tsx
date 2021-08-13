@@ -13,9 +13,7 @@ function useTheme(): any {
   );
 
   const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-
-    dispatch(actions.setTheme(newTheme));
+    dispatch(actions.toggleTheme());
   };
 
   return {
