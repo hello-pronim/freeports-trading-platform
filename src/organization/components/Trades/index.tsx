@@ -2,12 +2,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { Button, Container, Grid } from "@material-ui/core";
+import {
+  Button,
+  Container,
+  createStyles,
+  Grid,
+  makeStyles,
+  Theme,
+} from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import SyncAltIcon from "@material-ui/icons/SyncAlt";
 import MaterialTable from "material-table";
-
-import "bootstrap/dist/css/bootstrap.min.css";
 
 import data from "./data";
 
@@ -32,7 +37,16 @@ const convertDateToDMY = (date: string) => {
   return [day, month, year].join(".");
 };
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    link: {
+      color: theme.palette.primary.main,
+    },
+  })
+);
+
 const Trades = (): React.ReactElement => {
+  const classes = useStyles();
   const dispatch = useDispatch();
   const tradeRequests = useSelector(selectTradeRequests);
   const tradeRequestsLoading = useSelector(selectIsTradeRequestsLoading);
@@ -86,6 +100,7 @@ const Trades = (): React.ReactElement => {
                       return (
                         <Link
                           to={`/desks/${investor.desk}/investors/${investor.id}`}
+                          className={classes.link}
                         >
                           {investor.id}
                         </Link>
@@ -120,6 +135,7 @@ const Trades = (): React.ReactElement => {
                       return (
                         <Link
                           to={`/desks/${investor.desk}/investors/${investor.id}/trades/${id}`}
+                          className={classes.link}
                         >
                           <SyncAltIcon />
                         </Link>
@@ -154,7 +170,12 @@ const Trades = (): React.ReactElement => {
                     const { investorId } = rowData;
 
                     return (
-                      <Link to={`/trades/${investorId}`}>{investorId}</Link>
+                      <Link
+                        to={`/trades/${investorId}`}
+                        className={classes.link}
+                      >
+                        {investorId}
+                      </Link>
                     );
                   },
                 },

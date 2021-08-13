@@ -30,7 +30,6 @@ import InsertDriveFileOutlinedIcon from "@material-ui/icons/InsertDriveFileOutli
 import grey from "@material-ui/core/colors/grey";
 import purple from "@material-ui/core/colors/purple";
 import { BigNumber } from "bignumber.js";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 import { DateTime } from "luxon";
 import brokers from "./data";
@@ -102,7 +101,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginLeft: theme.spacing(2),
     },
     greyCard: {
-      backgroundColor: grey[400],
+      backgroundColor: theme.palette.secondary.main,
     },
     primaryCard: {
       backgroundColor: purple[400],

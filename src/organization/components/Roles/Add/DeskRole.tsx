@@ -25,8 +25,6 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import { useNewOrgRoleSlice } from "./slice";
 import { useDesksSlice } from "../../Desks/slice";
 import {

@@ -34,8 +34,6 @@ import SearchIcon from "@material-ui/icons/Search";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import MaterialTable from "material-table";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import { trades } from "./data";
 import { useInvestorsSlice } from "../slice";
 import { useInvestorDetailSlice } from "./slice";
@@ -88,6 +86,9 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: 24,
       paddingRight: 24,
       minHeight: 64,
+    },
+    link: {
+      color: theme.palette.primary.main,
     },
   })
 );
@@ -340,7 +341,11 @@ const InvestorDetail = (): React.ReactElement => {
                               render: (rowData: any) => {
                                 const { friendlyId } = rowData;
 
-                                return <Link to="/">{friendlyId}</Link>;
+                                return (
+                                  <Link to="/" className={classes.link}>
+                                    {friendlyId}
+                                  </Link>
+                                );
                               },
                             },
                             {
@@ -529,7 +534,11 @@ const InvestorDetail = (): React.ReactElement => {
                                 render: (rowData: any) => {
                                   const { account } = rowData;
 
-                                  return <Link to="/">{account}</Link>;
+                                  return (
+                                    <Link to="/" className={classes.link}>
+                                      {account}
+                                    </Link>
+                                  );
                                 },
                               },
                               {

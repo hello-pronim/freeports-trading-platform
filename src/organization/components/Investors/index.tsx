@@ -27,8 +27,6 @@ import {
 } from "@material-ui/core";
 import MaterialTable from "material-table";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import { useInvestorsSlice } from "./slice";
 import { useInvestorDetailSlice } from "./Detail/slice";
 import { useDesksSlice } from "../Desks/slice";
@@ -81,6 +79,9 @@ const useStyles = makeStyles((theme: Theme) =>
       "&:hover": {
         textDecoration: "none",
       },
+    },
+    link: {
+      color: theme.palette.primary.main,
     },
   })
 );
@@ -160,7 +161,11 @@ const Investors = (): React.ReactElement => {
       render: (rowData: any) => {
         const { id, desk } = rowData;
 
-        return <Link to={`/desks/${desk}/investors/${id}`}>{id}</Link>;
+        return (
+          <Link to={`/desks/${desk}/investors/${id}`} className={classes.link}>
+            {id}
+          </Link>
+        );
       },
     },
     {
