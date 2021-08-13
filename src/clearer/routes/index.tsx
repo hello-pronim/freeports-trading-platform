@@ -7,6 +7,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
 // import components
 import routes from "./routes";
+import { useAuth } from "../../hooks";
 import PrivateRoute from "../../routes/private";
 import PublicRoute from "../../routes/public";
 import Header from "../components/Header";
@@ -22,6 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 const Routes = (): React.ReactElement => {
   const classes = useStyles();
+  const { isAuthenticated } = useAuth();
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
 
   const handleNotificationDrawerOpen = () => {
@@ -54,7 +56,7 @@ const Routes = (): React.ReactElement => {
             </Switch>
           </main>
           <NotificationCenter {...drawerProps} />
-          <CertificationBanner />
+          {isAuthenticated && <CertificationBanner />}
         </>
       </Router>
     </div>
