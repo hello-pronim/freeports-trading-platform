@@ -112,8 +112,6 @@ const EditOrganizer = (): React.ReactElement => {
     updateOrganization,
     getManagers,
     editManager,
-    suspendManager,
-    resumeManager,
   } = useOrganization();
   const [orgDetail, setOrgDetail] = useState({
     id: "",
@@ -368,11 +366,6 @@ const EditOrganizer = (): React.ReactElement => {
       manager.avatar
     )
       .then(async (data: string) => {
-        if (manager.suspended === "undefined") {
-          await resumeManager(id, manager.id);
-        } else {
-          await suspendManager(id, manager.id);
-        }
         setManagerUpdating(false);
         setSubmitResponse({
           type: "success",

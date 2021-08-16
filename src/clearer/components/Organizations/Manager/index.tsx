@@ -91,8 +91,8 @@ const Alert = (props: AlertProps) => {
 
 const Manager = (props: any): React.ReactElement => {
   const classes = useStyle();
-  const { getManager } = useOrganization();
-  const [organizerStatus, setOrganizerStatus] = useState(true);
+  const { getManager, suspendManager, resumeManager } = useOrganization();
+  const [suspended, setSuspended] = useState(true);
   const [manager, setManager] = useState({
     id: "string",
     nickname: "string",
@@ -122,9 +122,9 @@ const Manager = (props: any): React.ReactElement => {
           avatar: managerData.avatar,
         });
         if (managerData.suspended === "undefined") {
-          setOrganizerStatus(true);
+          setSuspended(false);
         } else {
-          setOrganizerStatus(!managerData.suspended);
+          setSuspended(managerData.suspended);
         }
       }
     };
@@ -166,11 +166,6 @@ const Manager = (props: any): React.ReactElement => {
     onHandleManagerUpdate(manager);
   };
 
-  const onHandleStatus = async (event: React.ChangeEvent<any>) => {
-    const { value } = event.target;
-    setOrganizerStatus(value);
-  };
-
   const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.currentTarget;
     if (files && files.length) {
@@ -209,6 +204,39 @@ const Manager = (props: any): React.ReactElement => {
     setShowAlert(false);
   };
 
+  const onClickSuspend = async () => {
+    if (suspended) {
+      const res = await resumeManager(orgId, managerId);
+      if(res) {
+        setSubmitResponse({
+          type: "success",
+          message: "Manager reactivated",
+        });
+        setSuspended(false);
+      } else {
+        setSubmitResponse({
+          type: "error",
+          message: "Failed, try again",
+        });
+      }
+    } else {
+      const res = await suspendManager(orgId, managerId);
+      if(res) {
+        setSubmitResponse({
+          type: "success",
+          message: "Manager suspended",
+        });
+        setSuspended(true);
+      } else {
+        setSubmitResponse({
+          type: "error",
+          message: "Failed, try again",
+        });
+      }
+    }
+    setShowAlert(true);
+  };
+
   return (
     <Accordion style={{ width: "100%" }}>
       <AccordionSummary
@@ -235,7 +263,16 @@ const Manager = (props: any): React.ReactElement => {
             </Grid>
           </Grid>
           <Grid item>
-            <Typography variant="body2">Delete permanently</Typography>
+            {!suspended && (
+              <Button onClick={onClickSuspend} color="secondary">
+                Disable
+              </Button>
+            )}
+            {suspended && (
+              <Button onClick={onClickSuspend} color="primary">
+                Activate
+              </Button>
+            )}
           </Grid>
         </Grid>
       </AccordionSummary>
@@ -286,23 +323,6 @@ const Manager = (props: any): React.ReactElement => {
                   value={manager.phone}
                   onChange={onHandlePhone}
                 />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} container alignItems="center" direction="row">
-              <FormControl variant="outlined" fullWidth>
-                <InputLabel id="demo-simple-select-outlined-label">
-                  Status
-                </InputLabel>
-                <Select
-                  value={organizerStatus}
-                  onChange={onHandleStatus}
-                  label="Status"
-                >
-                  <MenuItem value="true" selected>
-                    Active
-                  </MenuItem>
-                  <MenuItem value="false">Suspended</MenuItem>
-                </Select>
               </FormControl>
             </Grid>
           </Grid>
