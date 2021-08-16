@@ -3,6 +3,10 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import {
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
   Checkbox,
   CircularProgress,
   Container,
@@ -19,8 +23,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
-
-import "bootstrap/dist/css/bootstrap.min.css";
 
 import { useRole } from "../../../hooks";
 
@@ -185,88 +187,97 @@ const AddRole = (): React.ReactElement => {
     <div className="main-wrapper">
       <Container>
         <Grid container spacing={2}>
-          <Grid container item xs={12}>
-            <Typography variant="h4">Create new Organization role</Typography>
-          </Grid>
-          <Grid container item xs={12}>
-            <Grid item xs={4}>
-              <TextField
-                className={classes.roleNameInput}
-                label="Role Name"
-                value={role.name}
-                onChange={onRoleNameChange}
-              />
-            </Grid>
-          </Grid>
-          <Grid container item xs={12}>
-            {permissions.map((perm: PermissionType) => (
-              <Grid item key={perm.name} xs={12}>
-                <FormGroup className={classes.permissionContainer}>
-                  <FormLabel
-                    component="legend"
-                    className={classes.permissionName}
-                  >
-                    {perm.name}
-                  </FormLabel>
-                  <Grid container>
-                    {perm.permissions.map(
-                      (avail: { name: string; code: string }) => (
-                        <Grid item key={avail.code} xs={2}>
-                          <FormControlLabel
-                            className={classes.checkboxLabel}
-                            control={
-                              <Checkbox
-                                color="primary"
-                                name={avail.code}
-                                checked={Boolean(
-                                  role.permissions.includes(avail.code)
-                                )}
-                                onChange={onPermissionChange}
-                              />
-                            }
-                            label={avail.name}
-                          />
-                        </Grid>
-                      )
-                    )}
+          <Grid item xs={12}>
+            <Card>
+              <CardHeader title="Create new Organization role" />
+              <Divider />
+              <CardContent>
+                <Grid container item xs={12}>
+                  <Grid item xs={4}>
+                    <TextField
+                      className={classes.roleNameInput}
+                      label="Role Name"
+                      value={role.name}
+                      onChange={onRoleNameChange}
+                    />
                   </Grid>
-                </FormGroup>
-              </Grid>
-            ))}
+                </Grid>
+                <Grid container item xs={12}>
+                  {permissions.map((perm: PermissionType) => (
+                    <Grid item key={perm.name} xs={12}>
+                      <FormGroup className={classes.permissionContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.permissionName}
+                        >
+                          {perm.name}
+                        </FormLabel>
+                        <Grid container>
+                          {perm.permissions.map(
+                            (avail: { name: string; code: string }) => (
+                              <Grid item key={avail.code} xs={2}>
+                                <FormControlLabel
+                                  className={classes.checkboxLabel}
+                                  control={
+                                    <Checkbox
+                                      color="primary"
+                                      name={avail.code}
+                                      checked={Boolean(
+                                        role.permissions.includes(avail.code)
+                                      )}
+                                      onChange={onPermissionChange}
+                                    />
+                                  }
+                                  label={avail.name}
+                                />
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                  ))}
+                </Grid>
+              </CardContent>
+              <Divider />
+              <CardActions>
+                <Grid container justify="flex-end">
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      color="primary"
+                      onClick={onRoleCreate}
+                      disabled={loading}
+                    >
+                      Create Role
+                    </Button>
+                    {loading && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
+                </Grid>
+                <Snackbar
+                  autoHideDuration={2000}
+                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  open={showAlert}
+                  onClose={handleAlertClose}
+                >
+                  <Alert
+                    onClose={handleAlertClose}
+                    severity={
+                      submitResponse.type === "success" ? "success" : "error"
+                    }
+                  >
+                    {submitResponse.message}
+                  </Alert>
+                </Snackbar>
+              </CardActions>
+            </Card>
           </Grid>
-          <Divider variant="middle" />
-          <Grid container justify="flex-end">
-            <div className={classes.progressButtonWrapper}>
-              <Button
-                variant="contained"
-                size="large"
-                color="primary"
-                onClick={onRoleCreate}
-                disabled={loading}
-              >
-                Create Role
-              </Button>
-              {loading && (
-                <CircularProgress
-                  size={24}
-                  className={classes.progressButton}
-                />
-              )}
-            </div>
-          </Grid>
-          <Snackbar
-            autoHideDuration={2000}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            open={showAlert}
-            onClose={handleAlertClose}
-          >
-            <Alert
-              onClose={handleAlertClose}
-              severity={submitResponse.type === "success" ? "success" : "error"}
-            >
-              {submitResponse.message}
-            </Alert>
-          </Snackbar>
         </Grid>
       </Container>
     </div>

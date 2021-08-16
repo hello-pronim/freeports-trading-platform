@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
+import { useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Form, Field } from "react-final-form";
@@ -12,6 +13,10 @@ import {
   AccordionDetails,
   AccordionSummary,
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
   Checkbox,
   CircularProgress,
   Container,
@@ -34,8 +39,6 @@ import {
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SearchIcon from "@material-ui/icons/Search";
-
-import "bootstrap/dist/css/bootstrap.min.css";
 
 import { useRolesSlice } from "./slice";
 import { useDesksSlice } from "../Desks/slice";
@@ -115,10 +118,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     link: {
       color: theme.palette.primary.main,
-      textDecoration: "none",
-      "&:hover": {
-        textDecoration: "underline",
-      },
     },
     roleNameInput: {
       width: "100%",
@@ -176,6 +175,7 @@ const deskRoleValidate = (values: any) => {
 const Roles = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const history = useHistory();
   const { organizationId } = Lockr.get("USER_DATA");
   const { actions: rolesActions } = useRolesSlice();
   const { actions: desksActions } = useDesksSlice();
@@ -277,6 +277,18 @@ const Roles = (): React.ReactElement => {
     }
   };
 
+  const handleNewOrgRoleClick = () => {
+    history.push("/roles/add");
+  };
+
+  const handleNewMultiDeskRoleClick = () => {
+    history.push("/multi-desk/roles/add");
+  };
+
+  const handleNewDeskRoleClick = () => {
+    history.push("/desk/roles/add");
+  };
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -325,221 +337,235 @@ const Roles = (): React.ReactElement => {
               {(selectedCategory === "all" ||
                 selectedCategory === "organization") && (
                 <Grid item xs={12}>
-                  <Grid container spacing={2}>
-                    <Grid xs={12}>
-                      <Grid container spacing={2}>
-                        <Grid item>
-                          <Typography variant="h5">
-                            Organization roles
-                          </Typography>
-                        </Grid>
-                        <Grid item>
-                          <Link to="/roles/add">
+                  <Card>
+                    <CardHeader
+                      title={
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid item>
+                            <Typography variant="h5">
+                              Organization roles
+                            </Typography>
+                          </Grid>
+                          <Grid item>
                             <IconButton
-                              color="inherit"
+                              color="primary"
                               aria-label="Add Organization Role"
                               className={classes.addButton}
+                              onClick={handleNewOrgRoleClick}
                             >
                               <AddCircleIcon fontSize="large" />
                             </IconButton>
-                          </Link>
+                          </Grid>
                         </Grid>
-                      </Grid>
-                    </Grid>
-                    <Grid item xs={12}>
-                      {orgRolesLoading && <Loader />}
-                      {!orgRolesLoading &&
-                        (orgRoles.length > 0 ? (
-                          <Grid container item>
-                            <Grid item xs={12}>
-                              {orgRoles
-                                .filter(
-                                  (role: Role) => role.name !== "_default"
-                                )
-                                .map((role: Role) => (
-                                  <div className={classes.roleWrapper}>
-                                    <Form
-                                      onSubmit={(values) =>
-                                        handleOrgRoleUpdate(values, role.id)
-                                      }
-                                      mutators={{
-                                        ...arrayMutators,
-                                      }}
-                                      initialValues={role}
-                                      validate={orgRoleValidate}
-                                      render={({
-                                        handleSubmit,
-                                        submitting,
-                                        pristine,
-                                        form: {
-                                          mutators: { push },
-                                        },
-                                        values,
-                                      }) => (
-                                        <form
-                                          onSubmit={handleSubmit}
-                                          noValidate
-                                        >
-                                          <Accordion key={role.id}>
-                                            <AccordionSummary
-                                              expandIcon={<ExpandMoreIcon />}
-                                              aria-controls="panel1c-content"
+                      }
+                    />
+                    <Divider />
+                    <CardContent>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          {orgRolesLoading && <Loader />}
+                          {!orgRolesLoading &&
+                            (orgRoles.length > 0 ? (
+                              <Grid container item>
+                                <Grid item xs={12}>
+                                  {orgRoles
+                                    .filter(
+                                      (role: Role) => role.name !== "_default"
+                                    )
+                                    .map((role: Role) => (
+                                      <div className={classes.roleWrapper}>
+                                        <Form
+                                          onSubmit={(values) =>
+                                            handleOrgRoleUpdate(values, role.id)
+                                          }
+                                          mutators={{
+                                            ...arrayMutators,
+                                          }}
+                                          initialValues={role}
+                                          validate={orgRoleValidate}
+                                          render={({
+                                            handleSubmit,
+                                            submitting,
+                                            pristine,
+                                            form: {
+                                              mutators: { push },
+                                            },
+                                            values,
+                                          }) => (
+                                            <form
+                                              onSubmit={handleSubmit}
+                                              noValidate
                                             >
-                                              <Grid
-                                                container
-                                                alignItems="center"
-                                              >
-                                                <Grid item>
-                                                  <Typography
-                                                    className={classes.roleName}
+                                              <Accordion key={role.id}>
+                                                <AccordionSummary
+                                                  expandIcon={
+                                                    <ExpandMoreIcon />
+                                                  }
+                                                  aria-controls="panel1c-content"
+                                                >
+                                                  <Grid
+                                                    container
+                                                    alignItems="center"
                                                   >
-                                                    {role.name}
-                                                  </Typography>
-                                                </Grid>
-                                                <Grid item>
-                                                  <Typography
+                                                    <Grid item>
+                                                      <Typography
+                                                        className={
+                                                          classes.roleName
+                                                        }
+                                                      >
+                                                        {role.name}
+                                                      </Typography>
+                                                    </Grid>
+                                                    <Grid item>
+                                                      <Typography
+                                                        className={
+                                                          classes.roleDescription
+                                                        }
+                                                      />
+                                                    </Grid>
+                                                  </Grid>
+                                                </AccordionSummary>
+                                                <AccordionDetails>
+                                                  <Grid container item xs={12}>
+                                                    <Grid item xs={4}>
+                                                      <MuiTextField
+                                                        label="Role Name"
+                                                        name="name"
+                                                        variant="outlined"
+                                                      />
+                                                    </Grid>
+                                                  </Grid>
+                                                </AccordionDetails>
+                                                {orgPermissionsLoading && (
+                                                  <Loader />
+                                                )}
+                                                {!orgPermissionsLoading && (
+                                                  <>
+                                                    {orgPermissions.map(
+                                                      (perm: Permission) => (
+                                                        <FormGroup
+                                                          key={perm.name}
+                                                          className={
+                                                            classes.permissionContainer
+                                                          }
+                                                        >
+                                                          <FormLabel
+                                                            component="legend"
+                                                            className={
+                                                              classes.permissionName
+                                                            }
+                                                          >
+                                                            {perm.name}
+                                                          </FormLabel>
+                                                          <AccordionDetails
+                                                            className={
+                                                              classes.permissionDetails
+                                                            }
+                                                          >
+                                                            {perm.permissions.map(
+                                                              (avail: {
+                                                                name: string;
+                                                                code: string;
+                                                              }) => (
+                                                                <Grid
+                                                                  item
+                                                                  key={
+                                                                    avail.code
+                                                                  }
+                                                                  xs={2}
+                                                                >
+                                                                  <Grid
+                                                                    container
+                                                                    alignItems="center"
+                                                                    spacing={1}
+                                                                  >
+                                                                    <Grid item>
+                                                                      <Field
+                                                                        name="permissions[]"
+                                                                        component="input"
+                                                                        type="checkbox"
+                                                                        value={
+                                                                          avail.code
+                                                                        }
+                                                                      />
+                                                                    </Grid>
+                                                                    <Grid item>
+                                                                      <Typography variant="body1">
+                                                                        {
+                                                                          avail.name
+                                                                        }
+                                                                      </Typography>
+                                                                    </Grid>
+                                                                  </Grid>
+                                                                </Grid>
+                                                              )
+                                                            )}
+                                                          </AccordionDetails>
+                                                        </FormGroup>
+                                                      )
+                                                    )}
+                                                  </>
+                                                )}
+                                                <Divider />
+                                                <AccordionActions>
+                                                  <div
                                                     className={
-                                                      classes.roleDescription
+                                                      classes.progressButtonWrapper
                                                     }
-                                                  />
-                                                </Grid>
-                                              </Grid>
-                                            </AccordionSummary>
-                                            <AccordionDetails>
-                                              <Grid container item xs={12}>
-                                                <Grid item xs={4}>
-                                                  <MuiTextField
-                                                    label="Role Name"
-                                                    name="name"
-                                                    variant="outlined"
-                                                  />
-                                                </Grid>
-                                              </Grid>
-                                            </AccordionDetails>
-                                            {orgPermissionsLoading && (
-                                              <Loader />
-                                            )}
-                                            {!orgPermissionsLoading && (
-                                              <>
-                                                {orgPermissions.map(
-                                                  (perm: Permission) => (
-                                                    <FormGroup
-                                                      key={perm.name}
-                                                      className={
-                                                        classes.permissionContainer
+                                                  >
+                                                    <Button
+                                                      variant="contained"
+                                                      size="small"
+                                                      disabled={roleRemoving}
+                                                      onClick={() =>
+                                                        role.id &&
+                                                        onOrgRoleRemove(role.id)
                                                       }
                                                     >
-                                                      <FormLabel
-                                                        component="legend"
+                                                      Remove
+                                                    </Button>
+                                                    {roleRemoving && (
+                                                      <CircularProgress
+                                                        size={24}
                                                         className={
-                                                          classes.permissionName
+                                                          classes.progressButton
                                                         }
-                                                      >
-                                                        {perm.name}
-                                                      </FormLabel>
-                                                      <AccordionDetails
-                                                        className={
-                                                          classes.permissionDetails
-                                                        }
-                                                      >
-                                                        {perm.permissions.map(
-                                                          (avail: {
-                                                            name: string;
-                                                            code: string;
-                                                          }) => (
-                                                            <Grid
-                                                              item
-                                                              key={avail.code}
-                                                              xs={2}
-                                                            >
-                                                              <Grid
-                                                                container
-                                                                alignItems="center"
-                                                                spacing={1}
-                                                              >
-                                                                <Grid item>
-                                                                  <Field
-                                                                    name="permissions[]"
-                                                                    component="input"
-                                                                    type="checkbox"
-                                                                    value={
-                                                                      avail.code
-                                                                    }
-                                                                  />
-                                                                </Grid>
-                                                                <Grid item>
-                                                                  <Typography variant="body1">
-                                                                    {avail.name}
-                                                                  </Typography>
-                                                                </Grid>
-                                                              </Grid>
-                                                            </Grid>
-                                                          )
-                                                        )}
-                                                      </AccordionDetails>
-                                                    </FormGroup>
-                                                  )
-                                                )}
-                                              </>
-                                            )}
-                                            <Divider />
-                                            <AccordionActions>
-                                              <div
-                                                className={
-                                                  classes.progressButtonWrapper
-                                                }
-                                              >
-                                                <Button
-                                                  variant="contained"
-                                                  size="small"
-                                                  disabled={roleRemoving}
-                                                  onClick={() =>
-                                                    role.id &&
-                                                    onOrgRoleRemove(role.id)
-                                                  }
-                                                >
-                                                  Remove
-                                                </Button>
-                                                {roleRemoving && (
-                                                  <CircularProgress
-                                                    size={24}
+                                                      />
+                                                    )}
+                                                  </div>
+                                                  <div
                                                     className={
-                                                      classes.progressButton
+                                                      classes.progressButtonWrapper
                                                     }
-                                                  />
-                                                )}
-                                              </div>
-                                              <div
-                                                className={
-                                                  classes.progressButtonWrapper
-                                                }
-                                              >
-                                                <Button
-                                                  variant="contained"
-                                                  size="small"
-                                                  color="primary"
-                                                  type="submit"
-                                                  disabled={
-                                                    submitting || pristine
-                                                  }
-                                                >
-                                                  Save
-                                                </Button>
-                                              </div>
-                                            </AccordionActions>
-                                          </Accordion>
-                                        </form>
-                                      )}
-                                    />
-                                  </div>
-                                ))}
-                            </Grid>
-                          </Grid>
-                        ) : (
-                          <></>
-                        ))}
-                    </Grid>
-                  </Grid>
+                                                  >
+                                                    <Button
+                                                      variant="contained"
+                                                      size="small"
+                                                      color="primary"
+                                                      type="submit"
+                                                      disabled={
+                                                        submitting || pristine
+                                                      }
+                                                    >
+                                                      Save
+                                                    </Button>
+                                                  </div>
+                                                </AccordionActions>
+                                              </Accordion>
+                                            </form>
+                                          )}
+                                        />
+                                      </div>
+                                    ))}
+                                </Grid>
+                              </Grid>
+                            ) : (
+                              <></>
+                            ))}
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
                 </Grid>
               )}
               {selectedCategory === "all" && (
@@ -548,217 +574,233 @@ const Roles = (): React.ReactElement => {
               {(selectedCategory === "all" ||
                 selectedCategory === "multi-desk") && (
                 <Grid item xs={12}>
-                  <Grid container spacing={2}>
-                    <Grid xs={12}>
-                      <Grid container spacing={2}>
-                        <Grid item>
-                          <Typography variant="h5">Multi-desk roles</Typography>
-                        </Grid>
-                        <Grid item>
-                          <Link to="/multi-desk/roles/add">
+                  <Card>
+                    <CardHeader
+                      title={
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid item>
+                            <Typography variant="h5">
+                              Multi-desk roles
+                            </Typography>
+                          </Grid>
+                          <Grid item>
                             <IconButton
-                              color="inherit"
+                              color="primary"
                               aria-label="Add Multi-Desk Role"
                               className={classes.addButton}
+                              onClick={handleNewMultiDeskRoleClick}
                             >
                               <AddCircleIcon fontSize="large" />
                             </IconButton>
-                          </Link>
+                          </Grid>
                         </Grid>
-                      </Grid>
-                    </Grid>
-                    <Grid item xs={12}>
-                      {multiDeskRolesLoading && <Loader />}
-                      {!multiDeskRolesLoading &&
-                        (multiDeskRoles.length > 0 ? (
-                          <Grid container item>
-                            <Grid item xs={12}>
-                              {multiDeskRoles
-                                .filter(
-                                  (role: Role) => role.name !== "_default"
-                                )
-                                .map((role: Role) => (
-                                  <div className={classes.roleWrapper}>
-                                    <Form
-                                      onSubmit={(values) =>
-                                        handleMultiDeskRoleUpdate(
-                                          values,
-                                          role.id
-                                        )
-                                      }
-                                      mutators={{
-                                        ...arrayMutators,
-                                      }}
-                                      initialValues={role}
-                                      validate={multiDeskRoleValidate}
-                                      render={({
-                                        handleSubmit,
-                                        submitting,
-                                        pristine,
-                                        form: {
-                                          mutators: { push },
-                                        },
-                                        values,
-                                      }) => (
-                                        <form
-                                          onSubmit={handleSubmit}
-                                          noValidate
-                                        >
-                                          <Accordion key={role.id}>
-                                            <AccordionSummary
-                                              expandIcon={<ExpandMoreIcon />}
-                                              aria-controls="panel1c-content"
+                      }
+                    />
+                    <Divider />
+                    <CardContent>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          {multiDeskRolesLoading && <Loader />}
+                          {!multiDeskRolesLoading &&
+                            (multiDeskRoles.length > 0 ? (
+                              <Grid container item>
+                                <Grid item xs={12}>
+                                  {multiDeskRoles
+                                    .filter(
+                                      (role: Role) => role.name !== "_default"
+                                    )
+                                    .map((role: Role) => (
+                                      <div className={classes.roleWrapper}>
+                                        <Form
+                                          onSubmit={(values) =>
+                                            handleMultiDeskRoleUpdate(
+                                              values,
+                                              role.id
+                                            )
+                                          }
+                                          mutators={{
+                                            ...arrayMutators,
+                                          }}
+                                          initialValues={role}
+                                          validate={multiDeskRoleValidate}
+                                          render={({
+                                            handleSubmit,
+                                            submitting,
+                                            pristine,
+                                            form: {
+                                              mutators: { push },
+                                            },
+                                            values,
+                                          }) => (
+                                            <form
+                                              onSubmit={handleSubmit}
+                                              noValidate
                                             >
-                                              <Grid
-                                                container
-                                                alignItems="center"
-                                              >
-                                                <Grid item>
-                                                  <Typography
-                                                    className={classes.roleName}
+                                              <Accordion key={role.id}>
+                                                <AccordionSummary
+                                                  expandIcon={
+                                                    <ExpandMoreIcon />
+                                                  }
+                                                  aria-controls="panel1c-content"
+                                                >
+                                                  <Grid
+                                                    container
+                                                    alignItems="center"
                                                   >
-                                                    {role.name}
-                                                  </Typography>
-                                                </Grid>
-                                              </Grid>
-                                            </AccordionSummary>
-                                            <AccordionDetails>
-                                              <Grid container item xs={12}>
-                                                <Grid item xs={4}>
-                                                  <MuiTextField
-                                                    label="Role Name"
-                                                    name="name"
-                                                    variant="outlined"
-                                                  />
-                                                </Grid>
-                                              </Grid>
-                                            </AccordionDetails>
-                                            {multiDeskPermissionsLoading && (
-                                              <Loader />
-                                            )}
-                                            {!multiDeskPermissionsLoading && (
-                                              <>
-                                                {multiDeskPermissions.map(
-                                                  (perm: Permission) => (
-                                                    <FormGroup
-                                                      key={perm.name}
-                                                      className={
-                                                        classes.permissionContainer
+                                                    <Grid item>
+                                                      <Typography
+                                                        className={
+                                                          classes.roleName
+                                                        }
+                                                      >
+                                                        {role.name}
+                                                      </Typography>
+                                                    </Grid>
+                                                  </Grid>
+                                                </AccordionSummary>
+                                                <AccordionDetails>
+                                                  <Grid container item xs={12}>
+                                                    <Grid item xs={4}>
+                                                      <MuiTextField
+                                                        label="Role Name"
+                                                        name="name"
+                                                        variant="outlined"
+                                                      />
+                                                    </Grid>
+                                                  </Grid>
+                                                </AccordionDetails>
+                                                {multiDeskPermissionsLoading && (
+                                                  <Loader />
+                                                )}
+                                                {!multiDeskPermissionsLoading && (
+                                                  <>
+                                                    {multiDeskPermissions.map(
+                                                      (perm: Permission) => (
+                                                        <FormGroup
+                                                          key={perm.name}
+                                                          className={
+                                                            classes.permissionContainer
+                                                          }
+                                                        >
+                                                          <FormLabel
+                                                            component="legend"
+                                                            className={
+                                                              classes.permissionName
+                                                            }
+                                                          >
+                                                            {perm.name}
+                                                          </FormLabel>
+                                                          <AccordionDetails
+                                                            className={
+                                                              classes.permissionDetails
+                                                            }
+                                                          >
+                                                            {perm.permissions.map(
+                                                              (avail: {
+                                                                name: string;
+                                                                code: string;
+                                                              }) => (
+                                                                <Grid
+                                                                  item
+                                                                  key={
+                                                                    avail.code
+                                                                  }
+                                                                  xs={2}
+                                                                >
+                                                                  <Grid
+                                                                    container
+                                                                    alignItems="center"
+                                                                    spacing={1}
+                                                                  >
+                                                                    <Grid item>
+                                                                      <Field
+                                                                        name="permissions[]"
+                                                                        component="input"
+                                                                        type="checkbox"
+                                                                        value={
+                                                                          avail.code
+                                                                        }
+                                                                      />
+                                                                    </Grid>
+                                                                    <Grid item>
+                                                                      <Typography variant="body1">
+                                                                        {
+                                                                          avail.name
+                                                                        }
+                                                                      </Typography>
+                                                                    </Grid>
+                                                                  </Grid>
+                                                                </Grid>
+                                                              )
+                                                            )}
+                                                          </AccordionDetails>
+                                                        </FormGroup>
+                                                      )
+                                                    )}
+                                                  </>
+                                                )}
+                                                <Divider />
+                                                <AccordionActions>
+                                                  <div
+                                                    className={
+                                                      classes.progressButtonWrapper
+                                                    }
+                                                  >
+                                                    <Button
+                                                      variant="contained"
+                                                      size="small"
+                                                      disabled={roleRemoving}
+                                                      onClick={() =>
+                                                        role.id &&
+                                                        onMultiDeskRoleRemove(
+                                                          role.id
+                                                        )
                                                       }
                                                     >
-                                                      <FormLabel
-                                                        component="legend"
+                                                      Remove
+                                                    </Button>
+                                                    {roleRemoving && (
+                                                      <CircularProgress
+                                                        size={24}
                                                         className={
-                                                          classes.permissionName
+                                                          classes.progressButton
                                                         }
-                                                      >
-                                                        {perm.name}
-                                                      </FormLabel>
-                                                      <AccordionDetails
-                                                        className={
-                                                          classes.permissionDetails
-                                                        }
-                                                      >
-                                                        {perm.permissions.map(
-                                                          (avail: {
-                                                            name: string;
-                                                            code: string;
-                                                          }) => (
-                                                            <Grid
-                                                              item
-                                                              key={avail.code}
-                                                              xs={2}
-                                                            >
-                                                              <Grid
-                                                                container
-                                                                alignItems="center"
-                                                                spacing={1}
-                                                              >
-                                                                <Grid item>
-                                                                  <Field
-                                                                    name="permissions[]"
-                                                                    component="input"
-                                                                    type="checkbox"
-                                                                    value={
-                                                                      avail.code
-                                                                    }
-                                                                  />
-                                                                </Grid>
-                                                                <Grid item>
-                                                                  <Typography variant="body1">
-                                                                    {avail.name}
-                                                                  </Typography>
-                                                                </Grid>
-                                                              </Grid>
-                                                            </Grid>
-                                                          )
-                                                        )}
-                                                      </AccordionDetails>
-                                                    </FormGroup>
-                                                  )
-                                                )}
-                                              </>
-                                            )}
-                                            <Divider />
-                                            <AccordionActions>
-                                              <div
-                                                className={
-                                                  classes.progressButtonWrapper
-                                                }
-                                              >
-                                                <Button
-                                                  variant="contained"
-                                                  size="small"
-                                                  disabled={roleRemoving}
-                                                  onClick={() =>
-                                                    role.id &&
-                                                    onMultiDeskRoleRemove(
-                                                      role.id
-                                                    )
-                                                  }
-                                                >
-                                                  Remove
-                                                </Button>
-                                                {roleRemoving && (
-                                                  <CircularProgress
-                                                    size={24}
+                                                      />
+                                                    )}
+                                                  </div>
+                                                  <div
                                                     className={
-                                                      classes.progressButton
+                                                      classes.progressButtonWrapper
                                                     }
-                                                  />
-                                                )}
-                                              </div>
-                                              <div
-                                                className={
-                                                  classes.progressButtonWrapper
-                                                }
-                                              >
-                                                <Button
-                                                  variant="contained"
-                                                  size="small"
-                                                  color="primary"
-                                                  type="submit"
-                                                  disabled={
-                                                    submitting || pristine
-                                                  }
-                                                >
-                                                  Save
-                                                </Button>
-                                              </div>
-                                            </AccordionActions>
-                                          </Accordion>
-                                        </form>
-                                      )}
-                                    />
-                                  </div>
-                                ))}
-                            </Grid>
-                          </Grid>
-                        ) : (
-                          <></>
-                        ))}
-                    </Grid>
-                  </Grid>
+                                                  >
+                                                    <Button
+                                                      variant="contained"
+                                                      size="small"
+                                                      color="primary"
+                                                      type="submit"
+                                                      disabled={
+                                                        submitting || pristine
+                                                      }
+                                                    >
+                                                      Save
+                                                    </Button>
+                                                  </div>
+                                                </AccordionActions>
+                                              </Accordion>
+                                            </form>
+                                          )}
+                                        />
+                                      </div>
+                                    ))}
+                                </Grid>
+                              </Grid>
+                            ) : (
+                              <></>
+                            ))}
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
                 </Grid>
               )}
               {selectedCategory === "all" && (
@@ -766,255 +808,279 @@ const Roles = (): React.ReactElement => {
               )}
               {(selectedCategory === "all" || selectedCategory === "desk") && (
                 <Grid item xs={12}>
-                  <Grid container spacing={2}>
-                    <Grid xs={12}>
+                  <Card>
+                    <CardHeader
+                      title={
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid item>
+                            <Typography variant="h5">Desk roles</Typography>
+                          </Grid>
+                          <Grid item>
+                            <Link to="/desk/roles/add">
+                              <IconButton
+                                color="primary"
+                                aria-label="Add Desk Role"
+                                className={classes.addButton}
+                                onClick={handleNewDeskRoleClick}
+                              >
+                                <AddCircleIcon fontSize="large" />
+                              </IconButton>
+                            </Link>
+                          </Grid>
+                        </Grid>
+                      }
+                    />
+                    <Divider />
+                    <CardContent>
                       <Grid container spacing={2}>
-                        <Grid item>
-                          <Typography variant="h5">Desk roles</Typography>
-                        </Grid>
-                        <Grid item>
-                          <Link to="/desk/roles/add">
-                            <IconButton
-                              color="inherit"
-                              aria-label="Add Desk Role"
-                              className={classes.addButton}
-                            >
-                              <AddCircleIcon fontSize="large" />
-                            </IconButton>
-                          </Link>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                    <Grid item xs={12}>
-                      {deskRolesLoading && <Loader />}
-                      {!deskRolesLoading &&
-                        (orgRoles.length > 0 ? (
-                          <Grid container item>
-                            <Grid item xs={12}>
-                              {deskRoles
-                                .filter(
-                                  (role: DeskRole) => role.name !== "_default"
-                                )
-                                .map((role: DeskRole) => (
-                                  <div className={classes.roleWrapper}>
-                                    <Form
-                                      onSubmit={(values) =>
-                                        handleDeskRoleUpdate(values, role.id)
-                                      }
-                                      mutators={{
-                                        ...arrayMutators,
-                                      }}
-                                      initialValues={{
-                                        name: role.name,
-                                        deskId: role.desk.id,
-                                        permissions: role.permissions,
-                                      }}
-                                      validate={deskRoleValidate}
-                                      render={({
-                                        handleSubmit,
-                                        submitting,
-                                        pristine,
-                                        form: {
-                                          mutators: { push },
-                                        },
-                                        values,
-                                      }) => (
-                                        <form
-                                          onSubmit={handleSubmit}
-                                          noValidate
-                                        >
-                                          <Accordion key={role.id}>
-                                            <AccordionSummary
-                                              expandIcon={<ExpandMoreIcon />}
-                                              aria-controls="panel1c-content"
+                        <Grid item xs={12}>
+                          {deskRolesLoading && <Loader />}
+                          {!deskRolesLoading &&
+                            (orgRoles.length > 0 ? (
+                              <Grid container item>
+                                <Grid item xs={12}>
+                                  {deskRoles
+                                    .filter(
+                                      (role: DeskRole) =>
+                                        role.name !== "_default"
+                                    )
+                                    .map((role: DeskRole) => (
+                                      <div className={classes.roleWrapper}>
+                                        <Form
+                                          onSubmit={(values) =>
+                                            handleDeskRoleUpdate(
+                                              values,
+                                              role.id
+                                            )
+                                          }
+                                          mutators={{
+                                            ...arrayMutators,
+                                          }}
+                                          initialValues={{
+                                            name: role.name,
+                                            deskId: role.desk.id,
+                                            permissions: role.permissions,
+                                          }}
+                                          validate={deskRoleValidate}
+                                          render={({
+                                            handleSubmit,
+                                            submitting,
+                                            pristine,
+                                            form: {
+                                              mutators: { push },
+                                            },
+                                            values,
+                                          }) => (
+                                            <form
+                                              onSubmit={handleSubmit}
+                                              noValidate
                                             >
-                                              <Grid
-                                                container
-                                                alignItems="center"
-                                                spacing={2}
-                                              >
-                                                <Grid item>
-                                                  <Typography
-                                                    className={classes.roleName}
+                                              <Accordion key={role.id}>
+                                                <AccordionSummary
+                                                  expandIcon={
+                                                    <ExpandMoreIcon />
+                                                  }
+                                                  aria-controls="panel1c-content"
+                                                >
+                                                  <Grid
+                                                    container
+                                                    alignItems="center"
+                                                    spacing={2}
                                                   >
-                                                    {role.name}
-                                                  </Typography>
-                                                </Grid>
-                                                <Grid item>
-                                                  <Typography
-                                                    color="textSecondary"
-                                                    className={
-                                                      classes.roleDescription
-                                                    }
-                                                  >
-                                                    {`(${role.desk.name})`}
-                                                  </Typography>
-                                                </Grid>
-                                              </Grid>
-                                            </AccordionSummary>
-                                            <AccordionDetails>
-                                              <Grid container spacing={2}>
-                                                <Grid item xs={4}>
-                                                  <MuiTextField
-                                                    label="Role Name"
-                                                    name="name"
-                                                    variant="outlined"
-                                                  />
-                                                </Grid>
-                                                <Grid item xs={4}>
-                                                  <MuiSelect
-                                                    native
-                                                    name="deskId"
-                                                    label="Desk"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    disabled
-                                                  >
-                                                    <option value="0">
-                                                      Select...
-                                                    </option>
-                                                    {desks.map(
-                                                      (deskItem: DeskType) => (
-                                                        <option
-                                                          key={deskItem.id}
-                                                          value={deskItem.id}
-                                                        >
-                                                          {deskItem.name}
+                                                    <Grid item>
+                                                      <Typography
+                                                        className={
+                                                          classes.roleName
+                                                        }
+                                                      >
+                                                        {role.name}
+                                                      </Typography>
+                                                    </Grid>
+                                                    <Grid item>
+                                                      <Typography
+                                                        color="textSecondary"
+                                                        className={
+                                                          classes.roleDescription
+                                                        }
+                                                      >
+                                                        {`(${role.desk.name})`}
+                                                      </Typography>
+                                                    </Grid>
+                                                  </Grid>
+                                                </AccordionSummary>
+                                                <AccordionDetails>
+                                                  <Grid container spacing={2}>
+                                                    <Grid item xs={4}>
+                                                      <MuiTextField
+                                                        label="Role Name"
+                                                        name="name"
+                                                        variant="outlined"
+                                                      />
+                                                    </Grid>
+                                                    <Grid item xs={4}>
+                                                      <MuiSelect
+                                                        native
+                                                        name="deskId"
+                                                        label="Desk"
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        disabled
+                                                      >
+                                                        <option value="0">
+                                                          Select...
                                                         </option>
-                                                      )
-                                                    )}
-                                                  </MuiSelect>
-                                                </Grid>
-                                              </Grid>
-                                            </AccordionDetails>
-                                            {deskPermissionsLoading && (
-                                              <Loader />
-                                            )}
-                                            {!deskPermissionsLoading && (
-                                              <>
-                                                {deskPermissions.map(
-                                                  (perm: Permission) => (
-                                                    <FormGroup
-                                                      key={perm.name}
-                                                      className={
-                                                        classes.permissionContainer
-                                                      }
-                                                    >
-                                                      <FormLabel
-                                                        component="legend"
-                                                        className={
-                                                          classes.permissionName
-                                                        }
-                                                      >
-                                                        {perm.name}
-                                                      </FormLabel>
-                                                      <AccordionDetails
-                                                        className={
-                                                          classes.permissionDetails
-                                                        }
-                                                      >
-                                                        {perm.permissions.map(
-                                                          (avail: {
-                                                            name: string;
-                                                            code: string;
-                                                          }) => (
-                                                            <Grid
-                                                              item
-                                                              key={avail.code}
-                                                              xs={2}
+                                                        {desks.map(
+                                                          (
+                                                            deskItem: DeskType
+                                                          ) => (
+                                                            <option
+                                                              key={deskItem.id}
+                                                              value={
+                                                                deskItem.id
+                                                              }
                                                             >
-                                                              <Grid
-                                                                container
-                                                                alignItems="center"
-                                                                spacing={1}
-                                                              >
-                                                                <Grid item>
-                                                                  <Field
-                                                                    name="permissions[]"
-                                                                    component="input"
-                                                                    type="checkbox"
-                                                                    value={
-                                                                      avail.code
-                                                                    }
-                                                                  />
-                                                                </Grid>
-                                                                <Grid item>
-                                                                  <Typography variant="body1">
-                                                                    {avail.name}
-                                                                  </Typography>
-                                                                </Grid>
-                                                              </Grid>
-                                                            </Grid>
+                                                              {deskItem.name}
+                                                            </option>
                                                           )
                                                         )}
-                                                      </AccordionDetails>
-                                                    </FormGroup>
-                                                  )
+                                                      </MuiSelect>
+                                                    </Grid>
+                                                  </Grid>
+                                                </AccordionDetails>
+                                                {deskPermissionsLoading && (
+                                                  <Loader />
                                                 )}
-                                              </>
-                                            )}
-                                            <Divider />
-                                            <AccordionActions>
-                                              <div
-                                                className={
-                                                  classes.progressButtonWrapper
-                                                }
-                                              >
-                                                <Button
-                                                  variant="contained"
-                                                  size="small"
-                                                  disabled={roleRemoving}
-                                                  onClick={() =>
-                                                    role.id &&
-                                                    role.desk.id &&
-                                                    onDeskRoleRemove(
-                                                      role.desk.id,
-                                                      role.id
-                                                    )
-                                                  }
-                                                >
-                                                  Remove
-                                                </Button>
-                                                {roleRemoving && (
-                                                  <CircularProgress
-                                                    size={24}
+                                                {!deskPermissionsLoading && (
+                                                  <>
+                                                    {deskPermissions.map(
+                                                      (perm: Permission) => (
+                                                        <FormGroup
+                                                          key={perm.name}
+                                                          className={
+                                                            classes.permissionContainer
+                                                          }
+                                                        >
+                                                          <FormLabel
+                                                            component="legend"
+                                                            className={
+                                                              classes.permissionName
+                                                            }
+                                                          >
+                                                            {perm.name}
+                                                          </FormLabel>
+                                                          <AccordionDetails
+                                                            className={
+                                                              classes.permissionDetails
+                                                            }
+                                                          >
+                                                            {perm.permissions.map(
+                                                              (avail: {
+                                                                name: string;
+                                                                code: string;
+                                                              }) => (
+                                                                <Grid
+                                                                  item
+                                                                  key={
+                                                                    avail.code
+                                                                  }
+                                                                  xs={2}
+                                                                >
+                                                                  <Grid
+                                                                    container
+                                                                    alignItems="center"
+                                                                    spacing={1}
+                                                                  >
+                                                                    <Grid item>
+                                                                      <Field
+                                                                        name="permissions[]"
+                                                                        component="input"
+                                                                        type="checkbox"
+                                                                        value={
+                                                                          avail.code
+                                                                        }
+                                                                      />
+                                                                    </Grid>
+                                                                    <Grid item>
+                                                                      <Typography variant="body1">
+                                                                        {
+                                                                          avail.name
+                                                                        }
+                                                                      </Typography>
+                                                                    </Grid>
+                                                                  </Grid>
+                                                                </Grid>
+                                                              )
+                                                            )}
+                                                          </AccordionDetails>
+                                                        </FormGroup>
+                                                      )
+                                                    )}
+                                                  </>
+                                                )}
+                                                <Divider />
+                                                <AccordionActions>
+                                                  <div
                                                     className={
-                                                      classes.progressButton
+                                                      classes.progressButtonWrapper
                                                     }
-                                                  />
-                                                )}
-                                              </div>
-                                              <div
-                                                className={
-                                                  classes.progressButtonWrapper
-                                                }
-                                              >
-                                                <Button
-                                                  variant="contained"
-                                                  size="small"
-                                                  color="primary"
-                                                  type="submit"
-                                                  disabled={
-                                                    submitting || pristine
-                                                  }
-                                                >
-                                                  Save
-                                                </Button>
-                                              </div>
-                                            </AccordionActions>
-                                          </Accordion>
-                                        </form>
-                                      )}
-                                    />
-                                  </div>
-                                ))}
-                            </Grid>
-                          </Grid>
-                        ) : (
-                          <></>
-                        ))}
-                    </Grid>
-                  </Grid>
+                                                  >
+                                                    <Button
+                                                      variant="contained"
+                                                      size="small"
+                                                      disabled={roleRemoving}
+                                                      onClick={() =>
+                                                        role.id &&
+                                                        role.desk.id &&
+                                                        onDeskRoleRemove(
+                                                          role.desk.id,
+                                                          role.id
+                                                        )
+                                                      }
+                                                    >
+                                                      Remove
+                                                    </Button>
+                                                    {roleRemoving && (
+                                                      <CircularProgress
+                                                        size={24}
+                                                        className={
+                                                          classes.progressButton
+                                                        }
+                                                      />
+                                                    )}
+                                                  </div>
+                                                  <div
+                                                    className={
+                                                      classes.progressButtonWrapper
+                                                    }
+                                                  >
+                                                    <Button
+                                                      variant="contained"
+                                                      size="small"
+                                                      color="primary"
+                                                      type="submit"
+                                                      disabled={
+                                                        submitting || pristine
+                                                      }
+                                                    >
+                                                      Save
+                                                    </Button>
+                                                  </div>
+                                                </AccordionActions>
+                                              </Accordion>
+                                            </form>
+                                          )}
+                                        />
+                                      </div>
+                                    ))}
+                                </Grid>
+                              </Grid>
+                            ) : (
+                              <></>
+                            ))}
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
                 </Grid>
               )}
             </Grid>

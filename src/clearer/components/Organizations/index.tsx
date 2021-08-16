@@ -31,6 +31,9 @@ const useStyles = makeStyles((theme: Theme) =>
     errorMessage: {
       marginTop: theme.spacing(8),
     },
+    link: {
+      color: theme.palette.primary.main,
+    },
   })
 );
 
@@ -83,7 +86,12 @@ const Organizations = (): React.ReactElement => {
                       const { id, name } = rowData;
 
                       return (
-                        <Link to={`organizations/edit/${id}`}>{name}</Link>
+                        <Link
+                          to={`organizations/edit/${id}`}
+                          className={classes.link}
+                        >
+                          {name}
+                        </Link>
                       );
                     },
                   },

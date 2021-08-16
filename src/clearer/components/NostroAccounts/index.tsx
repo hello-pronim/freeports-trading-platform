@@ -23,8 +23,6 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import red from "@material-ui/core/colors/red";
 import MaterialTable from "material-table";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import { useAccountsSlice } from "./slice";
 import { selectAccounts } from "./slice/selectors";
 
@@ -32,6 +30,9 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     actionButton: { marginRight: theme.spacing(2) },
     deleteButton: { color: red[500] },
+    link: {
+      color: theme.palette.primary.main,
+    },
   })
 );
 
@@ -118,7 +119,11 @@ const NostroAccounts = (): React.ReactElement => {
       render: (rowData: any) => {
         const { id, name } = rowData;
 
-        return <Link to={`nostro-accounts/${id}`}>{name}</Link>;
+        return (
+          <Link to={`nostro-accounts/${id}`} className={classes.link}>
+            {name}
+          </Link>
+        );
       },
     },
     {

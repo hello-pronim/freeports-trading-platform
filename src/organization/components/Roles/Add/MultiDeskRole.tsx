@@ -24,8 +24,6 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import { useNewOrgRoleSlice } from "./slice";
 import {
   selectMultiDeskPermissions,

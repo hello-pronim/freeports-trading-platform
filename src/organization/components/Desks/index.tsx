@@ -29,8 +29,6 @@ import {
 import DeleteIcon from "@material-ui/icons/Delete";
 import MaterialTable from "material-table";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import data from "./data";
 import { useDesksSlice } from "./slice";
 import { selectDesks } from "./slice/selectors";
@@ -47,6 +45,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     errorMessage: {
       marginTop: theme.spacing(8),
+    },
+    link: {
+      color: theme.palette.primary.main,
     },
   })
 );
@@ -78,61 +79,6 @@ const Desks = (): React.ReactElement => {
   });
   const { actions } = useDesksSlice();
   const desks = useSelector(selectDesks);
-
-  const columns = [
-    {
-      field: "name",
-      title: "Desks",
-      cellStyle: {
-        width: "30%",
-      },
-      render: (rowData: any) => {
-        const { id, name } = rowData;
-
-        return <Link to={`/desks/${id}`}>{name}</Link>;
-      },
-    },
-    {
-      field: "investors",
-      title: "Investors",
-      cellStyle: {
-        width: "20%",
-      },
-    },
-    {
-      field: "coworkers",
-      title: "Co-workers",
-      cellStyle: {
-        width: "20%",
-      },
-    },
-    {
-      field: "value",
-      title: "Desk Value",
-      cellStyle: {
-        width: "20%",
-      },
-    },
-    {
-      title: "Action",
-      cellStyle: {
-        width: "10%",
-      },
-      render: (rowData: any) => {
-        const { id } = rowData;
-
-        return (
-          <Grid container spacing={2}>
-            <Grid item>
-              <IconButton color="inherit" onClick={() => handleDeskDelete(id)}>
-                <DeleteIcon fontSize="small" color="error" />
-              </IconButton>
-            </Grid>
-          </Grid>
-        );
-      },
-    },
-  ];
 
   useEffect(() => {
     dispatch(actions.getDesks(organizationId));
@@ -203,7 +149,67 @@ const Desks = (): React.ReactElement => {
                       </Grid>
                     </Grid>
                   }
-                  columns={columns}
+                  columns={[
+                    {
+                      field: "name",
+                      title: "Desks",
+                      cellStyle: {
+                        width: "30%",
+                      },
+                      render: (rowData: any) => {
+                        const { id, name } = rowData;
+
+                        return (
+                          <Link to={`/desks/${id}`} className={classes.link}>
+                            {name}
+                          </Link>
+                        );
+                      },
+                    },
+                    {
+                      field: "investors",
+                      title: "Investors",
+                      cellStyle: {
+                        width: "20%",
+                      },
+                    },
+                    {
+                      field: "coworkers",
+                      title: "Co-workers",
+                      cellStyle: {
+                        width: "20%",
+                      },
+                    },
+                    {
+                      field: "value",
+                      title: "Desk Value",
+                      cellStyle: {
+                        width: "20%",
+                      },
+                    },
+                    {
+                      title: "Action",
+                      cellStyle: {
+                        width: "10%",
+                      },
+                      render: (rowData: any) => {
+                        const { id } = rowData;
+
+                        return (
+                          <Grid container spacing={2}>
+                            <Grid item>
+                              <IconButton
+                                color="inherit"
+                                onClick={() => handleDeskDelete(id)}
+                              >
+                                <DeleteIcon fontSize="small" color="error" />
+                              </IconButton>
+                            </Grid>
+                          </Grid>
+                        );
+                      },
+                    },
+                  ]}
                   data={desks.map((deskItem: any) => ({ ...deskItem }))}
                 />
               </Grid>

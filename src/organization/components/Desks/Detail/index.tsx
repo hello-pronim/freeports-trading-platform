@@ -31,8 +31,6 @@ import {
 import SearchIcon from "@material-ui/icons/Search";
 import red from "@material-ui/core/colors/red";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import { useDesksSlice } from "../slice";
 import { useDeskDetailSlice } from "./slice";
 import { selectDesks, selectIsDesksLoading } from "../slice/selectors";
@@ -153,7 +151,7 @@ const Detail = (): React.ReactElement => {
           </Grid>
           <Grid item xs={12}>
             <Grid container item xs={12} spacing={4}>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <Grid>
                   <TextField
                     className="w-100"
@@ -192,7 +190,7 @@ const Detail = (): React.ReactElement => {
                   </List>
                 )}
               </Grid>
-              <Grid item xs={10}>
+              <Grid item xs={9}>
                 {deskDetailLoading && <Loader />}
                 {!deskDetailLoading && (
                   <Container>

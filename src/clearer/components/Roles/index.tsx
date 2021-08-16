@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
+import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import {
   Accordion,
@@ -8,6 +9,9 @@ import {
   AccordionDetails,
   AccordionSummary,
   Button,
+  Card,
+  CardHeader,
+  CardContent,
   Checkbox,
   CircularProgress,
   Container,
@@ -17,6 +21,7 @@ import {
   FormGroup,
   FormLabel,
   Grid,
+  Icon,
   IconButton,
   makeStyles,
   Snackbar,
@@ -27,8 +32,6 @@ import {
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-
-import "bootstrap/dist/css/bootstrap.min.css";
 
 import { useRole } from "../../../hooks";
 
@@ -78,6 +81,10 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: -12,
       marginLeft: -12,
     },
+    addButton: {
+      fontWeight: "bold",
+      padding: 0,
+    },
     column: {
       flexBasis: "20%",
     },
@@ -92,9 +99,6 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "100%",
       marginBottom: theme.spacing(2),
     },
-    errorMessage: {
-      marginTop: theme.spacing(8),
-    },
   })
 );
 
@@ -104,6 +108,7 @@ const Alert = (props: AlertProps) => {
 
 const Roles = (): React.ReactElement => {
   const classes = useStyles();
+  const history = useHistory();
   const { error } = useSelector(
     (state: any) => ({
       error: state.global.error,
@@ -120,7 +125,6 @@ const Roles = (): React.ReactElement => {
     type: "success",
     message: "",
   });
-  const [errorMessage, setErrorMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
@@ -241,6 +245,10 @@ const Roles = (): React.ReactElement => {
       });
   };
 
+  const handleNewRoleClick = () => {
+    history.push("/roles/add");
+  };
+
   const handleAlertClose = () => {
     setShowAlert(false);
   };
@@ -248,158 +256,171 @@ const Roles = (): React.ReactElement => {
   return (
     <div className="main-wrapper">
       <Container>
-        {errorMessage !== "" ? (
-          <div className={classes.errorMessage}>
-            <Typography variant="h2" align="center" color="textSecondary">
-              {errorMessage}
-            </Typography>
-          </div>
-        ) : (
-          <Grid container spacing={2}>
-            <Grid container item alignItems="center" xs={12}>
-              <Typography variant="h4">Roles</Typography>
-              <Link to="/roles/add">
-                <IconButton color="inherit" aria-label="Add Role">
-                  <AddCircleIcon fontSize="large" />
-                </IconButton>
-              </Link>
-            </Grid>
-            {roles.length > 0 ? (
-              <Grid container item>
-                <Grid item xs={12}>
-                  {roles
-                    .filter((role: RoleType) => role.name !== "_default")
-                    .map((role: RoleType) => (
-                      <Accordion key={role.id}>
-                        <AccordionSummary
-                          expandIcon={<ExpandMoreIcon />}
-                          aria-controls="panel1c-content"
-                        >
-                          <div className={classes.column}>
-                            <Typography className={classes.roleName}>
-                              {role.name}
-                            </Typography>
-                          </div>
-                          <div className={classes.column}>
-                            <Typography className={classes.roleDescription} />
-                          </div>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          <Grid container item xs={12}>
-                            <Grid item xs={4}>
-                              <TextField
-                                className={classes.roleNameInput}
-                                label="Role Name"
-                                value={role.name}
-                                onChange={(e) => onRoleNameChange(e, role.id)}
-                              />
-                            </Grid>
-                          </Grid>
-                        </AccordionDetails>
-                        {permissions.map((perm: PermissionType) => (
-                          <FormGroup
-                            key={perm.name}
-                            className={classes.permissionContainer}
-                          >
-                            <FormLabel
-                              component="legend"
-                              className={classes.permissionName}
-                            >
-                              {perm.name}
-                            </FormLabel>
-                            <AccordionDetails
-                              className={classes.permissionDetails}
-                            >
-                              {perm.permissions.map(
-                                (avail: { name: string; code: string }) => (
-                                  <div
-                                    key={avail.code}
-                                    className={classes.column}
-                                  >
-                                    <FormControlLabel
-                                      className={classes.checkboxLabel}
-                                      control={
-                                        <Checkbox
-                                          color="primary"
-                                          name={avail.code}
-                                          checked={Boolean(
-                                            role.permissions.includes(
-                                              avail.code
-                                            )
-                                          )}
-                                          onChange={(e) =>
-                                            onPermissionChange(e, role.id)
-                                          }
-                                        />
-                                      }
-                                      label={avail.name}
-                                    />
-                                  </div>
-                                )
-                              )}
-                            </AccordionDetails>
-                          </FormGroup>
-                        ))}
-                        <Divider />
-                        <AccordionActions>
-                          <div className={classes.progressButtonWrapper}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              disabled={removing}
-                              onClick={() => onRoleRemove(role.id)}
-                            >
-                              Remove
-                            </Button>
-                            {removing && (
-                              <CircularProgress
-                                size={24}
-                                className={classes.progressButton}
-                              />
-                            )}
-                          </div>
-                          <div className={classes.progressButtonWrapper}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="primary"
-                              onClick={() => onRoleSave(role.id)}
-                              disabled={saving}
-                            >
-                              Save
-                            </Button>
-                            {saving && (
-                              <CircularProgress
-                                size={24}
-                                className={classes.progressButton}
-                              />
-                            )}
-                          </div>
-                        </AccordionActions>
-                      </Accordion>
-                    ))}
-                </Grid>
-              </Grid>
-            ) : (
-              <></>
-            )}
-            <Snackbar
-              autoHideDuration={2000}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              open={showAlert}
-              onClose={handleAlertClose}
-            >
-              <Alert
-                onClose={handleAlertClose}
-                severity={
-                  submitResponse.type === "success" ? "success" : "error"
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Card>
+              <CardHeader
+                title={
+                  <Grid container alignItems="center" spacing={2}>
+                    <Grid item>
+                      <Typography variant="h5">Roles</Typography>
+                    </Grid>
+                    <Grid item>
+                      <IconButton
+                        className={classes.addButton}
+                        color="primary"
+                        onClick={handleNewRoleClick}
+                      >
+                        <Icon fontSize="large">add_circle</Icon>
+                      </IconButton>
+                    </Grid>
+                  </Grid>
                 }
-              >
-                {submitResponse.message}
-              </Alert>
-            </Snackbar>
+              />
+              <Divider />
+              <CardContent>
+                {roles.length > 0 ? (
+                  <Grid container item>
+                    <Grid item xs={12}>
+                      {roles
+                        .filter((role: RoleType) => role.name !== "_default")
+                        .map((role: RoleType) => (
+                          <Accordion key={role.id}>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1c-content"
+                            >
+                              <div className={classes.column}>
+                                <Typography className={classes.roleName}>
+                                  {role.name}
+                                </Typography>
+                              </div>
+                              <div className={classes.column}>
+                                <Typography
+                                  className={classes.roleDescription}
+                                />
+                              </div>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Grid container item xs={12}>
+                                <Grid item xs={4}>
+                                  <TextField
+                                    className={classes.roleNameInput}
+                                    label="Role Name"
+                                    value={role.name}
+                                    onChange={(e) =>
+                                      onRoleNameChange(e, role.id)
+                                    }
+                                  />
+                                </Grid>
+                              </Grid>
+                            </AccordionDetails>
+                            {permissions.map((perm: PermissionType) => (
+                              <FormGroup
+                                key={perm.name}
+                                className={classes.permissionContainer}
+                              >
+                                <FormLabel
+                                  component="legend"
+                                  className={classes.permissionName}
+                                >
+                                  {perm.name}
+                                </FormLabel>
+                                <AccordionDetails
+                                  className={classes.permissionDetails}
+                                >
+                                  {perm.permissions.map(
+                                    (avail: { name: string; code: string }) => (
+                                      <div
+                                        key={avail.code}
+                                        className={classes.column}
+                                      >
+                                        <FormControlLabel
+                                          className={classes.checkboxLabel}
+                                          control={
+                                            <Checkbox
+                                              color="primary"
+                                              name={avail.code}
+                                              checked={Boolean(
+                                                role.permissions.includes(
+                                                  avail.code
+                                                )
+                                              )}
+                                              onChange={(e) =>
+                                                onPermissionChange(e, role.id)
+                                              }
+                                            />
+                                          }
+                                          label={avail.name}
+                                        />
+                                      </div>
+                                    )
+                                  )}
+                                </AccordionDetails>
+                              </FormGroup>
+                            ))}
+                            <Divider />
+                            <AccordionActions>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  disabled={removing}
+                                  onClick={() => onRoleRemove(role.id)}
+                                >
+                                  Remove
+                                </Button>
+                                {removing && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => onRoleSave(role.id)}
+                                  disabled={saving}
+                                >
+                                  Save
+                                </Button>
+                                {saving && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                            </AccordionActions>
+                          </Accordion>
+                        ))}
+                    </Grid>
+                  </Grid>
+                ) : (
+                  <></>
+                )}
+                <Snackbar
+                  autoHideDuration={2000}
+                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  open={showAlert}
+                  onClose={handleAlertClose}
+                >
+                  <Alert
+                    onClose={handleAlertClose}
+                    severity={
+                      submitResponse.type === "success" ? "success" : "error"
+                    }
+                  >
+                    {submitResponse.message}
+                  </Alert>
+                </Snackbar>
+              </CardContent>
+            </Card>
           </Grid>
-        )}
+        </Grid>
       </Container>
     </div>
   );

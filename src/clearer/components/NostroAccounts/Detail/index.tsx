@@ -32,8 +32,6 @@ import SearchIcon from "@material-ui/icons/Search";
 import red from "@material-ui/core/colors/red";
 import MaterialTable from "material-table";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import List from "@material-ui/core/List";
@@ -339,33 +337,42 @@ const Detail = (): React.ReactElement => {
 
   const readMultiFiles = (files: any) => {
     function readFile(index: number) {
-      if(index >= files.length) {
-        if(entryObjArray.length) {
+      if (index >= files.length) {
+        if (entryObjArray.length) {
           dispatch(
-            accountDetailActions.addOperation({ accountId, operation: entryObjArray })
+            accountDetailActions.addOperation({
+              accountId,
+              operation: entryObjArray,
+            })
           );
         }
         return;
       }
 
       const file = files[index];
-      reader.onload = () => {  
-        const xml = parser.parseFromString(reader.result as string, 'text/xml');
+      reader.onload = () => {
+        const xml = parser.parseFromString(reader.result as string, "text/xml");
 
-        const entries = xml.getElementsByTagName('Ntry');
+        const entries = xml.getElementsByTagName("Ntry");
         for (let i = 0; i < entries.length; i += 1) {
           const entry = entries[i];
           const entryObj = {
-            amount: Number(entry.querySelector('Amt')?.textContent),
-            date: String(entry.querySelector('BookgDt Dt')?.textContent),
-            label: String(entry.querySelector('NtryDtls RmtInf Ustrd')?.textContent || 'None'),
-            type: entry.querySelector('CdtDbtInd')?.textContent === 'CRDT' ? 'credit' : 'debit',
-            importId: String(entry.querySelector('NtryRef')?.textContent),
-          }
+            amount: Number(entry.querySelector("Amt")?.textContent),
+            date: String(entry.querySelector("BookgDt Dt")?.textContent),
+            label: String(
+              entry.querySelector("NtryDtls RmtInf Ustrd")?.textContent ||
+                "None"
+            ),
+            type:
+              entry.querySelector("CdtDbtInd")?.textContent === "CRDT"
+                ? "credit"
+                : "debit",
+            importId: String(entry.querySelector("NtryRef")?.textContent),
+          };
           entryObjArray.push(entryObj);
         }
-        readFile(index + 1)
-      }
+        readFile(index + 1);
+      };
       reader.readAsText(file);
     }
 
@@ -373,7 +380,7 @@ const Detail = (): React.ReactElement => {
     const reader = new FileReader();
     const parser = new DOMParser();
     readFile(0);
-  }
+  };
 
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.currentTarget;
@@ -388,7 +395,7 @@ const Detail = (): React.ReactElement => {
         <Grid container spacing={4}>
           <Grid item xs={12}>
             <Grid container>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <IconButton
                   color="inherit"
                   aria-label="Back"
@@ -397,7 +404,7 @@ const Detail = (): React.ReactElement => {
                   <ArrowBackIosIcon fontSize="large" color="primary" />
                 </IconButton>
               </Grid>
-              <Grid item xs={10}>
+              <Grid item xs={9}>
                 <Grid container alignItems="center" justify="space-between">
                   <Grid item>
                     <Grid container direction="column">
@@ -483,7 +490,7 @@ const Detail = (): React.ReactElement => {
           </Grid>
           <Grid item xs={12}>
             <Grid container spacing={4}>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <Grid>
                   <TextField
                     className="w-100"
@@ -522,7 +529,7 @@ const Detail = (): React.ReactElement => {
                   </List>
                 )}
               </Grid>
-              <Grid item xs={10}>
+              <Grid item xs={9}>
                 {accountDetailLoading && <Loader />}
                 {!accountDetailLoading && (
                   <Grid container spacing={4}>
