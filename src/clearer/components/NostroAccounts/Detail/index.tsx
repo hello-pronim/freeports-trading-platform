@@ -47,6 +47,7 @@ import {
   selectAccountDetail,
   selectIsDetailLoading,
   selectOperations,
+  selectMoveRequests,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
 
@@ -172,6 +173,7 @@ const Detail = (): React.ReactElement => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [importedFile, setImportedFile] = useState(null);
+  const moveRequests = useSelector(selectMoveRequests);
 
   const pendingReconciliationColumns = [
     {
@@ -239,12 +241,60 @@ const Detail = (): React.ReactElement => {
     },
   ];
 
+  const moveRequestsColumns = [
+    {
+      title: "Date",
+      cellStyle: {
+        width: "20%",
+      },
+      render: (rowData: any) => {
+        const { createdAt } = rowData;
+        return convertDateToDMY(createdAt);
+      },
+    },
+    {
+      field: "kind",
+      title: "Kind",
+      cellStyle: {
+        width: "20%",
+      },
+    },
+    // {
+    //   title: "To",
+    //   cellStyle: {
+    //     width: "20%",
+    //   },
+    //   render: (rowData: any) => {
+    //     const { accountTo } = rowData;
+    //     return accountTo.publicAddress;
+    //   },
+    // },
+    {
+      title: "Quantity",
+      cellStyle: {
+        width: "20%",
+      },
+      render: (rowData: any) => {
+        const { quantity } = rowData;
+        return `${selectedAccount.currency} ${quantity}`;
+      },
+    },
+    {
+      field: "status",
+      title: "Status",
+      cellStyle: {
+        width: "20%",
+      },
+    },
+  ];
+
   useEffect(() => {
     let mounted = false;
     const init = async () => {
       await dispatch(accountsActions.getAccounts());
       await dispatch(accountDetailActions.getAccount(accountId));
       await dispatch(accountDetailActions.getOperations(accountId));
+      await dispatch(accountDetailActions.getMoveRequests(accountId));
     };
     init();
 
@@ -476,6 +526,16 @@ const Detail = (): React.ReactElement => {
                 {accountDetailLoading && <Loader />}
                 {!accountDetailLoading && (
                   <Grid container spacing={4}>
+                    <Grid item xs={12}>
+                      <MaterialTable
+                        columns={moveRequestsColumns}
+                        data={moveRequests}
+                        title="Requested Operation"
+                        options={{
+                          search: true,
+                        }}
+                      />
+                    </Grid>
                     <Grid item xs={12}>
                       <MaterialTable
                         columns={pendingReconciliationColumns}

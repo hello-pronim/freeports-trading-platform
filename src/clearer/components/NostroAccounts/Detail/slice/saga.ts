@@ -11,6 +11,7 @@ import {
   createOperation,
   getAllOperations,
   deleteOperation,
+  getAllMoveRequests,
 } from "../../../../../services/accountService";
 import { snackbarActions } from "../../../../../components/Snackbar/slice";
 
@@ -124,9 +125,32 @@ export function* removeOperation({
     );
   }
 }
+
+export function* getMoveRequests({
+  payload,
+}: PayloadAction<string>): Generator<any> {
+  try {
+    const response = yield call(getAllMoveRequests, payload);
+    if (response)
+      yield put(
+        actions.getMoveRequestsSuccess(
+          (response as PaginatedResponse<any>).content
+        )
+      );
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
 export function* accountDetailSaga(): Generator<any> {
   yield takeEvery(actions.getAccount, retrieveAccount);
   yield takeEvery(actions.getOperations, getOperations);
   yield takeEvery(actions.addOperation, addOperation);
   yield takeEvery(actions.removeOperation, removeOperation);
+  yield takeEvery(actions.getMoveRequests, getMoveRequests);
 }

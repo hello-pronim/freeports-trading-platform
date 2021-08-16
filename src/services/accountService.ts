@@ -131,6 +131,19 @@ const deleteOperation = (
   });
 };
 
+const getAllMoveRequests = (accountId: string): Promise<Operation[]> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`/account/${accountId}/request`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 export {
   getAllAccounts as default,
   getAllAccounts,
@@ -142,4 +155,5 @@ export {
   createOperation,
   getAllOperations,
   deleteOperation,
+  getAllMoveRequests,
 };

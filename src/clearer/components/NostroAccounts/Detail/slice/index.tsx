@@ -29,6 +29,7 @@ export const initialState: AccountDetailState = {
   creatingOperation: false,
   gettingOperations: false,
   deletingOperation: false,
+  moveRequests: [],
 };
 
 const slice = createSlice({
@@ -68,6 +69,12 @@ const slice = createSlice({
     },
     removeOperationSuccess(state, action: PayloadAction<string>) {
       state.deletingOperation = false;
+    },
+    getMoveRequests(state, action: PayloadAction<string>) {
+      state.moveRequests = [];
+    },
+    getMoveRequestsSuccess(state, action: PayloadAction<Operation[]>) {
+      state.moveRequests = action.payload;
     },
   },
 });

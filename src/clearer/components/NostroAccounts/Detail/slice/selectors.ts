@@ -21,3 +21,8 @@ export const selectOperations = createSelector(
   [selectDomain],
   (accountDetailState) => accountDetailState.operations
 );
+
+export const selectMoveRequests = createSelector(
+  [selectDomain],
+  (accountDetailState) => accountDetailState.moveRequests
+);
