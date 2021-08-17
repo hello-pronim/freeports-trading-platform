@@ -204,7 +204,8 @@ const Manager = (props: any): React.ReactElement => {
     setShowAlert(false);
   };
 
-  const onClickSuspend = async () => {
+  const onClickSuspend = async (event: any) => {
+    event.stopPropagation();
     if (suspended) {
       const res = await resumeManager(orgId, managerId);
       if(res) {
