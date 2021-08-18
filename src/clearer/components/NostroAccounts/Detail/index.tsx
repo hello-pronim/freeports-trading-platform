@@ -257,16 +257,16 @@ const Detail = (): React.ReactElement => {
         width: "20%",
       },
     },
-    // {
-    //   title: "To",
-    //   cellStyle: {
-    //     width: "20%",
-    //   },
-    //   render: (rowData: any) => {
-    //     const { accountTo } = rowData;
-    //     return accountTo.publicAddress;
-    //   },
-    // },
+    {
+      title: "To",
+      cellStyle: {
+        width: "20%",
+      },
+      render: (rowData: any) => {
+        const { accountTo } = rowData;
+        return accountTo ? accountTo.name : '';
+      },
+    },
     {
       title: "Quantity",
       cellStyle: {
