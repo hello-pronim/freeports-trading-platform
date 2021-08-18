@@ -2,12 +2,15 @@
 /* eslint-disable react/no-array-index-key */
 // import libs
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter as Router, Redirect, Switch } from "react-router-dom";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
 // import components
 import routes from "./routes";
 import { useAuth } from "../../hooks";
+import { useGlobalSlice } from "../../slice";
+import { selectTheme } from "../../slice/selectors";
 import PrivateRoute from "../../routes/private";
 import PublicRoute from "../../routes/public";
 import Header from "../components/Header";
@@ -24,6 +27,8 @@ const useStyles = makeStyles((theme: Theme) =>
 const Routes = (): React.ReactElement => {
   const classes = useStyles();
   const { isAuthenticated } = useAuth();
+  const { actions: globalActions } = useGlobalSlice();
+  const theme = useSelector(selectTheme);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
 
   const handleNotificationDrawerOpen = () => {
@@ -44,7 +49,11 @@ const Routes = (): React.ReactElement => {
       <Router>
         <>
           <Header {...headerProps} />
-          <main className={classes.main}>
+          <main
+            className={`${classes.main} ${
+              theme === "dark" ? "theme-dark" : "theme-light"
+            }`}
+          >
             <Switch>
               {routes.map((route, i) => {
                 if (route.auth) {

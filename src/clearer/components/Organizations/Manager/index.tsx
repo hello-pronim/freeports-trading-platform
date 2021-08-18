@@ -208,7 +208,7 @@ const Manager = (props: any): React.ReactElement => {
     event.stopPropagation();
     if (suspended) {
       const res = await resumeManager(orgId, managerId);
-      if(res) {
+      if (res) {
         setSubmitResponse({
           type: "success",
           message: "Manager reactivated",
@@ -222,7 +222,7 @@ const Manager = (props: any): React.ReactElement => {
       }
     } else {
       const res = await suspendManager(orgId, managerId);
-      if(res) {
+      if (res) {
         setSubmitResponse({
           type: "success",
           message: "Manager suspended",
@@ -265,7 +265,7 @@ const Manager = (props: any): React.ReactElement => {
           </Grid>
           <Grid item>
             {!suspended && (
-              <Button onClick={onClickSuspend} color="secondary">
+              <Button onClick={onClickSuspend} color="primary">
                 Disable
               </Button>
             )}

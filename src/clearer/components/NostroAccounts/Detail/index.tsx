@@ -1,6 +1,7 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, { useEffect, useState, useRef } from "react";
+import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { Link } from "react-router-dom";
@@ -11,6 +12,7 @@ import { Radios, TextField as MuiTextField } from "mui-rff";
 import {
   Button,
   Container,
+  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,6 +23,7 @@ import {
   InputAdornment,
   makeStyles,
   TextField,
+  Theme,
   Typography,
 } from "@material-ui/core";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
@@ -102,17 +105,16 @@ const passedTransactionsColumns = [
   },
 ];
 
-const useStyles = makeStyles({
-  importButton: {
-    marginRight: "20px",
-  },
-  deleteButton: {
-    color: red[500],
-  },
-  fileInput: {
-    display: "none",
-  },
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    importButton: {
+      marginRight: "20px",
+    },
+    fileInput: {
+      display: "none",
+    },
+  })
+);
 
 const validate = (values: any) => {
   const errors: Partial<any> = {};
@@ -230,7 +232,7 @@ const Detail = (): React.ReactElement => {
                 color="inherit"
                 onClick={() => handleOperationDelete(id)}
               >
-                <DeleteIcon fontSize="small" color="error" />
+                <DeleteIcon fontSize="small" className="icon-delete" />
               </IconButton>
             </Grid>
           </Grid>
@@ -264,7 +266,7 @@ const Detail = (): React.ReactElement => {
       },
       render: (rowData: any) => {
         const { accountTo } = rowData;
-        return accountTo ? accountTo.name : '';
+        return accountTo ? accountTo.name : "";
       },
     },
     {

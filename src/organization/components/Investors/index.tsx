@@ -161,11 +161,7 @@ const Investors = (): React.ReactElement => {
       render: (rowData: any) => {
         const { id, desk } = rowData;
 
-        return (
-          <Link to={`/desks/${desk}/investors/${id}`} className={classes.link}>
-            {id}
-          </Link>
-        );
+        return <Link to={`/desks/${desk}/investors/${id}`}>{id}</Link>;
       },
     },
     {
