@@ -241,7 +241,6 @@ const Investors = (): React.ReactElement => {
   };
 
   const handleTradeCreate = async (values: tradeType) => {
-    console.log(values);
     await dispatch(
       investorDetailActions.addTradeRequest({
         organizationId,
@@ -257,52 +256,63 @@ const Investors = (): React.ReactElement => {
     <div className="main-wrapper">
       <Container>
         <Grid container spacing={2}>
-          <Grid container item alignItems="center" justify="flex-end" xs={12}>
-            <Typography variant="subtitle1">
-              Preferred currency display:{" "}
-            </Typography>
-            <FormControl
-              size="small"
-              variant="outlined"
-              className={classes.currencyDropdown}
-            >
-              <Select value="usd">
-                {currencyOptions.map((opt) => (
-                  <MenuItem key={opt.value} value={opt.value}>
-                    {opt.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid container>
-            <Grid item xs={12}>
-              {investorsLoading && <Loader />}
-              {!investorsLoading && (
-                <MaterialTable
-                  title={
-                    <Grid container alignItems="center" spacing={2}>
-                      <Grid item>
-                        <Typography variant="h5">Investors</Typography>
-                      </Grid>
-                      <Grid item>
-                        <IconButton
-                          className={classes.addButton}
-                          color="primary"
-                          onClick={handleCreateInvestorDialogOpen}
-                        >
-                          <Icon fontSize="large">add_circle</Icon>
-                        </IconButton>
-                      </Grid>
-                    </Grid>
-                  }
-                  columns={columns}
-                  data={investors.map((investorItem: any) => ({
-                    ...investorItem,
-                  }))}
-                />
-              )}
+          <Grid item xs={12}>
+            <Grid container alignItems="center" justify="space-between">
+              <Grid item>
+                <Grid container alignItems="center" spacing={2}>
+                  <Grid item>
+                    <Typography variant="h5">INVESTORS</Typography>
+                  </Grid>
+                  <Grid item>
+                    <IconButton
+                      className={classes.addButton}
+                      color="primary"
+                      onClick={handleCreateInvestorDialogOpen}
+                    >
+                      <Icon fontSize="large">add_circle</Icon>
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <Grid container alignItems="center" spacing={1}>
+                  <Grid item>
+                    <Typography variant="subtitle1">
+                      Preferred currency display:
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <FormControl
+                      size="small"
+                      variant="outlined"
+                      className={classes.currencyDropdown}
+                    >
+                      <Select value="usd">
+                        {currencyOptions.map((opt) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </Grid>
             </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            {investorsLoading && <Loader />}
+            {!investorsLoading && (
+              <MaterialTable
+                columns={columns}
+                data={investors.map((investorItem: any) => ({
+                  ...investorItem,
+                }))}
+                options={{
+                  showTitle: false,
+                }}
+              />
+            )}
           </Grid>
         </Grid>
       </Container>

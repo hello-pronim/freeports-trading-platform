@@ -179,7 +179,7 @@ const NostroAccounts = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container justify="space-between">
               <Grid item>
-                <Typography variant="h6">NOSTRO ACCOUNTS</Typography>
+                <Typography variant="h5">NOSTRO ACCOUNTS</Typography>
               </Grid>
               <Grid item>
                 <Grid container>

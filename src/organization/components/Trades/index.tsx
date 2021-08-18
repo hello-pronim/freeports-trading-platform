@@ -9,6 +9,7 @@ import {
   Grid,
   makeStyles,
   Theme,
+  Typography,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import SyncAltIcon from "@material-ui/icons/SyncAlt";
@@ -69,154 +70,170 @@ const Trades = (): React.ReactElement => {
       <Container>
         <Grid container spacing={4}>
           <Grid item xs={12}>
-            <Grid container justify="flex-end">
-              <Button color="primary" variant="contained">
-                <AddIcon fontSize="small" />
-                New Trade
-              </Button>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Grid container alignItems="center" justify="space-between">
+                  <Grid item>
+                    <Typography variant="h5">TRADE REQUESTS</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Button color="primary" variant="contained">
+                      <AddIcon fontSize="small" />
+                      New Trade
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                {tradeRequestsLoading && <Loader />}
+                {!tradeRequestsLoading && (
+                  <MaterialTable
+                    columns={[
+                      {
+                        field: "createdAt",
+                        title: "Date",
+                        render: (rowData: any) => {
+                          const { createdAt } = rowData;
+
+                          return convertDateToDMY(createdAt);
+                        },
+                      },
+                      {
+                        field: "investor",
+                        title: "Investors",
+                        render: (rowData: any) => {
+                          const { investor } = rowData;
+
+                          return (
+                            <Link
+                              to={`/desks/${investor.desk}/investors/${investor.id}`}
+                            >
+                              {investor.id}
+                            </Link>
+                          );
+                        },
+                      },
+                      {
+                        field: "type",
+                        title: "Order",
+                      },
+                      {
+                        field: "status",
+                        title: "Status",
+                      },
+                      {
+                        title: "Send",
+                      },
+                      {
+                        title: "Receive",
+                      },
+                      {
+                        title: "Broker",
+                      },
+                      {
+                        title: "Commission",
+                      },
+                      {
+                        title: "Actions",
+                        render: (rowData: any) => {
+                          const { id, investor } = rowData;
+
+                          return (
+                            <Link
+                              to={`/desks/${investor.desk}/investors/${investor.id}/trades/${id}`}
+                            >
+                              <SyncAltIcon />
+                            </Link>
+                          );
+                        },
+                      },
+                    ]}
+                    data={tradeRequests.map((investorItem: any) => ({
+                      ...investorItem,
+                    }))}
+                    options={{ showTitle: false }}
+                  />
+                )}
+              </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            {tradeRequestsLoading && <Loader />}
-            {!tradeRequestsLoading && (
-              <MaterialTable
-                title="TRADE REQUESTS"
-                columns={[
-                  {
-                    field: "createdAt",
-                    title: "Date",
-                    render: (rowData: any) => {
-                      const { createdAt } = rowData;
-
-                      return convertDateToDMY(createdAt);
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography variant="h5">TRADE HISTORY</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <MaterialTable
+                  columns={[
+                    {
+                      field: "date",
+                      title: "Date",
+                      cellStyle: {
+                        width: "12%",
+                      },
                     },
-                  },
-                  {
-                    field: "investor",
-                    title: "Investors",
-                    render: (rowData: any) => {
-                      const { investor } = rowData;
+                    {
+                      field: "investors",
+                      title: "Investors",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                      render: (rowData: any) => {
+                        const { investorId } = rowData;
 
-                      return (
-                        <Link
-                          to={`/desks/${investor.desk}/investors/${investor.id}`}
-                        >
-                          {investor.id}
-                        </Link>
-                      );
+                        return (
+                          <Link to={`/trades/${investorId}`}>{investorId}</Link>
+                        );
+                      },
                     },
-                  },
-                  {
-                    field: "type",
-                    title: "Order",
-                  },
-                  {
-                    field: "status",
-                    title: "Status",
-                  },
-                  {
-                    title: "Send",
-                  },
-                  {
-                    title: "Receive",
-                  },
-                  {
-                    title: "Broker",
-                  },
-                  {
-                    title: "Commission",
-                  },
-                  {
-                    title: "Actions",
-                    render: (rowData: any) => {
-                      const { id, investor } = rowData;
-
-                      return (
-                        <Link
-                          to={`/desks/${investor.desk}/investors/${investor.id}/trades/${id}`}
-                        >
-                          <SyncAltIcon />
-                        </Link>
-                      );
+                    {
+                      field: "order",
+                      title: "Order",
+                      cellStyle: {
+                        width: "12%",
+                      },
                     },
-                  },
-                ]}
-                data={tradeRequests.map((investorItem: any) => ({
-                  ...investorItem,
-                }))}
-              />
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <MaterialTable
-              title="TRADE HISTORY"
-              columns={[
-                {
-                  field: "date",
-                  title: "Date",
-                  cellStyle: {
-                    width: "12%",
-                  },
-                },
-                {
-                  field: "investors",
-                  title: "Investors",
-                  cellStyle: {
-                    width: "12%",
-                  },
-                  render: (rowData: any) => {
-                    const { investorId } = rowData;
-
-                    return (
-                      <Link to={`/trades/${investorId}`}>{investorId}</Link>
-                    );
-                  },
-                },
-                {
-                  field: "order",
-                  title: "Order",
-                  cellStyle: {
-                    width: "12%",
-                  },
-                },
-                {
-                  field: "status",
-                  title: "Status",
-                  cellStyle: {
-                    width: "12%",
-                  },
-                },
-                {
-                  field: "send",
-                  title: "Send",
-                  cellStyle: {
-                    width: "12%",
-                  },
-                },
-                {
-                  field: "receive",
-                  title: "Receive",
-                  cellStyle: {
-                    width: "12%",
-                  },
-                },
-                {
-                  field: "broker",
-                  title: "Broker",
-                  cellStyle: {
-                    width: "12%",
-                  },
-                },
-                {
-                  field: "commission",
-                  title: "Commission",
-                  cellStyle: {
-                    width: "12%",
-                  },
-                },
-              ]}
-              data={tradeHistory}
-            />
+                    {
+                      field: "status",
+                      title: "Status",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                    },
+                    {
+                      field: "send",
+                      title: "Send",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                    },
+                    {
+                      field: "receive",
+                      title: "Receive",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                    },
+                    {
+                      field: "broker",
+                      title: "Broker",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                    },
+                    {
+                      field: "commission",
+                      title: "Commission",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                    },
+                  ]}
+                  data={tradeHistory}
+                  options={{ showTitle: false }}
+                />
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </Container>

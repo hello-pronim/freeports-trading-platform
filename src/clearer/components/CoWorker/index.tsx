@@ -173,7 +173,7 @@ const CoWorker = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container alignItems="center" spacing={2}>
               <Grid item>
-                <Typography variant="h6">CO-WORKER</Typography>
+                <Typography variant="h5">CO-WORKER</Typography>
               </Grid>
               <Grid item>
                 <IconButton
@@ -263,7 +263,7 @@ const CoWorker = (): React.ReactElement => {
                         </Grid>
                         <Grid item>
                           {!selectedCoWorker.suspended && !suspendStateLoading && (
-                            <Button onClick={handleOnSuspend} color="secondary">
+                            <Button onClick={handleOnSuspend} color="primary">
                               Disable
                             </Button>
                           )}

@@ -106,37 +106,13 @@ const Desks = (): React.ReactElement => {
       <Container>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Grid container alignItems="center" justify="flex-end" spacing={2}>
-              <Grid item>
-                <Typography variant="body2">
-                  Preferred currency display:
-                </Typography>
-              </Grid>
-              <Grid item>
-                <FormControl
-                  size="small"
-                  variant="outlined"
-                  className={classes.currencyDropdown}
-                >
-                  <Select value="usd">
-                    {currencyOptions.map((opt) => (
-                      <MenuItem key={opt.value} value={opt.value}>
-                        {opt.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Grid container>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
-                <MaterialTable
-                  title={
+                <Grid container alignItems="center" justify="space-between">
+                  <Grid item>
                     <Grid container alignItems="center" spacing={2}>
                       <Grid item>
-                        <Typography variant="h5">Desks</Typography>
+                        <Typography variant="h5">DESKS</Typography>
                       </Grid>
                       <Grid item>
                         <IconButton
@@ -148,7 +124,35 @@ const Desks = (): React.ReactElement => {
                         </IconButton>
                       </Grid>
                     </Grid>
-                  }
+                  </Grid>
+                  <Grid item>
+                    <Grid container alignItems="center" spacing={1}>
+                      <Grid item>
+                        <Typography variant="body2">
+                          Preferred currency display:
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <FormControl
+                          size="small"
+                          variant="outlined"
+                          className={classes.currencyDropdown}
+                        >
+                          <Select value="usd">
+                            {currencyOptions.map((opt) => (
+                              <MenuItem key={opt.value} value={opt.value}>
+                                {opt.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <MaterialTable
                   columns={[
                     {
                       field: "name",
@@ -198,7 +202,11 @@ const Desks = (): React.ReactElement => {
                                 color="inherit"
                                 onClick={() => handleDeskDelete(id)}
                               >
-                                <DeleteIcon fontSize="small" color="error" />
+                                <DeleteIcon
+                                  fontSize="small"
+                                  color="error"
+                                  className="icon-delete"
+                                />
                               </IconButton>
                             </Grid>
                           </Grid>
@@ -207,6 +215,7 @@ const Desks = (): React.ReactElement => {
                     },
                   ]}
                   data={desks.map((deskItem: any) => ({ ...deskItem }))}
+                  options={{ showTitle: false }}
                 />
               </Grid>
             </Grid>
