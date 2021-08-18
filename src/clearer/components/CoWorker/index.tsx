@@ -168,9 +168,7 @@ const CoWorker = (): React.ReactElement => {
 
   const handleResetOTP = async () => {
     if (selectedCoWorker.id) {
-      dispatch(
-        actions.resetOTP({ id: selectedCoWorker.id })
-      );
+      dispatch(actions.resetOTP({ id: selectedCoWorker.id }));
     }
   };
 
@@ -197,6 +195,7 @@ const CoWorker = (): React.ReactElement => {
               <TextField
                 onChange={handleSearchChange}
                 id="input-with-icon-grid"
+                placeholder="Search..."
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">

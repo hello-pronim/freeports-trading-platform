@@ -341,11 +341,7 @@ const InvestorDetail = (): React.ReactElement => {
                               render: (rowData: any) => {
                                 const { friendlyId } = rowData;
 
-                                return (
-                                  <Link to="/" className={classes.link}>
-                                    {friendlyId}
-                                  </Link>
-                                );
+                                return <Link to="/">{friendlyId}</Link>;
                               },
                             },
                             {
@@ -534,11 +530,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 render: (rowData: any) => {
                                   const { account } = rowData;
 
-                                  return (
-                                    <Link to="/" className={classes.link}>
-                                      {account}
-                                    </Link>
-                                  );
+                                  return <Link to="/">{account}</Link>;
                                 },
                               },
                               {

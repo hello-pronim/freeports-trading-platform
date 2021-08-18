@@ -100,7 +100,6 @@ const Trades = (): React.ReactElement => {
                       return (
                         <Link
                           to={`/desks/${investor.desk}/investors/${investor.id}`}
-                          className={classes.link}
                         >
                           {investor.id}
                         </Link>
@@ -135,7 +134,6 @@ const Trades = (): React.ReactElement => {
                       return (
                         <Link
                           to={`/desks/${investor.desk}/investors/${investor.id}/trades/${id}`}
-                          className={classes.link}
                         >
                           <SyncAltIcon />
                         </Link>
@@ -170,12 +168,7 @@ const Trades = (): React.ReactElement => {
                     const { investorId } = rowData;
 
                     return (
-                      <Link
-                        to={`/trades/${investorId}`}
-                        className={classes.link}
-                      >
-                        {investorId}
-                      </Link>
+                      <Link to={`/trades/${investorId}`}>{investorId}</Link>
                     );
                   },
                 },

@@ -159,11 +159,7 @@ const Desks = (): React.ReactElement => {
                       render: (rowData: any) => {
                         const { id, name } = rowData;
 
-                        return (
-                          <Link to={`/desks/${id}`} className={classes.link}>
-                            {name}
-                          </Link>
-                        );
+                        return <Link to={`/desks/${id}`}>{name}</Link>;
                       },
                     },
                     {

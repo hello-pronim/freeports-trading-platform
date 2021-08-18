@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Lockr from "lockr";
 import { Link } from "react-router-dom";
 import { Form } from "react-final-form";
 import arrayMutators from "final-form-arrays";
@@ -29,10 +30,7 @@ import { selectAccounts } from "./slice/selectors";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     actionButton: { marginRight: theme.spacing(2) },
-    deleteButton: { color: red[500] },
-    link: {
-      color: theme.palette.primary.main,
-    },
+    deleteButton: { color: Lockr.get("THEME") === "dark" ? "#FFF" : red[500] },
   })
 );
 
@@ -119,11 +117,7 @@ const NostroAccounts = (): React.ReactElement => {
       render: (rowData: any) => {
         const { id, name } = rowData;
 
-        return (
-          <Link to={`nostro-accounts/${id}`} className={classes.link}>
-            {name}
-          </Link>
-        );
+        return <Link to={`nostro-accounts/${id}`}>{name}</Link>;
       },
     },
     {
