@@ -270,11 +270,11 @@ const Roles = (): React.ReactElement => {
           </Grid>
           <Grid item xs={12}>
             {roles.length > 0 ? (
-              <Grid container item>
-                <Grid item xs={12}>
-                  {roles
-                    .filter((role: RoleType) => role.name !== "_default")
-                    .map((role: RoleType) => (
+              <Grid container spacing={1}>
+                {roles
+                  .filter((role: RoleType) => role.name !== "_default")
+                  .map((role: RoleType) => (
+                    <Grid item xs={12}>
                       <Accordion key={role.id}>
                         <AccordionSummary
                           expandIcon={<ExpandMoreIcon />}
@@ -382,8 +382,8 @@ const Roles = (): React.ReactElement => {
                           </div>
                         </AccordionActions>
                       </Accordion>
-                    ))}
-                </Grid>
+                    </Grid>
+                  ))}
               </Grid>
             ) : (
               <></>

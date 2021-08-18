@@ -17,6 +17,7 @@ import {
   DialogTitle,
   Divider,
   Grid,
+  Icon,
   IconButton,
   InputAdornment,
   ListItem,
@@ -253,13 +254,37 @@ const InvestorDetail = (): React.ReactElement => {
       <Container>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <IconButton
-              color="inherit"
-              aria-label="Back"
-              onClick={handleBackClick}
-            >
-              <ArrowBackIosIcon fontSize="large" color="primary" />
-            </IconButton>
+            <Grid container alignItems="center" spacing={4}>
+              <Grid item xs={3}>
+                <IconButton
+                  color="inherit"
+                  aria-label="Back"
+                  onClick={handleBackClick}
+                >
+                  <ArrowBackIosIcon fontSize="small" color="primary" />
+                </IconButton>
+              </Grid>
+              <Grid item xs={9}>
+                <Grid
+                  container
+                  item
+                  alignItems="center"
+                  justify="space-between"
+                >
+                  <Typography variant="h5">
+                    {`Investor ID: ${selectedInvestor.id}`}
+                  </Typography>
+                  {selectedInvestor.createdAt && (
+                    <Typography variant="subtitle2" color="textSecondary">
+                      {`Creation date: ${convertDateToDMY(
+                        selectedInvestor.createdAt
+                      )}`}
+                    </Typography>
+                  )}
+                </Grid>
+                <Divider />
+              </Grid>
+            </Grid>
           </Grid>
           <Grid item xs={12}>
             {investorDetailLoading && <Loader />}
@@ -311,149 +336,123 @@ const InvestorDetail = (): React.ReactElement => {
                 <Grid item xs={9}>
                   <Grid container spacing={4}>
                     <Grid item xs={12}>
-                      <Grid
-                        container
-                        item
-                        alignItems="center"
-                        justify="space-between"
-                      >
-                        <Typography variant="h5">
-                          {`Investor ID: ${selectedInvestor.id}`}
-                        </Typography>
-                        {selectedInvestor.createdAt && (
-                          <Typography variant="subtitle2" color="textSecondary">
-                            {`Creation date: ${convertDateToDMY(
-                              selectedInvestor.createdAt
-                            )}`}
-                          </Typography>
-                        )}
-                      </Grid>
-                      <Divider />
-                    </Grid>
-                    <Grid item xs={12}>
-                      {tradeRequestsLoading && <Loader />}
-                      {!tradeRequestsLoading && (
-                        <MaterialTable
-                          title="TRADES"
-                          columns={[
-                            {
-                              title: "ID",
-                              render: (rowData: any) => {
-                                const { friendlyId } = rowData;
-
-                                return <Link to="/">{friendlyId}</Link>;
-                              },
-                            },
-                            {
-                              field: "createdAt",
-                              title: "Date",
-                              render: (rowData: any) => {
-                                const { createdAt } = rowData;
-
-                                return convertDateToDMY(createdAt);
-                              },
-                            },
-                            {
-                              field: "order",
-                              title: "Order",
-                              render: (rowData: any) => {
-                                const { type } = rowData;
-
-                                if (type === "limit") return "Limits";
-                                if (type === "market") return "At market";
-                                if (type === "manual") return "Manual";
-                                return "";
-                              },
-                            },
-                            {
-                              field: "status",
-                              title: "Status",
-                            },
-                            {
-                              field: "send",
-                              title: "Send",
-                            },
-                            {
-                              field: "receive",
-                              title: "Receive",
-                            },
-                            {
-                              field: "broker",
-                              title: "Broker",
-                            },
-                            {
-                              field: "commission",
-                              title: "Commission",
-                            },
-                          ]}
-                          data={tradeRequests.map((trade) => ({
-                            ...trade,
-                          }))}
-                          options={{
-                            search: false,
-                          }}
-                          components={{
-                            Toolbar: (props) => (
-                              <Grid
-                                container
-                                justify="space-between"
-                                alignItems="center"
-                                spacing={2}
-                                className={classes.tableHeader}
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Grid
+                            container
+                            alignItems="center"
+                            justify="space-between"
+                          >
+                            <Grid item>
+                              <Typography variant="h6">TRADES</Typography>
+                            </Grid>
+                            <Grid item>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleCreateModalOpen}
                               >
-                                <Grid item>
-                                  <Typography variant="h5">TRADES</Typography>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <CompareArrowsIcon />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography>INITIATE NEW TRADE</Typography>
+                                  </Grid>
                                 </Grid>
-                                <Grid item>
-                                  <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleCreateModalOpen}
-                                  >
-                                    <Grid
-                                      container
-                                      alignItems="center"
-                                      spacing={1}
-                                    >
-                                      <Grid item>
-                                        <CompareArrowsIcon />
-                                      </Grid>
-                                      <Grid item>
-                                        <Typography>
-                                          INITIATE NEW TRADE
-                                        </Typography>
-                                      </Grid>
-                                    </Grid>
-                                  </Button>
-                                </Grid>
-                              </Grid>
-                            ),
-                          }}
-                        />
-                      )}
+                              </Button>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                        <Grid item xs={12}>
+                          {tradeRequestsLoading && <Loader />}
+                          {!tradeRequestsLoading && (
+                            <MaterialTable
+                              columns={[
+                                {
+                                  title: "ID",
+                                  render: (rowData: any) => {
+                                    const { friendlyId } = rowData;
+
+                                    return <Link to="/">{friendlyId}</Link>;
+                                  },
+                                },
+                                {
+                                  field: "createdAt",
+                                  title: "Date",
+                                  render: (rowData: any) => {
+                                    const { createdAt } = rowData;
+
+                                    return convertDateToDMY(createdAt);
+                                  },
+                                },
+                                {
+                                  field: "order",
+                                  title: "Order",
+                                  render: (rowData: any) => {
+                                    const { type } = rowData;
+
+                                    if (type === "limit") return "Limits";
+                                    if (type === "market") return "At market";
+                                    if (type === "manual") return "Manual";
+                                    return "";
+                                  },
+                                },
+                                {
+                                  field: "status",
+                                  title: "Status",
+                                },
+                                {
+                                  field: "send",
+                                  title: "Send",
+                                },
+                                {
+                                  field: "receive",
+                                  title: "Receive",
+                                },
+                                {
+                                  field: "broker",
+                                  title: "Broker",
+                                },
+                                {
+                                  field: "commission",
+                                  title: "Commission",
+                                },
+                              ]}
+                              data={tradeRequests.map((trade) => ({
+                                ...trade,
+                              }))}
+                              options={{
+                                pageSize: 5,
+                                toolbar: false,
+                              }}
+                            />
+                          )}
+                        </Grid>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={12}>
-                      <Grid container spacing={4}>
+                    <Grid item xs={6}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Grid container alignItems="center" spacing={2}>
+                            <Grid item>
+                              <Typography variant="h6">
+                                CURRENT ACCOUNTS
+                              </Typography>
+                            </Grid>
+                            <Grid item>
+                              <IconButton
+                                color="primary"
+                                aria-label="Add"
+                                className={classes.addButton}
+                              >
+                                <Icon fontSize="large">add_circle</Icon>
+                              </IconButton>
+                            </Grid>
+                          </Grid>
+                        </Grid>
                         <Grid item xs={12}>
                           <MaterialTable
-                            title={
-                              <Grid container alignItems="center" spacing={2}>
-                                <Grid item>
-                                  <Typography variant="h5">
-                                    CURRENT ACCOUNTS
-                                  </Typography>
-                                </Grid>
-                                <Grid item>
-                                  <IconButton
-                                    color="primary"
-                                    aria-label="Add"
-                                    className={classes.addButton}
-                                  >
-                                    <AddCircleIcon />
-                                  </IconButton>
-                                </Grid>
-                              </Grid>
-                            }
                             columns={[
                               {
                                 field: "accountId",
@@ -512,14 +511,47 @@ const InvestorDetail = (): React.ReactElement => {
                                 : []
                             }
                             options={{
-                              search: false,
                               sorting: false,
+                              toolbar: false,
                             }}
                           />
                         </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Grid
+                            container
+                            justify="space-between"
+                            alignItems="center"
+                          >
+                            <Grid item>
+                              <Grid container alignItems="center" spacing={2}>
+                                <Grid item>
+                                  <Typography variant="h6">
+                                    TRADING ACCOUNTS
+                                  </Typography>
+                                </Grid>
+                                <Grid item>
+                                  <IconButton
+                                    color="primary"
+                                    aria-label="Add"
+                                    className={classes.addButton}
+                                  >
+                                    <Icon fontSize="large">add_circle</Icon>
+                                  </IconButton>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                            <Grid item>
+                              <Button color="primary">Fund!</Button>
+                              <Button color="primary">Refund!</Button>
+                            </Grid>
+                          </Grid>
+                        </Grid>
                         <Grid item xs={12}>
                           <MaterialTable
-                            title="TRADING ACCOUNTS"
                             columns={[
                               {
                                 field: "account",
@@ -552,26 +584,8 @@ const InvestorDetail = (): React.ReactElement => {
                               ...accItem,
                             }))}
                             options={{
-                              search: false,
                               sorting: false,
-                            }}
-                            components={{
-                              Toolbar: (props) => (
-                                <Grid
-                                  container
-                                  justify="space-between"
-                                  alignItems="center"
-                                  className={classes.tableHeader}
-                                >
-                                  <Grid item>
-                                    <Typography variant="h5">TRADES</Typography>
-                                  </Grid>
-                                  <Grid item>
-                                    <Button color="primary">Fund!</Button>
-                                    <Button color="primary">Refund!</Button>
-                                  </Grid>
-                                </Grid>
-                              ),
+                              toolbar: false,
                             }}
                           />
                         </Grid>

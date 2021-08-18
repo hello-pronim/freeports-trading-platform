@@ -337,30 +337,27 @@ const Roles = (): React.ReactElement => {
               {(selectedCategory === "all" ||
                 selectedCategory === "organization") && (
                 <Grid item xs={12}>
-                  <Card>
-                    <CardHeader
-                      title={
-                        <Grid container spacing={2} alignItems="center">
-                          <Grid item>
-                            <Typography variant="h5">
-                              Organization roles
-                            </Typography>
-                          </Grid>
-                          <Grid item>
-                            <IconButton
-                              color="primary"
-                              aria-label="Add Organization Role"
-                              className={classes.addButton}
-                              onClick={handleNewOrgRoleClick}
-                            >
-                              <AddCircleIcon fontSize="large" />
-                            </IconButton>
-                          </Grid>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid item>
+                          <Typography variant="h6">
+                            Organization roles
+                          </Typography>
                         </Grid>
-                      }
-                    />
-                    <Divider />
-                    <CardContent>
+                        <Grid item>
+                          <IconButton
+                            color="primary"
+                            aria-label="Add Organization Role"
+                            className={classes.addButton}
+                            onClick={handleNewOrgRoleClick}
+                          >
+                            <AddCircleIcon fontSize="large" />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           {orgRolesLoading && <Loader />}
@@ -564,8 +561,8 @@ const Roles = (): React.ReactElement => {
                             ))}
                         </Grid>
                       </Grid>
-                    </CardContent>
-                  </Card>
+                    </Grid>
+                  </Grid>
                 </Grid>
               )}
               {selectedCategory === "all" && (
@@ -574,30 +571,25 @@ const Roles = (): React.ReactElement => {
               {(selectedCategory === "all" ||
                 selectedCategory === "multi-desk") && (
                 <Grid item xs={12}>
-                  <Card>
-                    <CardHeader
-                      title={
-                        <Grid container spacing={2} alignItems="center">
-                          <Grid item>
-                            <Typography variant="h5">
-                              Multi-desk roles
-                            </Typography>
-                          </Grid>
-                          <Grid item>
-                            <IconButton
-                              color="primary"
-                              aria-label="Add Multi-Desk Role"
-                              className={classes.addButton}
-                              onClick={handleNewMultiDeskRoleClick}
-                            >
-                              <AddCircleIcon fontSize="large" />
-                            </IconButton>
-                          </Grid>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid item>
+                          <Typography variant="h6">Multi-desk roles</Typography>
                         </Grid>
-                      }
-                    />
-                    <Divider />
-                    <CardContent>
+                        <Grid item>
+                          <IconButton
+                            color="primary"
+                            aria-label="Add Multi-Desk Role"
+                            className={classes.addButton}
+                            onClick={handleNewMultiDeskRoleClick}
+                          >
+                            <AddCircleIcon fontSize="large" />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           {multiDeskRolesLoading && <Loader />}
@@ -799,8 +791,8 @@ const Roles = (): React.ReactElement => {
                             ))}
                         </Grid>
                       </Grid>
-                    </CardContent>
-                  </Card>
+                    </Grid>
+                  </Grid>
                 </Grid>
               )}
               {selectedCategory === "all" && (
@@ -808,30 +800,27 @@ const Roles = (): React.ReactElement => {
               )}
               {(selectedCategory === "all" || selectedCategory === "desk") && (
                 <Grid item xs={12}>
-                  <Card>
-                    <CardHeader
-                      title={
-                        <Grid container spacing={2} alignItems="center">
-                          <Grid item>
-                            <Typography variant="h5">Desk roles</Typography>
-                          </Grid>
-                          <Grid item>
-                            <Link to="/desk/roles/add">
-                              <IconButton
-                                color="primary"
-                                aria-label="Add Desk Role"
-                                className={classes.addButton}
-                                onClick={handleNewDeskRoleClick}
-                              >
-                                <AddCircleIcon fontSize="large" />
-                              </IconButton>
-                            </Link>
-                          </Grid>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid item>
+                          <Typography variant="h6">Desk roles</Typography>
                         </Grid>
-                      }
-                    />
-                    <Divider />
-                    <CardContent>
+                        <Grid item>
+                          <Link to="/desk/roles/add">
+                            <IconButton
+                              color="primary"
+                              aria-label="Add Desk Role"
+                              className={classes.addButton}
+                              onClick={handleNewDeskRoleClick}
+                            >
+                              <AddCircleIcon fontSize="large" />
+                            </IconButton>
+                          </Link>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           {deskRolesLoading && <Loader />}
@@ -1079,8 +1068,8 @@ const Roles = (): React.ReactElement => {
                             ))}
                         </Grid>
                       </Grid>
-                    </CardContent>
-                  </Card>
+                    </Grid>
+                  </Grid>
                 </Grid>
               )}
             </Grid>
