@@ -56,10 +56,16 @@ export function* createCoWorker({
 
     // assign user roles
     if (payload.user.roles?.length) {
+      const roles: Array<string> = [];
+      payload.user.roles.forEach((role) => {
+        if(role.id) {
+          roles.push(role.id);
+        }
+      })
       yield call(
         assignClearerRolesToUser,
         (response as ResourceCreatedResponse).id,
-        payload.user.roles.map((role: any) => role.roleId)
+        roles
       );
     }
     yield put(
@@ -98,10 +104,16 @@ export function* updateCoWorker({
   try {
     const response = yield call(updateClearerUser, payload.id, payload.updates);
     if (payload.updates.roles) {
+      const roles: Array<string> = [];
+      payload.updates.roles.forEach((role) => {
+        if(role.id) {
+          roles.push(role.id);
+        }
+      })
       yield call(
         updateClearerRolesToUser,
         payload.id,
-        payload.updates.roles.map((role: any) => role.id)
+        roles
       );
     }
 
