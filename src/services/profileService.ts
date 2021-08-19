@@ -39,10 +39,10 @@ const addPublicKey = (key: string, name: string): Promise<any> => {
   });
 };
 
-const revokeKey = (keyId: string): Promise<any> => {
+const revokeKey = (): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`/my/public-key/${keyId}/revoke`)
+      .post(`/my/public-key/revoke`)
       .then((res: any) => {
         return resolve(res.data);
       })

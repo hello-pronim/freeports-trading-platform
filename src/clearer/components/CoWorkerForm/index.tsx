@@ -23,6 +23,7 @@ import { selectRoles } from "./slice/selectors";
 import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
 import { GetVaultOrganizationResponseDto } from "../../../vault/dto/get-vault-organizations.dto";
+import { userPublicKeyStatus } from "../../../util/constants";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -159,8 +160,10 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const canCreateVaultUser =
     currentUser &&
     currentUser.vaultUserId &&
-    coWorker.publicKeys &&
-    coWorker.publicKeys[0] &&
+    currentUser.publicKey &&
+    currentUser.publicKey.status === userPublicKeyStatus.approved &&
+    coWorker.publicKey &&
+    coWorker.publicKey.status === userPublicKeyStatus.requesting &&
     !coWorker.vaultUserId;
 
   useEffect(() => {
@@ -175,11 +178,11 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
 
   const handleAddVaultUser = () => {
     console.log("handle add to vault ", coWorker, currentUser);
-    if (coWorker.id && coWorker.publicKeys && coWorker.publicKeys[0]) {
+    if (coWorker.id && coWorker.publicKey) {
       dispatch(
         actions.addUserToVault({
           userId: coWorker.id,
-          publicKey: coWorker.publicKeys[0],
+          publicKey: coWorker.publicKey,
         })
       );
     }

@@ -29,6 +29,7 @@ import {
 } from "../../../../services/clearerUsersService";
 import { selectUser } from "../../../../slice/selectors";
 import vault from "../../../../vault";
+import { userPublicKeyStatus } from "../../../../util/constants";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -131,8 +132,10 @@ const Manager = (props: any): React.ReactElement => {
       setViewAddToVault(
         currentUser &&
         currentUser.vaultUserId &&
-        managerData.publicKeys &&
-        managerData.publicKeys[0] &&
+        currentUser.publicKey &&
+        currentUser.publicKey.status === userPublicKeyStatus.approved &&
+        managerData.publicKey &&
+        managerData.publicKey.status === userPublicKeyStatus.requesting &&
         !managerData.vaultUserId
       );
       if (!mounted) {
@@ -261,12 +264,12 @@ const Manager = (props: any): React.ReactElement => {
   };
 
   const onClickAddVaultUser = async () => {
-    if (managerInfo.id && managerInfo.publicKeys && managerInfo.publicKeys[0]) {
+    if (managerInfo.id && managerInfo.publicKey) {
       setAddingVaultUser(true);
       const organization = await getOrganization(orgId);
       const vaultRequest = await vault.createOrganizationManager(
         organization.vaultOrganizationId, 
-        managerInfo.publicKeys[0].key
+        managerInfo.publicKeys.key
       );
       await createVaultUser(managerInfo.id, vaultRequest)
         .then(() => {

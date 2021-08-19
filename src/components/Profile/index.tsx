@@ -151,7 +151,6 @@ const Profile = (): React.ReactElement => {
   const [importKeyDialogOpen, setImportKeyDialogOpen] = useState(false);
   const [importedFile, setImportedFile] = useState<File | null>(null);
   const keyfileRef = useRef<HTMLInputElement | null>(null);
-  const [key, setKey] = useState("");
   const [passphrase, setPassPhrase] = useState("");
   const [importKeyPassword, setImportKeyPassword] = useState("");
   const keyList = useSelector(selectKeyList);
@@ -208,13 +207,6 @@ const Profile = (): React.ReactElement => {
     setImportKeyDialogOpen(false);
   };
 
-  const onKeyChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = e.target;
-    setKey(value);
-  };
-
   const onPassPhraseChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -257,7 +249,7 @@ const Profile = (): React.ReactElement => {
   const onCreateCertificate = async () => {
     setLoading(true);
 
-    const results = await generateKeyPair(key, passphrase);
+    const results = await generateKeyPair('public_key', passphrase);
     await addCertification(results, true);
 
     setLoading(false);
@@ -272,7 +264,7 @@ const Profile = (): React.ReactElement => {
         importedFile,
         importKeyPassword
       );
-      const saveToServer = remoteKey && remoteKey.status !== userPublicKeyStatus.revoked;
+      const saveToServer = remoteKey && remoteKey.status === userPublicKeyStatus.approved;
       await addCertification(results, !saveToServer);
 
       setLoading(false);
@@ -337,18 +329,22 @@ const Profile = (): React.ReactElement => {
 
   const onRevokeKey = async () => {
     setLoading(true);
-    await revokeKey(remoteKey.id)
+    await revokeKey()
     .then((data) => {
       const newRemoteKey = {...remoteKey};
-      newRemoteKey.status = userPublicKeyStatus.revoked;
+
+      newRemoteKey.status = userPublicKeyStatus.revoking;
       dispatch(globalActions.setRemoteKey(newRemoteKey));
-      setRevokeKeyDlgOpen(false);
     })
     .catch((err) => {
+      console.info('REV', err);
       setSubmitResponse({
         type: "error",
         message: "Sorry, Failed to revoke your certificate.",
       });
+    })
+    .finally(() => {
+      setRevokeKeyDlgOpen(false);
     });
     setLoading(false);
   };
@@ -371,33 +367,66 @@ const Profile = (): React.ReactElement => {
                 className={classes.cardHeader}
                 title="Certificate"
                 action={
-                  keyList.length > 0 ? (
-                    keyList.map((listItem: any) => {
-                      return (
-                        <div key={listItem}>
+                  <>
+                    {
+                      keyList.length ? (
+                        keyList.map((listItem: any) => {
+                          return (
+                            <div key={listItem}>
+                              <Button
+                                onClick={() => onViewCertification(listItem)}
+                                color="primary"
+                                variant="contained"
+                              >
+                                View
+                              </Button>
+                              <Tooltip title="Clear from browser" placement="top" arrow>
+                                <Button
+                                  onClick={() => onClearCertificate()}
+                                  color="primary"
+                                  variant="contained"
+                                >
+                                  Clear
+                                </Button>
+                              </Tooltip>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <>
+                          {
+                            !remoteKey || remoteKey.status === userPublicKeyStatus.requesting
+                            && (
+                              <Button
+                                color="primary"
+                                variant="contained"
+                                onClick={handleCreateDialogOpen}
+                              >
+                                Create Certificate
+                              </Button>
+                            )
+                          }
                           <Button
-                            onClick={() => onViewCertification(listItem)}
                             color="primary"
                             variant="contained"
+                            onClick={handleImportFileDialogOpen}
                           >
-                            View
+                            Import Key
                           </Button>
-                          <Tooltip title="Clear from browser" placement="top" arrow>
-                            <Button
-                              onClick={() => onClearCertificate()}
-                              color="primary"
-                              variant="contained"
-                            >
-                              Clear
-                            </Button>
-                          </Tooltip>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <>
-                      { remoteKey && 
-                        remoteKey.status !== userPublicKeyStatus.revoked ? (
+                          <input
+                            ref={keyfileRef}
+                            type="file"
+                            id="keyfile"
+                            name="keyfile"
+                            className={classes.hiddenFileInput}
+                            onChange={onFileImport}
+                          />
+                        </>
+                      )
+                    }
+                    {
+                      remoteKey && remoteKey.status === userPublicKeyStatus.approved
+                      && (
                         <Button
                           color="primary"
                           variant="contained"
@@ -405,32 +434,9 @@ const Profile = (): React.ReactElement => {
                         >
                           Revoke
                         </Button>  
-                      ) : (
-                        <Button
-                          color="primary"
-                          variant="contained"
-                          onClick={handleCreateDialogOpen}
-                        >
-                          Create Certificate
-                        </Button>
-                      )}
-                      <Button
-                        color="primary"
-                        variant="contained"
-                        onClick={handleImportFileDialogOpen}
-                      >
-                        Import Key
-                      </Button>
-                      <input
-                        ref={keyfileRef}
-                        type="file"
-                        id="keyfile"
-                        name="keyfile"
-                        className={classes.hiddenFileInput}
-                        onChange={onFileImport}
-                      />
-                    </>
-                  )
+                      )
+                    }
+                  </>
                 }
               />
             </Card>
@@ -608,22 +614,6 @@ const Profile = (): React.ReactElement => {
             <DialogTitle id="form-dialog-title">Create Certificate</DialogTitle>
             <Divider />
             <DialogContent>
-              <Grid container>
-                <Grid item xs={12}>
-                  <TextField
-                    autoFocus
-                    required
-                    margin="dense"
-                    id="name"
-                    name="key"
-                    label="Key name"
-                    variant="outlined"
-                    fullWidth
-                    value={key}
-                    onChange={onKeyChange}
-                  />
-                </Grid>
-              </Grid>
               <Grid container>
                 <Grid item xs={12}>
                   <TextField

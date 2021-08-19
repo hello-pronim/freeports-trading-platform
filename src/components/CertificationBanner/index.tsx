@@ -52,7 +52,7 @@ const CertificationBanner = (): React.ReactElement => {
 
   const displayBanner = async () => {
     let remoteKeyStr = '';
-    if(remoteKey && remoteKey.status !== userPublicKeyStatus.revoked) {
+    if(remoteKey && remoteKey.status === userPublicKeyStatus.approved) {
       remoteKeyStr = remoteKey.key;
     }
     
