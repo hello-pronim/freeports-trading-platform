@@ -666,18 +666,20 @@ const EditOrganizer = (): React.ReactElement => {
                   <Grid container alignItems="center" spacing={2}>
                     <Grid item>
                       <Typography variant="h5">
-                        Organization Managers
+                        Organization Manager
                       </Typography>
                     </Grid>
-                    <Grid item>
-                      <IconButton
-                        aria-label="Add manager"
-                        onClick={newManager}
-                        className={classes.iconButton}
-                      >
-                        <AddCircle fontSize="large" color="primary" />
-                      </IconButton>
-                    </Grid>
+                    {managers.length === 0 && (
+                      <Grid item>
+                        <IconButton
+                          aria-label="Add manager"
+                          onClick={newManager}
+                          className={classes.iconButton}
+                        >
+                          <AddCircle fontSize="large" color="primary" />
+                        </IconButton>
+                      </Grid>
+                    )}
                   </Grid>
                 }
               />
