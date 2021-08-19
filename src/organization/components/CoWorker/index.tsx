@@ -279,7 +279,11 @@ const CoWorker = (): React.ReactElement => {
                         </Grid>
                         <Grid item>
                           {!selectedCoWorker.suspended && !suspendStateLoading && (
-                            <Button onClick={handleOnSuspend} color="secondary">
+                            <Button
+                              onClick={handleOnSuspend}
+                              color="primary"
+                              className="btn-disable"
+                            >
                               Disable
                             </Button>
                           )}
