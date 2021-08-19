@@ -40,6 +40,8 @@ export default interface User {
   vaultUserId?: string;
 
   organization?: string;
+
+  hasPassword?: boolean;
 }
 
 export interface CurrentUser extends Omit<User, "roles"> {

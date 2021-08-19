@@ -18,6 +18,7 @@ import {
   ListItemText,
   makeStyles,
   MenuItem,
+  Typography,
 } from "@material-ui/core";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
@@ -435,7 +436,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Grid container>
                   <Grid item xs={8}>
                     <Grid container spacing={2}>
-                      <Grid item xs={6} />
                       <Grid item sm={12}>
                         <TextField
                           required
