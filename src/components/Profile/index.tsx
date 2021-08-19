@@ -20,6 +20,7 @@ import {
   Snackbar,
   TextField,
   Typography,
+  Tooltip,
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { Form } from "react-final-form";
@@ -319,7 +320,7 @@ const Profile = (): React.ReactElement => {
     setEmojisDialogOpen(true);
   }
 
-  const onDeleteCertification = async () => {
+  const onClearCertificate = async () => {
     await open();
     const res = await clearKey();
     await close();
@@ -381,13 +382,15 @@ const Profile = (): React.ReactElement => {
                           >
                             View
                           </Button>
-                          <Button
-                            onClick={() => onDeleteCertification()}
-                            color="primary"
-                            variant="contained"
-                          >
-                            Delete
-                          </Button>
+                          <Tooltip title="Clear from browser" placement="top" arrow>
+                            <Button
+                              onClick={() => onClearCertificate()}
+                              color="primary"
+                              variant="contained"
+                            >
+                              Clear
+                            </Button>
+                          </Tooltip>
                         </div>
                       );
                     })
