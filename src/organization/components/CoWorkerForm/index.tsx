@@ -18,6 +18,7 @@ import {
   ListItemText,
   makeStyles,
   MenuItem,
+  Typography,
 } from "@material-ui/core";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
@@ -431,31 +432,13 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   }
                 </FieldArray>
               </Grid>
-              {coWorker.roles && coWorker.roles.length > 0 && (
-                <Grid item xs={12}>
-                  <Divider variant="fullWidth" />
-                </Grid>
-              )}
+              <Grid item xs={12}>
+                <Divider variant="fullWidth" />
+              </Grid>
               <Grid item xs={12}>
                 <Grid container>
                   <Grid item xs={8}>
                     <Grid container spacing={2}>
-                      <Grid item xs={6}>
-                        <Select
-                          label="Status"
-                          native
-                          name="suspended"
-                          variant="outlined"
-                          inputProps={{
-                            name: "suspended",
-                            id: "suspended-select",
-                          }}
-                        >
-                          <option aria-label="None" value="" />
-                          <option value="ACTIVE">Active</option>
-                          <option value="DISABLED">Disabled</option>
-                        </Select>
-                      </Grid>
                       <Grid item sm={12}>
                         <TextField
                           required

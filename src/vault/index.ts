@@ -400,6 +400,15 @@ export class Vault {
       (key: { id: number; value: SavedKeyObject }) => key.value
     );
   }
+
+  public async createGroup(): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.POST,
+      "/vault/group"
+    );
+
+    return request;
+  }
 }
 
 const vault = new Vault();

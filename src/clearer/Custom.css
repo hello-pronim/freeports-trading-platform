@@ -91,3 +91,9 @@
 .theme-dark .icon-delete {
   color: #fff;
 }
+
+/* disable button */
+
+.btn-disable {
+  color: #f44336;
+}

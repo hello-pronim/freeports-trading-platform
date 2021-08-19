@@ -317,7 +317,11 @@ const Manager = (props: any): React.ReactElement => {
           </Grid>
           <Grid item>
             {!suspended && (
-              <Button onClick={onClickSuspend} color="primary">
+              <Button
+                onClick={onClickSuspend}
+                color="primary"
+                className="btn-disable"
+              >
                 Disable
               </Button>
             )}

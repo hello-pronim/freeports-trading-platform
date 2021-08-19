@@ -6,6 +6,7 @@ import {
   Accordion,
   AccordionSummary,
   Button,
+  Chip,
   Container,
   Divider,
   Grid,
@@ -18,8 +19,10 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import DoneIcon from "@material-ui/icons/Done";
+import BlockIcon from "@material-ui/icons/Block";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SearchIcon from "@material-ui/icons/Search";
 
 import profile from "../../../assets/images/profile.jpg";
@@ -72,6 +75,10 @@ const useStyles = makeStyles((theme) => ({
   },
   userStateLoader: {
     maxHeight: 26,
+  },
+  chipDisabled: {
+    borderColor: "#f44336",
+    color: "#f44336",
   },
 }));
 
@@ -256,30 +263,85 @@ const CoWorker = (): React.ReactElement => {
                         justify="space-between"
                       >
                         <Grid item>
-                          <Grid container spacing={1} alignItems="center">
+                          <Grid container spacing={4} alignItems="center">
                             <Grid item>
-                              <ExpandMoreIcon />
+                              <Grid container alignItems="center" spacing={1}>
+                                <Grid item>
+                                  <ExpandMoreIcon />
+                                </Grid>
+                                <Grid item>
+                                  <img
+                                    className={`${classes.accordionProfile} ${classes.paddingSmall}`}
+                                    src={profile}
+                                    alt="Co-worker"
+                                  />
+                                </Grid>
+                                <Grid item>
+                                  {selectedCoWorker && (
+                                    <Typography>
+                                      {selectedCoWorker.nickname}
+                                    </Typography>
+                                  )}
+                                </Grid>
+                              </Grid>
                             </Grid>
                             <Grid item>
-                              <img
-                                className={`${classes.accordionProfile}
-                          ${classes.paddingSmall}`}
-                                src={profile}
-                                alt="Co-worker"
-                              />
-                            </Grid>
-                            <Grid item>
-                              {selectedCoWorker && (
-                                <Typography>
-                                  {selectedCoWorker.nickname}
-                                </Typography>
+                              {!coWorkerId && <></>}
+                              {coWorkerId &&
+                                selectedCoWorker.publicKeys &&
+                                selectedCoWorker.publicKeys.length === 0 &&
+                                !selectedCoWorker.hasPassword && (
+                                  <Chip
+                                    label="Invite sent"
+                                    variant="outlined"
+                                  />
+                                )}
+                              {coWorkerId &&
+                                selectedCoWorker.publicKeys &&
+                                selectedCoWorker.publicKeys.length === 0 &&
+                                selectedCoWorker.hasPassword && (
+                                  <Chip
+                                    label="Waiting public key"
+                                    variant="outlined"
+                                  />
+                                )}
+                              {coWorkerId &&
+                                selectedCoWorker.publicKeys &&
+                                selectedCoWorker.publicKeys.length !== 0 &&
+                                selectedCoWorker.hasPassword &&
+                                selectedCoWorker.vaultUserId === undefined && (
+                                  <Chip
+                                    label="Trust required"
+                                    variant="outlined"
+                                  />
+                                )}
+                              {coWorkerId && selectedCoWorker.vaultUserId && (
+                                <Chip
+                                  label="Active"
+                                  variant="outlined"
+                                  color="primary"
+                                  icon={<DoneIcon />}
+                                />
+                              )}
+                              {coWorkerId && selectedCoWorker.suspended && (
+                                <Chip
+                                  label="Disabled"
+                                  variant="outlined"
+                                  color="primary"
+                                  icon={<BlockIcon />}
+                                  className={classes.chipDisabled}
+                                />
                               )}
                             </Grid>
                           </Grid>
                         </Grid>
                         <Grid item>
                           {!selectedCoWorker.suspended && !suspendStateLoading && (
-                            <Button onClick={handleOnSuspend} color="secondary">
+                            <Button
+                              onClick={handleOnSuspend}
+                              color="primary"
+                              className="btn-disable"
+                            >
                               Disable
                             </Button>
                           )}
