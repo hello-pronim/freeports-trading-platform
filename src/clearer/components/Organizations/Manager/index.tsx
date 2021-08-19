@@ -23,10 +23,12 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useOrganization } from "../../../../hooks";
-import { sendResetPasswordEmail } from "../../../../services/clearerUsersService";
+import { 
+  sendResetPasswordEmail,
+  createVaultUser,
+} from "../../../../services/clearerUsersService";
 import { selectUser } from "../../../../slice/selectors";
 import vault from "../../../../vault";
-import { createVaultUser } from "../../../../services/clearerUsersService";
 
 const useStyle = makeStyles((theme) => ({
   root: {
