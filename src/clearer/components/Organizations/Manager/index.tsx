@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Accordion,
@@ -22,7 +23,12 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useOrganization } from "../../../../hooks";
-import { sendResetPasswordEmail } from "../../../../services/clearerUsersService";
+import { 
+  sendResetPasswordEmail,
+  createVaultUser,
+} from "../../../../services/clearerUsersService";
+import { selectUser } from "../../../../slice/selectors";
+import vault from "../../../../vault";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -91,7 +97,12 @@ const Alert = (props: AlertProps) => {
 
 const Manager = (props: any): React.ReactElement => {
   const classes = useStyle();
-  const { getManager, suspendManager, resumeManager } = useOrganization();
+  const { 
+    getManager, 
+    suspendManager, 
+    resumeManager, 
+    getOrganization 
+  } = useOrganization();
   const [suspended, setSuspended] = useState(true);
   const [manager, setManager] = useState({
     id: "string",
@@ -107,12 +118,23 @@ const Manager = (props: any): React.ReactElement => {
     message: "",
   });
   const { orgId, managerId, managerUpdating, onHandleManagerUpdate } = props;
-
+  const currentUser = useSelector(selectUser);
+  const [viewAddToVault, setViewAddToVault] = useState(false);
+  const [addingVaultUser, setAddingVaultUser] = useState(false);
+  const [managerInfo, setManagerInfo] = useState<any>(null);
+  
   useEffect(() => {
     let mounted = false;
     const init = async () => {
       const managerData = await getManager(orgId, managerId);
-
+      setManagerInfo(managerData);
+      setViewAddToVault(
+        currentUser &&
+        currentUser.vaultUserId &&
+        managerData.publicKeys &&
+        managerData.publicKeys[0] &&
+        !managerData.vaultUserId
+      );
       if (!mounted) {
         setManager({
           id: managerData.id,
@@ -238,6 +260,33 @@ const Manager = (props: any): React.ReactElement => {
     setShowAlert(true);
   };
 
+  const onClickAddVaultUser = async () => {
+    if (managerInfo.id && managerInfo.publicKeys && managerInfo.publicKeys[0]) {
+      setAddingVaultUser(true);
+      const organization = await getOrganization(orgId);
+      const vaultRequest = await vault.createOrganizationManager(
+        organization.vaultOrganizationId, 
+        managerInfo.publicKeys[0].key
+      );
+      await createVaultUser(managerInfo.id, vaultRequest)
+        .then(() => {
+          setSubmitResponse({
+            type: "success",
+            message: "Successfully added valult user",
+          });
+          setViewAddToVault(false);
+        })
+        .catch((err) => {
+          setSubmitResponse({
+            type: "error",
+            message: err.message,
+          });
+        });
+      setAddingVaultUser(false);
+      setShowAlert(true);
+    }
+  };
+
   return (
     <Accordion style={{ width: "100%" }}>
       <AccordionSummary
@@ -336,9 +385,22 @@ const Manager = (props: any): React.ReactElement => {
       <Divider />
       <AccordionActions>
         <Grid item container xs={12} justify="space-between">
+          {viewAddToVault && (
+            <div className={classes.progressButtonWrapper}>
+              <Button color="primary" onClick={onClickAddVaultUser}>
+                Add to Vault
+              </Button>
+              {addingVaultUser && (
+                <CircularProgress 
+                  size={24}
+                  className={classes.progressButton}
+                />
+              )}
+            </div>
+          )}
           <div className={classes.progressButtonWrapper}>
             <Button color="primary" onClick={handleSendResetPasswordLink}>
-              Send Reset Password Link
+              Send Reset Password
             </Button>
             {sendingEmail && (
               <CircularProgress size={24} className={classes.progressButton} />
