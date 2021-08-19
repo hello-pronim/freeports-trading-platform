@@ -19,9 +19,10 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DoneIcon from "@material-ui/icons/Done";
+import BlockIcon from "@material-ui/icons/Block";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SearchIcon from "@material-ui/icons/Search";
 
 import profile from "../../../assets/images/profile.jpg";
@@ -74,6 +75,10 @@ const useStyles = makeStyles((theme) => ({
   },
   userStateLoader: {
     maxHeight: 26,
+  },
+  chipDisabled: {
+    borderColor: "#f44336",
+    color: "#f44336",
   },
 }));
 
@@ -281,50 +286,50 @@ const CoWorker = (): React.ReactElement => {
                               </Grid>
                             </Grid>
                             <Grid item>
-                              {selectedCoWorker.publicKeys &&
+                              {!coWorkerId && <></>}
+                              {coWorkerId &&
+                                selectedCoWorker.publicKeys &&
                                 selectedCoWorker.publicKeys.length === 0 &&
                                 !selectedCoWorker.hasPassword && (
                                   <Chip
-                                    clickable
                                     label="Invite sent"
                                     variant="outlined"
                                   />
                                 )}
-                              {selectedCoWorker.publicKeys &&
+                              {coWorkerId &&
+                                selectedCoWorker.publicKeys &&
                                 selectedCoWorker.publicKeys.length === 0 &&
                                 selectedCoWorker.hasPassword && (
                                   <Chip
-                                    clickable
                                     label="Waiting public key"
                                     variant="outlined"
                                   />
                                 )}
-                              {selectedCoWorker.publicKeys &&
+                              {coWorkerId &&
+                                selectedCoWorker.publicKeys &&
                                 selectedCoWorker.publicKeys.length !== 0 &&
                                 selectedCoWorker.hasPassword &&
                                 selectedCoWorker.vaultUserId === undefined && (
                                   <Chip
-                                    clickable
                                     label="Trust required"
                                     variant="outlined"
                                   />
                                 )}
-                              {selectedCoWorker.vaultUserId && (
+                              {coWorkerId && selectedCoWorker.vaultUserId && (
                                 <Chip
-                                  clickable
                                   label="Active"
                                   variant="outlined"
                                   color="primary"
                                   icon={<DoneIcon />}
                                 />
                               )}
-                              {selectedCoWorker.suspended && (
+                              {coWorkerId && selectedCoWorker.suspended && (
                                 <Chip
-                                  clickable
-                                  label="Active"
+                                  label="Disabled"
                                   variant="outlined"
                                   color="primary"
-                                  icon={<DoneIcon />}
+                                  icon={<BlockIcon />}
+                                  className={classes.chipDisabled}
                                 />
                               )}
                             </Grid>
