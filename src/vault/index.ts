@@ -116,12 +116,13 @@ export class Vault {
     return request;
   };
 
-  public async createOrganizationUser(
+  public async createOrganizationManager(
+    vaultOrganizationId: string,
     publicKey: string
   ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.POST,
-      "/organization/user",
+      `/vault/organization/${vaultOrganizationId}/user`,
       { publicKey }
     );
     return request;
