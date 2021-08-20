@@ -31,9 +31,6 @@ const useStyles = makeStyles((theme: Theme) =>
     errorMessage: {
       marginTop: theme.spacing(8),
     },
-    link: {
-      color: theme.palette.primary.main,
-    },
   })
 );
 
@@ -55,73 +52,69 @@ const Organizations = (): React.ReactElement => {
   return (
     <div className="main-wrapper">
       <Container>
-        <Grid container spacing={3} xs={12}>
-          <Grid container>
-            <Grid item xs={12}>
-              <MaterialTable
-                title={
-                  <Grid container alignItems="center" spacing={2}>
-                    <Grid item>
-                      <Typography variant="h5">Organization</Typography>
-                    </Grid>
-                    <Grid item>
-                      <IconButton
-                        className={classes.addButton}
-                        color="primary"
-                        onClick={newOrganizer}
-                      >
-                        <Icon fontSize="large">add_circle</Icon>
-                      </IconButton>
-                    </Grid>
-                  </Grid>
-                }
-                columns={[
-                  {
-                    field: "name",
-                    title: "Organization",
-                    cellStyle: {
-                      width: "25%",
-                    },
-                    render: (rowData: any) => {
-                      const { id, name } = rowData;
-
-                      return (
-                        <Link
-                          to={`organizations/edit/${id}`}
-                          className={classes.link}
-                        >
-                          {name}
-                        </Link>
-                      );
-                    },
-                  },
-                  {
-                    field: "createdAt",
-                    title: "Create Date",
-                    type: "date",
-                    dateSetting: { locale: "en-GB" },
-                    cellStyle: {
-                      width: "25%",
-                    },
-                  },
-                  {
-                    field: "userActive",
-                    title: "Active Users",
-                    cellStyle: {
-                      width: "25%",
-                    },
-                  },
-                  {
-                    field: "userSuspended",
-                    title: "Disable Users",
-                    cellStyle: {
-                      width: "25%",
-                    },
-                  },
-                ]}
-                data={organizations.map((orgItem: any) => ({ ...orgItem }))}
-              />
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item>
+                <Typography variant="h5">Organization</Typography>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  className={classes.addButton}
+                  color="primary"
+                  onClick={newOrganizer}
+                >
+                  <Icon fontSize="large">add_circle</Icon>
+                </IconButton>
+              </Grid>
             </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <MaterialTable
+              columns={[
+                {
+                  field: "name",
+                  title: "Organization",
+                  cellStyle: {
+                    width: "25%",
+                  },
+                  render: (rowData: any) => {
+                    const { id, name } = rowData;
+
+                    return <Link to={`organizations/edit/${id}`}>{name}</Link>;
+                  },
+                },
+                {
+                  field: "createdAt",
+                  title: "Create Date",
+                  type: "date",
+                  dateSetting: { locale: "en-GB" },
+                  cellStyle: {
+                    width: "25%",
+                  },
+                },
+                {
+                  field: "userActive",
+                  title: "Active Users",
+                  cellStyle: {
+                    width: "25%",
+                  },
+                },
+                {
+                  field: "userSuspended",
+                  title: "Disable Users",
+                  cellStyle: {
+                    width: "25%",
+                  },
+                },
+              ]}
+              data={organizations.map((orgItem: any) => ({ ...orgItem }))}
+              options={{
+                pageSize: 10,
+                search: true,
+                showTitle: false,
+              }}
+            />
           </Grid>
         </Grid>
       </Container>

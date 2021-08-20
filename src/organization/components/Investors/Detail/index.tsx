@@ -17,6 +17,7 @@ import {
   DialogTitle,
   Divider,
   Grid,
+  Icon,
   IconButton,
   InputAdornment,
   ListItem,
@@ -25,6 +26,7 @@ import {
   makeStyles,
   TextField,
   Theme,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -43,9 +45,12 @@ import {
   selectIsDetailLoading,
   selectTradeRequests,
   selectIsTradeRequestsLoading,
+  selectInvestorAccounts,
+  selectIsInvestorAccountsLoading,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
 import { useOrganization } from "../../../../hooks";
+import Account from "../../../../types/Account";
 import TradeRequest from "../../../../types/TradeRequest";
 import { CryptoCurrencies } from "../../../../types/Currencies";
 
@@ -105,7 +110,7 @@ const convertDateToDMY = (date: string) => {
   return [day, month, year].join(".");
 };
 
-const validate = (values: any) => {
+const validateTradeRequest = (values: any) => {
   const errors: Partial<any> = {};
 
   if (!values.accountFrom) {
@@ -127,6 +132,20 @@ const validate = (values: any) => {
   return errors;
 };
 
+const validateAccount = (values: any) => {
+  const errors: Partial<any> = {};
+
+  if (!values.name) {
+    errors.name = "This Field Required";
+  }
+
+  if (!values.currency) {
+    errors.currency = "This Field Required";
+  }
+
+  return errors;
+};
+
 const InvestorDetail = (): React.ReactElement => {
   const classes = useStyles();
   const history = useHistory();
@@ -142,20 +161,27 @@ const InvestorDetail = (): React.ReactElement => {
   const investorsLoading = useSelector(selectIsInvestorsLoading);
   const investorDetailLoading = useSelector(selectIsDetailLoading);
   const tradeRequests = useSelector(selectTradeRequests);
-  console.log("tradeRequest", tradeRequests);
   const tradeRequestsLoading = useSelector(selectIsTradeRequestsLoading);
+  const investorAccounts = useSelector(selectInvestorAccounts);
+  const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
   const [searchText, setSearchText] = useState("");
   const [tradingAccounts, setTradingAccounts] = useState<
     Array<{ currency: string; iban: string; account: string; balance?: number }>
   >([]);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [tradeRequest, setTradeRequest] = useState<tradeType>({
+  const [createTradeModalOpen, setCreateTradeModalOpen] = useState(false);
+  const [createAccountModalOpen, setCreateAccountModalOpen] = useState(false);
+  const [defaultTradeRequest, setDefaultTradeRequest] = useState<tradeType>({
     accountFrom: "",
     accountTo: "",
     type: "",
     quantity: "",
     limitPrice: "",
     limitTime: "",
+  });
+  const [defaultAccount, setDefaultAccount] = useState<Account>({
+    name: "",
+    currency: "",
+    type: "crypto",
   });
 
   const getQuantityLabel = (values: any): string => {
@@ -217,6 +243,13 @@ const InvestorDetail = (): React.ReactElement => {
         investorId,
       })
     );
+    dispatch(
+      investorDetailActions.getInvestorAccounts({
+        organizationId,
+        deskId,
+        investorId,
+      })
+    );
   }, [investorId]);
 
   const onSearchTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,12 +257,12 @@ const InvestorDetail = (): React.ReactElement => {
     setSearchText(value);
   };
 
-  const handleCreateModalOpen = () => {
-    setCreateModalOpen(true);
+  const handleCreateTradeModalOpen = () => {
+    setCreateTradeModalOpen(true);
   };
 
-  const handleCreateModalClose = () => {
-    setCreateModalOpen(false);
+  const handleCreateTradeModalClose = () => {
+    setCreateTradeModalOpen(false);
   };
 
   const handleTradeCreate = async (values: tradeType) => {
@@ -241,11 +274,35 @@ const InvestorDetail = (): React.ReactElement => {
         trade: values,
       })
     );
-    setCreateModalOpen(false);
+    setCreateTradeModalOpen(false);
+  };
+
+  const handleCreateAccountModalOpen = () => {
+    setCreateAccountModalOpen(true);
+  };
+
+  const handleCreateAccountModalClose = () => {
+    setCreateAccountModalOpen(false);
+  };
+
+  const handleAccountCreate = async (values: Account) => {
+    await dispatch(
+      investorDetailActions.addInvestorAccount({
+        organizationId,
+        deskId,
+        investorId,
+        account: values,
+      })
+    );
+    setCreateAccountModalOpen(false);
   };
 
   const handleBackClick = () => {
     history.push("/investors");
+  };
+
+  const getShortId = (id: string) => {
+    return `${id.substring(0, 10)}...${id.charAt(id.length - 1)}`;
   };
 
   return (
@@ -253,13 +310,37 @@ const InvestorDetail = (): React.ReactElement => {
       <Container>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <IconButton
-              color="inherit"
-              aria-label="Back"
-              onClick={handleBackClick}
-            >
-              <ArrowBackIosIcon fontSize="large" color="primary" />
-            </IconButton>
+            <Grid container alignItems="center" spacing={4}>
+              <Grid item xs={3}>
+                <IconButton
+                  color="inherit"
+                  aria-label="Back"
+                  onClick={handleBackClick}
+                >
+                  <ArrowBackIosIcon fontSize="small" color="primary" />
+                </IconButton>
+              </Grid>
+              <Grid item xs={9}>
+                <Grid
+                  container
+                  item
+                  alignItems="center"
+                  justify="space-between"
+                >
+                  <Typography variant="h5">
+                    {`Investor ID: ${selectedInvestor.id}`}
+                  </Typography>
+                  {selectedInvestor.createdAt && (
+                    <Typography variant="subtitle2" color="textSecondary">
+                      {`Creation date: ${convertDateToDMY(
+                        selectedInvestor.createdAt
+                      )}`}
+                    </Typography>
+                  )}
+                </Grid>
+                <Divider />
+              </Grid>
+            </Grid>
           </Grid>
           <Grid item xs={12}>
             {investorDetailLoading && <Loader />}
@@ -311,140 +392,208 @@ const InvestorDetail = (): React.ReactElement => {
                 <Grid item xs={9}>
                   <Grid container spacing={4}>
                     <Grid item xs={12}>
-                      <Grid
-                        container
-                        item
-                        alignItems="center"
-                        justify="space-between"
-                      >
-                        <Typography variant="h5">
-                          {`Investor ID: ${selectedInvestor.id}`}
-                        </Typography>
-                        {selectedInvestor.createdAt && (
-                          <Typography variant="subtitle2" color="textSecondary">
-                            {`Creation date: ${convertDateToDMY(
-                              selectedInvestor.createdAt
-                            )}`}
-                          </Typography>
-                        )}
-                      </Grid>
-                      <Divider />
-                    </Grid>
-                    <Grid item xs={12}>
-                      {tradeRequestsLoading && <Loader />}
-                      {!tradeRequestsLoading && (
-                        <MaterialTable
-                          title="TRADES"
-                          columns={[
-                            {
-                              title: "ID",
-                              render: (rowData: any) => {
-                                const { friendlyId } = rowData;
-
-                                return (
-                                  <Link to="/" className={classes.link}>
-                                    {friendlyId}
-                                  </Link>
-                                );
-                              },
-                            },
-                            {
-                              field: "createdAt",
-                              title: "Date",
-                              render: (rowData: any) => {
-                                const { createdAt } = rowData;
-
-                                return convertDateToDMY(createdAt);
-                              },
-                            },
-                            {
-                              field: "order",
-                              title: "Order",
-                              render: (rowData: any) => {
-                                const { type } = rowData;
-
-                                if (type === "limit") return "Limits";
-                                if (type === "market") return "At market";
-                                if (type === "manual") return "Manual";
-                                return "";
-                              },
-                            },
-                            {
-                              field: "status",
-                              title: "Status",
-                            },
-                            {
-                              field: "send",
-                              title: "Send",
-                            },
-                            {
-                              field: "receive",
-                              title: "Receive",
-                            },
-                            {
-                              field: "broker",
-                              title: "Broker",
-                            },
-                            {
-                              field: "commission",
-                              title: "Commission",
-                            },
-                          ]}
-                          data={tradeRequests.map((trade) => ({
-                            ...trade,
-                          }))}
-                          options={{
-                            search: false,
-                          }}
-                          components={{
-                            Toolbar: (props) => (
-                              <Grid
-                                container
-                                justify="space-between"
-                                alignItems="center"
-                                spacing={2}
-                                className={classes.tableHeader}
-                              >
-                                <Grid item>
-                                  <Typography variant="h5">TRADES</Typography>
-                                </Grid>
-                                <Grid item>
-                                  <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleCreateModalOpen}
-                                  >
-                                    <Grid
-                                      container
-                                      alignItems="center"
-                                      spacing={1}
-                                    >
-                                      <Grid item>
-                                        <CompareArrowsIcon />
-                                      </Grid>
-                                      <Grid item>
-                                        <Typography>
-                                          INITIATE NEW TRADE
-                                        </Typography>
-                                      </Grid>
-                                    </Grid>
-                                  </Button>
-                                </Grid>
-                              </Grid>
-                            ),
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Grid container spacing={4}>
+                      <Grid container spacing={2}>
                         <Grid item xs={12}>
-                          <MaterialTable
-                            title={
+                          <Grid
+                            container
+                            alignItems="center"
+                            justify="space-between"
+                          >
+                            <Grid item>
+                              <Typography variant="h6">TRADES</Typography>
+                            </Grid>
+                            <Grid item>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleCreateTradeModalOpen}
+                              >
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <CompareArrowsIcon />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography>INITIATE NEW TRADE</Typography>
+                                  </Grid>
+                                </Grid>
+                              </Button>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                        <Grid item xs={12}>
+                          {tradeRequestsLoading && <Loader />}
+                          {!tradeRequestsLoading && (
+                            <MaterialTable
+                              columns={[
+                                {
+                                  title: "ID",
+                                  render: (rowData: any) => {
+                                    const { friendlyId } = rowData;
+
+                                    return <Link to="/">{friendlyId}</Link>;
+                                  },
+                                },
+                                {
+                                  field: "createdAt",
+                                  title: "Date",
+                                  render: (rowData: any) => {
+                                    const { createdAt } = rowData;
+
+                                    return convertDateToDMY(createdAt);
+                                  },
+                                },
+                                {
+                                  field: "order",
+                                  title: "Order",
+                                  render: (rowData: any) => {
+                                    const { type } = rowData;
+
+                                    if (type === "limit") return "Limits";
+                                    if (type === "market") return "At market";
+                                    if (type === "manual") return "Manual";
+                                    return "";
+                                  },
+                                },
+                                {
+                                  field: "status",
+                                  title: "Status",
+                                },
+                                {
+                                  field: "send",
+                                  title: "Send",
+                                },
+                                {
+                                  field: "receive",
+                                  title: "Receive",
+                                },
+                                {
+                                  field: "broker",
+                                  title: "Broker",
+                                },
+                                {
+                                  field: "commission",
+                                  title: "Commission",
+                                },
+                              ]}
+                              data={tradeRequests.map((trade) => ({
+                                ...trade,
+                              }))}
+                              options={{
+                                pageSize: 5,
+                                toolbar: false,
+                              }}
+                            />
+                          )}
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Grid container alignItems="center" spacing={2}>
+                            <Grid item>
+                              <Typography variant="h6">
+                                CURRENT ACCOUNTS
+                              </Typography>
+                            </Grid>
+                            <Grid item>
+                              <IconButton
+                                color="primary"
+                                aria-label="Add"
+                                className={classes.addButton}
+                                onClick={handleCreateAccountModalOpen}
+                              >
+                                <Icon fontSize="large">add_circle</Icon>
+                              </IconButton>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                        <Grid item xs={12}>
+                          {investorAccountsLoading && <Loader />}
+                          {!investorAccountsLoading && (
+                            <MaterialTable
+                              columns={[
+                                {
+                                  field: "id",
+                                  title: "Account ID",
+                                  cellStyle: {
+                                    width: "25%",
+                                  },
+                                  render: (rowData: any) => {
+                                    const { id } = rowData;
+
+                                    return (
+                                      <Tooltip title={id} placement="top" arrow>
+                                        <Link to="/">{getShortId(id)}</Link>
+                                      </Tooltip>
+                                    );
+                                  },
+                                },
+                                {
+                                  field: "balance",
+                                  title: "Balance",
+                                  cellStyle: {
+                                    width: "25%",
+                                  },
+                                  render: (rowData: any) => {
+                                    const { balance = 0, currency } = rowData;
+
+                                    return <>{`${currency} ${balance}`}</>;
+                                  },
+                                },
+                                {
+                                  title: "Rules",
+                                  render: (rowData: any) => {
+                                    const { id } = rowData;
+
+                                    return (
+                                      <div>
+                                        <IconButton
+                                          color="inherit"
+                                          aria-label="Add Role"
+                                        >
+                                          <VisibilityIcon
+                                            fontSize="small"
+                                            color="primary"
+                                          />
+                                        </IconButton>
+                                        <Button color="primary">
+                                          Transfer!
+                                        </Button>
+                                      </div>
+                                    );
+                                  },
+                                },
+                              ]}
+                              data={
+                                investorAccounts
+                                  ? investorAccounts.map((accItem: any) => ({
+                                      ...accItem,
+                                    }))
+                                  : []
+                              }
+                              options={{
+                                sorting: false,
+                                toolbar: false,
+                              }}
+                            />
+                          )}
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Grid
+                            container
+                            justify="space-between"
+                            alignItems="center"
+                          >
+                            <Grid item>
                               <Grid container alignItems="center" spacing={2}>
                                 <Grid item>
-                                  <Typography variant="h5">
-                                    CURRENT ACCOUNTS
+                                  <Typography variant="h6">
+                                    TRADING ACCOUNTS
                                   </Typography>
                                 </Grid>
                                 <Grid item>
@@ -453,106 +602,44 @@ const InvestorDetail = (): React.ReactElement => {
                                     aria-label="Add"
                                     className={classes.addButton}
                                   >
-                                    <AddCircleIcon />
+                                    <Icon fontSize="large">add_circle</Icon>
                                   </IconButton>
                                 </Grid>
                               </Grid>
-                            }
-                            columns={[
-                              {
-                                field: "accountId",
-                                title: "Account ID",
-                                cellStyle: {
-                                  width: "25%",
-                                },
-                              },
-                              {
-                                field: "cryptocurrency",
-                                title: "Cryptocurrency",
-                                cellStyle: {
-                                  width: "25%",
-                                },
-                              },
-                              {
-                                field: "balance",
-                                title: "Balance",
-                                cellStyle: {
-                                  width: "25%",
-                                },
-                              },
-                              {
-                                field: "rules",
-                                title: "Rules",
-                                cellStyle: {
-                                  width: "25%",
-                                },
-                                render: (rowData: any) => {
-                                  const { id } = rowData;
-
-                                  return (
-                                    <div>
-                                      <IconButton
-                                        color="inherit"
-                                        aria-label="Add Role"
-                                      >
-                                        <VisibilityIcon
-                                          fontSize="small"
-                                          color="primary"
-                                        />
-                                      </IconButton>
-                                      <Button color="primary">Transfer!</Button>
-                                    </div>
-                                  );
-                                },
-                              },
-                            ]}
-                            data={
-                              selectedInvestor.accounts
-                                ? selectedInvestor.accounts.map(
-                                    (accItem: any) => ({
-                                      ...accItem,
-                                    })
-                                  )
-                                : []
-                            }
-                            options={{
-                              search: false,
-                              sorting: false,
-                            }}
-                          />
+                            </Grid>
+                            <Grid item>
+                              <Button color="primary">Fund!</Button>
+                              <Button color="primary">Refund!</Button>
+                            </Grid>
+                          </Grid>
                         </Grid>
                         <Grid item xs={12}>
                           <MaterialTable
-                            title="TRADING ACCOUNTS"
                             columns={[
                               {
                                 field: "account",
                                 title: "Account ID",
-                                cellStyle: {
-                                  width: "30%",
-                                },
                                 render: (rowData: any) => {
                                   const { account } = rowData;
 
                                   return (
-                                    <Link to="/" className={classes.link}>
-                                      {account}
-                                    </Link>
+                                    <Tooltip
+                                      title={account}
+                                      placement="top"
+                                      arrow
+                                    >
+                                      <Link to="/">{getShortId(account)}</Link>
+                                    </Tooltip>
                                   );
-                                },
-                              },
-                              {
-                                field: "currency",
-                                title: "Currency",
-                                cellStyle: {
-                                  width: "35%",
                                 },
                               },
                               {
                                 field: "balance",
                                 title: "Balance",
-                                cellStyle: {
-                                  width: "35%",
+                                render: (rowData: any) => {
+                                  const { balance = 0, currency } = rowData;
+
+                                  return <>{`${currency} ${balance}`}</>;
                                 },
                               },
                             ]}
@@ -560,26 +647,8 @@ const InvestorDetail = (): React.ReactElement => {
                               ...accItem,
                             }))}
                             options={{
-                              search: false,
                               sorting: false,
-                            }}
-                            components={{
-                              Toolbar: (props) => (
-                                <Grid
-                                  container
-                                  justify="space-between"
-                                  alignItems="center"
-                                  className={classes.tableHeader}
-                                >
-                                  <Grid item>
-                                    <Typography variant="h5">TRADES</Typography>
-                                  </Grid>
-                                  <Grid item>
-                                    <Button color="primary">Fund!</Button>
-                                    <Button color="primary">Refund!</Button>
-                                  </Grid>
-                                </Grid>
-                              ),
+                              toolbar: false,
                             }}
                           />
                         </Grid>
@@ -592,8 +661,8 @@ const InvestorDetail = (): React.ReactElement => {
           </Grid>
         </Grid>
         <Dialog
-          open={createModalOpen}
-          onClose={handleCreateModalClose}
+          open={createTradeModalOpen}
+          onClose={handleCreateTradeModalClose}
           aria-labelledby="form-dialog-title"
         >
           <Form
@@ -601,8 +670,8 @@ const InvestorDetail = (): React.ReactElement => {
             mutators={{
               ...arrayMutators,
             }}
-            initialValues={tradeRequest}
-            validate={validate}
+            initialValues={defaultTradeRequest}
+            validate={validateTradeRequest}
             render={({
               handleSubmit,
               submitting,
@@ -715,7 +784,82 @@ const InvestorDetail = (): React.ReactElement => {
                 </DialogContent>
                 <Divider />
                 <DialogActions>
-                  <Button onClick={handleCreateModalClose} variant="contained">
+                  <Button
+                    onClick={handleCreateTradeModalClose}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={submitting || pristine}
+                  >
+                    Create
+                  </Button>
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
+        <Dialog
+          open={createAccountModalOpen}
+          onClose={handleCreateAccountModalClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <Form
+            onSubmit={handleAccountCreate}
+            mutators={{
+              ...arrayMutators,
+            }}
+            initialValues={defaultAccount}
+            validate={validateAccount}
+            render={({
+              handleSubmit,
+              submitting,
+              pristine,
+              form: {
+                mutators: { push },
+              },
+              values,
+            }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <DialogTitle id="form-dialog-title">Create account</DialogTitle>
+                <Divider />
+                <DialogContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <MuiTextField
+                        required
+                        label="Name"
+                        type="text"
+                        name="name"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <MuiSelect
+                        native
+                        name="currency"
+                        label="Currency"
+                        variant="outlined"
+                        fullWidth
+                      >
+                        <option value="0">Select...</option>
+                        <option value="BTC">BTC</option>
+                        <option value="ETHER">ETHER</option>
+                      </MuiSelect>
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <Divider />
+                <DialogActions>
+                  <Button
+                    onClick={handleCreateAccountModalClose}
+                    variant="contained"
+                  >
                     Cancel
                   </Button>
                   <Button

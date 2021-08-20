@@ -1,4 +1,5 @@
 import axios from "../util/axios";
+import vault from "../vault";
 
 interface RoleType {
   id?: string;
@@ -23,15 +24,17 @@ const getClearerRoles = (): Promise<Array<RoleType>> => {
   });
 };
 
-const addNewRole = (
+const addNewRole = async (
   name: string,
   permissions: Array<string>
 ): Promise<string> => {
+  const vaultRequest = await vault.createGroup();
   return new Promise((resolve, reject) => {
     axios
       .post(`/role`, {
         name,
         permissions,
+        vaultRequest,
       })
       .then((res: any) => {
         return resolve(res.data);
@@ -133,16 +136,20 @@ const getAllOrgRoles = (organizationId: string): Promise<Array<RoleType>> => {
   });
 };
 
-const createOrgRole = (
+const createOrgRole = async (
   organizationId: string,
   role: {
     name: string;
     permissions: Array<string>;
   }
 ): Promise<string> => {
+  const vaultRequest = await vault.createGroup();
   return new Promise((resolve, reject) => {
     axios
-      .post(`/organization/${organizationId}/role`, role)
+      .post(`/organization/${organizationId}/role`, {
+        ...role,
+        vaultRequest,
+      })
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -251,16 +258,20 @@ const getAllMultiDeskRoles = (
   });
 };
 
-const createMultiDeskRole = (
+const createMultiDeskRole = async (
   organizationId: string,
   role: {
     name: string;
     permissions: Array<string>;
   }
 ): Promise<string> => {
+  const vaultRequest = await vault.createGroup();
   return new Promise((resolve, reject) => {
     axios
-      .post(`/organization/${organizationId}/multidesk/role`, role)
+      .post(`/organization/${organizationId}/multidesk/role`, {
+        ...role,
+        vaultRequest,
+      })
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -374,7 +385,7 @@ const getAllDeskRoles = (organizationId: string): Promise<Array<RoleType>> => {
   });
 };
 
-const createDeskRole = (
+const createDeskRole = async (
   organizationId: string,
   deskId: string,
   role: {
@@ -382,9 +393,13 @@ const createDeskRole = (
     permissions: Array<string>;
   }
 ): Promise<string> => {
+  const vaultRequest = await vault.createGroup();
   return new Promise((resolve, reject) => {
     axios
-      .post(`/organization/${organizationId}/desk/${deskId}/role`, role)
+      .post(`/organization/${organizationId}/desk/${deskId}/role`, {
+        ...role,
+        vaultRequest,
+      })
       .then((res: any) => {
         return resolve(res.data);
       })

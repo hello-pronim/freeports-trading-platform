@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
+import { useSelector, useDispatch } from "react-redux";
+import { useHistory, useParams } from "react-router";
 import {
   Accordion,
   AccordionSummary,
   Button,
+  Chip,
+  Container,
   Divider,
+  Grid,
   IconButton,
   InputAdornment,
+  List,
+  ListItem,
+  ListItemText,
+  makeStyles,
+  TextField,
   Typography,
 } from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import BlockIcon from "@material-ui/icons/Block";
+import DoneIcon from "@material-ui/icons/Done";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SearchIcon from "@material-ui/icons/Search";
-import Grid from "@material-ui/core/Grid";
-import TextField from "@material-ui/core/TextField";
-import { useSelector, useDispatch } from "react-redux";
-import { useHistory, useParams } from "react-router";
 
 import profile from "../../../assets/images/profile.jpg";
 import CoWorkerForm from "../CoWorkerForm";
@@ -37,20 +40,13 @@ import Loader from "../../../components/Loader";
 import clearerUsersService from "../../../services/clearerUsersService";
 
 const useStyles = makeStyles((theme) => ({
-  sideMenu: {
-    padding: theme.spacing(3),
-    maxWidth: 320,
-  },
-  root: {
-    flexGrow: 1,
-  },
   toolbar: theme.mixins.toolbar,
-
-  main: {
-    padding: theme.spacing(2),
-  },
   margin: {
     margin: theme.spacing(2),
+  },
+  addButton: {
+    fontWeight: "bold",
+    padding: 0,
   },
   accordionSummary: {
     justifyContent: "space-between",
@@ -71,6 +67,10 @@ const useStyles = makeStyles((theme) => ({
   },
   userStateLoader: {
     maxHeight: 26,
+  },
+  chipDisabled: {
+    borderColor: "#f44336",
+    color: "#f44336",
   },
 }));
 
@@ -168,133 +168,213 @@ const CoWorker = (): React.ReactElement => {
 
   const handleResetOTP = async () => {
     if (selectedCoWorker.id) {
-      dispatch(
-        actions.resetOTP({ id: selectedCoWorker.id })
-      );
+      dispatch(actions.resetOTP({ id: selectedCoWorker.id }));
     }
   };
 
   return (
-    <Grid>
-      <Grid container className={classes.root}>
-        <Grid item className={classes.sideMenu} xs={12} sm={4} md={4} lg={3}>
-          <Grid container justify="flex-start">
-            <Grid sm={8} item className={classes.accordionCoWorker}>
-              <Typography variant="h6">CO-WORKER</Typography>
-            </Grid>
-            <Grid xs={2} item>
-              <IconButton
-                color="inherit"
-                aria-label="Add Role"
-                onClick={handleAddCoWorker}
-              >
-                <AddCircleIcon fontSize="large" color="primary" />
-              </IconButton>
-            </Grid>
-          </Grid>
-          <Grid container>
-            <Grid xs={12} item>
-              <TextField
-                onChange={handleSearchChange}
-                id="input-with-icon-grid"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                fullWidth
-              />
+    <div className="main-wrapper">
+      <Container>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item>
+                <Typography variant="h5">CO-WORKER</Typography>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  className={classes.addButton}
+                  color="inherit"
+                  aria-label="Add Co-worker"
+                  onClick={handleAddCoWorker}
+                >
+                  <AddCircleIcon fontSize="large" color="primary" />
+                </IconButton>
+              </Grid>
             </Grid>
           </Grid>
-          <>{loading && <Loader />}</>
-          {!loading && (
-            <List>
-              {coWorkers &&
-                coWorkers.map((coWorker: User, i: number) => (
-                  <ListItem
-                    button
-                    key={coWorker.id}
-                    onClick={() => handleCoWorkerSelected(i)}
-                    selected={
-                      selectedCoWorker && coWorker.id === selectedCoWorker.id
-                    }
-                  >
-                    <ListItemText primary={`${coWorker.nickname} `} />
-                  </ListItem>
-                ))}
-            </List>
-          )}
-        </Grid>
-        <Grid item className={classes.main} xs={12} sm={8} md={8} lg={9}>
-          {selectedCoWorker && (
-            <Accordion expanded>
-              <AccordionSummary
-                classes={{ content: classes.accordionSummary }}
-                aria-controls="panel1c-content"
-              >
-                <Grid container alignItems="center" justify="space-between">
-                  <Grid item>
-                    <Grid container spacing={1} alignItems="center">
-                      <Grid item>
-                        <ExpandMoreIcon />
-                      </Grid>
-                      <Grid item>
-                        <img
-                          className={`${classes.accordionProfile}
-                    ${classes.paddingSmall}`}
-                          src={profile}
-                          alt="Co-worker"
-                        />
-                      </Grid>
-                      <Grid item>
-                        {selectedCoWorker && (
-                          <Typography>{selectedCoWorker.nickname}</Typography>
-                        )}
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item>
-                    {!selectedCoWorker.suspended && !suspendStateLoading && (
-                      <Button onClick={handleOnSuspend} color="secondary">
-                        Disable
-                      </Button>
-                    )}
-                    {selectedCoWorker.suspended && !suspendStateLoading && (
-                      <Button onClick={handleOnResume} color="primary">
-                        Activate
-                      </Button>
-                    )}
-                    {suspendStateLoading && (
-                      <Button className={classes.userStateLoader} disabled>
-                        <Loader />
-                      </Button>
-                    )}
+          <Grid item xs={12}>
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={4} md={4} lg={3}>
+                <Grid container>
+                  <Grid xs={12} item>
+                    <TextField
+                      onChange={handleSearchChange}
+                      id="input-with-icon-grid"
+                      placeholder="Search..."
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                      fullWidth
+                    />
                   </Grid>
                 </Grid>
-              </AccordionSummary>
-              <Divider />
-              <div className={classes.margin}>
-                {formLoading && <Loader />}
-                {!formLoading && selectedCoWorker && (
-                  <CoWorkerForm
-                    onSubmit={
-                      selectedCoWorker.id
-                        ? handleCoWorkerUpdate
-                        : handleNewCoWorker
-                    }
-                    onSendResetPasswordLink={handleSendResetPasswordLink}
-                    coWorker={selectedCoWorker}
-                    onResetOTP={handleResetOTP}
-                  />
+                <>{loading && <Loader />}</>
+                {!loading && (
+                  <List>
+                    {coWorkers &&
+                      coWorkers.map((coWorker: User, i: number) => (
+                        <ListItem
+                          button
+                          key={coWorker.id}
+                          onClick={() => handleCoWorkerSelected(i)}
+                          selected={
+                            selectedCoWorker &&
+                            coWorker.id === selectedCoWorker.id
+                          }
+                        >
+                          <ListItemText primary={`${coWorker.nickname} `} />
+                        </ListItem>
+                      ))}
+                  </List>
                 )}
-              </div>
-            </Accordion>
-          )}{" "}
+              </Grid>
+              <Grid item xs={12} sm={8} md={8} lg={9}>
+                {selectedCoWorker && (
+                  <Accordion expanded>
+                    <AccordionSummary
+                      classes={{ content: classes.accordionSummary }}
+                      aria-controls="panel1c-content"
+                    >
+                      <Grid
+                        container
+                        alignItems="center"
+                        justify="space-between"
+                      >
+                        <Grid item>
+                          <Grid container spacing={3} alignItems="center">
+                            <Grid item>
+                              <Grid container alignItems="center" spacing={1}>
+                                <Grid item>
+                                  <ExpandMoreIcon />
+                                </Grid>
+                                <Grid item>
+                                  <img
+                                    className={`${classes.accordionProfile} ${classes.paddingSmall}`}
+                                    src={profile}
+                                    alt="Co-worker"
+                                  />
+                                </Grid>
+                                <Grid item>
+                                  {selectedCoWorker && (
+                                    <Typography>
+                                      {selectedCoWorker.nickname}
+                                    </Typography>
+                                  )}
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                            <Grid item>
+                              <Grid item>
+                                {!coWorkerId && <></>}
+                                {coWorkerId &&
+                                  selectedCoWorker.publicKeys &&
+                                  selectedCoWorker.publicKeys.length === 0 &&
+                                  !selectedCoWorker.hasPassword && (
+                                    <Chip
+                                      label="Invite sent"
+                                      variant="outlined"
+                                      size="small"
+                                    />
+                                  )}
+                                {coWorkerId &&
+                                  selectedCoWorker.publicKeys &&
+                                  selectedCoWorker.publicKeys.length === 0 &&
+                                  selectedCoWorker.hasPassword && (
+                                    <Chip
+                                      label="Waiting public key"
+                                      variant="outlined"
+                                      size="small"
+                                    />
+                                  )}
+                                {coWorkerId &&
+                                  selectedCoWorker.publicKeys &&
+                                  selectedCoWorker.publicKeys.length !== 0 &&
+                                  selectedCoWorker.hasPassword &&
+                                  selectedCoWorker.vaultUserId ===
+                                    undefined && (
+                                    <Chip
+                                      label="Trust required"
+                                      variant="outlined"
+                                      size="small"
+                                    />
+                                  )}
+                                {coWorkerId && selectedCoWorker.vaultUserId && (
+                                  <Chip
+                                    label="Active"
+                                    variant="outlined"
+                                    color="primary"
+                                    size="small"
+                                    icon={<DoneIcon />}
+                                  />
+                                )}
+                                {coWorkerId && selectedCoWorker.suspended && (
+                                  <Chip
+                                    label="Disabled"
+                                    variant="outlined"
+                                    size="small"
+                                    className={classes.chipDisabled}
+                                    icon={<BlockIcon />}
+                                  />
+                                )}
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                        <Grid item>
+                          {!selectedCoWorker.suspended && !suspendStateLoading && (
+                            <Button
+                              onClick={handleOnSuspend}
+                              color="primary"
+                              className="btn-disable"
+                            >
+                              Disable
+                            </Button>
+                          )}
+                          {selectedCoWorker.suspended && !suspendStateLoading && (
+                            <Button onClick={handleOnResume} color="primary">
+                              Activate
+                            </Button>
+                          )}
+                          {suspendStateLoading && (
+                            <Button
+                              className={classes.userStateLoader}
+                              disabled
+                            >
+                              <Loader />
+                            </Button>
+                          )}
+                        </Grid>
+                      </Grid>
+                    </AccordionSummary>
+                    <Divider />
+                    <div className={classes.margin}>
+                      {formLoading && <Loader />}
+                      {!formLoading && selectedCoWorker && (
+                        <CoWorkerForm
+                          onSubmit={
+                            selectedCoWorker.id
+                              ? handleCoWorkerUpdate
+                              : handleNewCoWorker
+                          }
+                          onSendResetPasswordLink={handleSendResetPasswordLink}
+                          coWorker={selectedCoWorker}
+                          onResetOTP={handleResetOTP}
+                        />
+                      )}
+                    </div>
+                  </Accordion>
+                )}{" "}
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
-      </Grid>
-    </Grid>
+      </Container>
+    </div>
   );
 };
 

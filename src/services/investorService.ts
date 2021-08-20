@@ -1,4 +1,5 @@
 import axios from "../util/axios";
+import Account from "../types/Account";
 import Investor from "../types/Investor";
 
 const getAllInvestors = (): Promise<Investor[]> => {
@@ -69,10 +70,52 @@ const deleteInvestor = (
   });
 };
 
+const getInvestorAccounts = (
+  organizationId: string,
+  deskId: string,
+  investorId: string
+): Promise<Account[]> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/account`
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const createInvestorAccount = (
+  organizationId: string,
+  deskId: string,
+  investorId: string,
+  account: Account
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/account`,
+        account
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
 export {
   getAllInvestors as default,
   getAllInvestors,
   getInvestor,
   createInvestor,
   deleteInvestor,
+  getInvestorAccounts,
+  createInvestorAccount,
 };

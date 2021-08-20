@@ -1,6 +1,7 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, { useEffect, useState, useRef } from "react";
+import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { Link } from "react-router-dom";
@@ -11,6 +12,7 @@ import { Radios, TextField as MuiTextField } from "mui-rff";
 import {
   Button,
   Container,
+  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,6 +23,7 @@ import {
   InputAdornment,
   makeStyles,
   TextField,
+  Theme,
   Typography,
 } from "@material-ui/core";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
@@ -57,62 +60,16 @@ interface operationType {
   importId?: string;
 }
 
-const passedTransactionsColumns = [
-  {
-    field: "date",
-    title: "Date",
-    cellStyle: {
-      width: "10%",
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    importButton: {
+      marginRight: "20px",
     },
-  },
-  {
-    field: "client_account",
-    title: "Client account",
-    cellStyle: {
-      width: "15%",
+    fileInput: {
+      display: "none",
     },
-  },
-  {
-    field: "purpose_of_the_transfer",
-    title: "Purpose of the transfer",
-    cellStyle: {
-      width: "40%",
-    },
-  },
-  {
-    field: "credit",
-    title: "Credit",
-    cellStyle: {
-      width: "10%",
-    },
-  },
-  {
-    field: "debit",
-    title: "Debit",
-    cellStyle: {
-      width: "10%",
-    },
-  },
-  {
-    field: "sender",
-    title: "Sender",
-    cellStyle: {
-      width: "15%",
-    },
-  },
-];
-
-const useStyles = makeStyles({
-  importButton: {
-    marginRight: "20px",
-  },
-  deleteButton: {
-    color: red[500],
-  },
-  fileInput: {
-    display: "none",
-  },
-});
+  })
+);
 
 const validate = (values: any) => {
   const errors: Partial<any> = {};
@@ -172,119 +129,6 @@ const Detail = (): React.ReactElement => {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [importedFile, setImportedFile] = useState(null);
   const moveRequests = useSelector(selectMoveRequests);
-
-  const pendingReconciliationColumns = [
-    {
-      field: "date",
-      title: "Date",
-      cellStyle: {
-        width: "20%",
-      },
-    },
-    {
-      field: "label",
-      title: "Purpose of the transfer",
-      cellStyle: {
-        width: "30%",
-      },
-    },
-    {
-      title: "Credit",
-      cellStyle: {
-        width: "15%",
-      },
-      render: (rowData: any) => {
-        const { type, amount } = rowData;
-
-        return type === "credit" ? `${selectedAccount.currency} ${amount}` : "";
-      },
-    },
-    {
-      title: "Debit",
-      cellStyle: {
-        width: "15%",
-      },
-      render: (rowData: any) => {
-        const { type, amount } = rowData;
-
-        return type === "debit" ? `${selectedAccount.currency} ${amount}` : "";
-      },
-    },
-    {
-      cellStyle: {
-        width: "10%",
-      },
-      sorting: false,
-      render: (rowData: any) => {
-        const { id } = rowData;
-
-        return (
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <IconButton color="inherit">
-                <FlashOnIcon fontSize="small" color="primary" />
-              </IconButton>
-            </Grid>
-            <Grid item xs={6}>
-              <IconButton
-                color="inherit"
-                onClick={() => handleOperationDelete(id)}
-              >
-                <DeleteIcon fontSize="small" color="error" />
-              </IconButton>
-            </Grid>
-          </Grid>
-        );
-      },
-    },
-  ];
-
-  const moveRequestsColumns = [
-    {
-      title: "Date",
-      cellStyle: {
-        width: "20%",
-      },
-      render: (rowData: any) => {
-        const { createdAt } = rowData;
-        return convertDateToDMY(createdAt);
-      },
-    },
-    {
-      field: "kind",
-      title: "Kind",
-      cellStyle: {
-        width: "20%",
-      },
-    },
-    {
-      title: "To",
-      cellStyle: {
-        width: "20%",
-      },
-      render: (rowData: any) => {
-        const { accountTo } = rowData;
-        return accountTo ? accountTo.name : '';
-      },
-    },
-    {
-      title: "Quantity",
-      cellStyle: {
-        width: "20%",
-      },
-      render: (rowData: any) => {
-        const { quantity } = rowData;
-        return `${selectedAccount.currency} ${quantity}`;
-      },
-    },
-    {
-      field: "status",
-      title: "Status",
-      cellStyle: {
-        width: "20%",
-      },
-    },
-  ];
 
   useEffect(() => {
     let mounted = false;
@@ -401,7 +245,7 @@ const Detail = (): React.ReactElement => {
                   aria-label="Back"
                   onClick={handleBackClick}
                 >
-                  <ArrowBackIosIcon fontSize="large" color="primary" />
+                  <ArrowBackIosIcon fontSize="small" color="primary" />
                 </IconButton>
               </Grid>
               <Grid item xs={9}>
@@ -534,38 +378,226 @@ const Detail = (): React.ReactElement => {
                 {!accountDetailLoading && (
                   <Grid container spacing={4}>
                     <Grid item xs={12}>
-                      <MaterialTable
-                        columns={moveRequestsColumns}
-                        data={moveRequests}
-                        title="Requested Operation"
-                        options={{
-                          search: true,
-                        }}
-                      />
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Typography variant="h6">
+                            Requested Operation
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <MaterialTable
+                            columns={[
+                              {
+                                title: "Date",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                                render: (rowData: any) => {
+                                  const { createdAt } = rowData;
+                                  return convertDateToDMY(createdAt);
+                                },
+                              },
+                              {
+                                field: "kind",
+                                title: "Kind",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                              },
+                              {
+                                title: "To",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                                render: (rowData: any) => {
+                                  const { accountTo } = rowData;
+                                  return accountTo ? accountTo.name : "";
+                                },
+                              },
+                              {
+                                title: "Quantity",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                                render: (rowData: any) => {
+                                  const { quantity } = rowData;
+                                  return `${selectedAccount.currency} ${quantity}`;
+                                },
+                              },
+                              {
+                                field: "status",
+                                title: "Status",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                              },
+                            ]}
+                            data={moveRequests}
+                            options={{
+                              toolbar: false,
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                      <MaterialTable
-                        columns={pendingReconciliationColumns}
-                        data={operations.map((opt: any) => ({
-                          ...opt,
-                          date: convertDateToDMY(opt.date),
-                        }))}
-                        title="Pending reconciliations"
-                        options={{
-                          search: true,
-                        }}
-                      />
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Typography variant="h6">
+                            Pending reconciliations
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <MaterialTable
+                            columns={[
+                              {
+                                field: "date",
+                                title: "Date",
+                                cellStyle: {
+                                  width: "10%",
+                                },
+                              },
+                              {
+                                field: "label",
+                                title: "Purpose of the transfer",
+                                cellStyle: {
+                                  width: "25%",
+                                },
+                              },
+                              {
+                                title: "Credit",
+                                cellStyle: {
+                                  width: "15%",
+                                },
+                                render: (rowData: any) => {
+                                  const { type, amount } = rowData;
+
+                                  return type === "credit"
+                                    ? `${selectedAccount.currency} ${amount}`
+                                    : "";
+                                },
+                              },
+                              {
+                                title: "Debit",
+                                cellStyle: {
+                                  width: "15%",
+                                },
+                                render: (rowData: any) => {
+                                  const { type, amount } = rowData;
+
+                                  return type === "debit"
+                                    ? `${selectedAccount.currency} ${amount}`
+                                    : "";
+                                },
+                              },
+                              {
+                                cellStyle: {
+                                  width: "10%",
+                                },
+                                sorting: false,
+                                render: (rowData: any) => {
+                                  const { id } = rowData;
+
+                                  return (
+                                    <Grid container spacing={1}>
+                                      <Grid item xs={6}>
+                                        <IconButton color="inherit">
+                                          <FlashOnIcon
+                                            fontSize="small"
+                                            color="primary"
+                                          />
+                                        </IconButton>
+                                      </Grid>
+                                      <Grid item xs={6}>
+                                        <IconButton
+                                          color="inherit"
+                                          onClick={() =>
+                                            handleOperationDelete(id)
+                                          }
+                                        >
+                                          <DeleteIcon
+                                            fontSize="small"
+                                            className="icon-delete"
+                                          />
+                                        </IconButton>
+                                      </Grid>
+                                    </Grid>
+                                  );
+                                },
+                              },
+                            ]}
+                            data={operations.map((opt: any) => ({
+                              ...opt,
+                              date: convertDateToDMY(opt.date),
+                            }))}
+                            title=""
+                            options={{
+                              toolbar: false,
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                      <MaterialTable
-                        columns={passedTransactionsColumns}
-                        data={passedTransactionsData}
-                        title="Passed transactions"
-                        options={{
-                          search: true,
-                          pageSize: 10,
-                        }}
-                      />
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Typography variant="h6">
+                            Passed transactions
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <MaterialTable
+                            columns={[
+                              {
+                                field: "date",
+                                title: "Date",
+                                cellStyle: {
+                                  width: "10%",
+                                },
+                              },
+                              {
+                                field: "client_account",
+                                title: "Client account",
+                                cellStyle: {
+                                  width: "15%",
+                                },
+                              },
+                              {
+                                field: "purpose_of_the_transfer",
+                                title: "Purpose of the transfer",
+                                cellStyle: {
+                                  width: "40%",
+                                },
+                              },
+                              {
+                                field: "credit",
+                                title: "Credit",
+                                cellStyle: {
+                                  width: "10%",
+                                },
+                              },
+                              {
+                                field: "debit",
+                                title: "Debit",
+                                cellStyle: {
+                                  width: "10%",
+                                },
+                              },
+                              {
+                                field: "sender",
+                                title: "Sender",
+                                cellStyle: {
+                                  width: "15%",
+                                },
+                              },
+                            ]}
+                            data={passedTransactionsData}
+                            options={{
+                              toolbar: false,
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
                     </Grid>
                   </Grid>
                 )}

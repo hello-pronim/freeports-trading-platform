@@ -136,7 +136,7 @@ const Detail = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container alignItems="center" spacing={2}>
               <Grid item>
-                <Typography variant="h4">Desks</Typography>
+                <Typography variant="h5">Desks</Typography>
               </Grid>
               <Grid item>
                 <IconButton

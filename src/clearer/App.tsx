@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Routes from "./routes";
 
 import auth from "../store/auth/reducer";
@@ -14,20 +14,22 @@ import "./App.css";
 import "./Custom.css";
 import authActions from "../store/auth/actions";
 import { useGlobalSlice } from "../slice";
+import { selectTheme } from "../slice/selectors";
 
 const App = (): React.ReactElement => {
   useInjectReducer({ key: "auth", reducer: auth });
 
   const dispatch = useDispatch();
   const { authCheck } = authActions;
+  const { actions } = useGlobalSlice();
+  const theme = useSelector(selectTheme);
 
   dispatch(authCheck());
-  const { actions } = useGlobalSlice();
+
   useEffect(() => {
     dispatch(actions.getCurrentClearerUser());
   }, []);
 
-  const { theme } = useTheme();
   const themeLight = createMuiTheme({
     palette: {
       primary: {
@@ -50,6 +52,9 @@ const App = (): React.ReactElement => {
       },
       secondary: {
         main: "#303655",
+      },
+      info: {
+        main: "#599de9",
       },
       type: "dark",
     },
