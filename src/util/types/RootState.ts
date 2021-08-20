@@ -19,6 +19,7 @@ import { OrgCoWorkerFormState } from "../../organization/components/CoWorkerForm
 import { SnackbarState } from "../../components/Snackbar/slice/types";
 import { ProfileState } from "../../components/Profile/slice/types";
 import { GlobalState } from "../../slice/types";
+import { VaultRequestState } from "../../components/VaultRequest/slice/types";
 
 /* 
   Because the redux-injectors injects your
@@ -48,6 +49,8 @@ export interface RootState {
   auth?: any;
   profileForm?: ProfileState;
   snackbar: SnackbarState;
+  vaultRequest: VaultRequestState;
+
   // [INSERT NEW REDUCER KEY ABOVE] < Needed for
   // generating containers seamlessly
 }
