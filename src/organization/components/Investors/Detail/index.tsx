@@ -44,9 +44,12 @@ import {
   selectIsDetailLoading,
   selectTradeRequests,
   selectIsTradeRequestsLoading,
+  selectInvestorAccounts,
+  selectIsInvestorAccountsLoading,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
 import { useOrganization } from "../../../../hooks";
+import Account from "../../../../types/Account";
 import TradeRequest from "../../../../types/TradeRequest";
 import { CryptoCurrencies } from "../../../../types/Currencies";
 
@@ -106,7 +109,7 @@ const convertDateToDMY = (date: string) => {
   return [day, month, year].join(".");
 };
 
-const validate = (values: any) => {
+const validateTradeRequest = (values: any) => {
   const errors: Partial<any> = {};
 
   if (!values.accountFrom) {
@@ -128,6 +131,20 @@ const validate = (values: any) => {
   return errors;
 };
 
+const validateAccount = (values: any) => {
+  const errors: Partial<any> = {};
+
+  if (!values.name) {
+    errors.name = "This Field Required";
+  }
+
+  if (!values.currency) {
+    errors.currency = "This Field Required";
+  }
+
+  return errors;
+};
+
 const InvestorDetail = (): React.ReactElement => {
   const classes = useStyles();
   const history = useHistory();
@@ -143,20 +160,27 @@ const InvestorDetail = (): React.ReactElement => {
   const investorsLoading = useSelector(selectIsInvestorsLoading);
   const investorDetailLoading = useSelector(selectIsDetailLoading);
   const tradeRequests = useSelector(selectTradeRequests);
-  console.log("tradeRequest", tradeRequests);
   const tradeRequestsLoading = useSelector(selectIsTradeRequestsLoading);
+  const investorAccounts = useSelector(selectInvestorAccounts);
+  const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
   const [searchText, setSearchText] = useState("");
   const [tradingAccounts, setTradingAccounts] = useState<
     Array<{ currency: string; iban: string; account: string; balance?: number }>
   >([]);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [tradeRequest, setTradeRequest] = useState<tradeType>({
+  const [createTradeModalOpen, setCreateTradeModalOpen] = useState(false);
+  const [createAccountModalOpen, setCreateAccountModalOpen] = useState(false);
+  const [defaultTradeRequest, setDefaultTradeRequest] = useState<tradeType>({
     accountFrom: "",
     accountTo: "",
     type: "",
     quantity: "",
     limitPrice: "",
     limitTime: "",
+  });
+  const [defaultAccount, setDefaultAccount] = useState<Account>({
+    name: "",
+    currency: "",
+    type: "crypto",
   });
 
   const getQuantityLabel = (values: any): string => {
@@ -218,6 +242,13 @@ const InvestorDetail = (): React.ReactElement => {
         investorId,
       })
     );
+    dispatch(
+      investorDetailActions.getInvestorAccounts({
+        organizationId,
+        deskId,
+        investorId,
+      })
+    );
   }, [investorId]);
 
   const onSearchTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,12 +256,12 @@ const InvestorDetail = (): React.ReactElement => {
     setSearchText(value);
   };
 
-  const handleCreateModalOpen = () => {
-    setCreateModalOpen(true);
+  const handleCreateTradeModalOpen = () => {
+    setCreateTradeModalOpen(true);
   };
 
-  const handleCreateModalClose = () => {
-    setCreateModalOpen(false);
+  const handleCreateTradeModalClose = () => {
+    setCreateTradeModalOpen(false);
   };
 
   const handleTradeCreate = async (values: tradeType) => {
@@ -242,7 +273,27 @@ const InvestorDetail = (): React.ReactElement => {
         trade: values,
       })
     );
-    setCreateModalOpen(false);
+    setCreateTradeModalOpen(false);
+  };
+
+  const handleCreateAccountModalOpen = () => {
+    setCreateAccountModalOpen(true);
+  };
+
+  const handleCreateAccountModalClose = () => {
+    setCreateAccountModalOpen(false);
+  };
+
+  const handleAccountCreate = async (values: Account) => {
+    await dispatch(
+      investorDetailActions.addInvestorAccount({
+        organizationId,
+        deskId,
+        investorId,
+        account: values,
+      })
+    );
+    setCreateAccountModalOpen(false);
   };
 
   const handleBackClick = () => {
@@ -350,7 +401,7 @@ const InvestorDetail = (): React.ReactElement => {
                               <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={handleCreateModalOpen}
+                                onClick={handleCreateTradeModalOpen}
                               >
                                 <Grid container alignItems="center" spacing={1}>
                                   <Grid item>
@@ -431,7 +482,7 @@ const InvestorDetail = (): React.ReactElement => {
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <Grid container alignItems="center" spacing={2}>
@@ -445,6 +496,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 color="primary"
                                 aria-label="Add"
                                 className={classes.addButton}
+                                onClick={handleCreateAccountModalOpen}
                               >
                                 <Icon fontSize="large">add_circle</Icon>
                               </IconButton>
@@ -452,73 +504,80 @@ const InvestorDetail = (): React.ReactElement => {
                           </Grid>
                         </Grid>
                         <Grid item xs={12}>
-                          <MaterialTable
-                            columns={[
-                              {
-                                field: "accountId",
-                                title: "Account ID",
-                                cellStyle: {
-                                  width: "25%",
-                                },
-                              },
-                              {
-                                field: "cryptocurrency",
-                                title: "Cryptocurrency",
-                                cellStyle: {
-                                  width: "25%",
-                                },
-                              },
-                              {
-                                field: "balance",
-                                title: "Balance",
-                                cellStyle: {
-                                  width: "25%",
-                                },
-                              },
-                              {
-                                field: "rules",
-                                title: "Rules",
-                                cellStyle: {
-                                  width: "25%",
-                                },
-                                render: (rowData: any) => {
-                                  const { id } = rowData;
+                          {investorAccountsLoading && <Loader />}
+                          {!investorAccountsLoading && (
+                            <MaterialTable
+                              columns={[
+                                {
+                                  field: "id",
+                                  title: "Account ID",
+                                  cellStyle: {
+                                    width: "25%",
+                                  },
+                                  render: (rowData: any) => {
+                                    const { id } = rowData;
 
-                                  return (
-                                    <div>
-                                      <IconButton
-                                        color="inherit"
-                                        aria-label="Add Role"
-                                      >
-                                        <VisibilityIcon
-                                          fontSize="small"
-                                          color="primary"
-                                        />
-                                      </IconButton>
-                                      <Button color="primary">Transfer!</Button>
-                                    </div>
-                                  );
+                                    return <Link to="/">{id}</Link>;
+                                  },
                                 },
-                              },
-                            ]}
-                            data={
-                              selectedInvestor.accounts
-                                ? selectedInvestor.accounts.map(
-                                    (accItem: any) => ({
+                                {
+                                  field: "currency",
+                                  title: "Currency",
+                                  cellStyle: {
+                                    width: "25%",
+                                  },
+                                },
+                                {
+                                  field: "balance",
+                                  title: "Balance",
+                                  cellStyle: {
+                                    width: "25%",
+                                  },
+                                },
+                                {
+                                  title: "Rules",
+                                  cellStyle: {
+                                    width: "25%",
+                                  },
+                                  render: (rowData: any) => {
+                                    const { id } = rowData;
+
+                                    return (
+                                      <div>
+                                        <IconButton
+                                          color="inherit"
+                                          aria-label="Add Role"
+                                        >
+                                          <VisibilityIcon
+                                            fontSize="small"
+                                            color="primary"
+                                          />
+                                        </IconButton>
+                                        <Button color="primary">
+                                          Transfer!
+                                        </Button>
+                                      </div>
+                                    );
+                                  },
+                                },
+                              ]}
+                              data={
+                                investorAccounts
+                                  ? investorAccounts.map((accItem: any) => ({
                                       ...accItem,
-                                    })
-                                  )
-                                : []
-                            }
-                            options={{
-                              sorting: false,
-                              toolbar: false,
-                            }}
-                          />
+                                    }))
+                                  : []
+                              }
+                              options={{
+                                sorting: false,
+                                toolbar: false,
+                              }}
+                            />
+                          )}
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <Grid
@@ -598,8 +657,8 @@ const InvestorDetail = (): React.ReactElement => {
           </Grid>
         </Grid>
         <Dialog
-          open={createModalOpen}
-          onClose={handleCreateModalClose}
+          open={createTradeModalOpen}
+          onClose={handleCreateTradeModalClose}
           aria-labelledby="form-dialog-title"
         >
           <Form
@@ -607,8 +666,8 @@ const InvestorDetail = (): React.ReactElement => {
             mutators={{
               ...arrayMutators,
             }}
-            initialValues={tradeRequest}
-            validate={validate}
+            initialValues={defaultTradeRequest}
+            validate={validateTradeRequest}
             render={({
               handleSubmit,
               submitting,
@@ -721,7 +780,82 @@ const InvestorDetail = (): React.ReactElement => {
                 </DialogContent>
                 <Divider />
                 <DialogActions>
-                  <Button onClick={handleCreateModalClose} variant="contained">
+                  <Button
+                    onClick={handleCreateTradeModalClose}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={submitting || pristine}
+                  >
+                    Create
+                  </Button>
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
+        <Dialog
+          open={createAccountModalOpen}
+          onClose={handleCreateAccountModalClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <Form
+            onSubmit={handleAccountCreate}
+            mutators={{
+              ...arrayMutators,
+            }}
+            initialValues={defaultAccount}
+            validate={validateAccount}
+            render={({
+              handleSubmit,
+              submitting,
+              pristine,
+              form: {
+                mutators: { push },
+              },
+              values,
+            }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <DialogTitle id="form-dialog-title">Create account</DialogTitle>
+                <Divider />
+                <DialogContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <MuiTextField
+                        required
+                        label="Name"
+                        type="text"
+                        name="name"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <MuiSelect
+                        native
+                        name="currency"
+                        label="Currency"
+                        variant="outlined"
+                        fullWidth
+                      >
+                        <option value="0">Select...</option>
+                        <option value="BTC">BTC</option>
+                        <option value="ETHER">ETHER</option>
+                      </MuiSelect>
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <Divider />
+                <DialogActions>
+                  <Button
+                    onClick={handleCreateAccountModalClose}
+                    variant="contained"
+                  >
                     Cancel
                   </Button>
                   <Button

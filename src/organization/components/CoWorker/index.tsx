@@ -294,6 +294,7 @@ const CoWorker = (): React.ReactElement => {
                                   <Chip
                                     label="Invite sent"
                                     variant="outlined"
+                                    size="small"
                                   />
                                 )}
                               {coWorkerId &&
@@ -303,6 +304,7 @@ const CoWorker = (): React.ReactElement => {
                                   <Chip
                                     label="Waiting public key"
                                     variant="outlined"
+                                    size="small"
                                   />
                                 )}
                               {coWorkerId &&
@@ -313,6 +315,7 @@ const CoWorker = (): React.ReactElement => {
                                   <Chip
                                     label="Trust required"
                                     variant="outlined"
+                                    size="small"
                                   />
                                 )}
                               {coWorkerId && selectedCoWorker.vaultUserId && (
@@ -320,6 +323,7 @@ const CoWorker = (): React.ReactElement => {
                                   label="Active"
                                   variant="outlined"
                                   color="primary"
+                                  size="small"
                                   icon={<DoneIcon />}
                                 />
                               )}
@@ -328,6 +332,7 @@ const CoWorker = (): React.ReactElement => {
                                   label="Disabled"
                                   variant="outlined"
                                   color="primary"
+                                  size="small"
                                   icon={<BlockIcon />}
                                   className={classes.chipDisabled}
                                 />

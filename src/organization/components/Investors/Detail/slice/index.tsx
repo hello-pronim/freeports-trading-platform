@@ -6,6 +6,7 @@ import {
   useInjectReducer,
   useInjectSaga,
 } from "../../../../../util/redux-injectors";
+import Account from "../../../../../types/Account";
 import Investor from "../../../../../types/Investor";
 import TradeRequest from "../../../../../types/TradeRequest";
 import { investorDetailSaga } from "./saga";
@@ -22,9 +23,12 @@ const defaultInvestor = {
 export const initialState: InvestorDetailState = {
   selectedInvestor: defaultInvestor,
   tradeRequests: [],
+  investorAccounts: [],
   loadingDetail: false,
   loadingTradeRequests: false,
   creatingTradeRequest: false,
+  loadingInvestorAccounts: false,
+  creatingInvestorAccount: false,
 };
 
 const slice = createSlice({
@@ -77,6 +81,35 @@ const slice = createSlice({
     },
     addTradeRequestSuccess(state, action: PayloadAction<string>) {
       state.creatingTradeRequest = false;
+    },
+    getInvestorAccounts(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+      }>
+    ) {
+      state.loadingInvestorAccounts = true;
+      state.investorAccounts = [];
+    },
+    getInvestorAccountsSuccess(state, action: PayloadAction<Account[]>) {
+      state.loadingInvestorAccounts = false;
+      state.investorAccounts = action.payload;
+    },
+    addInvestorAccount(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+        account: Account;
+      }>
+    ) {
+      state.creatingInvestorAccount = true;
+    },
+    addInvestorAccountSuccess(state, action: PayloadAction<string>) {
+      state.creatingInvestorAccount = false;
     },
   },
 });
