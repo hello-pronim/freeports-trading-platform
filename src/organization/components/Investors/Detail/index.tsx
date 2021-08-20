@@ -26,6 +26,7 @@ import {
   makeStyles,
   TextField,
   Theme,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -300,6 +301,10 @@ const InvestorDetail = (): React.ReactElement => {
     history.push("/investors");
   };
 
+  const getShortId = (id: string) => {
+    return `${id.substring(0, 10)}...${id.charAt(id.length - 1)}`;
+  };
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -482,7 +487,7 @@ const InvestorDetail = (): React.ReactElement => {
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <Grid container alignItems="center" spacing={2}>
@@ -517,14 +522,11 @@ const InvestorDetail = (): React.ReactElement => {
                                   render: (rowData: any) => {
                                     const { id } = rowData;
 
-                                    return <Link to="/">{id}</Link>;
-                                  },
-                                },
-                                {
-                                  field: "currency",
-                                  title: "Currency",
-                                  cellStyle: {
-                                    width: "25%",
+                                    return (
+                                      <Tooltip title={id} placement="top" arrow>
+                                        <Link to="/">{getShortId(id)}</Link>
+                                      </Tooltip>
+                                    );
                                   },
                                 },
                                 {
@@ -533,12 +535,14 @@ const InvestorDetail = (): React.ReactElement => {
                                   cellStyle: {
                                     width: "25%",
                                   },
+                                  render: (rowData: any) => {
+                                    const { balance = 0, currency } = rowData;
+
+                                    return <>{`${currency} ${balance}`}</>;
+                                  },
                                 },
                                 {
                                   title: "Rules",
-                                  cellStyle: {
-                                    width: "25%",
-                                  },
                                   render: (rowData: any) => {
                                     const { id } = rowData;
 
@@ -577,7 +581,7 @@ const InvestorDetail = (): React.ReactElement => {
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <Grid
@@ -615,27 +619,27 @@ const InvestorDetail = (): React.ReactElement => {
                               {
                                 field: "account",
                                 title: "Account ID",
-                                cellStyle: {
-                                  width: "30%",
-                                },
                                 render: (rowData: any) => {
                                   const { account } = rowData;
 
-                                  return <Link to="/">{account}</Link>;
-                                },
-                              },
-                              {
-                                field: "currency",
-                                title: "Currency",
-                                cellStyle: {
-                                  width: "35%",
+                                  return (
+                                    <Tooltip
+                                      title={account}
+                                      placement="top"
+                                      arrow
+                                    >
+                                      <Link to="/">{getShortId(account)}</Link>
+                                    </Tooltip>
+                                  );
                                 },
                               },
                               {
                                 field: "balance",
                                 title: "Balance",
-                                cellStyle: {
-                                  width: "35%",
+                                render: (rowData: any) => {
+                                  const { balance = 0, currency } = rowData;
+
+                                  return <>{`${currency} ${balance}`}</>;
                                 },
                               },
                             ]}
