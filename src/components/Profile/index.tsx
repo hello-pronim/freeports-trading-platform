@@ -372,7 +372,7 @@ const Profile = (): React.ReactElement => {
                       keyList.length ? (
                         keyList.map((listItem: any) => {
                           return (
-                            <div key={listItem}>
+                            <React.Fragment key={listItem}>
                               <Button
                                 onClick={() => onViewCertification(listItem)}
                                 color="primary"
@@ -389,13 +389,13 @@ const Profile = (): React.ReactElement => {
                                   Clear
                                 </Button>
                               </Tooltip>
-                            </div>
+                            </React.Fragment>
                           );
                         })
                       ) : (
                         <>
                           {
-                            !remoteKey || remoteKey.status === userPublicKeyStatus.requesting
+                            (!remoteKey || remoteKey.status === userPublicKeyStatus.requesting)
                             && (
                               <Button
                                 color="primary"
@@ -425,10 +425,10 @@ const Profile = (): React.ReactElement => {
                       )
                     }
                     {
-                      remoteKey && remoteKey.status === userPublicKeyStatus.approved
+                      (remoteKey && remoteKey.status === userPublicKeyStatus.approved)
                       && (
                         <Button
-                          color="primary"
+                          color="secondary"
                           variant="contained"
                           onClick={handleRevokeKey}
                         >

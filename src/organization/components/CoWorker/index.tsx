@@ -288,8 +288,7 @@ const CoWorker = (): React.ReactElement => {
                             <Grid item>
                               {!coWorkerId && <></>}
                               {coWorkerId &&
-                                selectedCoWorker.publicKeys &&
-                                selectedCoWorker.publicKeys.length === 0 &&
+                                !selectedCoWorker.publicKey &&
                                 !selectedCoWorker.hasPassword && (
                                   <Chip
                                     label="Invite sent"
@@ -297,8 +296,7 @@ const CoWorker = (): React.ReactElement => {
                                   />
                                 )}
                               {coWorkerId &&
-                                selectedCoWorker.publicKeys &&
-                                selectedCoWorker.publicKeys.length === 0 &&
+                                !selectedCoWorker.publicKey &&
                                 selectedCoWorker.hasPassword && (
                                   <Chip
                                     label="Waiting public key"
@@ -306,8 +304,7 @@ const CoWorker = (): React.ReactElement => {
                                   />
                                 )}
                               {coWorkerId &&
-                                selectedCoWorker.publicKeys &&
-                                selectedCoWorker.publicKeys.length !== 0 &&
+                                selectedCoWorker.publicKey &&
                                 selectedCoWorker.hasPassword &&
                                 selectedCoWorker.vaultUserId === undefined && (
                                   <Chip

@@ -128,8 +128,8 @@ export class Vault {
     return request;
   }
 
-  public async deleteVaultUser(id: string): Promise<VaultRequestDto> {
-    const request = await this.createRequest(Method.POST, `/vault/user/${id}`);
+  public deleteVaultUser = async (id: string): Promise<VaultRequestDto> => {
+    const request = await this.createRequest(Method.DELETE, `/vault/user/${id}`);
     return request;
   }
 

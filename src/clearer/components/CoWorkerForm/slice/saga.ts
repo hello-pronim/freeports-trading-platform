@@ -4,7 +4,7 @@ import { takeEvery, call, put, takeLatest } from "redux-saga/effects";
 
 import { coWorkActions as actions } from ".";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
-import { createVaultUser } from "../../../../services/clearerUsersService";
+import { createVaultUser, removeVaultUser } from "../../../../services/clearerUsersService";
 
 import getClearerRoles from "../../../../services/roleService";
 import { VaultRequestDto } from "../../../../services/vaultService";
@@ -58,7 +58,44 @@ export function* addUserToVault({
     );
   }
 }
+
+export function* removeUserFromVault({
+  payload: { userVaultId, userId },
+}: PayloadAction<{
+  userVaultId: string;
+  userId: string;
+}>): Generator<any> {
+  try {
+    const removeVaultUserRequest = yield call(
+      vault.deleteVaultUser,
+      userVaultId
+    );
+
+    console.log("remove vault user req ", removeVaultUserRequest);
+    const response = yield call(
+      removeVaultUser,
+      userId,
+      removeVaultUserRequest as VaultRequestDto
+    );
+    yield put(
+      snackbarActions.showSnackbar({
+        message: "Vault user removed successfully",
+        type: "success",
+      })
+    );
+  } catch (error) {
+    console.error(error);
+    yield put(
+      snackbarActions.showSnackbar({
+        message: "Error Remove vault user",
+        type: "error",
+      })
+    );
+  }
+}
+
 export function* coWorkerFormSaga(): Generator<any> {
   yield takeEvery(actions.getRoles, getRoles);
   yield takeLatest(actions.addUserToVault, addUserToVault);
+  yield takeLatest(actions.removeUserFromVault, removeUserFromVault);
 }

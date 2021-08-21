@@ -166,6 +166,15 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     coWorker.publicKey.status === userPublicKeyStatus.requesting &&
     !coWorker.vaultUserId;
 
+  const canRemoveVaultUser =
+    currentUser &&
+    currentUser.vaultUserId &&
+    currentUser.publicKey &&
+    currentUser.publicKey.status === userPublicKeyStatus.approved &&
+    coWorker.publicKey &&
+    coWorker.publicKey.status === userPublicKeyStatus.revoking &&
+    coWorker.vaultUserId;
+
   useEffect(() => {
     dispatch(actions.getRoles());
   }, []);
@@ -187,6 +196,19 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
       );
     }
   };
+
+  const handleRemoveVaultUser = () => {
+    console.log("handle remove from vault ", coWorker, currentUser);
+    if (coWorker.id && coWorker.publicKey) {
+      dispatch(
+        actions.removeUserFromVault({
+          userVaultId: coWorker.vaultUserId || '',
+          userId: coWorker.id,
+        })
+      );
+    }
+  };
+
   return (
     <Container>
       <Form
@@ -349,7 +371,20 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             color="primary"
                             onClick={handleAddVaultUser}
                           >
-                            Add to vault
+                            Approve publick key and add to vault
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    )}
+                    {canRemoveVaultUser && (
+                      <Grid container spacing={3}>
+                        <Grid item sm={12} md={6}>
+                          <Button
+                            fullWidth
+                            color="secondary"
+                            onClick={handleRemoveVaultUser}
+                          >
+                            Revoke publick key and remove from vault
                           </Button>
                         </Grid>
                       </Grid>
