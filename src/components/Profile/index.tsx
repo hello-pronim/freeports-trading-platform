@@ -365,7 +365,7 @@ const Profile = (): React.ReactElement => {
             <Card>
               <CardHeader
                 className={classes.cardHeader}
-                title="Certificate"
+                title={`Certificate (status: ${remoteKey ? remoteKey.status : 'empty'})`}
                 action={
                   <>
                     {
