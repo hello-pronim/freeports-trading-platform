@@ -104,6 +104,12 @@ export default [
     exact: true,
     component: lazy(() => import("../components/Auth/ResetPassword")),
   },
+  {
+    path: "/vault-request",
+    exact: true,
+    auth: true,
+    component: lazy(() => import("../../components/VaultRequest")),
+  },
   /* {
     path: "/error",
     exact: true,

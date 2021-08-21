@@ -23,7 +23,7 @@ import {
   TradeOrderResponse,
   TradeOrderStatus,
 } from "../../../../../types/TradeOrderResponse";
-import { selectRemainingQuantity } from "./selectors";
+import { selectRemainingQuantity, selectTradeAmount } from "./selectors";
 
 export function* retrieveTradeRequest({
   payload,
@@ -59,29 +59,57 @@ export function* getRfqs({
   deskId: string;
   investorId: string;
   tradeId: string;
-  quantity: string;
   ignoreError: boolean;
 }>): Generator<any> {
   try {
     console.log("get rfq from api", payload);
 
-    const response = yield call(
-      tradeRfqRequest,
-      payload.organizationId,
-      payload.deskId,
-      payload.investorId,
-      payload.tradeId,
-      payload.quantity
-    );
-    yield put(actions.getRfqsSuccess(response as RfqResponse[]));
-    if ((response as RfqResponse[]).length === 0 && !payload.ignoreError) {
-      yield put(
-        snackbarActions.showSnackbar({
-          message: "No brokers available",
-          type: "error",
-        })
-      );
-      yield put(actions.setTradeAmount(""));
+    const quantity = yield select(selectTradeAmount);
+    const remainingQuantity = yield select(selectRemainingQuantity);
+    if (quantity && remainingQuantity !== "0") {
+      if (Number(quantity as string) <= 0) {
+        yield put(
+          snackbarActions.showSnackbar({
+            message: "Amount must be Positive number greater than zero",
+            type: "error",
+          })
+        );
+        yield put(actions.getRfqsFail({}));
+
+        return;
+      }
+      if (Number(quantity as string) >= Number(remainingQuantity as string)) {
+        yield put(
+          snackbarActions.showSnackbar({
+            message: "Quantity exceeds trade amount",
+            type: "error",
+          })
+        );
+
+        yield put(actions.getRfqsFail({}));
+      } else {
+        yield put(actions.setRfqsLoading());
+
+        const response = yield call(
+          tradeRfqRequest,
+          payload.organizationId,
+          payload.deskId,
+          payload.investorId,
+          payload.tradeId,
+          quantity as string
+        );
+        yield put(actions.getRfqsSuccess(response as RfqResponse[]));
+        if ((response as RfqResponse[]).length === 0 && !payload.ignoreError) {
+          yield put(
+            snackbarActions.showSnackbar({
+              message: "No brokers available",
+              type: "error",
+            })
+          );
+
+          yield put(actions.getRfqsFail({}));
+        }
+      }
     }
   } catch (error) {
     if (!payload.ignoreError) {
@@ -92,7 +120,6 @@ export function* getRfqs({
         })
       );
     }
-    yield put(actions.setTradeAmount(""));
 
     yield put(actions.getRfqsFail(error));
   }
@@ -168,6 +195,6 @@ export function* tradeOrder({
 
 export function* tradeDetailSaga(): Generator<any> {
   yield takeEvery(actions.getTradeRequestDetail, retrieveTradeRequest);
-  yield debounce(500, actions.getRfqs, getRfqs);
+  yield debounce(600, actions.getRfqs, getRfqs);
   yield takeLatest(actions.order, tradeOrder);
 }
