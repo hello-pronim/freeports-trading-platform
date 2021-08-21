@@ -26,6 +26,19 @@ const getUserProfile = (orgId: string, userId: string): Promise<any> => {
   });
 };
 
+const getMyProfile = (): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+    .get(`/my/profile`)
+    .then((res: any) => {
+      return resolve(res.data);
+    })
+    .catch((err) => {
+      return reject(err.response.data);
+    });
+  });
+};
+
 const addPublicKey = (key: string, name: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
@@ -52,4 +65,4 @@ const revokeKey = (): Promise<any> => {
   });
 };
 
-export { getUserProfile as default, getUserProfile, addPublicKey, revokeKey };
+export { getUserProfile as default, getUserProfile, getMyProfile, addPublicKey, revokeKey };
