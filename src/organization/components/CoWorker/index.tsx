@@ -286,8 +286,9 @@ const CoWorker = (): React.ReactElement => {
                               </Grid>
                             </Grid>
                             <Grid item>
-                              {!coWorkerId && <></>}
+                              {(!coWorkerId || coWorkerId === "new") && <></>}
                               {coWorkerId &&
+                                coWorkerId !== "new" &&
                                 !selectedCoWorker.publicKey &&
                                 !selectedCoWorker.hasPassword && (
                                   <Chip
@@ -297,6 +298,7 @@ const CoWorker = (): React.ReactElement => {
                                   />
                                 )}
                               {coWorkerId &&
+                                coWorkerId !== "new" &&
                                 !selectedCoWorker.publicKey &&
                                 selectedCoWorker.hasPassword && (
                                   <Chip
@@ -306,6 +308,7 @@ const CoWorker = (): React.ReactElement => {
                                   />
                                 )}
                               {coWorkerId &&
+                                coWorkerId !== "new" &&
                                 selectedCoWorker.publicKey &&
                                 selectedCoWorker.hasPassword &&
                                 selectedCoWorker.vaultUserId === undefined && (
@@ -315,51 +318,64 @@ const CoWorker = (): React.ReactElement => {
                                     size="small"
                                   />
                                 )}
-                              {coWorkerId && selectedCoWorker.vaultUserId && (
-                                <Chip
-                                  label="Active"
-                                  variant="outlined"
-                                  color="primary"
-                                  size="small"
-                                  icon={<DoneIcon />}
-                                />
-                              )}
-                              {coWorkerId && selectedCoWorker.suspended && (
-                                <Chip
-                                  label="Disabled"
-                                  variant="outlined"
-                                  color="primary"
-                                  size="small"
-                                  icon={<BlockIcon />}
-                                  className={classes.chipDisabled}
-                                />
-                              )}
+                              {coWorkerId &&
+                                coWorkerId !== "new" &&
+                                selectedCoWorker.vaultUserId && (
+                                  <Chip
+                                    label="Active"
+                                    variant="outlined"
+                                    color="primary"
+                                    size="small"
+                                    icon={<DoneIcon />}
+                                  />
+                                )}
+                              {coWorkerId &&
+                                coWorkerId !== "new" &&
+                                selectedCoWorker.suspended && (
+                                  <Chip
+                                    label="Disabled"
+                                    variant="outlined"
+                                    color="primary"
+                                    size="small"
+                                    icon={<BlockIcon />}
+                                    className={classes.chipDisabled}
+                                  />
+                                )}
                             </Grid>
                           </Grid>
                         </Grid>
                         <Grid item>
-                          {!selectedCoWorker.suspended && !suspendStateLoading && (
-                            <Button
-                              onClick={handleOnSuspend}
-                              color="primary"
-                              className="btn-disable"
-                            >
-                              Disable
-                            </Button>
-                          )}
-                          {selectedCoWorker.suspended && !suspendStateLoading && (
-                            <Button onClick={handleOnResume} color="primary">
-                              Activate
-                            </Button>
-                          )}
-                          {suspendStateLoading && (
-                            <Button
-                              className={classes.userStateLoader}
-                              disabled
-                            >
-                              <Loader />
-                            </Button>
-                          )}
+                          {(!coWorkerId || coWorkerId === "new") && <></>}
+                          {coWorkerId &&
+                            coWorkerId !== "new" &&
+                            !selectedCoWorker.suspended &&
+                            !suspendStateLoading && (
+                              <Button
+                                onClick={handleOnSuspend}
+                                color="primary"
+                                className="btn-disable"
+                              >
+                                Disable
+                              </Button>
+                            )}
+                          {coWorkerId &&
+                            coWorkerId !== "new" &&
+                            selectedCoWorker.suspended &&
+                            !suspendStateLoading && (
+                              <Button onClick={handleOnResume} color="primary">
+                                Activate
+                              </Button>
+                            )}
+                          {coWorkerId &&
+                            coWorkerId !== "new" &&
+                            suspendStateLoading && (
+                              <Button
+                                className={classes.userStateLoader}
+                                disabled
+                              >
+                                <Loader />
+                              </Button>
+                            )}
                         </Grid>
                       </Grid>
                     </AccordionSummary>
