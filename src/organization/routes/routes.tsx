@@ -113,6 +113,12 @@ export default [
     auth: true,
     component: lazy(() => import("../components/CoWorker")),
   },
+  {
+    path: "/vault-request",
+    exact: true,
+    auth: true,
+    component: lazy(() => import("../../components/VaultRequest")),
+  },
   /* {
     path: "/error",
     exact: true,l
