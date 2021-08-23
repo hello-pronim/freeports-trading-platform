@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
 import { TextField, Select } from "mui-rff";
 import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
@@ -35,6 +35,7 @@ import { selectUser } from "../../../slice/selectors";
 import { useDesksSlice } from "../Desks/slice";
 import { selectDesks } from "../Desks/slice/selectors";
 import { userPublicKeyStatus } from "../../../util/constants";
+import AvatarInput from "../../../components/AvatarInput";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -489,21 +490,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       </Grid>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
-                    <div className={classes.logoImageContainer}>
-                      <Avatar
-                        src={profile}
-                        alt="Avatar"
-                        className={classes.logoImage}
-                      />
-                      {/* <input
-                        type="file"
-                        name="avatar"
-                        className={classes.logoFileInput}
-                        onChange={onLogoFileChange}
-                      /> */}
-                    </div>
-                  </Grid>
+                  <Field name="avatar" render={AvatarInput} />
                 </Grid>
               </Grid>
               <Grid item xs={12}>
