@@ -476,19 +476,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                         />
                       </Grid>
                     </Grid>
-                    {canCreateVaultUser && (
-                      <Grid container spacing={3}>
-                        <Grid item sm={12} md={6}>
-                          <Button
-                            fullWidth
-                            color="primary"
-                            onClick={handleAddVaultUser}
-                          >
-                            Add to vault
-                          </Button>
-                        </Grid>
-                      </Grid>
-                    )}
                   </Grid>
                   <Field name="avatar" render={AvatarInput} />
                 </Grid>
@@ -498,6 +485,17 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
               </Grid>
               <Grid item xs={12}>
                 <Grid container justify="flex-end" spacing={2}>
+                  <Grid item>
+                    <Button
+                      variant="contained"
+                      disabled={!canCreateVaultUser}
+                      fullWidth
+                      color="primary"
+                      onClick={handleAddVaultUser}
+                    >
+                      Add to vault
+                    </Button>
+                  </Grid>
                   <Grid item>
                     <Button
                       variant="contained"
