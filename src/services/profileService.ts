@@ -26,6 +26,19 @@ const getUserProfile = (orgId: string, userId: string): Promise<any> => {
   });
 };
 
+const getMyProfile = (): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+    .get(`/my/profile`)
+    .then((res: any) => {
+      return resolve(res.data);
+    })
+    .catch((err) => {
+      return reject(err.response.data);
+    });
+  });
+};
+
 const addPublicKey = (key: string, name: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
@@ -39,10 +52,10 @@ const addPublicKey = (key: string, name: string): Promise<any> => {
   });
 };
 
-const revokeKey = (keyId: string): Promise<any> => {
+const revokeKey = (): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`/my/public-key/${keyId}/revoke`)
+      .post(`/my/public-key/revoke`)
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -52,4 +65,4 @@ const revokeKey = (keyId: string): Promise<any> => {
   });
 };
 
-export { getUserProfile as default, getUserProfile, addPublicKey, revokeKey };
+export { getUserProfile as default, getUserProfile, getMyProfile, addPublicKey, revokeKey };

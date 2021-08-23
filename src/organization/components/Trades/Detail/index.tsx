@@ -49,6 +49,7 @@ import Loader from "../../../../components/Loader";
 import { RfqResponse } from "../../../../types/RfqResponse";
 import AccurateNumber from "../../../../components/AccurateNumber";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
+import AmountInput from "../AmountInput";
 
 const columns = [
   {
@@ -193,7 +194,7 @@ const TradeDetail = (): React.ReactElement => {
   const remainingQuantity = useSelector(selectRemainingQuantity);
 
   const baseCurrency = useSelector(selectBaseCurrency);
-  const tradeAmount = useSelector(selectTradeAmount);
+  // const tradeAmount = useSelector(selectTradeAmount);
 
   useEffect(() => {
     let mounted = false;
@@ -218,33 +219,22 @@ const TradeDetail = (): React.ReactElement => {
     setActiveTabIndex(newValue);
   };
 
-  const handleAmountChange = (event: any) => {
-    if (event.target.value !== tradeAmount) {
-      dispatch(tradeDetailActions.setTradeAmount(event.target.value));
-    }
-    if (event.target.value) {
-      if (new BigNumber(event.target.value).lte(0)) {
-        dispatch(
-          snackbarActions.showSnackbar({
-            message: "Amount must be Positive number greater than zero",
-            type: "error",
-          })
-        );
-        return;
-      }
-      if (new BigNumber(remainingQuantity).gte(event.target.value)) {
-        dispatch(
-          tradeDetailActions.getRfqs({
-            quantity: event.target.value,
-            organizationId,
-            deskId,
-            investorId,
-            tradeId,
-          })
-        );
-      }
-    }
-  };
+  // const handleAmountChange = (event: any) => {
+  //   console.log("input change ", event.target.value);
+  //   if (event.target.value !== tradeAmount) {
+  //     dispatch(tradeDetailActions.setTradeAmount(event.target.value));
+  //   }
+  //   // dispatch(
+  //   //   tradeDetailActions.getRfqs({
+  //   //     organizationId,
+  //   //     deskId,
+  //   //     investorId,
+  //   //     tradeId,
+  //   //   })
+  //   // );
+
+  //   console.log("input change handeled");
+  // };
 
   const handleOnOrder = (rfq: RfqResponse) => {
     dispatch(
@@ -323,12 +313,13 @@ const TradeDetail = (): React.ReactElement => {
                                 {baseCurrency}
                               </Typography>
                               {/* <Typography variant="h3">30</Typography> */}
-                              <input
+                              {/* <input
                                 onChange={handleAmountChange}
                                 type="number"
                                 value={tradeAmount}
                                 max={tradeRequest.quantity}
-                              />
+                              /> */}
+                              <AmountInput />
                             </Box>
                           </Grid>
                           <Grid item xs={12} md={6}>

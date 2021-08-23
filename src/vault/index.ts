@@ -128,8 +128,8 @@ export class Vault {
     return request;
   }
 
-  public async deleteVaultUser(id: string): Promise<VaultRequestDto> {
-    const request = await this.createRequest(Method.POST, `/vault/user/${id}`);
+  public deleteVaultUser = async (id: string): Promise<VaultRequestDto> => {
+    const request = await this.createRequest(Method.DELETE, `/vault/user/${id}`);
     return request;
   }
 
@@ -220,12 +220,12 @@ export class Vault {
     return tokenString;
   }
 
-  private async createRequest(
+  public createRequest = async (
     method: Method,
     path: string,
     body?: any,
     headers: any = {}
-  ): Promise<VaultRequestDto> {
+  ): Promise<VaultRequestDto> => {
     if (
       (!this.accessToken ||
         Date.now() - this.tokenObtainedAt > 14 * 60 * 60 * 1000) &&
@@ -245,11 +245,11 @@ export class Vault {
         signature,
       },
     };
-  }
+  };
 
-  private async sendRequest<T>(
+  public sendRequest = async <T>(
     request: VaultRequestDto
-  ): Promise<AxiosResponse<T> | any> {
+  ): Promise<AxiosResponse<T> | any> => {
     try {
       return await sendRequest(request);
     } catch (error) {
@@ -266,7 +266,7 @@ export class Vault {
       }
       return Promise.reject(error);
     }
-  }
+  };
 
   private orderObject(original: RequestBody) {
     return Object.keys(original)

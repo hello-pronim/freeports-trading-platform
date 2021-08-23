@@ -34,6 +34,12 @@ const slice = createSlice({
     ) {
       state.loading = true;
     },
+    removeUserFromVault(
+      state,
+      action: PayloadAction<{ userVaultId: string; userId: string }>
+    ) {
+      state.loading = true;
+    },
   },
 });
 

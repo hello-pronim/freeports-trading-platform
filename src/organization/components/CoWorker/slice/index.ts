@@ -19,7 +19,6 @@ const defaultCoWorker = {
   avatar: "",
   jobTitle: "",
   suspended: false,
-  publicKeys: [],
 };
 export const initialState: OrgCoWorkersState = {
   coWorkers: [],

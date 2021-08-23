@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Form } from "react-final-form";
 import { TextField, Select } from "mui-rff";
@@ -9,6 +9,10 @@ import {
   Avatar,
   Button,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Grid,
   IconButton,
@@ -23,6 +27,9 @@ import { selectRoles } from "./slice/selectors";
 import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
 import { GetVaultOrganizationResponseDto } from "../../../vault/dto/get-vault-organizations.dto";
+import { userPublicKeyStatus } from "../../../util/constants";
+import { publicKeyToString } from "../../../util/keyStore/functions";
+import { generateCertificationEmojis } from "../../../util/sas";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -100,6 +107,18 @@ const useStyles = makeStyles((theme) => ({
     left: 0,
     cursor: "pointer",
   },
+  emojiBlock: {
+    display: "inline-block",
+    margin: theme.spacing(1),
+    textAlign: "center"
+  },
+  emojiIcon: {
+    fontSize: "24px"
+  },
+  emojiName: {
+    textTransform: "uppercase",
+    fontSize: "12px"
+  }
 }));
 
 const validate = (values: any) => {
@@ -153,15 +172,28 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const dispatch = useDispatch();
   const { actions } = useCoWorkerFormSlice();
   const existingRoles = useSelector(selectRoles);
+  const [publickKeyEmojisDialog, setPublickKeyEmojisDialog] = useState(false);
+  const [publickKeyEmojis, setPublickKeyEmojis] = useState<any>([]);
 
   const currentUser = useSelector(selectUser);
 
   const canCreateVaultUser =
     currentUser &&
     currentUser.vaultUserId &&
-    coWorker.publicKeys &&
-    coWorker.publicKeys[0] &&
+    currentUser.publicKey &&
+    currentUser.publicKey.status === userPublicKeyStatus.approved &&
+    coWorker.publicKey &&
+    coWorker.publicKey.status === userPublicKeyStatus.requesting &&
     !coWorker.vaultUserId;
+
+  const canRemoveVaultUser =
+    currentUser &&
+    currentUser.vaultUserId &&
+    currentUser.publicKey &&
+    currentUser.publicKey.status === userPublicKeyStatus.approved &&
+    coWorker.publicKey &&
+    coWorker.publicKey.status === userPublicKeyStatus.revoking &&
+    coWorker.vaultUserId;
 
   useEffect(() => {
     dispatch(actions.getRoles());
@@ -173,17 +205,39 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     onSubmit(updates as User);
   };
 
+  const onViewPublicKey = async (publicKey: string) => {
+    const emojis = generateCertificationEmojis(publicKey);
+
+    setPublickKeyEmojis(emojis);
+    setPublickKeyEmojisDialog(true);
+  }
+
   const handleAddVaultUser = () => {
     console.log("handle add to vault ", coWorker, currentUser);
-    if (coWorker.id && coWorker.publicKeys && coWorker.publicKeys[0]) {
+    if (coWorker.id && coWorker.publicKey) {
       dispatch(
         actions.addUserToVault({
           userId: coWorker.id,
-          publicKey: coWorker.publicKeys[0],
+          publicKey: coWorker.publicKey,
+        })
+      );
+    }
+
+    setPublickKeyEmojisDialog(false);
+  };
+
+  const handleRemoveVaultUser = () => {
+    console.log("handle remove from vault ", coWorker, currentUser);
+    if (coWorker.id && coWorker.publicKey) {
+      dispatch(
+        actions.removeUserFromVault({
+          userVaultId: coWorker.vaultUserId || '',
+          userId: coWorker.id,
         })
       );
     }
   };
+
   return (
     <Container>
       <Form
@@ -344,9 +398,24 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           <Button
                             fullWidth
                             color="primary"
-                            onClick={handleAddVaultUser}
+                            variant="outlined"
+                            onClick={() => onViewPublicKey(coWorker.publicKey ? coWorker.publicKey.key : '')}
                           >
-                            Add to vault
+                            Approve publick key and add to vault
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    )}
+                    {canRemoveVaultUser && (
+                      <Grid container spacing={3}>
+                        <Grid item sm={12} md={6}>
+                          <Button
+                            fullWidth
+                            color="secondary"
+                            variant="outlined"
+                            onClick={handleRemoveVaultUser}
+                          >
+                            Revoke publick key and remove from vault
                           </Button>
                         </Grid>
                       </Grid>
@@ -412,6 +481,49 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
           </form>
         )}
       />
+      <Dialog
+          open={publickKeyEmojisDialog}
+          onClose={() => setPublickKeyEmojisDialog(false)}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Approve public key</DialogTitle>
+          <Divider />
+          <DialogContent>
+            <Grid container>
+              <Grid item xs={12}>
+                {publickKeyEmojis.map((emoji: any) => {
+                  return (
+                    <div className={classes.emojiBlock} key={emoji}>
+                      <div className={classes.emojiIcon}>
+                          { emoji[0] }
+                      </div>
+                      <div className={classes.emojiName}>
+                          { emoji[1] }
+                      </div>
+                    </div>
+                  )
+                })}
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <Divider />
+          <DialogActions>
+            <Button 
+              onClick={() => setPublickKeyEmojisDialog(false)}
+              color="secondary"
+              variant="contained"
+            >
+              Close
+            </Button>
+            <Button 
+              onClick={handleAddVaultUser}
+              color="primary"
+              variant="contained"
+            >
+              Approve
+            </Button>
+          </DialogActions>
+        </Dialog>
     </Container>
   );
 };

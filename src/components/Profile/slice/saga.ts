@@ -1,17 +1,15 @@
 import { takeEvery, call, put } from "redux-saga/effects";
 import { PayloadAction } from "@reduxjs/toolkit";
-import Lockr from "lockr";
 
 import { profileActions as actions } from ".";
 
-import { addPublicKey, getUserProfile } from "../../../services/profileService";
+import { addPublicKey, getMyProfile } from "../../../services/profileService";
 import { SavedKeyObject, saveKey } from "../../../util/keyStore/keystore";
 import { publicKeyToString } from "../../../util/keyStore/functions";
 
 export function* getProfile(): Generator<any> {
   try {
-    const { id, organizationId } = Lockr.get("USER_DATA");
-    const response = yield call(getUserProfile, organizationId, id);
+    const response = yield call(getMyProfile);
     if (response) yield put(actions.getProfileSuccess(response));
   } catch (error) {
     console.log("error", error);
