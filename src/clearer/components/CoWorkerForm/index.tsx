@@ -110,15 +110,15 @@ const useStyles = makeStyles((theme) => ({
   emojiBlock: {
     display: "inline-block",
     margin: theme.spacing(1),
-    textAlign: "center"
+    textAlign: "center",
   },
   emojiIcon: {
-    fontSize: "24px"
+    fontSize: "24px",
   },
   emojiName: {
     textTransform: "uppercase",
-    fontSize: "12px"
-  }
+    fontSize: "12px",
+  },
 }));
 
 const validate = (values: any) => {
@@ -210,7 +210,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
 
     setPublickKeyEmojis(emojis);
     setPublickKeyEmojisDialog(true);
-  }
+  };
 
   const handleAddVaultUser = () => {
     console.log("handle add to vault ", coWorker, currentUser);
@@ -231,7 +231,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     if (coWorker.id && coWorker.publicKey) {
       dispatch(
         actions.removeUserFromVault({
-          userVaultId: coWorker.vaultUserId || '',
+          userVaultId: coWorker.vaultUserId || "",
           userId: coWorker.id,
         })
       );
@@ -338,7 +338,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
               )}
               <Grid item xs={12}>
                 <Grid container>
-                  <Grid item xs={8}>
+                  <Grid item xs={7}>
                     <Grid container spacing={2}>
                       {/* <Grid item xs={6}>
                         <Select
@@ -383,7 +383,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid item xs={12}>
                         <TextField
                           id="job-title"
                           label="Job title"
@@ -399,7 +399,11 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             fullWidth
                             color="primary"
                             variant="outlined"
-                            onClick={() => onViewPublicKey(coWorker.publicKey ? coWorker.publicKey.key : '')}
+                            onClick={() =>
+                              onViewPublicKey(
+                                coWorker.publicKey ? coWorker.publicKey.key : ""
+                              )
+                            }
                           >
                             Approve publick key and add to vault
                           </Button>
@@ -421,7 +425,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       </Grid>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={5}>
                     <div className={classes.logoImageContainer}>
                       <Avatar
                         src={profile}
@@ -482,48 +486,44 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         )}
       />
       <Dialog
-          open={publickKeyEmojisDialog}
-          onClose={() => setPublickKeyEmojisDialog(false)}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">Approve public key</DialogTitle>
-          <Divider />
-          <DialogContent>
-            <Grid container>
-              <Grid item xs={12}>
-                {publickKeyEmojis.map((emoji: any) => {
-                  return (
-                    <div className={classes.emojiBlock} key={emoji}>
-                      <div className={classes.emojiIcon}>
-                          { emoji[0] }
-                      </div>
-                      <div className={classes.emojiName}>
-                          { emoji[1] }
-                      </div>
-                    </div>
-                  )
-                })}
-              </Grid>
+        open={publickKeyEmojisDialog}
+        onClose={() => setPublickKeyEmojisDialog(false)}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Approve public key</DialogTitle>
+        <Divider />
+        <DialogContent>
+          <Grid container>
+            <Grid item xs={12}>
+              {publickKeyEmojis.map((emoji: any) => {
+                return (
+                  <div className={classes.emojiBlock} key={emoji}>
+                    <div className={classes.emojiIcon}>{emoji[0]}</div>
+                    <div className={classes.emojiName}>{emoji[1]}</div>
+                  </div>
+                );
+              })}
             </Grid>
-          </DialogContent>
-          <Divider />
-          <DialogActions>
-            <Button 
-              onClick={() => setPublickKeyEmojisDialog(false)}
-              color="secondary"
-              variant="contained"
-            >
-              Close
-            </Button>
-            <Button 
-              onClick={handleAddVaultUser}
-              color="primary"
-              variant="contained"
-            >
-              Approve
-            </Button>
-          </DialogActions>
-        </Dialog>
+          </Grid>
+        </DialogContent>
+        <Divider />
+        <DialogActions>
+          <Button
+            onClick={() => setPublickKeyEmojisDialog(false)}
+            color="secondary"
+            variant="contained"
+          >
+            Close
+          </Button>
+          <Button
+            onClick={handleAddVaultUser}
+            color="primary"
+            variant="contained"
+          >
+            Approve
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

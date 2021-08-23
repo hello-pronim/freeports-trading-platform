@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
 import { Form } from "react-final-form";
@@ -70,10 +70,28 @@ const useStyles = makeStyles((theme) => ({
   },
   profileImageContainer: {
     position: "relative",
-    maxWidth: 200,
+    width: 200,
+    height: 200,
+    margin: "auto",
+    "&:hover, &:focus": {
+      "& $profileImage": {
+        opacity: 0.5,
+      },
+    },
   },
   profileImage: {
     width: "100%",
+    height: "100%",
+    opacity: 1,
+  },
+  profileFileInput: {
+    opacity: 0,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    cursor: "pointer",
   },
   changeImageBtn: {
     position: "absolute",
@@ -86,31 +104,6 @@ const useStyles = makeStyles((theme) => ({
       maxWidth: 1000,
       transition: "max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms",
     },
-  },
-  logoImageContainer: {
-    position: "relative",
-    width: 200,
-    height: 200,
-    margin: "auto",
-    "&:hover, &:focus": {
-      "& $logoImage": {
-        opacity: 0.5,
-      },
-    },
-  },
-  logoImage: {
-    width: "100%",
-    height: "100%",
-    opacity: 1,
-  },
-  logoFileInput: {
-    opacity: 0,
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    cursor: "pointer",
   },
 }));
 
@@ -173,6 +166,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const multiDeskRoles = useSelector(selectMultiDeskRoles);
   const deskRoles = useSelector(selectDeskRoles);
   const currentUser = useSelector(selectUser);
+  const [managerAvatar, setManagerAvatar] = useState(coWorker.avatar);
+  const [avatarChanged, setAvatarChanged] = useState(false);
   const canCreateVaultUser =
     currentUser &&
     currentUser.vaultUserId &&
@@ -213,8 +208,22 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     };
   };
 
+  const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.currentTarget;
+    if (files && files.length) {
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        setManagerAvatar(event.target.result);
+        setAvatarChanged(true);
+      };
+      reader.readAsDataURL(files[0]);
+    }
+  };
+
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
+
+    if (coWorker.avatar !== managerAvatar) updates.avatar = managerAvatar;
     updates.roles = values.roles.map((role: any) => {
       const roleDetail = getRoleDetail(role.id);
 
@@ -436,8 +445,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Divider variant="fullWidth" />
               </Grid>
               <Grid item xs={12}>
-                <Grid container>
-                  <Grid item xs={8}>
+                <Grid container spacing={4}>
+                  <Grid item xs={7}>
                     <Grid container spacing={2}>
                       <Grid item sm={12}>
                         <TextField
@@ -466,7 +475,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid item xs={12}>
                         <TextField
                           id="job-title"
                           label="Job title"
@@ -489,19 +498,19 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       </Grid>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
-                    <div className={classes.logoImageContainer}>
+                  <Grid item xs={5}>
+                    <div className={classes.profileImageContainer}>
                       <Avatar
-                        src={profile}
+                        src={coWorker.avatar !== "" ? managerAvatar : profile}
                         alt="Avatar"
-                        className={classes.logoImage}
+                        className={classes.profileImage}
                       />
-                      {/* <input
+                      <input
                         type="file"
                         name="avatar"
-                        className={classes.logoFileInput}
-                        onChange={onLogoFileChange}
-                      /> */}
+                        className={classes.profileFileInput}
+                        onChange={onAvatarChange}
+                      />
                     </div>
                   </Grid>
                 </Grid>
@@ -525,7 +534,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       variant="contained"
                       color="primary"
                       type="submit"
-                      disabled={submitting || pristine}
+                      disabled={(submitting || pristine) && !avatarChanged}
                     >
                       Save Changes
                     </Button>
