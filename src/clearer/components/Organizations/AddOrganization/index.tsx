@@ -45,9 +45,9 @@ const useStyles = makeStyles((theme) => ({
   },
   profileImageContainer: {
     position: "relative",
-    width: 150,
-    height: 150,
-    margin: 20,
+    width: 200,
+    height: 200,
+    margin: "auto",
     "&:hover, &:focus": {
       "& $profileImage": {
         opacity: 0.5,

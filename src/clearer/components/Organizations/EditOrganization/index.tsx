@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
+  Avatar,
   Button,
   Card,
   CardActions,
@@ -95,6 +96,31 @@ const useStyle = makeStyles((theme) => ({
     marginTop: -12,
     marginLeft: -12,
   },
+  profileImageContainer: {
+    position: "relative",
+    width: 200,
+    height: 200,
+    margin: "auto",
+    "&:hover, &:focus": {
+      "& $profileImage": {
+        opacity: 0.5,
+      },
+    },
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
+    opacity: 1,
+  },
+  profileFileInput: {
+    opacity: 0,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    cursor: "pointer",
+  },
 }));
 
 const Alert = (props: AlertProps) => {
@@ -107,12 +133,8 @@ const EditOrganizer = (): React.ReactElement => {
   const classes = useStyle();
   const { allAccounts, assignAccount, unassignAccount } = useAccounts();
   const showingIcon = false;
-  const {
-    getOrganization,
-    updateOrganization,
-    getManagers,
-    editManager,
-  } = useOrganization();
+  const { getOrganization, editOrganization, getManagers, editManager } =
+    useOrganization();
   const [orgDetail, setOrgDetail] = useState({
     id: "",
     name: "",
@@ -171,15 +193,17 @@ const EditOrganizer = (): React.ReactElement => {
     };
   }, []);
 
-  const onDrop = (pic: any) => {
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      const newOrgDetail = { ...orgDetail };
-      newOrgDetail.logo = e.target.result;
-      setOrgDetail(newOrgDetail);
-    };
-    reader.readAsDataURL(pic[0]);
-    // setLogo(pic);
+  const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.currentTarget;
+    if (files && files.length) {
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        const newOrgDetail = { ...orgDetail };
+        newOrgDetail.logo = event.target.result;
+        setOrgDetail(newOrgDetail);
+      };
+      reader.readAsDataURL(files[0]);
+    }
   };
 
   const onHandleNameChange = (
@@ -213,7 +237,7 @@ const EditOrganizer = (): React.ReactElement => {
     setOrgUpdating(true);
     setShowAlert(false);
     setSubmitResponse({ type: "", message: "" });
-    await updateOrganization(
+    await editOrganization(
       id,
       orgDetail.createdAt,
       orgDetail.name,
@@ -407,6 +431,45 @@ const EditOrganizer = (): React.ReactElement => {
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
+                    <Grid container justify="center">
+                      <Grid item xs={6}>
+                        <div className={classes.profileImageContainer}>
+                          <Avatar
+                            src={orgDetail.logo}
+                            alt="Avatar"
+                            className={classes.profileImage}
+                          />
+                          <input
+                            type="file"
+                            name="avatar"
+                            className={classes.profileFileInput}
+                            onChange={onAvatarChange}
+                          />
+                        </div>
+                        {/* <CardMedia
+                          style={{ marginTop: 20 }}
+                          component="img"
+                          height="140"
+                          image={orgDetail.logo}
+                        />
+                        <ImageUploader
+                          withIcon={showingIcon}
+                          withLabel={showingIcon}
+                          buttonText="Choose Image"
+                          onChange={(ChangeEvent) => onDrop(ChangeEvent)}
+                          buttonStyles={{
+                            width: "100%",
+                          }}
+                          fileContainerStyle={{
+                            margin: 0,
+                            padding: 0,
+                          }}
+                        /> */}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
+                  <Grid item xs={12}>
                     <Grid container direction="row">
                       <TextField
                         type="text"
@@ -508,32 +571,6 @@ const EditOrganizer = (): React.ReactElement => {
                           </Grid>
                         </Grid>
                       ))}
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant="h6">Logo</Typography>
-                    <Grid container justify="center">
-                      <Grid item xs={6}>
-                        <CardMedia
-                          style={{ marginTop: 20 }}
-                          component="img"
-                          height="140"
-                          image={orgDetail.logo}
-                        />
-                        <ImageUploader
-                          withIcon={showingIcon}
-                          withLabel={showingIcon}
-                          buttonText="Choose Image"
-                          onChange={(ChangeEvent) => onDrop(ChangeEvent)}
-                          buttonStyles={{
-                            width: "100%",
-                          }}
-                          fileContainerStyle={{
-                            margin: 0,
-                            padding: 0,
-                          }}
-                        />
-                      </Grid>
                     </Grid>
                   </Grid>
                   <Grid item xs={12}>
@@ -665,9 +702,7 @@ const EditOrganizer = (): React.ReactElement => {
                 title={
                   <Grid container alignItems="center" spacing={2}>
                     <Grid item>
-                      <Typography variant="h5">
-                        Organization Manager
-                      </Typography>
+                      <Typography variant="h5">Organization Manager</Typography>
                     </Grid>
                     {managers.length === 0 && (
                       <Grid item>
