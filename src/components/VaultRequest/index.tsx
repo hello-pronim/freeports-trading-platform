@@ -70,11 +70,12 @@ const VaultRequest = (): React.ReactElement => {
   };
   const handleOnSubmit = (values: any) => {
     console.log("values ", values);
+    const body = JSON.parse(values.body);
     dispatch(
       actions.sendRequest({
         method: values.method,
         path: values.path,
-        body: values.body,
+        body,
       })
     );
   };
