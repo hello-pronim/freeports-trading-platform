@@ -96,7 +96,25 @@ const createVaultUser = (
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`/user/${id}/vault-user`, { vaultRequest })
+      .post(`/user/${id}/public-key/approve`, { vaultRequest })
+      .then((res: any) => {
+        console.log(" user update response ", res.data);
+
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const removeVaultUser = (
+  id: string,
+  vaultRequest: VaultRequestDto
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/user/${id}/public-key/revoke`, { vaultRequest })
       .then((res: any) => {
         console.log(" user update response ", res.data);
 
@@ -142,6 +160,7 @@ export {
   suspendClearerUser,
   resumeClearerUser,
   createVaultUser,
+  removeVaultUser,
   sendResetPasswordEmail,
   resetOTP
 };

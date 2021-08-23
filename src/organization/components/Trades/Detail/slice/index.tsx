@@ -64,18 +64,20 @@ const slice = createSlice({
         deskId: string;
         investorId: string;
         tradeId: string;
-        quantity: string;
       }>
     ) {
       state.rfqs = [];
+    },
+    setRfqsLoading(state) {
       state.loadingRfqs = true;
     },
     getRfqsSuccess(state, action: PayloadAction<RfqResponse[]>) {
       state.rfqs = action.payload;
       state.loadingRfqs = false;
     },
-    getRfqsFail(state, action: PayloadAction<any>) {
+    getRfqsFail(state, action?: PayloadAction<any>) {
       state.loadingRfqs = false;
+      state.tradeAmount = "";
     },
     order(
       state,

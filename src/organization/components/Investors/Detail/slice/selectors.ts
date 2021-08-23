@@ -26,3 +26,13 @@ export const selectIsTradeRequestsLoading = createSelector(
   [selectDomain],
   (investorDetailState) => investorDetailState.loadingTradeRequests
 );
+
+export const selectInvestorAccounts = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.investorAccounts
+);
+
+export const selectIsInvestorAccountsLoading = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.loadingInvestorAccounts
+);

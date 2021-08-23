@@ -34,6 +34,7 @@ import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
 import { useDesksSlice } from "../Desks/slice";
 import { selectDesks } from "../Desks/slice/selectors";
+import { userPublicKeyStatus } from "../../../util/constants";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -175,8 +176,10 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const canCreateVaultUser =
     currentUser &&
     currentUser.vaultUserId &&
-    coWorker.publicKeys &&
-    coWorker.publicKeys[0] &&
+    currentUser.publicKey &&
+    currentUser.publicKey.status === userPublicKeyStatus.approved &&
+    coWorker.publicKey &&
+    coWorker.publicKey.status === userPublicKeyStatus.requesting &&
     !coWorker.vaultUserId;
 
   useEffect(() => {
@@ -238,11 +241,11 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   };
 
   const handleAddVaultUser = () => {
-    if (coWorker.id && coWorker.publicKeys && coWorker.publicKeys[0]) {
+    if (coWorker.id && coWorker.publicKey) {
       dispatch(
         coworkerActions.addUserToVault({
           userId: coWorker.id,
-          publicKey: coWorker.publicKeys[0],
+          publicKey: coWorker.publicKey,
         })
       );
     }

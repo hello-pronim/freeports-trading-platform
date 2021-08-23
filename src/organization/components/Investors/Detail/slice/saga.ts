@@ -1,11 +1,16 @@
 import { takeEvery, call, put, take } from "redux-saga/effects";
 import { PayloadAction } from "@reduxjs/toolkit";
+import Account from "../../../../../types/Account";
 import Investor from "../../../../../types/Investor";
 import TradeRequest from "../../../../../types/TradeRequest";
 
 import { investorDetailActions as actions } from ".";
 
-import { getInvestor } from "../../../../../services/investorService";
+import {
+  getInvestor,
+  getInvestorAccounts,
+  createInvestorAccount,
+} from "../../../../../services/investorService";
 import {
   getInvestorTradeRequests,
   createTradeRequest,
@@ -110,6 +115,76 @@ export function* addTradeRequest({
     );
   }
 }
+
+export function* retrieveInvestorAccounts({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      getInvestorAccounts,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId
+    );
+    if (response)
+      yield put(actions.getInvestorAccountsSuccess(response as Account[]));
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* addInvestorAccount({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+  account: Account;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      createInvestorAccount,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId,
+      payload.account
+    );
+    if (response) {
+      yield put(actions.addInvestorAccountSuccess(response as string));
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Investor account has been created successfully",
+          type: "success",
+        })
+      );
+      yield put(
+        actions.getInvestorAccounts({
+          organizationId: payload.organizationId,
+          deskId: payload.deskId,
+          investorId: payload.investorId,
+        })
+      );
+      yield take(actions.getInvestorAccountsSuccess);
+    }
+  } catch (error) {
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
 export function* investorDetailSaga(): Generator<any> {
   yield takeEvery(actions.getInvestor, retrieveInvestor);
   yield takeEvery(
@@ -117,4 +192,6 @@ export function* investorDetailSaga(): Generator<any> {
     retrieveInvestorTradeRequests
   );
   yield takeEvery(actions.addTradeRequest, addTradeRequest);
+  yield takeEvery(actions.getInvestorAccounts, retrieveInvestorAccounts);
+  yield takeEvery(actions.addInvestorAccount, addInvestorAccount);
 }

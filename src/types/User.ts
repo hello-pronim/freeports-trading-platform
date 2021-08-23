@@ -2,9 +2,10 @@ import { PermissionAny } from "./Permissions";
 
 export interface PublicKeyDoc {
   _id: string;
-  name: string;
   key: string;
+  status: string;
 }
+
 export interface RoleResponse {
   id: string;
   name: string;
@@ -35,7 +36,7 @@ export default interface User {
 
   suspended: boolean;
 
-  publicKeys: PublicKeyDoc[];
+  publicKey?: PublicKeyDoc;
 
   vaultUserId?: string;
 
