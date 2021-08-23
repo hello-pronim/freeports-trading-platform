@@ -166,7 +166,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const multiDeskRoles = useSelector(selectMultiDeskRoles);
   const deskRoles = useSelector(selectDeskRoles);
   const currentUser = useSelector(selectUser);
-  const [managerAvatar, setManagerAvatar] = useState(coWorker.avatar);
+  const [managerAvatar, setManagerAvatar] = useState(profile);
   const [avatarChanged, setAvatarChanged] = useState(false);
   const canCreateVaultUser =
     currentUser &&
@@ -178,11 +178,23 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     !coWorker.vaultUserId;
 
   useEffect(() => {
+    let unmounted = false;
+
     dispatch(coworkerActions.getOrgRoles(organizationId));
     dispatch(coworkerActions.getMultiDeskRoles(organizationId));
     dispatch(desksActions.getDesks(organizationId));
     dispatch(coworkerActions.getDeskRoles(organizationId));
-  }, []);
+
+    if (!unmounted) {
+      if (coWorker.avatar && coWorker.avatar !== "")
+        setManagerAvatar(coWorker.avatar);
+      else setManagerAvatar(profile);
+    }
+
+    return () => {
+      unmounted = true;
+    };
+  }, [coWorker]);
 
   const getRoleDetail = (roleId: string) => {
     if (orgRoles.filter((role: any) => role.id === roleId).length > 0)
@@ -501,13 +513,12 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   <Grid item xs={5}>
                     <div className={classes.profileImageContainer}>
                       <Avatar
-                        src={coWorker.avatar !== "" ? managerAvatar : profile}
+                        src={managerAvatar}
                         alt="Avatar"
                         className={classes.profileImage}
                       />
                       <input
                         type="file"
-                        name="avatar"
                         className={classes.profileFileInput}
                         onChange={onAvatarChange}
                       />
