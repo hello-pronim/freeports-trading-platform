@@ -1,6 +1,8 @@
-import { Avatar, Grid, makeStyles } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Avatar, makeStyles } from "@material-ui/core";
 import { FieldRenderProps, FormRenderProps } from "react-final-form";
+
+import profile from "../../assets/images/profile.jpg";
 
 const useStyles = makeStyles((theme) => ({
   profileImageContainer: {
@@ -34,34 +36,46 @@ const AvatarInput: React.FC<FieldRenderProps<any, HTMLElement>> = ({
   input: { value, onChange },
 }: FieldRenderProps<any, HTMLElement>) => {
   const classes = useStyles();
-  const [managerAvatar, setManagerAvatar] = useState(value);
+  const [avatar, setAvatar] = useState(profile);
+
+  useEffect(() => {
+    let unmounted = false;
+
+    if (!unmounted) {
+      if (value !== "") setAvatar(value);
+      else setAvatar(profile);
+    }
+
+    return () => {
+      unmounted = true;
+    };
+  }, [value]);
 
   const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.currentTarget;
     if (files && files.length) {
       const reader = new FileReader();
       reader.onload = (event: any) => {
-        setManagerAvatar(event.target.result);
+        setAvatar(event.target.result);
         onChange(event.target.result);
       };
       reader.readAsDataURL(files[0]);
     }
   };
   return (
-    <Grid item xs={5}>
-      <div className={classes.profileImageContainer}>
-        <Avatar
-          src={managerAvatar}
-          alt="Avatar"
-          className={classes.profileImage}
-        />
-        <input
-          type="file"
-          className={classes.profileFileInput}
-          onChange={onAvatarChange}
-        />
-      </div>
-    </Grid>
+    <div className={classes.profileImageContainer}>
+      {avatar !== "" && (
+        <Avatar src={avatar} alt="Avatar" className={classes.profileImage} />
+      )}
+      {avatar === "" && (
+        <Avatar src={profile} alt="Avatar" className={classes.profileImage} />
+      )}
+      <input
+        type="file"
+        className={classes.profileFileInput}
+        onChange={onAvatarChange}
+      />
+    </div>
   );
 };
 export default AvatarInput;

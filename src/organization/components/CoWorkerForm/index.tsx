@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
 import { Field, Form } from "react-final-form";
@@ -7,23 +7,19 @@ import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
 import { diff } from "deep-object-diff";
 import {
-  Avatar,
   Button,
   Checkbox,
   Container,
   Divider,
-  FormControl,
   Grid,
   IconButton,
   ListItemText,
   makeStyles,
   MenuItem,
-  Typography,
 } from "@material-ui/core";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 
-import profile from "../../../assets/images/profile.jpg";
 import { useCoWorkerFormSlice } from "./slice";
 import {
   selectOrgRoles,
@@ -68,31 +64,6 @@ const useStyles = makeStyles((theme) => ({
   saveBtn: {
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(4),
-  },
-  profileImageContainer: {
-    position: "relative",
-    width: 200,
-    height: 200,
-    margin: "auto",
-    "&:hover, &:focus": {
-      "& $profileImage": {
-        opacity: 0.5,
-      },
-    },
-  },
-  profileImage: {
-    width: "100%",
-    height: "100%",
-    opacity: 1,
-  },
-  profileFileInput: {
-    opacity: 0,
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    cursor: "pointer",
   },
   changeImageBtn: {
     position: "absolute",
@@ -167,8 +138,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const multiDeskRoles = useSelector(selectMultiDeskRoles);
   const deskRoles = useSelector(selectDeskRoles);
   const currentUser = useSelector(selectUser);
-  const [managerAvatar, setManagerAvatar] = useState(profile);
-  const [avatarChanged, setAvatarChanged] = useState(false);
   const canCreateVaultUser =
     currentUser &&
     currentUser.vaultUserId &&
@@ -185,12 +154,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     dispatch(coworkerActions.getMultiDeskRoles(organizationId));
     dispatch(desksActions.getDesks(organizationId));
     dispatch(coworkerActions.getDeskRoles(organizationId));
-
-    if (!unmounted) {
-      if (coWorker.avatar && coWorker.avatar !== "")
-        setManagerAvatar(coWorker.avatar);
-      else setManagerAvatar(profile);
-    }
 
     return () => {
       unmounted = true;
@@ -220,23 +183,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
       effectiveDesks: [],
     };
   };
-
-  const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { files } = e.currentTarget;
-    if (files && files.length) {
-      const reader = new FileReader();
-      reader.onload = (event: any) => {
-        setManagerAvatar(event.target.result);
-        setAvatarChanged(true);
-      };
-      reader.readAsDataURL(files[0]);
-    }
-  };
-
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
 
-    if (coWorker.avatar !== managerAvatar) updates.avatar = managerAvatar;
     updates.roles = values.roles.map((role: any) => {
       const roleDetail = getRoleDetail(role.id);
 
@@ -511,7 +460,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       </Grid>
                     )}
                   </Grid>
-                  <Field name="avatar" render={AvatarInput} />
+                  <Grid item xs={5}>
+                    <Field name="avatar" render={AvatarInput} />
+                  </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={12}>
@@ -533,7 +484,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       variant="contained"
                       color="primary"
                       type="submit"
-                      disabled={(submitting || pristine) && !avatarChanged}
+                      disabled={submitting || pristine}
                     >
                       Save Changes
                     </Button>
