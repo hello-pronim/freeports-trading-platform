@@ -1,5 +1,6 @@
 import axios from "../util/axios";
 import vault from "../vault";
+import { PermissionOwnerType } from "../vault/enum/permission-owner-type";
 
 interface RoleType {
   id?: string;
@@ -28,13 +29,22 @@ const addNewRole = async (
   name: string,
   permissions: Array<string>
 ): Promise<string> => {
-  const vaultRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createGroup();
+  const response = await vault.sendRequest(vaultCreateGroupRequest);
+  const vaultGroupId = response.group.id;
+  
+  const vaultGrantPermissionRequest = await vault.grantPermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    permissions
+  );
   return new Promise((resolve, reject) => {
     axios
       .post(`/role`, {
         name,
         permissions,
-        vaultRequest,
+        vaultGroupId,
+        vaultGrantPermissionRequest,
       })
       .then((res: any) => {
         return resolve(res.data);
@@ -143,12 +153,21 @@ const createOrgRole = async (
     permissions: Array<string>;
   }
 ): Promise<string> => {
-  const vaultRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createGroup();
+  const response = await vault.sendRequest(vaultCreateGroupRequest);
+  const vaultGroupId = response.group.id;
+  
+  const vaultGrantPermissionRequest = await vault.grantPermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    role.permissions
+  );
   return new Promise((resolve, reject) => {
     axios
       .post(`/organization/${organizationId}/role`, {
         ...role,
-        vaultRequest,
+        vaultGroupId,
+        vaultGrantPermissionRequest,
       })
       .then((res: any) => {
         return resolve(res.data);
@@ -265,12 +284,21 @@ const createMultiDeskRole = async (
     permissions: Array<string>;
   }
 ): Promise<string> => {
-  const vaultRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createGroup();
+  const response = await vault.sendRequest(vaultCreateGroupRequest);
+  const vaultGroupId = response.group.id;
+  
+  const vaultGrantPermissionRequest = await vault.grantPermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    role.permissions
+  );
   return new Promise((resolve, reject) => {
     axios
       .post(`/organization/${organizationId}/multidesk/role`, {
         ...role,
-        vaultRequest,
+        vaultGroupId,
+        vaultGrantPermissionRequest,
       })
       .then((res: any) => {
         return resolve(res.data);
@@ -393,12 +421,21 @@ const createDeskRole = async (
     permissions: Array<string>;
   }
 ): Promise<string> => {
-  const vaultRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createGroup();
+  const response = await vault.sendRequest(vaultCreateGroupRequest);
+  const vaultGroupId = response.group.id;
+  
+  const vaultGrantPermissionRequest = await vault.grantPermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    role.permissions
+  );
   return new Promise((resolve, reject) => {
     axios
       .post(`/organization/${organizationId}/desk/${deskId}/role`, {
         ...role,
-        vaultRequest,
+        vaultGroupId,
+        vaultGrantPermissionRequest,
       })
       .then((res: any) => {
         return resolve(res.data);
