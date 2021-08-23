@@ -262,75 +262,77 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         }) => (
           <form onSubmit={handleSubmit} noValidate>
             <Grid container alignItems="flex-start" spacing={2}>
-              <Grid item xs={12}>
-                <FieldArray name="roles">
-                  {({ fields }) =>
-                    fields.map((name, i) => (
-                      <Grid container key={name} spacing={2}>
-                        <Grid
-                          item
-                          xs={6}
-                          className={
-                            values.roles[i] ? classes.fixSelectLabel : ""
-                          }
-                        >
-                          <Select
-                            native
-                            name={`${name}.id`}
-                            inputProps={{
-                              name: "role",
-                              id: "role-select",
-                            }}
-                            fullWidth
-                            label="Role"
-                            variant="outlined"
-                            inputLabelProps={{
-                              shrink: !!values.roles[i],
-                              filled: true,
-                            }}
+              {coWorker.vaultUserId && (
+                <Grid item xs={12}>
+                  <FieldArray name="roles">
+                    {({ fields }) =>
+                      fields.map((name, i) => (
+                        <Grid container key={name} spacing={2}>
+                          <Grid
+                            item
+                            xs={6}
+                            className={
+                              values.roles[i] ? classes.fixSelectLabel : ""
+                            }
                           >
-                            <option aria-label="None" value="" />
-                            {existingRoles
-                              .filter(
-                                (role) =>
-                                  values.roles[i].id === role.id ||
-                                  values.roles.filter(
-                                    (r: any) => r.id === role.id
-                                  ).length === 0
-                              )
-                              .map((r) => (
-                                <option key={r.id} value={r.id}>
-                                  {r.name}
-                                </option>
-                              ))}
-                          </Select>
-                        </Grid>
-                        {fields.length !== 1 && (
-                          <Grid item xs={1}>
-                            <IconButton
-                              onClick={() => fields.remove(i)}
-                              aria-label="Add role"
+                            <Select
+                              native
+                              name={`${name}.id`}
+                              inputProps={{
+                                name: "role",
+                                id: "role-select",
+                              }}
+                              fullWidth
+                              label="Role"
+                              variant="outlined"
+                              inputLabelProps={{
+                                shrink: !!values.roles[i],
+                                filled: true,
+                              }}
                             >
-                              <DeleteForeverIcon />
-                            </IconButton>
+                              <option aria-label="None" value="" />
+                              {existingRoles
+                                .filter(
+                                  (role) =>
+                                    values.roles[i].id === role.id ||
+                                    values.roles.filter(
+                                      (r: any) => r.id === role.id
+                                    ).length === 0
+                                )
+                                .map((r) => (
+                                  <option key={r.id} value={r.id}>
+                                    {r.name}
+                                  </option>
+                                ))}
+                            </Select>
                           </Grid>
-                        )}
-                        {i === (fields.length || 0) - 1 &&
-                          (fields.length || 0) < existingRoles.length && (
+                          {fields.length !== 1 && (
                             <Grid item xs={1}>
                               <IconButton
-                                onClick={() => push("roles", { id: "" })}
+                                onClick={() => fields.remove(i)}
                                 aria-label="Add role"
                               >
-                                <AddCircleOutlineIcon />
+                                <DeleteForeverIcon />
                               </IconButton>
                             </Grid>
                           )}
-                      </Grid>
-                    ))
-                  }
-                </FieldArray>
-              </Grid>
+                          {i === (fields.length || 0) - 1 &&
+                            (fields.length || 0) < existingRoles.length && (
+                              <Grid item xs={1}>
+                                <IconButton
+                                  onClick={() => push("roles", { id: "" })}
+                                  aria-label="Add role"
+                                >
+                                  <AddCircleOutlineIcon />
+                                </IconButton>
+                              </Grid>
+                            )}
+                        </Grid>
+                      ))
+                    }
+                  </FieldArray>
+                </Grid>
+              )}
               {coWorker.roles && coWorker.roles.length > 0 && (
                 <Grid item xs={12}>
                   <Divider variant="fullWidth" />
