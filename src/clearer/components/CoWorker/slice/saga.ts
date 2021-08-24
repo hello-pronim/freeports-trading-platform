@@ -100,9 +100,22 @@ export function* createCoWorker({
 }
 export function* updateCoWorker({
   payload,
-}: PayloadAction<{ updates: Partial<User>; id: string }>): Generator<any> {
+}: PayloadAction<{ 
+  updates: Partial<User>;
+  id: string;
+  vaultUserId: string;
+  oldVaultGroup: string[];
+  newVaultGroup: string[];
+}>): Generator<any> {
   try {
-    const response = yield call(updateClearerUser, payload.id, payload.updates);
+    const response = yield call(
+      updateClearerUser,
+      payload.id,
+      payload.updates,
+      payload.vaultUserId,
+      payload.oldVaultGroup,
+      payload.newVaultGroup
+    );
     if (payload.updates.roles) {
       const roles: Array<string> = [];
       payload.updates.roles.forEach((role) => {

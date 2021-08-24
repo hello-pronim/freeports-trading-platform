@@ -466,6 +466,58 @@ export class Vault {
       })
     );
   }
+
+  public async removeUserFromGroup(
+    userId: string,
+    groupId: string
+): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.DELETE,
+      `/group/${groupId}/user/${userId}`
+    );
+
+    return request;
+  }
+
+  public async removeUserFromMultipleGroup(
+    userId: string,
+    groupIds: string[]
+  ): Promise<VaultRequestDto[]> {
+    return Promise.all(
+      groupIds.map((groupId) => {
+        return this.removeUserFromGroup(
+          userId,
+          groupId
+        );
+      })
+    );
+  }
+
+  public async addUserToGroup(
+    userId: string,
+    groupId: string
+): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.POST,
+      `/group/${groupId}/user/${userId}`
+    );
+
+    return request;
+  }
+
+  public async addUserToMultipleGroup(
+    userId: string,
+    groupIds: string[]
+  ): Promise<VaultRequestDto[]> {
+    return Promise.all(
+      groupIds.map((groupId) => {
+        return this.addUserToGroup(
+          userId,
+          groupId
+        );
+      })
+    );
+  }
 }
 
 const vault = new Vault();

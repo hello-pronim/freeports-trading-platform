@@ -32,6 +32,7 @@ export default interface User {
     kind: string;
     effectiveDesks?: string[];
     desk?: string;
+    vaultGroupId?: string;
   }>;
 
   suspended: boolean;

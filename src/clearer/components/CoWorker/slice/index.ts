@@ -55,7 +55,13 @@ const slice = createSlice({
     },
     updateCoWorker(
       state,
-      action: PayloadAction<{ updates: Partial<User>; id: string }>
+      action: PayloadAction<{ 
+        updates: Partial<User>;
+        id: string;
+        vaultUserId: string;
+        oldVaultGroup: string[];
+        newVaultGroup: string[];
+      }>
     ) {
       state.formLoading = true;
     },
