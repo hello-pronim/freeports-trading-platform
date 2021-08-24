@@ -1,29 +1,25 @@
 import React, { useEffect } from "react";
 import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
 import { TextField, Select } from "mui-rff";
 import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
 import { diff } from "deep-object-diff";
 import {
-  Avatar,
   Button,
   Checkbox,
   Container,
   Divider,
-  FormControl,
   Grid,
   IconButton,
   ListItemText,
   makeStyles,
   MenuItem,
-  Typography,
 } from "@material-ui/core";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 
-import profile from "../../../assets/images/profile.jpg";
 import { useCoWorkerFormSlice } from "./slice";
 import {
   selectOrgRoles,
@@ -35,6 +31,7 @@ import { selectUser } from "../../../slice/selectors";
 import { useDesksSlice } from "../Desks/slice";
 import { selectDesks } from "../Desks/slice/selectors";
 import { userPublicKeyStatus } from "../../../util/constants";
+import AvatarInput from "../../../components/AvatarInput";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -68,13 +65,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(4),
   },
-  profileImageContainer: {
-    position: "relative",
-    maxWidth: 200,
-  },
-  profileImage: {
-    width: "100%",
-  },
   changeImageBtn: {
     position: "absolute",
     bottom: 45,
@@ -86,31 +76,6 @@ const useStyles = makeStyles((theme) => ({
       maxWidth: 1000,
       transition: "max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms",
     },
-  },
-  logoImageContainer: {
-    position: "relative",
-    width: 200,
-    height: 200,
-    margin: "auto",
-    "&:hover, &:focus": {
-      "& $logoImage": {
-        opacity: 0.5,
-      },
-    },
-  },
-  logoImage: {
-    width: "100%",
-    height: "100%",
-    opacity: 1,
-  },
-  logoFileInput: {
-    opacity: 0,
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    cursor: "pointer",
   },
 }));
 
@@ -183,11 +148,17 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     !coWorker.vaultUserId;
 
   useEffect(() => {
+    let unmounted = false;
+
     dispatch(coworkerActions.getOrgRoles(organizationId));
     dispatch(coworkerActions.getMultiDeskRoles(organizationId));
     dispatch(desksActions.getDesks(organizationId));
     dispatch(coworkerActions.getDeskRoles(organizationId));
-  }, []);
+
+    return () => {
+      unmounted = true;
+    };
+  }, [coWorker]);
 
   const getRoleDetail = (roleId: string) => {
     if (orgRoles.filter((role: any) => role.id === roleId).length > 0)
@@ -212,9 +183,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
       effectiveDesks: [],
     };
   };
-
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
+
     updates.roles = values.roles.map((role: any) => {
       const roleDetail = getRoleDetail(role.id);
 
@@ -436,8 +407,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Divider variant="fullWidth" />
               </Grid>
               <Grid item xs={12}>
-                <Grid container>
-                  <Grid item xs={8}>
+                <Grid container spacing={4}>
+                  <Grid item xs={7}>
                     <Grid container spacing={2}>
                       <Grid item sm={12}>
                         <TextField
@@ -466,7 +437,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid item xs={12}>
                         <TextField
                           id="job-title"
                           label="Job title"
@@ -489,20 +460,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       </Grid>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
-                    <div className={classes.logoImageContainer}>
-                      <Avatar
-                        src={profile}
-                        alt="Avatar"
-                        className={classes.logoImage}
-                      />
-                      {/* <input
-                        type="file"
-                        name="avatar"
-                        className={classes.logoFileInput}
-                        onChange={onLogoFileChange}
-                      /> */}
-                    </div>
+                  <Grid item xs={5}>
+                    <Field name="avatar" render={AvatarInput} />
                   </Grid>
                 </Grid>
               </Grid>

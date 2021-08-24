@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
 import { TextField, Select } from "mui-rff";
 import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
@@ -30,6 +30,7 @@ import { GetVaultOrganizationResponseDto } from "../../../vault/dto/get-vault-or
 import { userPublicKeyStatus } from "../../../util/constants";
 import { publicKeyToString } from "../../../util/keyStore/functions";
 import { generateCertificationEmojis } from "../../../util/sas";
+import AvatarInput from "../../../components/AvatarInput";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -63,18 +64,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(4),
   },
-  profileImageContainer: {
-    position: "relative",
-    maxWidth: 200,
-  },
-  profileImage: {
-    width: "100%",
-  },
-  changeImageBtn: {
-    position: "absolute",
-    bottom: 45,
-    left: 0,
-  },
   fixSelectLabel: {
     color: "red",
     "& fieldset>legend ": {
@@ -82,43 +71,18 @@ const useStyles = makeStyles((theme) => ({
       transition: "max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms",
     },
   },
-  logoImageContainer: {
-    position: "relative",
-    width: 200,
-    height: 200,
-    margin: "auto",
-    "&:hover, &:focus": {
-      "& $logoImage": {
-        opacity: 0.5,
-      },
-    },
-  },
-  logoImage: {
-    width: "100%",
-    height: "100%",
-    opacity: 1,
-  },
-  logoFileInput: {
-    opacity: 0,
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    cursor: "pointer",
-  },
   emojiBlock: {
     display: "inline-block",
     margin: theme.spacing(1),
-    textAlign: "center"
+    textAlign: "center",
   },
   emojiIcon: {
-    fontSize: "24px"
+    fontSize: "24px",
   },
   emojiName: {
     textTransform: "uppercase",
-    fontSize: "12px"
-  }
+    fontSize: "12px",
+  },
 }));
 
 const validate = (values: any) => {
@@ -178,7 +142,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const existingRoles = useSelector(selectRoles);
   const [publickKeyEmojisDialog, setPublickKeyEmojisDialog] = useState(false);
   const [publickKeyEmojis, setPublickKeyEmojis] = useState<any>([]);
-
   const currentUser = useSelector(selectUser);
 
   const canCreateVaultUser =
@@ -200,8 +163,14 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     coWorker.vaultUserId;
 
   useEffect(() => {
+    let unmounted = false;
+
     dispatch(actions.getRoles());
-  }, []);
+
+    return () => {
+      unmounted = true;
+    };
+  }, [coWorker]);
 
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
@@ -234,10 +203,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
 
     setPublickKeyEmojis(emojis);
     setPublickKeyEmojisDialog(true);
-  }
+  };
 
   const handleAddVaultUser = () => {
-    console.log("handle add to vault ", coWorker, currentUser);
     if (coWorker.id && coWorker.publicKey) {
       dispatch(
         actions.addUserToVault({
@@ -251,11 +219,10 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   };
 
   const handleRemoveVaultUser = () => {
-    console.log("handle remove from vault ", coWorker, currentUser);
     if (coWorker.id && coWorker.publicKey) {
       dispatch(
         actions.removeUserFromVault({
-          userVaultId: coWorker.vaultUserId || '',
+          userVaultId: coWorker.vaultUserId || "",
           userId: coWorker.id,
         })
       );
@@ -357,31 +324,13 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   </FieldArray>
                 </Grid>
               )}
-              {coWorker.roles && coWorker.roles.length > 0 && (
-                <Grid item xs={12}>
-                  <Divider variant="fullWidth" />
-                </Grid>
-              )}
+              <Grid item xs={12}>
+	        <Divider variant="fullWidth" />
+	      </Grid>
               <Grid item xs={12}>
                 <Grid container>
                   <Grid item xs={8}>
                     <Grid container spacing={2}>
-                      {/* <Grid item xs={6}>
-                        <Select
-                          label="Status"
-                          native
-                          name="suspended"
-                          variant="outlined"
-                          inputProps={{
-                            name: "suspended",
-                            id: "suspended-select",
-                          }}
-                        >
-                          <option aria-label="None" value="" />
-                          <option value="true">Active</option>
-                          <option value="false">Disabled</option>
-                        </Select>
-                      </Grid> */}
                       <Grid item xs={12}>
                         <TextField
                           required
@@ -409,7 +358,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid item xs={12}>
                         <TextField
                           id="job-title"
                           label="Job title"
@@ -425,7 +374,11 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             fullWidth
                             color="primary"
                             variant="outlined"
-                            onClick={() => onViewPublicKey(coWorker.publicKey ? coWorker.publicKey.key : '')}
+                            onClick={() =>
+                              onViewPublicKey(
+                                coWorker.publicKey ? coWorker.publicKey.key : ""
+                              )
+                            }
                           >
                             Approve publick key and add to vault
                           </Button>
@@ -447,20 +400,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       </Grid>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
-                    <div className={classes.logoImageContainer}>
-                      <Avatar
-                        src={profile}
-                        alt="Avatar"
-                        className={classes.logoImage}
-                      />
-                      {/* <input
-                        type="file"
-                        name="avatar"
-                        className={classes.logoFileInput}
-                        onChange={onLogoFileChange}
-                      /> */}
-                    </div>
+                  <Grid item xs={5}>
+                    <Field name="avatar" render={AvatarInput} />
                   </Grid>
                 </Grid>
               </Grid>
@@ -508,48 +449,44 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         )}
       />
       <Dialog
-          open={publickKeyEmojisDialog}
-          onClose={() => setPublickKeyEmojisDialog(false)}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">Approve public key</DialogTitle>
-          <Divider />
-          <DialogContent>
-            <Grid container>
-              <Grid item xs={12}>
-                {publickKeyEmojis.map((emoji: any) => {
-                  return (
-                    <div className={classes.emojiBlock} key={emoji}>
-                      <div className={classes.emojiIcon}>
-                          { emoji[0] }
-                      </div>
-                      <div className={classes.emojiName}>
-                          { emoji[1] }
-                      </div>
-                    </div>
-                  )
-                })}
-              </Grid>
+        open={publickKeyEmojisDialog}
+        onClose={() => setPublickKeyEmojisDialog(false)}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Approve public key</DialogTitle>
+        <Divider />
+        <DialogContent>
+          <Grid container>
+            <Grid item xs={12}>
+              {publickKeyEmojis.map((emoji: any) => {
+                return (
+                  <div className={classes.emojiBlock} key={emoji}>
+                    <div className={classes.emojiIcon}>{emoji[0]}</div>
+                    <div className={classes.emojiName}>{emoji[1]}</div>
+                  </div>
+                );
+              })}
             </Grid>
-          </DialogContent>
-          <Divider />
-          <DialogActions>
-            <Button 
-              onClick={() => setPublickKeyEmojisDialog(false)}
-              color="secondary"
-              variant="contained"
-            >
-              Close
-            </Button>
-            <Button 
-              onClick={handleAddVaultUser}
-              color="primary"
-              variant="contained"
-            >
-              Approve
-            </Button>
-          </DialogActions>
-        </Dialog>
+          </Grid>
+        </DialogContent>
+        <Divider />
+        <DialogActions>
+          <Button
+            onClick={() => setPublickKeyEmojisDialog(false)}
+            color="secondary"
+            variant="contained"
+          >
+            Close
+          </Button>
+          <Button
+            onClick={handleAddVaultUser}
+            color="primary"
+            variant="contained"
+          >
+            Approve
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

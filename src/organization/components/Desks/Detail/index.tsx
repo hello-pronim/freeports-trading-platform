@@ -39,6 +39,7 @@ import Loader from "../../../../components/Loader";
 
 interface deskType {
   name: string;
+  tradeLevels: [];
   createdAt?: string;
 }
 
@@ -91,6 +92,7 @@ const Detail = (): React.ReactElement => {
   const desks = useSelector(selectDesks);
   const [desk, setDesk] = useState<deskType>({
     name: "",
+    tradeLevels: [],
   });
   const selectedDesk = useSelector(selectDeskDetail);
   const desksLoading = useSelector(selectIsDesksLoading);
