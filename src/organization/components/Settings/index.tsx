@@ -362,9 +362,6 @@ const Settings = (): React.ReactElement => {
                 </Grid>
               </Grid>
               <Grid item xs={6}>
-                <Grid container justify="center">
-                  <Typography className={classes.logoText}>Logo</Typography>
-                </Grid>
                 <Grid
                   item
                   container

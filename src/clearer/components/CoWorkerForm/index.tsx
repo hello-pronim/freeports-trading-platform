@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
 import { TextField, Select } from "mui-rff";
 import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
@@ -30,6 +30,7 @@ import { GetVaultOrganizationResponseDto } from "../../../vault/dto/get-vault-or
 import { userPublicKeyStatus } from "../../../util/constants";
 import { publicKeyToString } from "../../../util/keyStore/functions";
 import { generateCertificationEmojis } from "../../../util/sas";
+import AvatarInput from "../../../components/AvatarInput";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -63,49 +64,12 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(4),
   },
-  profileImageContainer: {
-    position: "relative",
-    maxWidth: 200,
-  },
-  profileImage: {
-    width: "100%",
-  },
-  changeImageBtn: {
-    position: "absolute",
-    bottom: 45,
-    left: 0,
-  },
   fixSelectLabel: {
     color: "red",
     "& fieldset>legend ": {
       maxWidth: 1000,
       transition: "max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms",
     },
-  },
-  logoImageContainer: {
-    position: "relative",
-    width: 200,
-    height: 200,
-    margin: "auto",
-    "&:hover, &:focus": {
-      "& $logoImage": {
-        opacity: 0.5,
-      },
-    },
-  },
-  logoImage: {
-    width: "100%",
-    height: "100%",
-    opacity: 1,
-  },
-  logoFileInput: {
-    opacity: 0,
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    cursor: "pointer",
   },
   emojiBlock: {
     display: "inline-block",
@@ -174,7 +138,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const existingRoles = useSelector(selectRoles);
   const [publickKeyEmojisDialog, setPublickKeyEmojisDialog] = useState(false);
   const [publickKeyEmojis, setPublickKeyEmojis] = useState<any>([]);
-
   const currentUser = useSelector(selectUser);
 
   const canCreateVaultUser =
@@ -196,8 +159,14 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     coWorker.vaultUserId;
 
   useEffect(() => {
+    let unmounted = false;
+
     dispatch(actions.getRoles());
-  }, []);
+
+    return () => {
+      unmounted = true;
+    };
+  }, [coWorker]);
 
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
@@ -213,7 +182,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   };
 
   const handleAddVaultUser = () => {
-    console.log("handle add to vault ", coWorker, currentUser);
     if (coWorker.id && coWorker.publicKey) {
       dispatch(
         actions.addUserToVault({
@@ -227,7 +195,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   };
 
   const handleRemoveVaultUser = () => {
-    console.log("handle remove from vault ", coWorker, currentUser);
     if (coWorker.id && coWorker.publicKey) {
       dispatch(
         actions.removeUserFromVault({
@@ -331,31 +298,13 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   }
                 </FieldArray>
               </Grid>
-              {coWorker.roles && coWorker.roles.length > 0 && (
-                <Grid item xs={12}>
-                  <Divider variant="fullWidth" />
-                </Grid>
-              )}
               <Grid item xs={12}>
-                <Grid container>
+                <Divider variant="fullWidth" />
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container spacing={4}>
                   <Grid item xs={7}>
                     <Grid container spacing={2}>
-                      {/* <Grid item xs={6}>
-                        <Select
-                          label="Status"
-                          native
-                          name="suspended"
-                          variant="outlined"
-                          inputProps={{
-                            name: "suspended",
-                            id: "suspended-select",
-                          }}
-                        >
-                          <option aria-label="None" value="" />
-                          <option value="true">Active</option>
-                          <option value="false">Disabled</option>
-                        </Select>
-                      </Grid> */}
                       <Grid item xs={12}>
                         <TextField
                           required
@@ -426,19 +375,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                     )}
                   </Grid>
                   <Grid item xs={5}>
-                    <div className={classes.logoImageContainer}>
-                      <Avatar
-                        src={profile}
-                        alt="Avatar"
-                        className={classes.logoImage}
-                      />
-                      {/* <input
-                        type="file"
-                        name="avatar"
-                        className={classes.logoFileInput}
-                        onChange={onLogoFileChange}
-                      /> */}
-                    </div>
+                    <Field name="avatar" render={AvatarInput} />
                   </Grid>
                 </Grid>
               </Grid>
