@@ -69,7 +69,6 @@ const VaultRequest = (): React.ReactElement => {
     return errors;
   };
   const handleOnSubmit = (values: any) => {
-    console.log("values ", values);
     const body = values.body && JSON.parse(values.body);
     dispatch(
       actions.sendRequest({
@@ -129,7 +128,7 @@ const VaultRequest = (): React.ReactElement => {
                           />
                         </Grid>
 
-                        {values.method === Method.POST && (
+                        {values.method !== Method.GET && (
                           <Grid item xs={12}>
                             <MuiTextField
                               id="vault-request-body"

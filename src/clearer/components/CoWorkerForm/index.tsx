@@ -341,24 +341,25 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                         />
                       </Grid>
                     </Grid>
-                    {canCreateVaultUser && (
-                      <Grid container spacing={3}>
-                        <Grid item sm={12} md={6}>
-                          <Button
-                            fullWidth
-                            color="primary"
-                            variant="outlined"
-                            onClick={() =>
-                              onViewPublicKey(
-                                coWorker.publicKey ? coWorker.publicKey.key : ""
-                              )
-                            }
-                          >
-                            Approve publick key and add to vault
-                          </Button>
-                        </Grid>
+
+                    <Grid container spacing={3}>
+                      <Grid item sm={12} md={6}>
+                        <Button
+                          fullWidth
+                          color="primary"
+                          variant="outlined"
+                          disabled={!canCreateVaultUser}
+                          onClick={() =>
+                            onViewPublicKey(
+                              coWorker.publicKey ? coWorker.publicKey.key : ""
+                            )
+                          }
+                        >
+                          Approve publick key and add to vault
+                        </Button>
                       </Grid>
-                    )}
+                    </Grid>
+
                     {canRemoveVaultUser && (
                       <Grid container spacing={3}>
                         <Grid item sm={12} md={6}>
@@ -384,6 +385,17 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
               </Grid>
               <Grid item xs={12}>
                 <Grid container justify="flex-end" spacing={2}>
+                  {/* <Grid item>
+                    <Button
+                      variant="contained"
+                      disabled={!canCreateVaultUser}
+                      fullWidth
+                      color="primary"
+                      onClick={handleAddVaultUser}
+                    >
+                      Add to vault
+                    </Button>
+                  </Grid> */}
                   {coWorker.id && (
                     <Grid item>
                       <Button
