@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
 import arrayMutators from "final-form-arrays";
 import { TextField } from "mui-rff";
 import {
@@ -26,7 +26,7 @@ import {
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import { useOrganization, useAccounts } from "../../../../hooks";
-import { selectIsLoading } from "../../CoWorker/slice/selectors";
+import AvatarInput from "../../../../components/AvatarInput";
 
 interface accountType {
   id: string;
@@ -43,31 +43,6 @@ const useStyles = makeStyles((theme) => ({
   marginL10: {
     marginLeft: 10,
   },
-  profileImageContainer: {
-    position: "relative",
-    width: 200,
-    height: 200,
-    margin: "auto",
-    "&:hover, &:focus": {
-      "& $profileImage": {
-        opacity: 0.5,
-      },
-    },
-  },
-  profileImage: {
-    width: "100%",
-    height: "100%",
-    opacity: 1,
-  },
-  profileFileInput: {
-    opacity: 0,
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    cursor: "pointer",
-  },
   progressButtonWrapper: {
     margin: theme.spacing(1),
     position: "relative",
@@ -82,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const onValidate = (values: any) => {
+const validate = (values: any) => {
   const errors: {
     name?: string;
     commissionOrganization?: string;
@@ -113,6 +88,16 @@ const AddOrganizer = (): React.ReactElement => {
   const [selectedAccounts, setSelectedAccounts] = useState([] as string[]);
   const { addOrganization } = useOrganization();
   const { allAccounts, assignAccount } = useAccounts();
+  const defaultOrganization = {
+    name: "",
+    street1: "",
+    street2: "",
+    zip: "",
+    city: "",
+    country: "",
+    commissionOrganization: "",
+    commissionClearer: "",
+  };
   const [submitResponse, setSubmitResponse] = useState({
     type: "success",
     message: "",
@@ -138,17 +123,6 @@ const AddOrganizer = (): React.ReactElement => {
 
   const handleAlertClose = () => {
     setShowAlert(false);
-  };
-
-  const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { files } = e.currentTarget;
-    if (files && files.length) {
-      const reader = new FileReader();
-      reader.onload = (event: any) => {
-        setAvatar(event.target.result);
-      };
-      reader.readAsDataURL(files[0]);
-    }
   };
 
   const getAccount = (accId: string): accountType => {
@@ -239,17 +213,8 @@ const AddOrganizer = (): React.ReactElement => {
           mutators={{
             ...arrayMutators,
           }}
-          initialValues={{
-            name: "",
-            street1: "",
-            street2: "",
-            zip: "",
-            city: "",
-            country: "",
-            commissionOrganization: "",
-            commissionClearer: "",
-          }}
-          validate={onValidate}
+          initialValues={defaultOrganization}
+          validate={validate}
           render={({
             handleSubmit,
             submitting,
@@ -368,7 +333,7 @@ const AddOrganizer = (): React.ReactElement => {
                             <Grid item xs={6}>
                               <FormControl fullWidth variant="outlined">
                                 <TextField
-                                  aria-required
+                                  required
                                   label="Organization commission rate"
                                   name="commissionOrganization"
                                   variant="outlined"
@@ -390,21 +355,7 @@ const AddOrganizer = (): React.ReactElement => {
                       </Grid>
                     </Grid>
                     <Grid item xs={6}>
-                      <Grid container justify="center" alignItems="center">
-                        <div className={classes.profileImageContainer}>
-                          <Avatar
-                            src={avatar}
-                            alt="Avatar"
-                            className={classes.profileImage}
-                          />
-                          <input
-                            type="file"
-                            name="avatar"
-                            className={classes.profileFileInput}
-                            onChange={onAvatarChange}
-                          />
-                        </div>
-                      </Grid>
+                      <Field name="avatar" render={AvatarInput} />
                     </Grid>
                   </Grid>
                 </CardContent>

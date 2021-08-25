@@ -23,9 +23,12 @@ const defaultCoWorker = {
 export const initialState: ClearerCoWorkersState = {
   coWorkers: [],
   selectedCoWorker: defaultCoWorker,
-  loading: false,
+  coWorkersLoading: false,
   formLoading: false,
+  submitting: false,
   suspendStateLoading: false,
+  passwordResetting: false,
+  OTPResetting: false,
 };
 
 const slice = createSlice({
@@ -33,29 +36,29 @@ const slice = createSlice({
   initialState,
   reducers: {
     getCoWorkers(state, action?: PayloadAction<{ search?: string }>) {
-      state.loading = true;
+      state.coWorkersLoading = true;
       state.coWorkers = [];
     },
     getCoWorkersSuccess(state, action: PayloadAction<User[]>) {
-      state.loading = false;
+      state.coWorkersLoading = false;
       state.coWorkers = action.payload;
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     createCoWorker(state, action: PayloadAction<{ user: User }>) {
-      state.formLoading = true;
+      state.submitting = true;
     },
     createCoWorkerSuccess(
       state,
       action: PayloadAction<ResourceCreatedResponse>
     ) {
-      state.formLoading = false;
+      state.submitting = false;
     },
     createCoWorkerError(state) {
-      state.formLoading = false;
+      state.submitting = false;
     },
     updateCoWorker(
       state,
-      action: PayloadAction<{ 
+      action: PayloadAction<{
         updates: Partial<User>;
         id: string;
         vaultUserId: string;
@@ -63,13 +66,13 @@ const slice = createSlice({
         newVaultGroup: string[];
       }>
     ) {
-      state.formLoading = true;
+      state.submitting = true;
     },
     updateCoWorkerSuccess(state, action: any) {
-      state.formLoading = false;
+      state.submitting = false;
     },
     updateCoWorkerError(state) {
-      state.formLoading = false;
+      state.submitting = false;
     },
     selectCoWorker(state, action: PayloadAction<User>) {
       state.formLoading = true;
@@ -100,22 +103,22 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ id: string }>
     ) {
-      state.formLoading = true;
+      state.passwordResetting = true;
     },
     sendCoWorkerResetPasswordEmailSuccess(state) {
-      state.formLoading = false;
+      state.passwordResetting = false;
     },
     sendCoWorkerResetPasswordEmailError(state) {
-      state.formLoading = false;
+      state.passwordResetting = false;
     },
     resetOTP(state, action: PayloadAction<{ id: string }>) {
-      state.formLoading = true;
+      state.OTPResetting = true;
     },
     resetOTPSuccess(state) {
-      state.formLoading = false;
+      state.OTPResetting = false;
     },
     resetOTPError(state) {
-      state.formLoading = false;
+      state.OTPResetting = false;
     },
   },
 });

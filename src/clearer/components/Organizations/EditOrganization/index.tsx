@@ -169,7 +169,7 @@ const EditOrganizer = (): React.ReactElement => {
       const all = await allAccounts(); // get all clearer accounts
       const detail = await getOrganization(id);
       const managerList = await getManagers(id);
-      console.log(managerList);
+
       if (!mounted) {
         setAccounts(all);
         setOrgDetail({
@@ -247,14 +247,12 @@ const EditOrganizer = (): React.ReactElement => {
     )
       .then((data: any) => {
         const responseId = data.id;
-        setOrgUpdating(false);
         setSubmitResponse({
           type: "success",
           message: "Organization has been updated successfully.",
         });
         setShowAlert(true);
         timer.current = window.setTimeout(() => {
-          setOrgUpdating(false);
           history.push("/organizations");
         }, 2000);
       })
@@ -309,8 +307,7 @@ const EditOrganizer = (): React.ReactElement => {
     const newAccounts = [...assignedAccounts];
 
     setAssigning(true);
-    setShowAlert(false);
-    setSubmitResponse({ type: "", message: "" });
+    setShowAlert(true);
     selectedAccounts.map(async (item) => {
       await assignAccount(id, item)
         .then((data: string) => {
@@ -324,6 +321,14 @@ const EditOrganizer = (): React.ReactElement => {
               currency: itemObjects[0].currency,
             });
           }
+          setAssigning(false);
+          setSubmitResponse({
+            type: "success",
+            message: "Accounts has been assigned successfully.",
+          });
+          setShowAlert(false);
+          setAssignedAccounts(newAccounts);
+          setSelectedAccounts([]);
         })
         .catch((err: any) => {
           setAssigning(false);
@@ -331,17 +336,11 @@ const EditOrganizer = (): React.ReactElement => {
             type: "error",
             message: err.message,
           });
-          setShowAlert(true);
+          setShowAlert(false);
+          setAssignedAccounts(newAccounts);
+          setSelectedAccounts([]);
         });
     });
-    setAssigning(false);
-    setSubmitResponse({
-      type: "success",
-      message: "Accounts has been assigned successfully.",
-    });
-    setShowAlert(true);
-    setAssignedAccounts(newAccounts);
-    setSelectedAccounts([]);
   };
 
   const onHandleAccountUnassign = async (accountId: string) => {

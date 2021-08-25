@@ -8,6 +8,7 @@ import { diff } from "deep-object-diff";
 import {
   Avatar,
   Button,
+  CircularProgress,
   Container,
   Dialog,
   DialogActions,
@@ -23,7 +24,11 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 
 import profile from "../../../assets/images/profile.jpg";
 import { useCoWorkerFormSlice } from "./slice";
-import { selectRoles } from "./slice/selectors";
+import {
+  selectRoles,
+  selectIsUserAddingToVault,
+  selectIsUserDeletingFromVault,
+} from "./slice/selectors";
 import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
 import { GetVaultOrganizationResponseDto } from "../../../vault/dto/get-vault-organizations.dto";
@@ -83,6 +88,18 @@ const useStyles = makeStyles((theme) => ({
     textTransform: "uppercase",
     fontSize: "12px",
   },
+  progressButtonWrapper: {
+    margin: theme.spacing(1),
+    position: "relative",
+  },
+  progressButton: {
+    color: theme.palette.primary.main,
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginTop: -12,
+    marginLeft: -12,
+  },
 }));
 
 const validate = (values: any) => {
@@ -128,6 +145,9 @@ interface CoWorkerFormProps {
   ) => void;
   onSendResetPasswordLink: () => void;
   onResetOTP: () => void;
+  formSubmitting: boolean;
+  passwordResetting: boolean;
+  OTPResetting: boolean;
 }
 
 const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
@@ -135,13 +155,18 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   onSendResetPasswordLink,
   onResetOTP,
   coWorker,
+  formSubmitting,
+  passwordResetting,
+  OTPResetting,
 }: CoWorkerFormProps) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { actions } = useCoWorkerFormSlice();
   const existingRoles = useSelector(selectRoles);
-  const [publickKeyEmojisDialog, setPublickKeyEmojisDialog] = useState(false);
-  const [publickKeyEmojis, setPublickKeyEmojis] = useState<any>([]);
+  const addingUserToVault = useSelector(selectIsUserAddingToVault);
+  const removingUserFromVault = useSelector(selectIsUserDeletingFromVault);
+  const [publicKeyEmojisDialog, setPublicKeyEmojisDialog] = useState(false);
+  const [publicKeyEmojis, setPublicKeyEmojis] = useState<any>([]);
   const currentUser = useSelector(selectUser);
 
   const canCreateVaultUser =
@@ -177,14 +202,14 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     updates.roles = values.roles;
     const oldVaultGroup: string[] = [];
     coWorker.roles?.forEach((x: any) => {
-      const exist = existingRoles.find(y => y.id === x.id);
+      const exist = existingRoles.find((y) => y.id === x.id);
       if (exist && exist.vaultGroupId) {
         oldVaultGroup.push(exist.vaultGroupId);
       }
-    })
+    });
     const newVaultGroup: string[] = [];
     values.roles.forEach((x: any) => {
-      const exist = existingRoles.find(y => y.id === x.id);
+      const exist = existingRoles.find((y) => y.id === x.id);
       if (exist && exist.vaultGroupId) {
         const index = oldVaultGroup.indexOf(exist.vaultGroupId);
         if (index !== -1) {
@@ -193,16 +218,16 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
           newVaultGroup.push(exist.vaultGroupId);
         }
       }
-    })
-    
+    });
+
     onSubmit(updates as User, oldVaultGroup, newVaultGroup);
   };
 
   const onViewPublicKey = async (publicKey: string) => {
     const emojis = generateCertificationEmojis(publicKey);
 
-    setPublickKeyEmojis(emojis);
-    setPublickKeyEmojisDialog(true);
+    setPublicKeyEmojis(emojis);
+    setPublicKeyEmojisDialog(true);
   };
 
   const handleAddVaultUser = () => {
@@ -215,7 +240,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
       );
     }
 
-    setPublickKeyEmojisDialog(false);
+    setPublicKeyEmojisDialog(false);
   };
 
   const handleRemoveVaultUser = () => {
@@ -254,81 +279,83 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
           <form onSubmit={handleSubmit} noValidate>
             <Grid container alignItems="flex-start" spacing={2}>
               {coWorker.vaultUserId && (
-                <Grid item xs={12}>
-                  <FieldArray name="roles">
-                    {({ fields }) =>
-                      fields.map((name, i) => (
-                        <Grid container key={name} spacing={2}>
-                          <Grid
-                            item
-                            xs={6}
-                            className={
-                              values.roles[i] ? classes.fixSelectLabel : ""
-                            }
-                          >
-                            <Select
-                              native
-                              name={`${name}.id`}
-                              inputProps={{
-                                name: "role",
-                                id: "role-select",
-                              }}
-                              fullWidth
-                              label="Role"
-                              variant="outlined"
-                              inputLabelProps={{
-                                shrink: !!values.roles[i],
-                                filled: true,
-                              }}
+                <>
+                  <Grid item xs={12}>
+                    <FieldArray name="roles">
+                      {({ fields }) =>
+                        fields.map((name, i) => (
+                          <Grid container key={name} spacing={2}>
+                            <Grid
+                              item
+                              xs={6}
+                              className={
+                                values.roles[i] ? classes.fixSelectLabel : ""
+                              }
                             >
-                              <option aria-label="None" value="" />
-                              {existingRoles
-                                .filter(
-                                  (role) =>
-                                    values.roles[i].id === role.id ||
-                                    values.roles.filter(
-                                      (r: any) => r.id === role.id
-                                    ).length === 0
-                                )
-                                .map((r) => (
-                                  <option key={r.id} value={r.id}>
-                                    {r.name}
-                                  </option>
-                                ))}
-                            </Select>
-                          </Grid>
-                          {fields.length !== 1 && (
-                            <Grid item xs={1}>
-                              <IconButton
-                                onClick={() => fields.remove(i)}
-                                aria-label="Add role"
+                              <Select
+                                native
+                                name={`${name}.id`}
+                                inputProps={{
+                                  name: "role",
+                                  id: "role-select",
+                                }}
+                                fullWidth
+                                label="Role"
+                                variant="outlined"
+                                inputLabelProps={{
+                                  shrink: !!values.roles[i],
+                                  filled: true,
+                                }}
                               >
-                                <DeleteForeverIcon />
-                              </IconButton>
+                                <option aria-label="None" value="" />
+                                {existingRoles
+                                  .filter(
+                                    (role) =>
+                                      values.roles[i].id === role.id ||
+                                      values.roles.filter(
+                                        (r: any) => r.id === role.id
+                                      ).length === 0
+                                  )
+                                  .map((r) => (
+                                    <option key={r.id} value={r.id}>
+                                      {r.name}
+                                    </option>
+                                  ))}
+                              </Select>
                             </Grid>
-                          )}
-                          {i === (fields.length || 0) - 1 &&
-                            (fields.length || 0) < existingRoles.length && (
+                            {fields.length !== 1 && (
                               <Grid item xs={1}>
                                 <IconButton
-                                  onClick={() => push("roles", { id: "" })}
+                                  onClick={() => fields.remove(i)}
                                   aria-label="Add role"
                                 >
-                                  <AddCircleOutlineIcon />
+                                  <DeleteForeverIcon />
                                 </IconButton>
                               </Grid>
                             )}
-                        </Grid>
-                      ))
-                    }
-                  </FieldArray>
-                </Grid>
+                            {i === (fields.length || 0) - 1 &&
+                              (fields.length || 0) < existingRoles.length && (
+                                <Grid item xs={1}>
+                                  <IconButton
+                                    onClick={() => push("roles", { id: "" })}
+                                    aria-label="Add role"
+                                  >
+                                    <AddCircleOutlineIcon />
+                                  </IconButton>
+                                </Grid>
+                              )}
+                          </Grid>
+                        ))
+                      }
+                    </FieldArray>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Divider variant="fullWidth" />
+                  </Grid>
+                </>
               )}
               <Grid item xs={12}>
-	        <Divider variant="fullWidth" />
-	      </Grid>
-              <Grid item xs={12}>
-                <Grid container>
+                <Grid container spacing={4}>
                   <Grid item xs={8}>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
@@ -366,42 +393,53 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                    </Grid>
-
-                    <Grid container spacing={3}>
-                      <Grid item sm={12} md={6}>
-                        <Button
-                          fullWidth
-                          color="primary"
-                          variant="outlined"
-                          disabled={!canCreateVaultUser}
-                          onClick={() =>
-                            onViewPublicKey(
-                              coWorker.publicKey ? coWorker.publicKey.key : ""
-                            )
-                          }
-                        >
-                          Approve publick key and add to vault
-                        </Button>
-                      </Grid>
-                    </Grid>
-
-                    {canRemoveVaultUser && (
-                      <Grid container spacing={3}>
-                        <Grid item sm={12} md={6}>
+                      <Grid item xs={6}>
+                        <div className={classes.progressButtonWrapper}>
                           <Button
                             fullWidth
-                            color="secondary"
+                            color="primary"
                             variant="outlined"
-                            onClick={handleRemoveVaultUser}
+                            disabled={!canCreateVaultUser || addingUserToVault}
+                            onClick={() =>
+                              onViewPublicKey(
+                                coWorker.publicKey ? coWorker.publicKey.key : ""
+                              )
+                            }
                           >
-                            Revoke publick key and remove from vault
+                            Approve public key and add to vault
                           </Button>
-                        </Grid>
+                          {addingUserToVault && (
+                            <CircularProgress
+                              size={24}
+                              className={classes.progressButton}
+                            />
+                          )}
+                        </div>
                       </Grid>
-                    )}
+                      {canRemoveVaultUser && (
+                        <Grid item xs={6}>
+                          <div className={classes.progressButtonWrapper}>
+                            <Button
+                              fullWidth
+                              color="secondary"
+                              variant="outlined"
+                              onClick={handleRemoveVaultUser}
+                              disabled={removingUserFromVault}
+                            >
+                              Revoke public key and remove from vault
+                            </Button>
+                            {removingUserFromVault && (
+                              <CircularProgress
+                                size={24}
+                                className={classes.progressButton}
+                              />
+                            )}
+                          </div>
+                        </Grid>
+                      )}
+                    </Grid>
                   </Grid>
-                  <Grid item xs={5}>
+                  <Grid item xs={4}>
                     <Field name="avatar" render={AvatarInput} />
                   </Grid>
                 </Grid>
@@ -410,7 +448,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Divider />
               </Grid>
               <Grid item xs={12}>
-                <Grid container justify="flex-end" spacing={2}>
+                <Grid container justify="flex-end" spacing={1}>
                   {/* <Grid item>
                     <Button
                       variant="contained"
@@ -424,35 +462,61 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                   </Grid> */}
                   {coWorker.id && (
                     <Grid item>
-                      <Button
-                        onClick={onResetOTP}
-                        color="primary"
-                        variant="contained"
-                      >
-                        Reset OTP Key
-                      </Button>
+                      <div className={classes.progressButtonWrapper}>
+                        <Button
+                          onClick={onResetOTP}
+                          color="primary"
+                          variant="contained"
+                          disabled={OTPResetting}
+                        >
+                          Reset OTP Key
+                        </Button>
+                        {OTPResetting && (
+                          <CircularProgress
+                            size={24}
+                            className={classes.progressButton}
+                          />
+                        )}
+                      </div>
                     </Grid>
                   )}
                   {coWorker.id && (
                     <Grid item>
-                      <Button
-                        onClick={onSendResetPasswordLink}
-                        color="primary"
-                        variant="contained"
-                      >
-                        Send Reset Password Link
-                      </Button>
+                      <div className={classes.progressButtonWrapper}>
+                        <Button
+                          onClick={onSendResetPasswordLink}
+                          color="primary"
+                          variant="contained"
+                          disabled={passwordResetting}
+                        >
+                          Send Reset Password Link
+                        </Button>
+                        {passwordResetting && (
+                          <CircularProgress
+                            size={24}
+                            className={classes.progressButton}
+                          />
+                        )}
+                      </div>
                     </Grid>
                   )}
                   <Grid item>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      disabled={submitting || pristine}
-                    >
-                      Save Changes
-                    </Button>
+                    <div className={classes.progressButtonWrapper}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={formSubmitting}
+                      >
+                        Save Changes
+                      </Button>
+                      {formSubmitting && (
+                        <CircularProgress
+                          size={24}
+                          className={classes.progressButton}
+                        />
+                      )}
+                    </div>
                   </Grid>
                 </Grid>
               </Grid>
@@ -461,8 +525,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         )}
       />
       <Dialog
-        open={publickKeyEmojisDialog}
-        onClose={() => setPublickKeyEmojisDialog(false)}
+        open={publicKeyEmojisDialog}
+        onClose={() => setPublicKeyEmojisDialog(false)}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title">Approve public key</DialogTitle>
@@ -470,7 +534,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         <DialogContent>
           <Grid container>
             <Grid item xs={12}>
-              {publickKeyEmojis.map((emoji: any) => {
+              {publicKeyEmojis.map((emoji: any) => {
                 return (
                   <div className={classes.emojiBlock} key={emoji}>
                     <div className={classes.emojiIcon}>{emoji[0]}</div>
@@ -484,7 +548,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         <Divider />
         <DialogActions>
           <Button
-            onClick={() => setPublickKeyEmojisDialog(false)}
+            onClick={() => setPublicKeyEmojisDialog(false)}
             color="secondary"
             variant="contained"
           >

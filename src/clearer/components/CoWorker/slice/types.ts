@@ -4,7 +4,10 @@ import User from "../../../../types/User";
 export interface ClearerCoWorkersState {
   coWorkers: User[];
   selectedCoWorker: User;
-  loading: boolean;
+  coWorkersLoading: boolean;
   formLoading: boolean;
+  submitting: boolean;
   suspendStateLoading: boolean;
+  passwordResetting: boolean;
+  OTPResetting: boolean;
 }

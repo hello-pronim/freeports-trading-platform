@@ -16,3 +16,13 @@ export const selectIsAccountsLoading = createSelector(
   [selectDomain],
   (accountsState) => accountsState.loading
 );
+
+export const selectIsAccountCreating = createSelector(
+  [selectDomain],
+  (accountsState) => accountsState.creating
+);
+
+export const selectIsAccountDeleting = createSelector(
+  [selectDomain],
+  (accountsState) => accountsState.deleting
+);

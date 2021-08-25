@@ -164,7 +164,6 @@ const AddRole = (): React.ReactElement => {
           });
           setShowAlert(true);
           timer.current = window.setTimeout(() => {
-            setLoading(false);
             history.push("/roles");
           }, 2000);
         }

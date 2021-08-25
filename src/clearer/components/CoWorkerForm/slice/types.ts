@@ -4,4 +4,6 @@ import { RoleType } from "../../Roles";
 export interface ClearerCoWorkerFormState {
   roles: RoleType[];
   loading: boolean;
+  addingUserToVault: boolean;
+  deletingUserFromVault: boolean;
 }

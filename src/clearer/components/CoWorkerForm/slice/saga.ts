@@ -4,7 +4,10 @@ import { takeEvery, call, put, takeLatest } from "redux-saga/effects";
 
 import { coWorkActions as actions } from ".";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
-import { createVaultUser, removeVaultUser } from "../../../../services/clearerUsersService";
+import {
+  createVaultUser,
+  removeVaultUser,
+} from "../../../../services/clearerUsersService";
 
 import getClearerRoles from "../../../../services/roleService";
 import { VaultRequestDto } from "../../../../services/vaultService";
@@ -42,14 +45,16 @@ export function* addUserToVault({
       userId,
       createVaultUserRequest as VaultRequestDto
     );
-    yield put(
-      snackbarActions.showSnackbar({
-        message: "Vault user created successfully",
-        type: "success",
-      })
-    );
+    if (response) {
+      yield put(actions.addUserToVaultSuccess());
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Vault user created successfully",
+          type: "success",
+        })
+      );
+    }
   } catch (error) {
-    console.error(error);
     yield put(
       snackbarActions.showSnackbar({
         message: "Error Creating vault user",
@@ -77,12 +82,15 @@ export function* removeUserFromVault({
       userId,
       removeVaultUserRequest as VaultRequestDto
     );
-    yield put(
-      snackbarActions.showSnackbar({
-        message: "Vault user removed successfully",
-        type: "success",
-      })
-    );
+    if (response) {
+      yield put(actions.removeUserFromVaultSuccess());
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Vault user removed successfully",
+          type: "success",
+        })
+      );
+    }
   } catch (error) {
     console.error(error);
     yield put(

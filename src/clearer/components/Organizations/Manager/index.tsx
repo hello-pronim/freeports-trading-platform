@@ -23,7 +23,7 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useOrganization } from "../../../../hooks";
-import { 
+import {
   sendResetPasswordEmail,
   createVaultUser,
 } from "../../../../services/clearerUsersService";
@@ -98,12 +98,8 @@ const Alert = (props: AlertProps) => {
 
 const Manager = (props: any): React.ReactElement => {
   const classes = useStyle();
-  const { 
-    getManager, 
-    suspendManager, 
-    resumeManager, 
-    getOrganization 
-  } = useOrganization();
+  const { getManager, suspendManager, resumeManager, getOrganization } =
+    useOrganization();
   const [suspended, setSuspended] = useState(true);
   const [manager, setManager] = useState({
     id: "string",
@@ -122,8 +118,9 @@ const Manager = (props: any): React.ReactElement => {
   const currentUser = useSelector(selectUser);
   const [viewAddToVault, setViewAddToVault] = useState(false);
   const [addingVaultUser, setAddingVaultUser] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [managerInfo, setManagerInfo] = useState<any>(null);
-  
+
   useEffect(() => {
     let mounted = false;
     const init = async () => {
@@ -131,12 +128,12 @@ const Manager = (props: any): React.ReactElement => {
       setManagerInfo(managerData);
       setViewAddToVault(
         currentUser &&
-        currentUser.vaultUserId &&
-        currentUser.publicKey &&
-        currentUser.publicKey.status === userPublicKeyStatus.approved &&
-        managerData.publicKey &&
-        managerData.publicKey.status === userPublicKeyStatus.requesting &&
-        !managerData.vaultUserId
+          currentUser.vaultUserId &&
+          currentUser.publicKey &&
+          currentUser.publicKey.status === userPublicKeyStatus.approved &&
+          managerData.publicKey &&
+          managerData.publicKey.status === userPublicKeyStatus.requesting &&
+          !managerData.vaultUserId
       );
       if (!mounted) {
         setManager({
@@ -231,6 +228,7 @@ const Manager = (props: any): React.ReactElement => {
 
   const onClickSuspend = async (event: any) => {
     event.stopPropagation();
+    setUpdatingStatus(true);
     if (suspended) {
       const res = await resumeManager(orgId, managerId);
       if (res) {
@@ -239,11 +237,13 @@ const Manager = (props: any): React.ReactElement => {
           message: "Manager reactivated",
         });
         setSuspended(false);
+        setUpdatingStatus(false);
       } else {
         setSubmitResponse({
           type: "error",
           message: "Failed, try again",
         });
+        setUpdatingStatus(false);
       }
     } else {
       const res = await suspendManager(orgId, managerId);
@@ -253,11 +253,13 @@ const Manager = (props: any): React.ReactElement => {
           message: "Manager suspended",
         });
         setSuspended(true);
+        setUpdatingStatus(false);
       } else {
         setSubmitResponse({
           type: "error",
           message: "Failed, try again",
         });
+        setUpdatingStatus(false);
       }
     }
     setShowAlert(true);
@@ -268,14 +270,14 @@ const Manager = (props: any): React.ReactElement => {
       setAddingVaultUser(true);
       const organization = await getOrganization(orgId);
       const vaultRequest = await vault.createOrganizationManager(
-        organization.vaultOrganizationId, 
+        organization.vaultOrganizationId,
         managerInfo.publicKeys.key
       );
       await createVaultUser(managerInfo.id, vaultRequest)
         .then(() => {
           setSubmitResponse({
             type: "success",
-            message: "Successfully added valult user",
+            message: "Successfully added vault user",
           });
           setViewAddToVault(false);
         })
@@ -321,14 +323,22 @@ const Manager = (props: any): React.ReactElement => {
                 onClick={onClickSuspend}
                 color="primary"
                 className="btn-disable"
+                disabled={updatingStatus}
               >
                 Disable
               </Button>
             )}
             {suspended && (
-              <Button onClick={onClickSuspend} color="primary">
+              <Button
+                onClick={onClickSuspend}
+                color="primary"
+                disabled={updatingStatus}
+              >
                 Activate
               </Button>
+            )}
+            {updatingStatus && (
+              <CircularProgress size={24} className={classes.progressButton} />
             )}
           </Grid>
         </Grid>
@@ -394,7 +404,7 @@ const Manager = (props: any): React.ReactElement => {
                 Add to Vault
               </Button>
               {addingVaultUser && (
-                <CircularProgress 
+                <CircularProgress
                   size={24}
                   className={classes.progressButton}
                 />
@@ -402,7 +412,11 @@ const Manager = (props: any): React.ReactElement => {
             </div>
           )}
           <div className={classes.progressButtonWrapper}>
-            <Button color="primary" onClick={handleSendResetPasswordLink}>
+            <Button
+              color="primary"
+              onClick={handleSendResetPasswordLink}
+              disabled={sendingEmail}
+            >
               Send Reset Password
             </Button>
             {sendingEmail && (
