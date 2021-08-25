@@ -22,3 +22,8 @@ export const selectDeskRoles = createSelector(
   [selectDomain],
   (orgCoWorkerFormState) => orgCoWorkerFormState.deskRoles
 );
+
+export const selectIsUserAddingToVault = createSelector(
+  [selectDomain],
+  (orgCoWorkerFormState) => orgCoWorkerFormState.addingUserToVault
+);

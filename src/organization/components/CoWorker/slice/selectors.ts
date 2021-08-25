@@ -12,20 +12,32 @@ export const selectCoWorkers = createSelector(
   (orgCoWorkerState) => orgCoWorkerState.coWorkers
 );
 
+export const selectIsCoWorkersLoading = createSelector(
+  [selectDomain],
+  (orgCoWorkerState) => orgCoWorkerState.coWorkersLoading
+);
+
 export const selectIsFormLoading = createSelector(
   [selectDomain],
   (orgCoWorkerState) => orgCoWorkerState.formLoading
 );
-export const selectIsLoading = createSelector(
+
+export const selectIsFormSubmitting = createSelector(
   [selectDomain],
-  (orgCoWorkerState) => orgCoWorkerState.loading
+  (orgCoWorkerState) => orgCoWorkerState.formSubmitting
 );
 
 export const selectSelectedCoWorker = createSelector(
   [selectDomain],
   (orgCoWorkerState) => orgCoWorkerState.selectedCoWorker
 );
-export const selectSuspendStateLoading = createSelector(
+
+export const selectIsSuspendStateLoading = createSelector(
   [selectDomain],
   (orgCoWorkerState) => orgCoWorkerState.suspendStateLoading
+);
+
+export const selectIsPasswordResetting = createSelector(
+  [selectDomain],
+  (orgCoWorkerState) => orgCoWorkerState.passwordResetting
 );

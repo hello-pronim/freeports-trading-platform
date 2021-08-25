@@ -27,6 +27,11 @@ export const selectIsTradeRequestsLoading = createSelector(
   (investorDetailState) => investorDetailState.loadingTradeRequests
 );
 
+export const selectIsTradeRequestCreating = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.creatingTradeRequest
+);
+
 export const selectInvestorAccounts = createSelector(
   [selectDomain],
   (investorDetailState) => investorDetailState.investorAccounts
@@ -35,4 +40,9 @@ export const selectInvestorAccounts = createSelector(
 export const selectIsInvestorAccountsLoading = createSelector(
   [selectDomain],
   (investorDetailState) => investorDetailState.loadingInvestorAccounts
+);
+
+export const selectIsInvestorAccountCreating = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.creatingInvestorAccount
 );

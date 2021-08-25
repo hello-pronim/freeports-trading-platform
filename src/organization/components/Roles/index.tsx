@@ -45,12 +45,16 @@ import { useDesksSlice } from "../Desks/slice";
 import {
   selectOrgRoles,
   selectIsOrgRolesLoading,
+  selectIsOrgRoleUpdating,
+  selectIsOrgRoleDeleting,
   selectMultiDeskRoles,
   selectIsMultiDeskRolesLoading,
+  selectIsMultiDeskRoleUpdating,
+  selectIsMultiDeskRoleDeleting,
   selectDeskRoles,
   selectIsDeskRolesLoading,
-  selectIsRoleUpdating,
-  selectIsRoleRemoving,
+  selectIsDeskRoleUpdating,
+  selectIsDeskRoleDeleting,
   selectOrgPermissions,
   selectIsOrgPermissionsLoading,
   selectMultiDeskPermissions,
@@ -184,11 +188,15 @@ const Roles = (): React.ReactElement => {
   const orgRoles = useSelector(selectOrgRoles);
   const orgPermissions = useSelector(selectOrgPermissions);
   const orgRolesLoading = useSelector(selectIsOrgRolesLoading);
+  const orgRoleUpdating = useSelector(selectIsOrgRoleUpdating);
+  const orgRoleDeleting = useSelector(selectIsOrgRoleDeleting);
   const orgPermissionsLoading = useSelector(selectIsOrgPermissionsLoading);
   // multi-desk roles
   const multiDeskRoles = useSelector(selectMultiDeskRoles);
   const multiDeskPermissions = useSelector(selectMultiDeskPermissions);
   const multiDeskRolesLoading = useSelector(selectIsMultiDeskRolesLoading);
+  const multiDeskRoleUpdating = useSelector(selectIsMultiDeskRoleUpdating);
+  const multiDeskRoleDeleting = useSelector(selectIsMultiDeskRoleDeleting);
   const multiDeskPermissionsLoading = useSelector(
     selectIsMultiDeskPermissionsLoading
   );
@@ -196,10 +204,9 @@ const Roles = (): React.ReactElement => {
   const deskRoles = useSelector(selectDeskRoles);
   const deskPermissions = useSelector(selectDeskPermissions);
   const deskRolesLoading = useSelector(selectIsDeskRolesLoading);
+  const deskRoleUpdating = useSelector(selectIsDeskRoleUpdating);
+  const deskRoleDeleting = useSelector(selectIsDeskRoleDeleting);
   const deskPermissionsLoading = useSelector(selectIsDeskPermissionsLoading);
-
-  const roleUpdating = useSelector(selectIsRoleUpdating);
-  const roleRemoving = useSelector(selectIsRoleRemoving);
 
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -513,7 +520,7 @@ const Roles = (): React.ReactElement => {
                                                     <Button
                                                       variant="contained"
                                                       size="small"
-                                                      disabled={roleRemoving}
+                                                      disabled={orgRoleDeleting}
                                                       onClick={() =>
                                                         role.id &&
                                                         onOrgRoleRemove(role.id)
@@ -521,7 +528,7 @@ const Roles = (): React.ReactElement => {
                                                     >
                                                       Remove
                                                     </Button>
-                                                    {roleRemoving && (
+                                                    {orgRoleDeleting && (
                                                       <CircularProgress
                                                         size={24}
                                                         className={
@@ -540,12 +547,18 @@ const Roles = (): React.ReactElement => {
                                                       size="small"
                                                       color="primary"
                                                       type="submit"
-                                                      disabled={
-                                                        submitting || pristine
-                                                      }
+                                                      disabled={orgRoleUpdating}
                                                     >
                                                       Save
                                                     </Button>
+                                                    {orgRoleUpdating && (
+                                                      <CircularProgress
+                                                        size={24}
+                                                        className={
+                                                          classes.progressButton
+                                                        }
+                                                      />
+                                                    )}
                                                   </div>
                                                 </AccordionActions>
                                               </Accordion>
@@ -741,7 +754,9 @@ const Roles = (): React.ReactElement => {
                                                     <Button
                                                       variant="contained"
                                                       size="small"
-                                                      disabled={roleRemoving}
+                                                      disabled={
+                                                        multiDeskRoleDeleting
+                                                      }
                                                       onClick={() =>
                                                         role.id &&
                                                         onMultiDeskRoleRemove(
@@ -751,7 +766,7 @@ const Roles = (): React.ReactElement => {
                                                     >
                                                       Remove
                                                     </Button>
-                                                    {roleRemoving && (
+                                                    {multiDeskRoleDeleting && (
                                                       <CircularProgress
                                                         size={24}
                                                         className={
@@ -771,11 +786,19 @@ const Roles = (): React.ReactElement => {
                                                       color="primary"
                                                       type="submit"
                                                       disabled={
-                                                        submitting || pristine
+                                                        multiDeskRoleUpdating
                                                       }
                                                     >
                                                       Save
                                                     </Button>
+                                                    {multiDeskRoleUpdating && (
+                                                      <CircularProgress
+                                                        size={24}
+                                                        className={
+                                                          classes.progressButton
+                                                        }
+                                                      />
+                                                    )}
                                                   </div>
                                                 </AccordionActions>
                                               </Accordion>
@@ -1016,7 +1039,9 @@ const Roles = (): React.ReactElement => {
                                                     <Button
                                                       variant="contained"
                                                       size="small"
-                                                      disabled={roleRemoving}
+                                                      disabled={
+                                                        deskRoleDeleting
+                                                      }
                                                       onClick={() =>
                                                         role.id &&
                                                         role.desk.id &&
@@ -1028,7 +1053,7 @@ const Roles = (): React.ReactElement => {
                                                     >
                                                       Remove
                                                     </Button>
-                                                    {roleRemoving && (
+                                                    {deskRoleDeleting && (
                                                       <CircularProgress
                                                         size={24}
                                                         className={
@@ -1048,11 +1073,19 @@ const Roles = (): React.ReactElement => {
                                                       color="primary"
                                                       type="submit"
                                                       disabled={
-                                                        submitting || pristine
+                                                        deskRoleUpdating
                                                       }
                                                     >
                                                       Save
                                                     </Button>
+                                                    {deskRoleUpdating && (
+                                                      <CircularProgress
+                                                        size={24}
+                                                        className={
+                                                          classes.progressButton
+                                                        }
+                                                      />
+                                                    )}
                                                   </div>
                                                 </AccordionActions>
                                               </Accordion>

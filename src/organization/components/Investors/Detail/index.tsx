@@ -9,6 +9,7 @@ import arrayMutators from "final-form-arrays";
 import { TextField as MuiTextField, Select as MuiSelect } from "mui-rff";
 import {
   Button,
+  CircularProgress,
   Container,
   createStyles,
   Dialog,
@@ -45,8 +46,10 @@ import {
   selectIsDetailLoading,
   selectTradeRequests,
   selectIsTradeRequestsLoading,
+  selectIsTradeRequestCreating,
   selectInvestorAccounts,
   selectIsInvestorAccountsLoading,
+  selectIsInvestorAccountCreating,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
 import { useOrganization } from "../../../../hooks";
@@ -94,6 +97,18 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     link: {
       color: theme.palette.primary.main,
+    },
+    progressButtonWrapper: {
+      margin: theme.spacing(1),
+      position: "relative",
+    },
+    progressButton: {
+      color: theme.palette.primary.main,
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      marginTop: -12,
+      marginLeft: -12,
     },
   })
 );
@@ -162,8 +177,10 @@ const InvestorDetail = (): React.ReactElement => {
   const investorDetailLoading = useSelector(selectIsDetailLoading);
   const tradeRequests = useSelector(selectTradeRequests);
   const tradeRequestsLoading = useSelector(selectIsTradeRequestsLoading);
+  const tradeRequestCreating = useSelector(selectIsTradeRequestCreating);
   const investorAccounts = useSelector(selectInvestorAccounts);
   const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
+  const investorAccountCreating = useSelector(selectIsInvestorAccountCreating);
   const [searchText, setSearchText] = useState("");
   const [tradingAccounts, setTradingAccounts] = useState<
     Array<{ currency: string; iban: string; account: string; balance?: number }>
@@ -790,14 +807,22 @@ const InvestorDetail = (): React.ReactElement => {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={submitting || pristine}
-                  >
-                    Create
-                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={tradeRequestCreating}
+                    >
+                      Create
+                    </Button>
+                    {tradeRequestCreating && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
                 </DialogActions>
               </form>
             )}
@@ -862,14 +887,22 @@ const InvestorDetail = (): React.ReactElement => {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={submitting || pristine}
-                  >
-                    Create
-                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={investorAccountCreating}
+                    >
+                      Create
+                    </Button>
+                    {investorAccountCreating && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
                 </DialogActions>
               </form>
             )}

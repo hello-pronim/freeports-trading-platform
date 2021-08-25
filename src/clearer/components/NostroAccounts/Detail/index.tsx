@@ -11,6 +11,7 @@ import Papa from "papaparse";
 import { Radios, TextField as MuiTextField } from "mui-rff";
 import {
   Button,
+  CircularProgress,
   Container,
   createStyles,
   Dialog,
@@ -48,6 +49,8 @@ import {
   selectAccountDetail,
   selectIsDetailLoading,
   selectOperations,
+  selectIsOperationCreating,
+  selectIsOperationDeleting,
   selectMoveRequests,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
@@ -67,6 +70,18 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     fileInput: {
       display: "none",
+    },
+    progressButtonWrapper: {
+      margin: theme.spacing(1),
+      position: "relative",
+    },
+    progressButton: {
+      color: theme.palette.primary.main,
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      marginTop: -12,
+      marginLeft: -12,
     },
   })
 );
@@ -124,6 +139,8 @@ const Detail = (): React.ReactElement => {
   const selectedAccount = useSelector(selectAccountDetail);
   const accountsLoading = useSelector(selectIsAccountsLoading);
   const accountDetailLoading = useSelector(selectIsDetailLoading);
+  const operationCreating = useSelector(selectIsOperationCreating);
+  const operationDeleting = useSelector(selectIsOperationDeleting);
   const [searchText, setSearchText] = useState("");
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -275,7 +292,7 @@ const Detail = (): React.ReactElement => {
                             </Typography>
                           </Grid>
                           <Grid item>
-                            <IconButton color="inherit" aria-label="Add Role">
+                            <IconButton color="inherit" aria-label="Edit">
                               <EditIcon fontSize="small" color="primary" />
                             </IconButton>
                           </Grid>
@@ -514,6 +531,7 @@ const Detail = (): React.ReactElement => {
                                           onClick={() =>
                                             handleOperationDelete(id)
                                           }
+                                          disabled={operationDeleting}
                                         >
                                           <DeleteIcon
                                             fontSize="small"
@@ -701,14 +719,22 @@ const Detail = (): React.ReactElement => {
                   <Button onClick={handleCreateModalClose} variant="contained">
                     Cancel
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={submitting || pristine}
-                  >
-                    Create
-                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={operationCreating}
+                    >
+                      Create
+                    </Button>
+                    {operationCreating && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
                 </DialogActions>
               </form>
             )}

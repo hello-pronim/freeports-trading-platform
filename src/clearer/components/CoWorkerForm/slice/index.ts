@@ -14,6 +14,8 @@ import { ClearerCoWorkerFormState } from "./types";
 export const initialState: ClearerCoWorkerFormState = {
   roles: [],
   loading: false,
+  addingUserToVault: false,
+  deletingUserFromVault: false,
 };
 
 const slice = createSlice({
@@ -32,13 +34,19 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ userId: string; publicKey: PublicKeyDoc }>
     ) {
-      state.loading = true;
+      state.addingUserToVault = true;
+    },
+    addUserToVaultSuccess(state) {
+      state.addingUserToVault = false;
     },
     removeUserFromVault(
       state,
       action: PayloadAction<{ userVaultId: string; userId: string }>
     ) {
-      state.loading = true;
+      state.deletingUserFromVault = true;
+    },
+    removeUserFromVaultSuccess(state) {
+      state.deletingUserFromVault = false;
     },
   },
 });

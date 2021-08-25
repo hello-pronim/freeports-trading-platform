@@ -16,3 +16,8 @@ export const selectIsInvestorsLoading = createSelector(
   [selectDomain],
   (investorsState) => investorsState.loading
 );
+
+export const selectIsInvestorCreating = createSelector(
+  [selectDomain],
+  (investorsState) => investorsState.creating
+);

@@ -21,6 +21,4 @@ export interface OrgRolesState {
   orgPermissionsLoading: boolean;
   multiDeskPermissionsLoading: boolean;
   deskPermissionsLoading: boolean;
-  updating: boolean;
-  deleting: boolean;
 }

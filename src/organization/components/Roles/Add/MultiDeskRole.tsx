@@ -12,6 +12,7 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  CircularProgress,
   Container,
   createStyles,
   Divider,
@@ -26,6 +27,7 @@ import {
 
 import { useNewOrgRoleSlice } from "./slice";
 import {
+  selectIsMultiDeskRoleCreating,
   selectMultiDeskPermissions,
   selectIsMultiDeskPermissionsLoading,
 } from "./slice/selectors";
@@ -110,6 +112,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
   const history = useHistory();
   const { organizationId } = Lockr.get("USER_DATA");
   const { actions: newMultiDeskRoleActions } = useNewOrgRoleSlice();
+  const multiDeskRoleCreating = useSelector(selectIsMultiDeskRoleCreating);
   const multiDeskPermissions = useSelector(selectMultiDeskPermissions);
   const multiDeskPermissionsLoading = useSelector(
     selectIsMultiDeskPermissionsLoading
@@ -245,21 +248,34 @@ const NewMultiDeskRole = (): React.ReactElement => {
                 </CardContent>
                 <Divider />
                 <CardActions>
-                  <Grid container justify="flex-end" spacing={2}>
+                  <Grid
+                    container
+                    alignItems="center"
+                    justify="flex-end"
+                    spacing={2}
+                  >
                     <Grid item>
                       <Button variant="contained" onClick={handleCancelClick}>
                         Cancel
                       </Button>
                     </Grid>
                     <Grid item>
-                      <Button
-                        variant="contained"
-                        type="submit"
-                        color="primary"
-                        disabled={submitting || pristine}
-                      >
-                        Create Role
-                      </Button>
+                      <div className={classes.progressButtonWrapper}>
+                        <Button
+                          variant="contained"
+                          type="submit"
+                          color="primary"
+                          disabled={multiDeskRoleCreating}
+                        >
+                          Create Role
+                        </Button>
+                        {multiDeskRoleCreating && (
+                          <CircularProgress
+                            size={24}
+                            className={classes.progressButton}
+                          />
+                        )}
+                      </div>
                     </Grid>
                   </Grid>
                 </CardActions>

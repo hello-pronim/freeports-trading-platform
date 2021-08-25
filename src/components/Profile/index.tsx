@@ -28,12 +28,7 @@ import { TextField as MuiTextField } from "mui-rff";
 import { useProfileSlice } from "./slice";
 import { selectProfile } from "./slice/selectors";
 
-import {
-  open,
-  close,
-  clearKey,
-  saveKey
-} from "../../util/keyStore/keystore";
+import { open, close, clearKey, saveKey } from "../../util/keyStore/keystore";
 import {
   generateKeyPair,
   importPrivateKeyFromFile,
@@ -104,15 +99,15 @@ const useStyles = makeStyles((theme) => ({
   emojiBlock: {
     display: "inline-block",
     margin: theme.spacing(1),
-    textAlign: "center"
+    textAlign: "center",
   },
   emojiIcon: {
-    fontSize: "24px"
+    fontSize: "24px",
   },
   emojiName: {
     textTransform: "uppercase",
-    fontSize: "12px"
-  }
+    fontSize: "12px",
+  },
 }));
 
 const Alert = (props: AlertProps) => {
@@ -223,33 +218,35 @@ const Profile = (): React.ReactElement => {
 
   const addCertification = async (cert: any, saveToServer: boolean) => {
     await saveKey(cert.publicKey, cert.privateKey, cert.name);
-    
+
     const newList = [...keyList];
     newList.push(cert);
 
-    if(saveToServer) {
+    if (saveToServer) {
       const keyString = await publicKeyToString(cert.publicKey);
       await addPublicKey(keyString, cert.name);
 
       let newRemoteKey = null;
       const res = await checkPublicKey();
-      if(res.success) {
+      if (res.success) {
         newRemoteKey = res.data;
       }
 
-      dispatch(globalActions.setCertification({
-        keyList: newList, 
-        remoteKey: newRemoteKey
-      }));
+      dispatch(
+        globalActions.setCertification({
+          keyList: newList,
+          remoteKey: newRemoteKey,
+        })
+      );
     } else {
       dispatch(globalActions.setKeyList(newList));
     }
-  }
+  };
 
   const onCreateCertificate = async () => {
     setLoading(true);
 
-    const results = await generateKeyPair('public_key', passphrase);
+    const results = await generateKeyPair("public_key", passphrase);
     await addCertification(results, true);
 
     setLoading(false);
@@ -264,7 +261,8 @@ const Profile = (): React.ReactElement => {
         importedFile,
         importKeyPassword
       );
-      const saveToServer = remoteKey && remoteKey.status === userPublicKeyStatus.approved;
+      const saveToServer =
+        remoteKey && remoteKey.status === userPublicKeyStatus.approved;
       await addCertification(results, !saveToServer);
 
       setLoading(false);
@@ -276,27 +274,27 @@ const Profile = (): React.ReactElement => {
     setUpdatingPassword(true);
     await updatePassword(profile.id, {
       currentPassword: values.currentPassword,
-      newPassword: values.newPassword
+      newPassword: values.newPassword,
     })
-    .then((data) => {
-      if(data) {
-        setSubmitResponse({
-          type: "success",
-          message: "Successfully reset your password!",
-        });
-      } else {
+      .then((data) => {
+        if (data) {
+          setSubmitResponse({
+            type: "success",
+            message: "Successfully reset your password!",
+          });
+        } else {
+          setSubmitResponse({
+            type: "error",
+            message: "Failed to reset password.",
+          });
+        }
+      })
+      .catch((err) => {
         setSubmitResponse({
           type: "error",
-          message: "Failed to reset password.",
+          message: err.message,
         });
-      }
-    })
-    .catch((err) => {
-      setSubmitResponse({
-        type: "error",
-        message: err.message,
       });
-    });
     setUpdatingPassword(false);
     setShowAlert(true);
   };
@@ -310,42 +308,45 @@ const Profile = (): React.ReactElement => {
     const emojis = generateCertificationEmojis(keyString);
     setCertificationEmojis(emojis);
     setEmojisDialogOpen(true);
-  }
+  };
 
   const onClearCertificate = async () => {
+    setLoading(true);
     await open();
     const res = await clearKey();
     await close();
-    if(res === true) {
+    if (res === true) {
       dispatch(globalActions.setKeyList([]));
+      setLoading(false);
     } else {
       setSubmitResponse({
         type: "error",
         message: res,
       });
+      setLoading(false);
       setShowAlert(true);
     }
-  }
+  };
 
   const onRevokeKey = async () => {
     setLoading(true);
     await revokeKey()
-    .then((data) => {
-      const newRemoteKey = {...remoteKey};
+      .then((data) => {
+        const newRemoteKey = { ...remoteKey };
 
-      newRemoteKey.status = userPublicKeyStatus.revoking;
-      dispatch(globalActions.setRemoteKey(newRemoteKey));
-    })
-    .catch((err) => {
-      console.info('REV', err);
-      setSubmitResponse({
-        type: "error",
-        message: "Sorry, Failed to revoke your certificate.",
+        newRemoteKey.status = userPublicKeyStatus.revoking;
+        dispatch(globalActions.setRemoteKey(newRemoteKey));
+      })
+      .catch((err) => {
+        console.info("REV", err);
+        setSubmitResponse({
+          type: "error",
+          message: "Sorry, Failed to revoke your certificate.",
+        });
+      })
+      .finally(() => {
+        setRevokeKeyDlgOpen(false);
       });
-    })
-    .finally(() => {
-      setRevokeKeyDlgOpen(false);
-    });
     setLoading(false);
   };
 
@@ -355,7 +356,7 @@ const Profile = (): React.ReactElement => {
 
   const onCloseRevokeKeyDlg = () => {
     setRevokeKeyDlgOpen(false);
-  }
+  };
 
   return (
     <div className="main-wrapper">
@@ -365,77 +366,78 @@ const Profile = (): React.ReactElement => {
             <Card>
               <CardHeader
                 className={classes.cardHeader}
-                title={`Certificate (status: ${remoteKey ? remoteKey.status : 'empty'})`}
+                title={`Certificate (status: ${
+                  remoteKey ? remoteKey.status : "empty"
+                })`}
                 action={
                   <>
-                    {
-                      keyList.length ? (
-                        keyList.map((listItem: any) => {
-                          return (
-                            <React.Fragment key={listItem}>
+                    {keyList.length ? (
+                      keyList.map((listItem: any) => {
+                        return (
+                          <React.Fragment key={listItem}>
+                            <Button
+                              onClick={() => onViewCertification(listItem)}
+                              color="primary"
+                              variant="contained"
+                            >
+                              View
+                            </Button>
+                            <Tooltip
+                              title="Clear from browser"
+                              placement="top"
+                              arrow
+                            >
                               <Button
-                                onClick={() => onViewCertification(listItem)}
+                                onClick={() => onClearCertificate()}
                                 color="primary"
                                 variant="contained"
                               >
-                                View
+                                Clear
                               </Button>
-                              <Tooltip title="Clear from browser" placement="top" arrow>
-                                <Button
-                                  onClick={() => onClearCertificate()}
-                                  color="primary"
-                                  variant="contained"
-                                >
-                                  Clear
-                                </Button>
-                              </Tooltip>
-                            </React.Fragment>
-                          );
-                        })
-                      ) : (
-                        <>
-                          {
-                            (!remoteKey || remoteKey.status === userPublicKeyStatus.requesting)
-                            && (
-                              <Button
-                                color="primary"
-                                variant="contained"
-                                onClick={handleCreateDialogOpen}
-                              >
-                                Create Certificate
-                              </Button>
-                            )
-                          }
+                            </Tooltip>
+                          </React.Fragment>
+                        );
+                      })
+                    ) : (
+                      <>
+                        {(!remoteKey ||
+                          remoteKey.status ===
+                            userPublicKeyStatus.requesting) && (
                           <Button
                             color="primary"
                             variant="contained"
-                            onClick={handleImportFileDialogOpen}
+                            onClick={handleCreateDialogOpen}
                           >
-                            Import Key
+                            Create Certificate
                           </Button>
-                          <input
-                            ref={keyfileRef}
-                            type="file"
-                            id="keyfile"
-                            name="keyfile"
-                            className={classes.hiddenFileInput}
-                            onChange={onFileImport}
-                          />
-                        </>
-                      )
-                    }
-                    {
-                      (remoteKey && remoteKey.status === userPublicKeyStatus.approved)
-                      && (
+                        )}
+                        <Button
+                          color="primary"
+                          variant="contained"
+                          onClick={handleImportFileDialogOpen}
+                        >
+                          Import Key
+                        </Button>
+                        <input
+                          ref={keyfileRef}
+                          type="file"
+                          id="keyfile"
+                          name="keyfile"
+                          className={classes.hiddenFileInput}
+                          onChange={onFileImport}
+                        />
+                      </>
+                    )}
+                    {remoteKey &&
+                      remoteKey.status === userPublicKeyStatus.approved && (
                         <Button
                           color="secondary"
                           variant="contained"
                           onClick={handleRevokeKey}
                         >
                           Revoke
-                        </Button>  
-                      )
-                    }
+                        </Button>
+                      )}
                   </>
                 }
               />
@@ -524,9 +526,7 @@ const Profile = (): React.ReactElement => {
             <Form
               onSubmit={onResetPassword}
               validate={validate}
-              render={({
-                handleSubmit
-              }) => (
+              render={({ handleSubmit }) => (
                 <form onSubmit={handleSubmit} noValidate>
                   <Card>
                     <CardHeader title="Password update" />
@@ -711,80 +711,74 @@ const Profile = (): React.ReactElement => {
         >
           <Alert
             onClose={handleAlertClose}
-            severity={
-              submitResponse.type === "success" ? "success" : "error"
-            }
+            severity={submitResponse.type === "success" ? "success" : "error"}
           >
             {submitResponse.message}
           </Alert>
         </Snackbar>
         <Dialog
-            open={emojisDialogOpen}
-            onClose={() => setEmojisDialogOpen(false)}
-            aria-labelledby="form-dialog-title"
-          >
-            <DialogTitle id="form-dialog-title">Certification</DialogTitle>
-            <Divider />
-            <DialogContent>
-              <Grid container>
-                <Grid item xs={12}>
-                  {certificationEmojis.map((emoji: any) => {
-                    return (
-                      <div className={classes.emojiBlock} key={emoji}>
-                        <div className={classes.emojiIcon}>
-                            { emoji[0] }
-                        </div>
-                        <div className={classes.emojiName}>
-                            { emoji[1] }
-                        </div>
-                      </div>
-                    )
-                  })}
-                </Grid>
+          open={emojisDialogOpen}
+          onClose={() => setEmojisDialogOpen(false)}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Certification</DialogTitle>
+          <Divider />
+          <DialogContent>
+            <Grid container>
+              <Grid item xs={12}>
+                {certificationEmojis.map((emoji: any) => {
+                  return (
+                    <div className={classes.emojiBlock} key={emoji}>
+                      <div className={classes.emojiIcon}>{emoji[0]}</div>
+                      <div className={classes.emojiName}>{emoji[1]}</div>
+                    </div>
+                  );
+                })}
               </Grid>
-            </DialogContent>
-            <Divider />
-            <DialogActions>
-              <Button 
-                onClick={() => setEmojisDialogOpen(false)}
+            </Grid>
+          </DialogContent>
+          <Divider />
+          <DialogActions>
+            <Button
+              onClick={() => setEmojisDialogOpen(false)}
+              variant="contained"
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={revokeKeyDlgOpen}
+          onClose={onCloseRevokeKeyDlg}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Revoke Certificate</DialogTitle>
+          <Divider />
+          <DialogContent>
+            You are about to rekove your certificate.
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={onCloseRevokeKeyDlg} variant="contained">
+              Cancel
+            </Button>
+            <div className={classes.progressButtonWrapper}>
+              <Button
+                onClick={onRevokeKey}
+                color="primary"
                 variant="contained"
+                disabled={loading}
               >
-                Close
+                Revoke
               </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
-            open={revokeKeyDlgOpen}
-            onClose={onCloseRevokeKeyDlg}
-            aria-labelledby="form-dialog-title"
-          >
-            <DialogTitle id="form-dialog-title">Revoke Certificate</DialogTitle>
-            <Divider />
-            <DialogContent>
-              You are about to rekove your certificate.
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={onCloseRevokeKeyDlg} variant="contained">
-                Cancel
-              </Button>
-              <div className={classes.progressButtonWrapper}>
-                <Button
-                  onClick={onRevokeKey}
-                  color="primary"
-                  variant="contained"
-                  disabled={loading}
-                >
-                  Revoke
-                </Button>
-                {loading && (
-                  <CircularProgress
-                    size={24}
-                    className={classes.progressButton}
-                  />
-                )}
-              </div>
-            </DialogActions>
-          </Dialog>
+              {loading && (
+                <CircularProgress
+                  size={24}
+                  className={classes.progressButton}
+                />
+              )}
+            </div>
+          </DialogActions>
+        </Dialog>
       </Container>
     </div>
   );

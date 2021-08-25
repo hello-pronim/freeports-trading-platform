@@ -6,4 +6,5 @@ export interface OrgCoWorkerFormState {
   multiDeskRoles: Role[];
   deskRoles: Role[];
   loading: boolean;
+  addingUserToVault: boolean;
 }

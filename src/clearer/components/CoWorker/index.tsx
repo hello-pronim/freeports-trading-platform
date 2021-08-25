@@ -30,10 +30,13 @@ import User from "../../../types/User";
 import { useCoWorkersSlice, initialState } from "./slice";
 import {
   selectCoWorkers,
+  selectIsCoWorkersLoading,
   selectIsFormLoading,
-  selectIsLoading,
+  selectIsFormSubmitting,
   selectSelectedCoWorker,
-  selectSuspendStateLoading,
+  selectIsSuspendStateLoading,
+  selectIsPasswordResetting,
+  selectIsOTPResetting,
 } from "./slice/selectors";
 
 import Loader from "../../../components/Loader";
@@ -83,10 +86,13 @@ const CoWorker = (): React.ReactElement => {
   const { coWorkerId } = useParams<{ coWorkerId: string }>();
 
   const coWorkers = useSelector(selectCoWorkers);
+  const coWorkersLoading = useSelector(selectIsCoWorkersLoading);
   const formLoading = useSelector(selectIsFormLoading);
-  const loading = useSelector(selectIsLoading);
+  const formSubmitting = useSelector(selectIsFormSubmitting);
+  const passwordResetting = useSelector(selectIsPasswordResetting);
+  const OTPResetting = useSelector(selectIsOTPResetting);
   const selectedCoWorker: User = useSelector(selectSelectedCoWorker);
-  const suspendStateLoading: boolean = useSelector(selectSuspendStateLoading);
+  const suspendStateLoading: boolean = useSelector(selectIsSuspendStateLoading);
   const [coWorkerSearch, setCoWorkerSearch] = useState("");
   if (
     coWorkerId &&
@@ -137,12 +143,12 @@ const CoWorker = (): React.ReactElement => {
     console.log("CoWorker update", updates, selectedCoWorker);
     if (selectedCoWorker.id && selectedCoWorker.vaultUserId) {
       dispatch(
-        actions.updateCoWorker({ 
+        actions.updateCoWorker({
           updates,
           id: selectedCoWorker.id,
           vaultUserId: selectedCoWorker.vaultUserId,
           oldVaultGroup,
-          newVaultGroup 
+          newVaultGroup,
         })
       );
     }
@@ -225,8 +231,8 @@ const CoWorker = (): React.ReactElement => {
                     />
                   </Grid>
                 </Grid>
-                <>{loading && <Loader />}</>
-                {!loading && (
+                {coWorkersLoading && <Loader />}
+                {!coWorkersLoading && (
                   <List>
                     {coWorkers &&
                       coWorkers.map((coWorker: User, i: number) => (
@@ -389,6 +395,9 @@ const CoWorker = (): React.ReactElement => {
                           onSendResetPasswordLink={handleSendResetPasswordLink}
                           coWorker={selectedCoWorker}
                           onResetOTP={handleResetOTP}
+                          formSubmitting={formSubmitting}
+                          passwordResetting={passwordResetting}
+                          OTPResetting={OTPResetting}
                         />
                       )}
                     </div>

@@ -17,6 +17,7 @@ import {
   Grid,
   IconButton,
   makeStyles,
+  CircularProgress,
   Theme,
   Typography,
 } from "@material-ui/core";
@@ -26,12 +27,30 @@ import red from "@material-ui/core/colors/red";
 import MaterialTable from "material-table";
 
 import { useAccountsSlice } from "./slice";
-import { selectAccounts } from "./slice/selectors";
+import {
+  selectAccounts,
+  selectIsAccountsLoading,
+  selectIsAccountCreating,
+  selectIsAccountDeleting,
+} from "./slice/selectors";
+import Loader from "../../../components/Loader";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     actionButton: { marginRight: theme.spacing(2) },
     deleteButton: { color: Lockr.get("THEME") === "dark" ? "#FFF" : red[500] },
+    progressButtonWrapper: {
+      margin: theme.spacing(1),
+      position: "relative",
+    },
+    progressButton: {
+      color: theme.palette.primary.main,
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      marginTop: -12,
+      marginLeft: -12,
+    },
   })
 );
 
@@ -62,6 +81,9 @@ const NostroAccounts = (): React.ReactElement => {
   const dispatch = useDispatch();
   const { actions } = useAccountsSlice();
   const accounts = useSelector(selectAccounts);
+  const loadingAccounts = useSelector(selectIsAccountsLoading);
+  const creatingAccount = useSelector(selectIsAccountCreating);
+  const deletingAccount = useSelector(selectIsAccountDeleting);
   const [declareAccountModalOpen, setDeclareAccountModalOpen] =
     React.useState(false);
   const [account, setAccount] = useState<accountType>({
@@ -164,6 +186,7 @@ const NostroAccounts = (): React.ReactElement => {
           <IconButton
             className={classes.deleteButton}
             onClick={() => handleAccountDelete(id)}
+            disabled={deletingAccount}
           >
             <DeleteIcon />
           </IconButton>
@@ -288,14 +311,22 @@ const NostroAccounts = (): React.ReactElement => {
                               >
                                 Cancel
                               </Button>
-                              <Button
-                                variant="contained"
-                                color="primary"
-                                type="submit"
-                                disabled={submitting || pristine}
-                              >
-                                Create account
-                              </Button>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  type="submit"
+                                  disabled={creatingAccount}
+                                >
+                                  Create account
+                                </Button>
+                                {creatingAccount && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
                             </DialogActions>
                           </form>
                         )}
@@ -312,17 +343,20 @@ const NostroAccounts = (): React.ReactElement => {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <MaterialTable
-              columns={columns}
-              data={accounts.map((acc: any) => ({ ...acc }))}
-              options={{
-                pageSize: 10,
-                search: true,
-                showTitle: false,
-              }}
-            />
-          </Grid>
+          {loadingAccounts && <Loader />}
+          {!loadingAccounts && (
+            <Grid item xs={12}>
+              <MaterialTable
+                columns={columns}
+                data={accounts.map((acc: any) => ({ ...acc }))}
+                options={{
+                  pageSize: 10,
+                  search: true,
+                  showTitle: false,
+                }}
+              />
+            </Grid>
+          )}
         </Grid>
       </Container>
     </div>

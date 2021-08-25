@@ -31,10 +31,12 @@ import User from "../../../types/User";
 import { useCoWorkersSlice, initialState } from "./slice";
 import {
   selectCoWorkers,
+  selectIsCoWorkersLoading,
   selectIsFormLoading,
-  selectIsLoading,
+  selectIsFormSubmitting,
   selectSelectedCoWorker,
-  selectSuspendStateLoading,
+  selectIsSuspendStateLoading,
+  selectIsPasswordResetting,
 } from "./slice/selectors";
 
 import Loader from "../../../components/Loader";
@@ -91,10 +93,12 @@ const CoWorker = (): React.ReactElement => {
   const { actions } = useCoWorkersSlice();
   const { coWorkerId } = useParams<{ coWorkerId: string }>();
   const coWorkers = useSelector(selectCoWorkers);
+  const coWorkersLoading = useSelector(selectIsCoWorkersLoading);
   const formLoading = useSelector(selectIsFormLoading);
-  const loading = useSelector(selectIsLoading);
+  const formSubmitting = useSelector(selectIsFormSubmitting);
   const selectedCoWorker: User = useSelector(selectSelectedCoWorker);
-  const suspendStateLoading: boolean = useSelector(selectSuspendStateLoading);
+  const suspendStateLoading: boolean = useSelector(selectIsSuspendStateLoading);
+  const passwordResetting = useSelector(selectIsPasswordResetting);
   const [coWorkerSearch, setCoWorkerSearch] = useState("");
   if (
     coWorkerId &&
@@ -228,8 +232,8 @@ const CoWorker = (): React.ReactElement => {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    {loading && <Loader />}
-                    {!loading && (
+                    {coWorkersLoading && <Loader />}
+                    {!coWorkersLoading && (
                       <List>
                         {coWorkers &&
                           coWorkers.map((coWorker: User, i: number) => (
@@ -391,6 +395,8 @@ const CoWorker = (): React.ReactElement => {
                           }
                           onSendResetPasswordLink={handleSendResetPasswordLink}
                           coWorker={selectedCoWorker}
+                          formSubmitting={formSubmitting}
+                          passwordResetting={passwordResetting}
                         />
                       )}
                     </div>

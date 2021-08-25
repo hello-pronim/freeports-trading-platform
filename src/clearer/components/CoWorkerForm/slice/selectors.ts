@@ -12,3 +12,13 @@ export const selectRoles = createSelector(
   [selectDomain],
   (coWorkerFormState) => coWorkerFormState.roles
 );
+
+export const selectIsUserAddingToVault = createSelector(
+  [selectDomain],
+  (coWorkerFormState) => coWorkerFormState.addingUserToVault
+);
+
+export const selectIsUserDeletingFromVault = createSelector(
+  [selectDomain],
+  (coWorkerFormState) => coWorkerFormState.deletingUserFromVault
+);

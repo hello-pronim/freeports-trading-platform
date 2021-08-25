@@ -7,6 +7,11 @@ import { RootState } from "../../../../../util/types/RootState";
 const selectDomain = (state: RootState) => state.newOrgRole || initialState;
 
 // eslint-disable-next-line import/prefer-default-export
+export const selectIsOrgRoleCreating = createSelector(
+  [selectDomain],
+  (newOrgRoleState) => newOrgRoleState.orgRoleCreating
+);
+
 export const selectOrgPermissions = createSelector(
   [selectDomain],
   (newOrgRoleState) => newOrgRoleState.orgPermissions
@@ -16,6 +21,12 @@ export const selectIsOrgPermissionsLoading = createSelector(
   [selectDomain],
   (newOrgRoleState) => newOrgRoleState.orgPermissionsLoading
 );
+
+export const selectIsMultiDeskRoleCreating = createSelector(
+  [selectDomain],
+  (newOrgRoleState) => newOrgRoleState.multiDeskRoleCreating
+);
+
 export const selectMultiDeskPermissions = createSelector(
   [selectDomain],
   (newOrgRoleState) => newOrgRoleState.multiDeskPermissions
@@ -25,6 +36,12 @@ export const selectIsMultiDeskPermissionsLoading = createSelector(
   [selectDomain],
   (newOrgRoleState) => newOrgRoleState.multiDeskPermissionsLoading
 );
+
+export const selectIsDeskRoleCreating = createSelector(
+  [selectDomain],
+  (newOrgRoleState) => newOrgRoleState.deskRoleCreating
+);
+
 export const selectDeskPermissions = createSelector(
   [selectDomain],
   (newOrgRoleState) => newOrgRoleState.deskPermissions

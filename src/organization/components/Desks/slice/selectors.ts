@@ -16,3 +16,13 @@ export const selectIsDesksLoading = createSelector(
   [selectDomain],
   (desksState) => desksState.loading
 );
+
+export const selectIsDeskCreating = createSelector(
+  [selectDomain],
+  (desksState) => desksState.creating
+);
+
+export const selectIsDeskDeleting = createSelector(
+  [selectDomain],
+  (desksState) => desksState.deleting
+);

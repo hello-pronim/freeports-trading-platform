@@ -23,9 +23,11 @@ const defaultCoWorker = {
 export const initialState: OrgCoWorkersState = {
   coWorkers: [],
   selectedCoWorker: defaultCoWorker,
-  loading: false,
+  coWorkersLoading: false,
   formLoading: false,
+  formSubmitting: false,
   suspendStateLoading: false,
+  passwordResetting: false,
 };
 
 const slice = createSlice({
@@ -36,11 +38,11 @@ const slice = createSlice({
       state,
       action?: PayloadAction<{ organizationId: string; search?: string }>
     ) {
-      state.loading = true;
+      state.coWorkersLoading = true;
       state.coWorkers = [];
     },
     getCoWorkersSuccess(state, action: PayloadAction<User[]>) {
-      state.loading = false;
+      state.coWorkersLoading = false;
       state.coWorkers = action.payload;
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -48,16 +50,16 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ organizationId: string; user: User }>
     ) {
-      state.formLoading = true;
+      state.formSubmitting = true;
     },
     createCoWorkerSuccess(
       state,
       action: PayloadAction<ResourceCreatedResponse>
     ) {
-      state.formLoading = false;
+      state.formSubmitting = false;
     },
     createCoWorkerError(state) {
-      state.formLoading = false;
+      state.formSubmitting = false;
     },
     updateCoWorker(
       state,
@@ -67,13 +69,13 @@ const slice = createSlice({
         updates: Partial<User>;
       }>
     ) {
-      state.formLoading = true;
+      state.formSubmitting = true;
     },
     updateCoWorkerSuccess(state, action: any) {
-      state.formLoading = false;
+      state.formSubmitting = false;
     },
     updateCoWorkerError(state) {
-      state.formLoading = false;
+      state.formSubmitting = false;
     },
     selectCoWorker(state, action: PayloadAction<User>) {
       state.formLoading = true;
@@ -110,13 +112,13 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ id: string }>
     ) {
-      state.formLoading = true;
+      state.passwordResetting = true;
     },
     sendCoWorkerResetPasswordEmailSuccess(state) {
-      state.formLoading = false;
+      state.passwordResetting = false;
     },
     sendCoWorkerResetPasswordEmailError(state) {
-      state.formLoading = false;
+      state.passwordResetting = false;
     },
   },
 });

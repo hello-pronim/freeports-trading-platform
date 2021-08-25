@@ -13,20 +13,37 @@ export const selectCoWorkers = createSelector(
   (coWorkerState) => coWorkerState.coWorkers
 );
 
-export const selectIsFormLoading = createSelector(
+export const selectIsCoWorkersLoading = createSelector(
   [selectDomain],
-  (coWorkerState) => coWorkerState.formLoading
-);
-export const selectIsLoading = createSelector(
-  [selectDomain],
-  (coWorkerState) => coWorkerState.loading
+  (coWorkerState) => coWorkerState.coWorkersLoading
 );
 
 export const selectSelectedCoWorker = createSelector(
   [selectDomain],
   (coWorkerState) => coWorkerState.selectedCoWorker
 );
-export const selectSuspendStateLoading = createSelector(
+
+export const selectIsFormLoading = createSelector(
+  [selectDomain],
+  (coWorkerState) => coWorkerState.formLoading
+);
+
+export const selectIsFormSubmitting = createSelector(
+  [selectDomain],
+  (coWorkerState) => coWorkerState.submitting
+);
+
+export const selectIsSuspendStateLoading = createSelector(
   [selectDomain],
   (coWorkerState) => coWorkerState.suspendStateLoading
+);
+
+export const selectIsPasswordResetting = createSelector(
+  [selectDomain],
+  (coWorkerState) => coWorkerState.passwordResetting
+);
+
+export const selectIsOTPResetting = createSelector(
+  [selectDomain],
+  (coWorkerState) => coWorkerState.OTPResetting
 );

@@ -24,6 +24,7 @@ export const initialState: AccountsState = {
   accounts: [],
   selectedAccount: defaultAccount,
   loading: false,
+  creating: false,
   deleting: false,
 };
 
@@ -40,10 +41,10 @@ const slice = createSlice({
       state.accounts = action.payload;
     },
     addAccount(state, action: PayloadAction<Account>) {
-      state.loading = true;
+      state.creating = true;
     },
     addAccountSuccess(state, action: PayloadAction<string>) {
-      state.loading = false;
+      state.creating = false;
     },
     removeAccount(state, action: PayloadAction<string>) {
       state.deleting = true;
