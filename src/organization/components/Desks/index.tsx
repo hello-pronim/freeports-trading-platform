@@ -55,6 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const currencyOptions = [{ name: "U$", value: "usd" }];
 interface deskType {
   name: string;
+  tradeLevels: [];
   investors?: number;
   coworkers?: number;
   value?: number;
@@ -76,6 +77,7 @@ const Desks = (): React.ReactElement => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [desk, setDesk] = useState<deskType>({
     name: "",
+    tradeLevels: []
   });
   const { actions } = useDesksSlice();
   const desks = useSelector(selectDesks);

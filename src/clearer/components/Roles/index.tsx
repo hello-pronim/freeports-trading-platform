@@ -34,6 +34,7 @@ export interface RoleType {
   id: string;
   name: string;
   permissions: Array<string>;
+  vaultGroupId?: string;
 }
 interface PermissionType {
   name: string;

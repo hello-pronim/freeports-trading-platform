@@ -41,8 +41,36 @@ export enum VaultPermissions {
   "CreateOrganizationUser" = "CreateOrganizationUser",
   "JoinOrganizationUser" = "JoinOrganizationUser",
   "CreateAccount" = "CreateAccount",
+  "WalletTransaction" = "WalletTransaction",
   // 'Wipe' = 'Wipe',
 }
+
+const roleVaultPermission = {
+  'clearer.organization.create': ['CreateDeleteOrganization'],
+  
+  'clearer.role.create': ['CreateDeleteGroup', 'GrantRevokePermission'],
+  'organization.#organizationId#.role.create': ['CreateDeleteGroup', 'GrantRevokePermission'],
+  'desk.#deskId#.role.create': ['CreateDeleteGroup', 'GrantRevokePermission'],
+
+  'clearer.role.update': ['GrantRevokePermission'],
+  'organization.#organizationId#.role.update': ['GrantRevokePermission'],
+  'desk.#deskId#.role.update': ['GrantRevokePermission'],
+
+  'clearer.role.delete': ['GrantRevokePermission'],
+  'organization.#organizationId#.role.delete': ['GrantRevokePermission'],
+  'desk.#deskId#.role.delete': ['GrantRevokePermission'],
+
+  'clearer.role.assign': ['AddRemoveUser'],
+  'organization.#organizationId#.role.assign': ['AddRemoveUser'],
+  'desk.#deskId#.role.assign': ['AddRemoveUser'],
+
+  'clearer.account.create': ['CreateWallet'],
+  'desk.#deskId#.account.create': ['CreateWallet'],
+
+  'clearer.account.delete': ['DeleteWallet'],
+  'desk.#deskId#.account.delete': ['DeleteWallet'],
+};
+
 interface AuthenticateResponse {
   tokenString: string;
 }
@@ -408,6 +436,87 @@ export class Vault {
     );
 
     return request;
+  }
+
+  public async grantPermissions(
+    ownerType: PermissionOwnerType,
+    ownerId: string,
+    rolePermissions: Array<string>,
+  ): Promise<VaultRequestDto[]> {
+    const permissions: Array<VaultPermissions> = [];
+
+    rolePermissions.forEach((rPermission) => {
+      const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
+      if (vPermissions) {
+        vPermissions.forEach((vPermission) => {
+          if (!permissions.includes(vPermission as VaultPermissions)) {
+            permissions.push(vPermission as VaultPermissions);
+          }
+        });
+      }
+    })
+
+    return Promise.all(
+      permissions.map((permission) => {
+        return this.grantPermission(
+          permission as VaultPermissions,
+          ownerType,
+          ownerId
+        );
+      })
+    );
+  }
+
+  public async removeUserFromGroup(
+    userId: string,
+    groupId: string
+): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.DELETE,
+      `/group/${groupId}/user/${userId}`
+    );
+
+    return request;
+  }
+
+  public async removeUserFromMultipleGroup(
+    userId: string,
+    groupIds: string[]
+  ): Promise<VaultRequestDto[]> {
+    return Promise.all(
+      groupIds.map((groupId) => {
+        return this.removeUserFromGroup(
+          userId,
+          groupId
+        );
+      })
+    );
+  }
+
+  public async addUserToGroup(
+    userId: string,
+    groupId: string
+): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.POST,
+      `/group/${groupId}/user/${userId}`
+    );
+
+    return request;
+  }
+
+  public async addUserToMultipleGroup(
+    userId: string,
+    groupIds: string[]
+  ): Promise<VaultRequestDto[]> {
+    return Promise.all(
+      groupIds.map((groupId) => {
+        return this.addUserToGroup(
+          userId,
+          groupId
+        );
+      })
+    );
   }
 }
 

@@ -3,6 +3,7 @@ import { ResourceCreatedResponse } from "../types/ResourceCreatedResponse";
 import User from "../types/User";
 import axios from "../util/axios";
 import { VaultRequestDto } from "./vaultService";
+import vault from "../vault";
 
 const getClearerUsers = (search?: string): Promise<PaginatedResponse<User>> => {
   console.log("Get clearer user s", search);
@@ -45,10 +46,29 @@ const getClearerUser = (id: string): Promise<User> => {
   });
 };
 
-const updateClearerUser = (id: string, user: Partial<User>): Promise<User> => {
+const updateClearerUser = async (
+  id: string,
+  user: Partial<User>,
+  vaultUserId: string,
+  oldVaultGroup: string[],
+  newVaultGroup: string[]
+): Promise<User> => {
+  const removeFromGroupRequests = await vault.removeUserFromMultipleGroup(
+    vaultUserId,
+    oldVaultGroup
+  );
+  const addToGroupRequests = await vault.addUserToMultipleGroup(
+    vaultUserId,
+    newVaultGroup
+  );
+
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/user/${id}`, user)
+      .patch(`/user/${id}`, {
+        userUpdates: user,
+        removeFromGroupRequests,
+        addToGroupRequests
+      })
       .then((res: any) => {
         console.log(" user update response ", res.data);
 

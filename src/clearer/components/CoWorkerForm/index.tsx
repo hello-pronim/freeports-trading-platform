@@ -121,7 +121,11 @@ const validate = (values: any) => {
 interface CoWorkerFormProps {
   // eslint-disable-next-line react/require-default-props
   coWorker: Partial<User>;
-  onSubmit: (coWorker: User) => void;
+  onSubmit: (
+    coWorker: User,
+    oldVaultGroup: string[],
+    newVaultGroup: string[]
+  ) => void;
   onSendResetPasswordLink: () => void;
   onResetOTP: () => void;
 }
@@ -171,7 +175,27 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
     updates.roles = values.roles;
-    onSubmit(updates as User);
+    const oldVaultGroup: string[] = [];
+    coWorker.roles?.forEach((x: any) => {
+      const exist = existingRoles.find(y => y.id === x.id);
+      if (exist && exist.vaultGroupId) {
+        oldVaultGroup.push(exist.vaultGroupId);
+      }
+    })
+    const newVaultGroup: string[] = [];
+    values.roles.forEach((x: any) => {
+      const exist = existingRoles.find(y => y.id === x.id);
+      if (exist && exist.vaultGroupId) {
+        const index = oldVaultGroup.indexOf(exist.vaultGroupId);
+        if (index !== -1) {
+          oldVaultGroup.splice(index, 1);
+        } else {
+          newVaultGroup.push(exist.vaultGroupId);
+        }
+      }
+    })
+    
+    onSubmit(updates as User, oldVaultGroup, newVaultGroup);
   };
 
   const onViewPublicKey = async (publicKey: string) => {
@@ -229,81 +253,83 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         }) => (
           <form onSubmit={handleSubmit} noValidate>
             <Grid container alignItems="flex-start" spacing={2}>
-              <Grid item xs={12}>
-                <FieldArray name="roles">
-                  {({ fields }) =>
-                    fields.map((name, i) => (
-                      <Grid container key={name} spacing={2}>
-                        <Grid
-                          item
-                          xs={6}
-                          className={
-                            values.roles[i] ? classes.fixSelectLabel : ""
-                          }
-                        >
-                          <Select
-                            native
-                            name={`${name}.id`}
-                            inputProps={{
-                              name: "role",
-                              id: "role-select",
-                            }}
-                            fullWidth
-                            label="Role"
-                            variant="outlined"
-                            inputLabelProps={{
-                              shrink: !!values.roles[i],
-                              filled: true,
-                            }}
+              {coWorker.vaultUserId && (
+                <Grid item xs={12}>
+                  <FieldArray name="roles">
+                    {({ fields }) =>
+                      fields.map((name, i) => (
+                        <Grid container key={name} spacing={2}>
+                          <Grid
+                            item
+                            xs={6}
+                            className={
+                              values.roles[i] ? classes.fixSelectLabel : ""
+                            }
                           >
-                            <option aria-label="None" value="" />
-                            {existingRoles
-                              .filter(
-                                (role) =>
-                                  values.roles[i].id === role.id ||
-                                  values.roles.filter(
-                                    (r: any) => r.id === role.id
-                                  ).length === 0
-                              )
-                              .map((r) => (
-                                <option key={r.id} value={r.id}>
-                                  {r.name}
-                                </option>
-                              ))}
-                          </Select>
-                        </Grid>
-                        {fields.length !== 1 && (
-                          <Grid item xs={1}>
-                            <IconButton
-                              onClick={() => fields.remove(i)}
-                              aria-label="Add role"
+                            <Select
+                              native
+                              name={`${name}.id`}
+                              inputProps={{
+                                name: "role",
+                                id: "role-select",
+                              }}
+                              fullWidth
+                              label="Role"
+                              variant="outlined"
+                              inputLabelProps={{
+                                shrink: !!values.roles[i],
+                                filled: true,
+                              }}
                             >
-                              <DeleteForeverIcon />
-                            </IconButton>
+                              <option aria-label="None" value="" />
+                              {existingRoles
+                                .filter(
+                                  (role) =>
+                                    values.roles[i].id === role.id ||
+                                    values.roles.filter(
+                                      (r: any) => r.id === role.id
+                                    ).length === 0
+                                )
+                                .map((r) => (
+                                  <option key={r.id} value={r.id}>
+                                    {r.name}
+                                  </option>
+                                ))}
+                            </Select>
                           </Grid>
-                        )}
-                        {i === (fields.length || 0) - 1 &&
-                          (fields.length || 0) < existingRoles.length && (
+                          {fields.length !== 1 && (
                             <Grid item xs={1}>
                               <IconButton
-                                onClick={() => push("roles", { id: "" })}
+                                onClick={() => fields.remove(i)}
                                 aria-label="Add role"
                               >
-                                <AddCircleOutlineIcon />
+                                <DeleteForeverIcon />
                               </IconButton>
                             </Grid>
                           )}
-                      </Grid>
-                    ))
-                  }
-                </FieldArray>
-              </Grid>
+                          {i === (fields.length || 0) - 1 &&
+                            (fields.length || 0) < existingRoles.length && (
+                              <Grid item xs={1}>
+                                <IconButton
+                                  onClick={() => push("roles", { id: "" })}
+                                  aria-label="Add role"
+                                >
+                                  <AddCircleOutlineIcon />
+                                </IconButton>
+                              </Grid>
+                            )}
+                        </Grid>
+                      ))
+                    }
+                  </FieldArray>
+                </Grid>
+              )}
               <Grid item xs={12}>
-                <Divider variant="fullWidth" />
-              </Grid>
+	        <Divider variant="fullWidth" />
+	      </Grid>
               <Grid item xs={12}>
-                <Grid container spacing={4}>
-                  <Grid item xs={7}>
+                <Grid container>
+                  <Grid item xs={8}>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <TextField

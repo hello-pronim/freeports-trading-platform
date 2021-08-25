@@ -129,10 +129,22 @@ const CoWorker = (): React.ReactElement => {
     dispatch(actions.createCoWorker({ user: coWorker }));
   };
 
-  const handleCoWorkerUpdate = (updates: User) => {
+  const handleCoWorkerUpdate = (
+    updates: User,
+    oldVaultGroup: string[],
+    newVaultGroup: string[]
+  ) => {
     console.log("CoWorker update", updates, selectedCoWorker);
-    if (selectedCoWorker.id) {
-      dispatch(actions.updateCoWorker({ updates, id: selectedCoWorker.id }));
+    if (selectedCoWorker.id && selectedCoWorker.vaultUserId) {
+      dispatch(
+        actions.updateCoWorker({ 
+          updates,
+          id: selectedCoWorker.id,
+          vaultUserId: selectedCoWorker.vaultUserId,
+          oldVaultGroup,
+          newVaultGroup 
+        })
+      );
     }
   };
 
