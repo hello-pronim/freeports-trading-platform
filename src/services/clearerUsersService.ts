@@ -65,7 +65,7 @@ const updateClearerUser = async (
   return new Promise((resolve, reject) => {
     axios
       .patch(`/user/${id}`, {
-        userUpdates: user,
+        ...user,
         removeFromGroupRequests,
         addToGroupRequests
       })
