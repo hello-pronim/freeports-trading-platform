@@ -12,6 +12,7 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  CircularProgress,
   Container,
   createStyles,
   Divider,
@@ -26,6 +27,7 @@ import {
 
 import { useNewOrgRoleSlice } from "./slice";
 import {
+  selectIsOrgRoleCreating,
   selectOrgPermissions,
   selectIsOrgPermissionsLoading,
 } from "./slice/selectors";
@@ -109,8 +111,8 @@ const NewOrgRole = (): React.ReactElement => {
   const history = useHistory();
   const { organizationId } = Lockr.get("USER_DATA");
   const { actions: newOrgRoleActions } = useNewOrgRoleSlice();
+  const orgRoleCreating = useSelector(selectIsOrgRoleCreating);
   const orgPermissions = useSelector(selectOrgPermissions);
-  console.log("permissions: ", orgPermissions);
   const orgPermissionsLoading = useSelector(selectIsOrgPermissionsLoading);
   const [orgRole, setOrgRole] = useState<RoleType>({
     name: "",
@@ -243,21 +245,34 @@ const NewOrgRole = (): React.ReactElement => {
                 </CardContent>
                 <Divider />
                 <CardActions>
-                  <Grid container justify="flex-end" spacing={2}>
+                  <Grid
+                    container
+                    alignItems="center"
+                    justify="flex-end"
+                    spacing={2}
+                  >
                     <Grid item>
                       <Button variant="contained" onClick={handleCancelClick}>
                         Cancel
                       </Button>
                     </Grid>
                     <Grid item>
-                      <Button
-                        variant="contained"
-                        type="submit"
-                        color="primary"
-                        disabled={submitting || pristine}
-                      >
-                        Create Role
-                      </Button>
+                      <div className={classes.progressButtonWrapper}>
+                        <Button
+                          variant="contained"
+                          type="submit"
+                          color="primary"
+                          disabled={orgRoleCreating}
+                        >
+                          Create Role
+                        </Button>
+                        {orgRoleCreating && (
+                          <CircularProgress
+                            size={24}
+                            className={classes.progressButton}
+                          />
+                        )}
+                      </div>
                     </Grid>
                   </Grid>
                 </CardActions>

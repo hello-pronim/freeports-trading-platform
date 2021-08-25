@@ -13,6 +13,7 @@ import { DesksState } from "./types";
 export const initialState: DesksState = {
   desks: [],
   loading: false,
+  creating: false,
   deleting: false,
 };
 
@@ -32,10 +33,10 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ organizationId: string; desk: Desk }>
     ) {
-      state.loading = true;
+      state.creating = true;
     },
     addDeskSuccess(state, action: PayloadAction<string>) {
-      state.loading = false;
+      state.creating = false;
     },
     removeDesk(
       state,

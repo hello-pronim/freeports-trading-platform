@@ -9,6 +9,7 @@ import { diff } from "deep-object-diff";
 import {
   Button,
   Checkbox,
+  CircularProgress,
   Container,
   Divider,
   Grid,
@@ -25,6 +26,7 @@ import {
   selectOrgRoles,
   selectMultiDeskRoles,
   selectDeskRoles,
+  selectIsUserAddingToVault,
 } from "./slice/selectors";
 import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
@@ -77,6 +79,18 @@ const useStyles = makeStyles((theme) => ({
       transition: "max-width 100ms cubic-bezier(0.0, 0, 0.2, 1) 50ms",
     },
   },
+  progressButtonWrapper: {
+    margin: theme.spacing(1),
+    position: "relative",
+  },
+  progressButton: {
+    color: theme.palette.primary.main,
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginTop: -12,
+    marginLeft: -12,
+  },
 }));
 
 const validate = (values: any) => {
@@ -117,6 +131,8 @@ interface CoWorkerFormProps {
   coWorker: Partial<User>;
   onSubmit: (coWorker: User) => void;
   onSendResetPasswordLink: () => void;
+  formSubmitting: boolean;
+  passwordResetting: boolean;
 }
 interface deskType {
   id?: string;
@@ -127,6 +143,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   onSubmit,
   onSendResetPasswordLink,
   coWorker,
+  formSubmitting,
+  passwordResetting,
 }: CoWorkerFormProps) => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -138,6 +156,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const multiDeskRoles = useSelector(selectMultiDeskRoles);
   const deskRoles = useSelector(selectDeskRoles);
   const currentUser = useSelector(selectUser);
+  const addingUserToVault = useSelector(selectIsUserAddingToVault);
   const canCreateVaultUser =
     currentUser &&
     currentUser.vaultUserId &&
@@ -456,36 +475,66 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Divider />
               </Grid>
               <Grid item xs={12}>
-                <Grid container justify="flex-end" spacing={2}>
+                <Grid
+                  container
+                  alignItems="center"
+                  justify="flex-end"
+                  spacing={1}
+                >
                   <Grid item>
-                    <Button
-                      variant="contained"
-                      disabled={!canCreateVaultUser}
-                      fullWidth
-                      color="primary"
-                      onClick={handleAddVaultUser}
-                    >
-                      Add to vault
-                    </Button>
+                    <div className={classes.progressButtonWrapper}>
+                      <Button
+                        variant="contained"
+                        disabled={!canCreateVaultUser || addingUserToVault}
+                        fullWidth
+                        color="primary"
+                        onClick={handleAddVaultUser}
+                      >
+                        Add to vault
+                      </Button>
+                      {addingUserToVault && (
+                        <CircularProgress
+                          size={24}
+                          className={classes.progressButton}
+                        />
+                      )}
+                    </div>
                   </Grid>
                   <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={onSendResetPasswordLink}
-                    >
-                      Send Reset Password Link
-                    </Button>
+                    <div className={classes.progressButtonWrapper}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={onSendResetPasswordLink}
+                        disabled={passwordResetting}
+                      >
+                        Send Reset Password Link
+                      </Button>
+                      {passwordResetting && (
+                        <CircularProgress
+                          size={24}
+                          className={classes.progressButton}
+                        />
+                      )}
+                    </div>
                   </Grid>
                   <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      type="submit"
-                      disabled={submitting || pristine}
-                    >
-                      Save Changes
-                    </Button>
+                    <div className={classes.progressButtonWrapper}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        disabled={formSubmitting}
+                      >
+                        Save Changes
+                      </Button>
+                      {formSubmitting && (
+                        <CircularProgress
+                          size={24}
+                          className={classes.progressButton}
+                        />
+                      )}
+                    </div>
                   </Grid>
                 </Grid>
               </Grid>

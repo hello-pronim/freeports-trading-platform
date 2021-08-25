@@ -8,6 +8,7 @@ import { TextField as MuiTextField, Select as MuiSelect } from "mui-rff";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
+  CircularProgress,
   Container,
   createStyles,
   Dialog,
@@ -30,7 +31,12 @@ import MaterialTable from "material-table";
 import { useInvestorsSlice } from "./slice";
 import { useInvestorDetailSlice } from "./Detail/slice";
 import { useDesksSlice } from "../Desks/slice";
-import { selectInvestors, selectIsInvestorsLoading } from "./slice/selectors";
+import {
+  selectInvestors,
+  selectIsInvestorsLoading,
+  selectIsInvestorCreating,
+} from "./slice/selectors";
+import { selectIsTradeRequestCreating } from "./Detail/slice/selectors";
 import { selectDesks } from "../Desks/slice/selectors";
 import Loader from "../../../components/Loader";
 import { useOrganization } from "../../../hooks";
@@ -83,6 +89,18 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: theme.palette.primary.main,
     },
+    progressButtonWrapper: {
+      margin: theme.spacing(1),
+      position: "relative",
+    },
+    progressButton: {
+      color: theme.palette.primary.main,
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      marginTop: -12,
+      marginLeft: -12,
+    },
   })
 );
 
@@ -127,6 +145,8 @@ const Investors = (): React.ReactElement => {
   const { getOrganization } = useOrganization();
   const investors = useSelector(selectInvestors);
   const investorsLoading = useSelector(selectIsInvestorsLoading);
+  const investorCreating = useSelector(selectIsInvestorCreating);
+  const tradeRequestCreating = useSelector(selectIsTradeRequestCreating);
   const desks = useSelector(selectDesks);
   const { actions: investorsActions } = useInvestorsSlice();
   const { actions: investorDetailActions } = useInvestorDetailSlice();
@@ -380,14 +400,22 @@ const Investors = (): React.ReactElement => {
                 >
                   Cancel
                 </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  disabled={submitting || pristine}
-                >
-                  Create
-                </Button>
+                <div className={classes.progressButtonWrapper}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={investorCreating}
+                  >
+                    Create
+                  </Button>
+                  {investorCreating && (
+                    <CircularProgress
+                      size={24}
+                      className={classes.progressButton}
+                    />
+                  )}
+                </div>
               </DialogActions>
             </form>
           )}
@@ -517,14 +545,22 @@ const Investors = (): React.ReactElement => {
                 >
                   Cancel
                 </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  disabled={submitting || pristine}
-                >
-                  Create
-                </Button>
+                <div className={classes.progressButtonWrapper}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={tradeRequestCreating}
+                  >
+                    Create
+                  </Button>
+                  {tradeRequestCreating && (
+                    <CircularProgress
+                      size={24}
+                      className={classes.progressButton}
+                    />
+                  )}
+                </div>
               </DialogActions>
             </form>
           )}

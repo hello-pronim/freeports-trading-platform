@@ -17,6 +17,16 @@ export const selectIsOrgRolesLoading = createSelector(
   (rolesState) => rolesState.orgRolesLoading
 );
 
+export const selectIsOrgRoleUpdating = createSelector(
+  [selectDomain],
+  (rolesState) => rolesState.orgRoleUpdating
+);
+
+export const selectIsOrgRoleDeleting = createSelector(
+  [selectDomain],
+  (rolesState) => rolesState.orgRoleDeleting
+);
+
 export const selectMultiDeskRoles = createSelector(
   [selectDomain],
   (rolesState) => rolesState.multiDeskRoles
@@ -25,6 +35,16 @@ export const selectMultiDeskRoles = createSelector(
 export const selectIsMultiDeskRolesLoading = createSelector(
   [selectDomain],
   (rolesState) => rolesState.multiDeskRolesLoading
+);
+
+export const selectIsMultiDeskRoleUpdating = createSelector(
+  [selectDomain],
+  (rolesState) => rolesState.multiDeskRoleUpdating
+);
+
+export const selectIsMultiDeskRoleDeleting = createSelector(
+  [selectDomain],
+  (rolesState) => rolesState.multiDeskRoleDeleting
 );
 
 export const selectDeskRoles = createSelector(
@@ -37,14 +57,14 @@ export const selectIsDeskRolesLoading = createSelector(
   (rolesState) => rolesState.deskRolesLoading
 );
 
-export const selectIsRoleUpdating = createSelector(
+export const selectIsDeskRoleUpdating = createSelector(
   [selectDomain],
-  (rolesState) => rolesState.updating
+  (rolesState) => rolesState.deskRoleUpdating
 );
 
-export const selectIsRoleRemoving = createSelector(
+export const selectIsDeskRoleDeleting = createSelector(
   [selectDomain],
-  (rolesState) => rolesState.deleting
+  (rolesState) => rolesState.deskRoleDeleting
 );
 
 export const selectOrgPermissions = createSelector(

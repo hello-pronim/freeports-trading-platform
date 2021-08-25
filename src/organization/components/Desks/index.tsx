@@ -9,6 +9,7 @@ import arrayMutators from "final-form-arrays";
 import { TextField } from "mui-rff";
 import {
   Button,
+  CircularProgress,
   Container,
   createStyles,
   Dialog,
@@ -31,7 +32,11 @@ import MaterialTable from "material-table";
 
 import data from "./data";
 import { useDesksSlice } from "./slice";
-import { selectDesks } from "./slice/selectors";
+import {
+  selectDesks,
+  selectIsDeskCreating,
+  selectIsDeskDeleting,
+} from "./slice/selectors";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,6 +53,18 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     link: {
       color: theme.palette.primary.main,
+    },
+    progressButtonWrapper: {
+      margin: theme.spacing(1),
+      position: "relative",
+    },
+    progressButton: {
+      color: theme.palette.primary.main,
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      marginTop: -12,
+      marginLeft: -12,
     },
   })
 );
@@ -77,10 +94,12 @@ const Desks = (): React.ReactElement => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [desk, setDesk] = useState<deskType>({
     name: "",
-    tradeLevels: []
+    tradeLevels: [],
   });
   const { actions } = useDesksSlice();
   const desks = useSelector(selectDesks);
+  const deskCreating = useSelector(selectIsDeskCreating);
+  const deskDeleting = useSelector(selectIsDeskDeleting);
 
   useEffect(() => {
     dispatch(actions.getDesks(organizationId));
@@ -203,6 +222,7 @@ const Desks = (): React.ReactElement => {
                               <IconButton
                                 color="inherit"
                                 onClick={() => handleDeskDelete(id)}
+                                disabled={deskDeleting}
                               >
                                 <DeleteIcon
                                   fontSize="small"
@@ -268,14 +288,22 @@ const Desks = (): React.ReactElement => {
                   <Button onClick={handleDialogClose} variant="contained">
                     Cancel
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={submitting || pristine}
-                  >
-                    Create
-                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={deskCreating}
+                    >
+                      Create
+                    </Button>
+                    {deskCreating && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
                 </DialogActions>
               </form>
             )}

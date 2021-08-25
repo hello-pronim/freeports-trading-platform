@@ -13,6 +13,7 @@ import { InvestorsState } from "./types";
 export const initialState: InvestorsState = {
   investors: [],
   loading: false,
+  creating: false,
   deleting: false,
 };
 
@@ -36,10 +37,10 @@ const slice = createSlice({
         investor: Investor;
       }>
     ) {
-      state.loading = true;
+      state.creating = true;
     },
     addInvestorSuccess(state, action: PayloadAction<string>) {
-      state.loading = false;
+      state.creating = false;
     },
     removeInvestor(
       state,

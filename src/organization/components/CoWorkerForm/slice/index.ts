@@ -16,6 +16,7 @@ export const initialState: OrgCoWorkerFormState = {
   multiDeskRoles: [],
   deskRoles: [],
   loading: false,
+  addingUserToVault: false,
 };
 
 const slice = createSlice({
@@ -50,7 +51,10 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ userId: string; publicKey: PublicKeyDoc }>
     ) {
-      state.loading = true;
+      state.addingUserToVault = true;
+    },
+    addUserToVaultSuccess(state) {
+      state.addingUserToVault = false;
     },
   },
 });

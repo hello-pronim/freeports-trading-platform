@@ -4,7 +4,9 @@ import User from "../../../../types/User";
 export interface OrgCoWorkersState {
   coWorkers: User[];
   selectedCoWorker: User;
-  loading: boolean;
+  coWorkersLoading: boolean;
   formLoading: boolean;
+  formSubmitting: boolean;
   suspendStateLoading: boolean;
+  passwordResetting: boolean;
 }

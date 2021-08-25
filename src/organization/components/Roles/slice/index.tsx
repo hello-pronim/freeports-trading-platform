@@ -31,8 +31,6 @@ export const initialState: OrgRolesState = {
   orgPermissionsLoading: false,
   multiDeskPermissionsLoading: false,
   deskPermissionsLoading: false,
-  updating: false,
-  deleting: false,
 };
 
 const slice = createSlice({

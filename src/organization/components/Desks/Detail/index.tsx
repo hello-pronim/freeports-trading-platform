@@ -9,6 +9,7 @@ import arrayMutators from "final-form-arrays";
 import { TextField as MuiTextField } from "mui-rff";
 import {
   Button,
+  CircularProgress,
   Container,
   createStyles,
   Dialog,
@@ -33,7 +34,11 @@ import red from "@material-ui/core/colors/red";
 
 import { useDesksSlice } from "../slice";
 import { useDeskDetailSlice } from "./slice";
-import { selectDesks, selectIsDesksLoading } from "../slice/selectors";
+import {
+  selectDesks,
+  selectIsDesksLoading,
+  selectIsDeskCreating,
+} from "../slice/selectors";
 import { selectDeskDetail, selectIsDetailLoading } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
 
@@ -58,6 +63,18 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     errorMessage: {
       marginTop: theme.spacing(8),
+    },
+    progressButtonWrapper: {
+      margin: theme.spacing(1),
+      position: "relative",
+    },
+    progressButton: {
+      color: theme.palette.primary.main,
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      marginTop: -12,
+      marginLeft: -12,
     },
   })
 );
@@ -97,6 +114,7 @@ const Detail = (): React.ReactElement => {
   const selectedDesk = useSelector(selectDeskDetail);
   const desksLoading = useSelector(selectIsDesksLoading);
   const deskDetailLoading = useSelector(selectIsDetailLoading);
+  const deskCreating = useSelector(selectIsDeskCreating);
   const [searchText, setSearchText] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -264,14 +282,22 @@ const Detail = (): React.ReactElement => {
                   <Button onClick={handleDialogClose} variant="contained">
                     Cancel
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={submitting || pristine}
-                  >
-                    Create
-                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={deskCreating}
+                    >
+                      Create
+                    </Button>
+                    {deskCreating && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
                 </DialogActions>
               </form>
             )}
