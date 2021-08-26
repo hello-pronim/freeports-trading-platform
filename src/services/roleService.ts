@@ -56,16 +56,42 @@ const addNewRole = async (
   });
 };
 
-const modifyRole = (
+const modifyRole = async (
   id: string,
   name: string,
-  permissions: Array<string>
+  permissions: Array<string>,
+  oldPermissions: Array<string>,
+  vaultGroupId: string,
 ): Promise<string> => {
+  const newPermissions: string[] = [];
+  permissions.forEach(x => {
+    const index = oldPermissions.indexOf(x);
+    if (index !== -1) {
+      oldPermissions.splice(index, 1);
+    } else {
+      newPermissions.push(x);
+    }
+  })
+
+  const vaultRevokePermissionRequest = await vault.revokePermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    oldPermissions
+  );
+
+  const vaultGrantPermissionRequest = await vault.grantPermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    newPermissions
+  );
+
   return new Promise((resolve, reject) => {
     axios
       .patch(`/role/${id}`, {
         name,
         permissions,
+        vaultRevokePermissionRequest,
+        vaultGrantPermissionRequest,
       })
       .then((res: any) => {
         return resolve(res.data);

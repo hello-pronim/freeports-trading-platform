@@ -13,6 +13,7 @@ const { clearError, setError } = reduxActions;
 interface RoleType {
   name: string;
   permissions: Array<string>;
+  vaultGroupId?: string;
 }
 
 function useRole(): any {
@@ -30,14 +31,25 @@ function useRole(): any {
 
     return newRoleId;
   };
-  const updateRole = async (id: string, newRole: RoleType) => {
+  const updateRole = async (
+    id: string, 
+    newRole: RoleType, 
+    oldPermissions: string[]
+  ) => {
     dispatch(clearError());
-    const newRoleId = await modifyRole(id, newRole.name, newRole.permissions)
+    const newRoleId = await modifyRole(
+      id,
+      newRole.name,
+      newRole.permissions,
+      oldPermissions,
+      newRole.vaultGroupId as string,
+    )
       .then((data) => {
         return data;
       })
       .catch((err) => {
         dispatch(setError(err));
+        return err;
       });
 
     return newRoleId;

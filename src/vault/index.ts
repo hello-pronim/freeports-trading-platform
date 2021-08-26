@@ -518,6 +518,48 @@ export class Vault {
       })
     );
   }
+
+  public async revokePermissions(
+    ownerType: PermissionOwnerType,
+    ownerId: string,
+    rolePermissions: Array<string>,
+  ): Promise<VaultRequestDto[]> {
+    const permissions: Array<VaultPermissions> = [];
+
+    rolePermissions.forEach((rPermission) => {
+      const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
+      if (vPermissions) {
+        vPermissions.forEach((vPermission) => {
+          if (!permissions.includes(vPermission as VaultPermissions)) {
+            permissions.push(vPermission as VaultPermissions);
+          }
+        });
+      }
+    })
+
+    return Promise.all(
+      permissions.map((permission) => {
+        return this.revokePermission(
+          permission as VaultPermissions,
+          ownerType,
+          ownerId
+        );
+      })
+    );
+  }
+
+  private async revokePermission(
+    permissionType: VaultPermissions,
+    ownerType: PermissionOwnerType,
+    ownerId: string
+  ) {
+    const request = await this.createRequest(Method.DELETE, "/vault/permission", {
+      permissionType,
+      ownerType,
+      ownerId,
+    });
+    return request;
+  }
 }
 
 const vault = new Vault();

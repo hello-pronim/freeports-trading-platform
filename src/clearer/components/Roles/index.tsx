@@ -184,32 +184,27 @@ const Roles = (): React.ReactElement => {
 
   const onRoleSave = async (roleId: string) => {
     const newRole = roles.filter((role: RoleType) => role.id === roleId)[0];
+    const oldRoles = await retrieveRoles();
+    const oldPermissions = oldRoles.find((role: RoleType) => role.id === roleId).permissions;
 
     setSaving(true);
     setShowAlert(false);
     setSubmitResponse({ type: "", message: "" });
 
-    console.log(newRole);
-
-    await updateRole(roleId, newRole)
-      .then((data: string) => {
-        if (data !== "") {
-          setSaving(false);
-          setSubmitResponse({
-            type: "success",
-            message: "Role has been updated successfully.",
-          });
-          setShowAlert(true);
-        }
-      })
-      .catch((err: any) => {
-        setSaving(false);
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-        setShowAlert(true);
+    const response = await updateRole(roleId, newRole, oldPermissions);
+    if (response.errorType) {
+      setSubmitResponse({
+        type: "error",
+        message: response.message,
       });
+    } else {
+      setSubmitResponse({
+        type: "success",
+        message: "Role has been updated successfully.",
+      });
+    }
+    setSaving(false);
+    setShowAlert(true);
   };
 
   const onRoleRemove = async (roleId: string) => {
