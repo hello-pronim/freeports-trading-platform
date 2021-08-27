@@ -4,6 +4,7 @@ import axios, { AxiosResponse } from "axios";
 
 import { VaultAccountType } from "./enum/vault-account-type";
 import { PermissionOwnerType } from "./enum/permission-owner-type";
+import { VaultAssetType } from "./enum/asset-type";
 import sendRequest, { Method, VaultRequestDto } from "../services/vaultService";
 import arrayBufferToBase64, { spki2String } from "../util/keyStore/functions";
 import {
@@ -592,6 +593,25 @@ export class Vault {
   public async getAllWallets(): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.GET, "/organization/wallet"
+    );
+    return request;
+  }
+
+  public async grantPermissionToAsset(
+    asset: VaultAssetType,
+    assetId: string,
+    ownerType: PermissionOwnerType,
+    ownerId: string,
+    permissionType: VaultPermissions,
+  ): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.POST, 
+      `/vault/${asset}/${assetId}/permission`, 
+      {
+        ownerType,
+        ownerId,
+        permissionType,
+      }
     );
     return request;
   }

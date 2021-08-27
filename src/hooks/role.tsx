@@ -1,5 +1,5 @@
-import { useDispatch } from "react-redux";
-
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser } from "../slice/selectors";
 import reduxActions from "../store/actions";
 import {
   getClearerRoles,
@@ -18,10 +18,15 @@ interface RoleType {
 
 function useRole(): any {
   const dispatch = useDispatch();
+  const currentUser = useSelector(selectUser);
 
   const createNewRole = async (newRole: RoleType) => {
     dispatch(clearError());
-    const newRoleId = await addNewRole(newRole.name, newRole.permissions)
+    const newRoleId = await addNewRole(
+      newRole.name, 
+      newRole.permissions, 
+      currentUser?.vaultUserId as string
+    )
       .then((data) => {
         return data;
       })
