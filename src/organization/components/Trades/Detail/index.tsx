@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Lockr from "lockr";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router";
@@ -13,6 +13,7 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  CircularProgress,
   Container,
   createStyles,
   Divider,
@@ -51,49 +52,6 @@ import AccurateNumber from "../../../../components/AccurateNumber";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
 import AmountInput from "../AmountInput";
 
-const columns = [
-  {
-    field: "createdAt",
-    title: "Date",
-    cellStyle: {
-      width: "12%",
-    },
-    render: ({ createdAt }: any) =>
-      createdAt
-        ? DateTime.fromISO(createdAt).toFormat("y'-'MM'-'dd' 'HH':'mm':'ss")
-        : "",
-  },
-
-  {
-    field: "brokerId",
-    title: "Broker",
-    cellStyle: {
-      width: "12%",
-    },
-  },
-  {
-    field: "quantity",
-    title: "Quantity",
-    cellStyle: {
-      width: "12%",
-    },
-  },
-
-  {
-    field: "price",
-    title: "price",
-    cellStyle: {
-      width: "12%",
-    },
-    render: ({ price, baseCurrency }: any) => (
-      <>
-        <AccurateNumber number={price} />
-        {baseCurrency}
-      </>
-    ),
-  },
-];
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     addButton: {
@@ -120,23 +78,24 @@ const useStyles = makeStyles((theme: Theme) =>
     errorMessage: {
       marginTop: theme.spacing(8),
     },
-    brokerCardHeader: {
-      backgroundColor: theme.palette.primary.main,
-      color: "white",
-    },
     currencyBtnGroup: {
       width: 96,
     },
+    tradePanel: {
+      color: "#FFF",
+    },
     numberInput: {
+      border: `2px solid ${grey[300]}`,
       "& input": {
         border: 0,
+        color: "currentColor",
         "&:focus": { outline: "none!important" },
         "font-size": "3.75rem",
         "font-family": '"Roboto", "Helvetica", "Arial", sans-serif',
         "font-weight": 300,
         "line-height": 1.2,
         "letter-spacing": "-0.00833em",
-        backgroundColor: grey[300],
+        backgroundColor: "transparent",
         width: "100%",
       },
       "& input::-webkit-outer-spin-button": {
@@ -153,6 +112,17 @@ const useStyles = makeStyles((theme: Theme) =>
         "-moz-appearance": "textfield",
       },
     },
+    progressButtonWrapper: {
+      position: "relative",
+    },
+    progressButton: {
+      color: theme.palette.primary.main,
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      marginTop: -12,
+      marginLeft: -12,
+    },
   })
 );
 
@@ -168,7 +138,7 @@ const TabPanel = (props: any) => {
       {...other}
     >
       {value === index && (
-        <Box p={3}>
+        <Box>
           <Typography>{children}</Typography>
         </Box>
       )}
@@ -185,21 +155,20 @@ const TradeDetail = (): React.ReactElement => {
   const tradeRequest = useSelector(selectTradeRequestDetail);
   const tradeRequestLoading = useSelector(selectIsDetailLoading);
   const { actions: tradeDetailActions } = useTradeDetailSlice();
-
   const rfqsLoading = useSelector(selectRfqsLoading);
   const orderLoading = useSelector(selectOrderLoading);
   const rfqs = useSelector(selectRfqs);
   const bestRfq = useSelector(selectBestRfq);
-
+  // const rfqs = brokers;
+  // const bestRfq = brokers[0];
   const remainingQuantity = useSelector(selectRemainingQuantity);
-
   const baseCurrency = useSelector(selectBaseCurrency);
   // const tradeAmount = useSelector(selectTradeAmount);
 
   useEffect(() => {
     let mounted = false;
-    const init = async () => {
-      await dispatch(
+    const init = () => {
+      dispatch(
         tradeDetailActions.getTradeRequestDetail({
           organizationId,
           deskId,
@@ -272,7 +241,7 @@ const TradeDetail = (): React.ReactElement => {
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Card className={classes.greyCard}>
+                    <Card>
                       <CardContent>
                         <Grid container justify="space-between">
                           <Grid item xs={4} md={2}>
@@ -285,7 +254,7 @@ const TradeDetail = (): React.ReactElement => {
                               <Typography variant="subtitle2">
                                 Trade value
                               </Typography>
-                              <ButtonGroup
+                              {/* <ButtonGroup
                                 className={classes.currencyBtnGroup}
                                 variant="contained"
                                 color="primary"
@@ -295,7 +264,7 @@ const TradeDetail = (): React.ReactElement => {
                                 <Button disabled>
                                   {tradeRequest.currencyFrom}
                                 </Button>
-                              </ButtonGroup>
+                              </ButtonGroup> */}
                             </Grid>
                           </Grid>
                           <Grid item xs={8} md={4}>
@@ -304,12 +273,15 @@ const TradeDetail = (): React.ReactElement => {
                               display="flex"
                               flexDirection="row"
                               alignItems="flex-end"
-                              bgcolor="grey.300"
+                              // bgcolor="grey.300"
                               borderRadius={16}
                               height={100}
                               p={2}
                             >
-                              <Typography variant="subtitle2">
+                              <Typography
+                                variant="subtitle2"
+                                color="textSecondary"
+                              >
                                 {baseCurrency}
                               </Typography>
                               {/* <Typography variant="h3">30</Typography> */}
@@ -323,17 +295,22 @@ const TradeDetail = (): React.ReactElement => {
                             </Box>
                           </Grid>
                           <Grid item xs={12} md={6}>
-                            <Grid container>
-                              <Grid item xs={4}>
+                            <Grid container justify="flex-end" spacing={2}>
+                              <Grid item>
+                                <Divider orientation="vertical" />
+                              </Grid>
+                              <Grid item>
                                 <Box
                                   display="flex"
                                   flexDirection="row"
                                   alignItems="flex-end"
-                                  borderRadius={16}
                                   height={100}
                                   p={2}
                                 >
-                                  <Typography variant="subtitle2">
+                                  <Typography
+                                    variant="subtitle2"
+                                    color="textSecondary"
+                                  >
                                     {baseCurrency}
                                   </Typography>
                                   <Typography variant="h3">
@@ -341,12 +318,11 @@ const TradeDetail = (): React.ReactElement => {
                                   </Typography>
                                 </Box>
                               </Grid>
-                              <Grid item xs={4}>
+                              <Grid item>
                                 <Box
                                   display="flex"
                                   flexDirection="row"
                                   alignItems="flex-end"
-                                  borderRadius={16}
                                   height={100}
                                   p={2}
                                 >
@@ -355,16 +331,18 @@ const TradeDetail = (): React.ReactElement => {
                                   </Typography>
                                 </Box>
                               </Grid>
-                              <Grid item xs={4}>
+                              <Grid item>
                                 <Box
                                   display="flex"
                                   flexDirection="row"
                                   alignItems="flex-end"
-                                  borderRadius={16}
                                   height={100}
                                   p={2}
                                 >
-                                  <Typography variant="subtitle2">
+                                  <Typography
+                                    variant="subtitle2"
+                                    color="textSecondary"
+                                  >
                                     {baseCurrency}
                                   </Typography>
                                   <Typography variant="h3">
@@ -399,33 +377,28 @@ const TradeDetail = (): React.ReactElement => {
                 </Grid>
               </Grid>
             )}
-            {(rfqsLoading || orderLoading) && <Loader />}
-            {remainingQuantity !== "0" &&
-              !rfqsLoading &&
-              !orderLoading &&
-              rfqs.length > 0 && (
-                <Grid item xs={12} spacing={2}>
-                  <Grid container spacing={4}>
-                    <Grid item xs={12}>
-                      <Grid container spacing={2}>
-                        <Grid item xs={3}>
-                          <Card>
-                            <CardHeader
-                              className={classes.brokerCardHeader}
-                              title={
-                                <Typography variant="h6" align="center">
-                                  BEST BROKER VALUE
-                                </Typography>
-                              }
-                            />
-                            <Divider className={classes.dividerColor} />
-                            <CardContent style={{ backgroundColor: grey[300] }}>
-                              <Grid container justify="flex-end" xs={12}>
-                                <Typography variant="body1">
-                                  {bestRfq.brokerId}
-                                </Typography>
-                              </Grid>
-                              <Grid container justify="flex-end" xs={12}>
+            {rfqsLoading && <Loader />}
+            {remainingQuantity !== "0" && !rfqsLoading && rfqs.length > 0 && (
+              <Grid item xs={12}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <Typography variant="h6">BEST BROKER VALUE</Typography>
+                      </Grid>
+                      <Grid item xs={3}>
+                        <Card>
+                          <CardHeader
+                            title={
+                              <Typography variant="h6" align="right">
+                                {bestRfq.brokerId}
+                              </Typography>
+                            }
+                          />
+                          <Divider />
+                          <CardContent>
+                            <Grid container justify="flex-end">
+                              <Grid item>
                                 <Typography
                                   variant="body2"
                                   style={{
@@ -436,142 +409,163 @@ const TradeDetail = (): React.ReactElement => {
                                   Rate
                                 </Typography>
                                 <Typography variant="h5">
-                                  {tradeRequest.currencyTo}
+                                  {`${tradeRequest.currencyTo} `}
                                   <AccurateNumber number={bestRfq.price} />
-
-                                  {tradeRequest.currencyFrom}
+                                  {`/${tradeRequest.currencyFrom}`}
                                 </Typography>
                               </Grid>
-                              <Grid
-                                container
-                                alignItems="center"
-                                justify="flex-end"
-                                xs={12}
-                              >
-                                <Typography
-                                  variant="body2"
-                                  style={{
-                                    fontWeight: 600,
-                                    marginRight: "10px",
-                                  }}
-                                >
-                                  {tradeRequest.currencyFrom !== baseCurrency
-                                    ? tradeRequest.currencyFrom
-                                    : tradeRequest.currencyTo}
-                                </Typography>
-                                <Typography variant="body2">
-                                  <AccurateNumber
-                                    number={new BigNumber(bestRfq.price)
-                                      .times(new BigNumber(bestRfq.quantity))
-                                      .toString()}
-                                  />
-                                </Typography>
-                              </Grid>
-                            </CardContent>
-                            <Divider className={classes.dividerColor} />
-                            <CardActions
-                              disableSpacing
-                              style={{ backgroundColor: grey[300] }}
+                            </Grid>
+                            <Grid
+                              container
+                              alignItems="center"
+                              justify="flex-end"
+                              xs={12}
                             >
-                              <Button
-                                variant="outlined"
-                                className="w-100"
-                                onClick={() => handleOnOrder(bestRfq)}
+                              <Typography
+                                variant="body2"
+                                style={{
+                                  fontWeight: 600,
+                                  marginRight: "10px",
+                                }}
                               >
-                                Click to order!
-                              </Button>
-                            </CardActions>
-                          </Card>
-                        </Grid>
+                                {tradeRequest.currencyFrom !== baseCurrency
+                                  ? tradeRequest.currencyFrom
+                                  : tradeRequest.currencyTo}
+                              </Typography>
+                              <Typography variant="body2">
+                                <AccurateNumber
+                                  number={new BigNumber(bestRfq.price)
+                                    .times(new BigNumber(bestRfq.quantity))
+                                    .toString()}
+                                />
+                              </Typography>
+                            </Grid>
+                          </CardContent>
+                          <Divider className={classes.dividerColor} />
+                          <CardActions disableSpacing>
+                            <Grid container>
+                              <Grid item xs={12}>
+                                <div className={classes.progressButtonWrapper}>
+                                  <Button
+                                    variant="contained"
+                                    className="w-100"
+                                    color="primary"
+                                    onClick={() => handleOnOrder(bestRfq)}
+                                    disabled={orderLoading}
+                                  >
+                                    Click to order!
+                                  </Button>
+                                  {orderLoading && (
+                                    <CircularProgress
+                                      size={24}
+                                      className={classes.progressButton}
+                                    />
+                                  )}
+                                </div>
+                              </Grid>
+                            </Grid>
+                          </CardActions>
+                        </Card>
                       </Grid>
                     </Grid>
-                    <Grid item xs={12} spacing={4}>
-                      <Grid container>
-                        <Grid item xs={12}>
-                          <Typography
-                            variant="subtitle2"
-                            style={{ fontWeight: 600 }}
-                          >
-                            ALL BROKERS
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Grid container spacing={2}>
-                            {rfqs.map((rfq: any) => (
-                              <Grid key={rfq.id} item xs={2}>
-                                <Card className="w-100">
-                                  <CardContent
-                                    style={{ backgroundColor: grey[300] }}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <Typography variant="h6">ALL BROKERS</Typography>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Grid container spacing={2}>
+                          {rfqs.map((rfq: any) => (
+                            <Grid key={rfq.id} item xs={3}>
+                              <Card className="w-100">
+                                <CardContent>
+                                  <Grid container justify="flex-end" xs={12}>
+                                    <Typography variant="body1">
+                                      {rfq.brokerId}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid
+                                    container
+                                    alignItems="center"
+                                    justify="flex-end"
+                                    xs={12}
                                   >
-                                    <Grid container justify="flex-end" xs={12}>
-                                      <Typography variant="body1">
-                                        {rfq.brokerId}
-                                      </Typography>
-                                    </Grid>
-                                    <Grid
-                                      container
-                                      alignItems="center"
-                                      justify="flex-end"
-                                      xs={12}
+                                    <Typography
+                                      variant="body2"
+                                      style={{
+                                        fontWeight: 600,
+                                        marginRight: "10px",
+                                      }}
                                     >
-                                      <Typography
-                                        variant="body2"
-                                        style={{
-                                          fontWeight: 600,
-                                          marginRight: "10px",
-                                        }}
-                                      >
-                                        {tradeRequest.currencyFrom !==
-                                        baseCurrency
-                                          ? tradeRequest.currencyFrom
-                                          : tradeRequest.currencyTo}
-                                      </Typography>
-                                      <Typography variant="h5">
-                                        <AccurateNumber
-                                          number={new BigNumber(rfq.price)
-                                            .times(new BigNumber(rfq.quantity))
-                                            .toString()}
-                                        />
-                                      </Typography>
-                                    </Grid>
-                                    <Grid container justify="flex-end" xs={12}>
-                                      <Typography
-                                        variant="body2"
-                                        style={{
-                                          fontWeight: 600,
-                                          marginRight: "10px",
-                                        }}
-                                      >
-                                        Rate
-                                      </Typography>
-                                      <Typography variant="body2">
-                                        <AccurateNumber number={rfq.price} />
-                                      </Typography>
-                                    </Grid>
-                                  </CardContent>
-                                  <Divider className={classes.dividerColor} />
-                                  <CardActions
-                                    disableSpacing
-                                    style={{ backgroundColor: grey[300] }}
-                                  >
-                                    <Button
-                                      variant="outlined"
-                                      className="w-100"
-                                      onClick={() => handleOnOrder(rfq)}
+                                      {tradeRequest.currencyFrom !==
+                                      baseCurrency
+                                        ? tradeRequest.currencyFrom
+                                        : tradeRequest.currencyTo}
+                                    </Typography>
+                                    <Typography variant="h5">
+                                      <AccurateNumber
+                                        number={new BigNumber(rfq.price)
+                                          .times(new BigNumber(rfq.quantity))
+                                          .toString()}
+                                      />
+                                    </Typography>
+                                  </Grid>
+                                  <Grid container justify="flex-end" xs={12}>
+                                    <Typography
+                                      variant="body2"
+                                      style={{
+                                        fontWeight: 600,
+                                        marginRight: "10px",
+                                      }}
                                     >
-                                      Click to order!
-                                    </Button>
-                                  </CardActions>
-                                </Card>
-                              </Grid>
-                            ))}
-                          </Grid>
+                                      Rate
+                                    </Typography>
+                                    <Typography variant="body2">
+                                      {`${tradeRequest.currencyTo} `}
+                                      <AccurateNumber number={rfq.price} />
+                                      {`/${tradeRequest.currencyFrom}`}
+                                    </Typography>
+                                  </Grid>
+                                </CardContent>
+                                <Divider className={classes.dividerColor} />
+                                <CardActions disableSpacing>
+                                  <Grid container>
+                                    <Grid item xs={12}>
+                                      <div
+                                        className={
+                                          classes.progressButtonWrapper
+                                        }
+                                      >
+                                        <Button
+                                          variant="outlined"
+                                          color="primary"
+                                          className="w-100"
+                                          onClick={() => handleOnOrder(rfq)}
+                                          disabled={orderLoading}
+                                        >
+                                          Click to order!
+                                        </Button>
+                                        {orderLoading && (
+                                          <CircularProgress
+                                            size={24}
+                                            className={classes.progressButton}
+                                          />
+                                        )}
+                                      </div>
+                                    </Grid>
+                                  </Grid>
+                                </CardActions>
+                              </Card>
+                            </Grid>
+                          ))}
                         </Grid>
                       </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
-              )}
+              </Grid>
+            )}
 
             <Grid item xs={12}>
               <AppBar position="static" color="inherit">
@@ -611,7 +605,48 @@ const TradeDetail = (): React.ReactElement => {
                 index={0}
               >
                 <MaterialTable
-                  columns={columns}
+                  columns={[
+                    {
+                      field: "createdAt",
+                      title: "Date",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                      render: ({ createdAt }: any) =>
+                        createdAt
+                          ? DateTime.fromISO(createdAt).toFormat(
+                              "y'-'MM'-'dd' 'HH':'mm':'ss"
+                            )
+                          : "",
+                    },
+                    {
+                      field: "brokerId",
+                      title: "Broker",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                    },
+                    {
+                      field: "quantity",
+                      title: "Quantity",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                    },
+                    {
+                      field: "price",
+                      title: "price",
+                      cellStyle: {
+                        width: "12%",
+                      },
+                      render: ({ price, baseCurrency: currency }: any) => (
+                        <>
+                          <AccurateNumber number={price} />
+                          {currency}
+                        </>
+                      ),
+                    },
+                  ]}
                   data={
                     tradeRequest.orders
                       ? tradeRequest.orders.map((order) => ({
