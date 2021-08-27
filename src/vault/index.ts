@@ -553,11 +553,46 @@ export class Vault {
     ownerType: PermissionOwnerType,
     ownerId: string
   ) {
-    const request = await this.createRequest(Method.DELETE, "/vault/permission", {
-      permissionType,
-      ownerType,
-      ownerId,
-    });
+    const request = await this.createRequest(
+      Method.DELETE, 
+      "/vault/permission", 
+      {
+        permissionType,
+        ownerType,
+        ownerId,
+      }
+    );
+    return request;
+  }
+
+  public createWallet = async (
+    type: string
+  ): Promise<VaultRequestDto> => {
+    const getWalletsRequest = await this.getAllWallets();
+    const response = await sendRequest(getWalletsRequest);
+
+    let addressIndex = 0;
+    if (response.wallets && response.wallets.length) {
+      const lastPath = response.wallets.pop().hdPath;
+      addressIndex = Number(lastPath.split('/').pop()) + 1;
+    }
+
+    const hdPath = `m/44'/0'/0'/0/${addressIndex}/`;
+    const request = await this.createRequest(
+      Method.POST, 
+      "/organization/wallet", 
+      {
+        type,
+        hdPath,
+      }
+    );
+    return request;
+  };
+
+  public async getAllWallets(): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.GET, "/organization/wallet"
+    );
     return request;
   }
 }
