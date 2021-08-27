@@ -1,9 +1,10 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
 import { Link } from "react-router-dom";
 import { Form } from "react-final-form";
 import arrayMutators from "final-form-arrays";
-import { TextField, Select } from "mui-rff";
+import { TextField, Select, Radios } from "mui-rff";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
@@ -20,11 +21,13 @@ import {
   CircularProgress,
   Theme,
   Typography,
+  Snackbar,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
 import red from "@material-ui/core/colors/red";
 import MaterialTable from "material-table";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import { useAccountsSlice } from "./slice";
 import {
@@ -34,6 +37,7 @@ import {
   selectIsAccountDeleting,
 } from "./slice/selectors";
 import Loader from "../../../components/Loader";
+import vault from "../../../vault"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -76,6 +80,18 @@ const validate = (values: any) => {
   return errors;
 };
 
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
+const cryptoAddressFormvalidate = (values: any) => {
+  const errors: Partial<accountType> = {};
+  if (!values.name) {
+    errors.name = "This Field Required";
+  }
+  return errors;
+};
+
 const NostroAccounts = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -97,6 +113,14 @@ const NostroAccounts = (): React.ReactElement => {
   });
   const fiat: Array<string> = ["CHF", "EUR", "USD"];
   const crypto: Array<string> = ["BTC", "ETHER"];
+
+  const [cryptoAdrDlgView, setCryptoAdrDlgView] = useState(false);
+  const [creatingCryptoAdr, setCreatingCryptoAdr] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [submitResponse, setSubmitResponse] = useState({
+    type: "success",
+    message: "",
+  });
 
   const handleDeclareAccountModalOpen = () => {
     setDeclareAccountModalOpen(true);
@@ -194,6 +218,30 @@ const NostroAccounts = (): React.ReactElement => {
       },
     },
   ];
+
+  const onSubmitCryptoAdr = async (values: accountType) => {
+    setCreatingCryptoAdr(true);
+    const newAccount = { ...values };
+    newAccount.type = "crypto";
+    delete newAccount.iban;
+
+    try {
+      const vaultCreateWalletRequest = await vault.createWallet(
+        newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum",
+      );
+      const response = await vault.sendRequest(vaultCreateWalletRequest);
+      newAccount.vaultWalletId = response.wallet.id;
+
+      await dispatch(actions.addAccount(newAccount));
+    } catch (err) {
+      setSubmitResponse({
+        type: "error",
+        message: err.message,
+      });
+      setShowAlert(true);
+    }
+    setCreatingCryptoAdr(false);
+  };
 
   return (
     <div className="main-wrapper">
@@ -334,10 +382,92 @@ const NostroAccounts = (): React.ReactElement => {
                     </Dialog>
                   </Grid>
                   <Grid item>
-                    <Button variant="contained" color="primary">
+                    <Button 
+                      variant="contained" 
+                      color="primary"
+                      onClick={() => {
+                        setCryptoAdrDlgView(true);
+                      }}
+                    >
                       <AddIcon fontSize="small" />
                       New Crypto Address
                     </Button>
+                    <Dialog
+                      open={cryptoAdrDlgView}
+                      onClose={() => {
+                        setCryptoAdrDlgView(false);
+                      }}
+                      aria-labelledby="form-dialog-title"
+                    >
+                      <Form
+                        onSubmit={onSubmitCryptoAdr}
+                        validate={cryptoAddressFormvalidate}
+                        render={({
+                          handleSubmit,
+                          pristine,
+                        }) => (
+                          <form onSubmit={handleSubmit} noValidate>
+                            <DialogTitle id="form-dialog-title">
+                              New Crypto Address
+                            </DialogTitle>
+                            <Divider />
+                            <DialogContent>
+                              <Grid container spacing={2}>
+                                <Grid item xs={6}>
+                                  <TextField
+                                    required
+                                    label="Account name"
+                                    type="text"
+                                    name="name"
+                                    variant="outlined"
+                                    fullWidth
+                                  />
+                                </Grid>
+                                <Grid item xs={6}>
+                                  <Select
+                                    native
+                                    name="currency"
+                                    label="Type"
+                                    variant="outlined"
+                                    fullWidth
+                                  >
+                                    <option value="BTC">Bitcoin</option>
+                                    <option value="ETHER">Ethereum</option>
+                                  </Select>
+                                </Grid>
+                              </Grid>
+                            </DialogContent>
+                            <Divider />
+                            <DialogActions>
+                              <Button
+                                onClick={() => {
+                                  setCryptoAdrDlgView(false);
+                                }}
+                                variant="contained"
+                              >
+                                Cancel
+                              </Button>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  type="submit"
+                                  disabled={creatingCryptoAdr || pristine}
+                                >
+                                  Create
+                                </Button>
+                                {creatingCryptoAdr && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                            </DialogActions>
+                          </form>
+                        )}
+                      />
+                    </Dialog>
                   </Grid>
                 </Grid>
               </Grid>
@@ -358,6 +488,23 @@ const NostroAccounts = (): React.ReactElement => {
             </Grid>
           )}
         </Grid>
+        <Snackbar
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={showAlert}
+          onClose={() => {
+            setShowAlert(false);
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowAlert(false);
+            }}
+            severity={submitResponse.type === "success" ? "success" : "error"}
+          >
+            {submitResponse.message}
+          </Alert>
+        </Snackbar>
       </Container>
     </div>
   );

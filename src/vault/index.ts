@@ -4,6 +4,7 @@ import axios, { AxiosResponse } from "axios";
 
 import { VaultAccountType } from "./enum/vault-account-type";
 import { PermissionOwnerType } from "./enum/permission-owner-type";
+import { VaultAssetType } from "./enum/asset-type";
 import sendRequest, { Method, VaultRequestDto } from "../services/vaultService";
 import arrayBufferToBase64, { spki2String } from "../util/keyStore/functions";
 import {
@@ -553,11 +554,65 @@ export class Vault {
     ownerType: PermissionOwnerType,
     ownerId: string
   ) {
-    const request = await this.createRequest(Method.DELETE, "/vault/permission", {
-      permissionType,
-      ownerType,
-      ownerId,
-    });
+    const request = await this.createRequest(
+      Method.DELETE, 
+      "/vault/permission", 
+      {
+        permissionType,
+        ownerType,
+        ownerId,
+      }
+    );
+    return request;
+  }
+
+  public createWallet = async (
+    type: string
+  ): Promise<VaultRequestDto> => {
+    const getWalletsRequest = await this.getAllWallets();
+    const response = await sendRequest(getWalletsRequest);
+
+    let addressIndex = 0;
+    if (response.wallets && response.wallets.length) {
+      const lastPath = response.wallets.pop().hdPath;
+      addressIndex = Number(lastPath.split('/').pop()) + 1;
+    }
+
+    const hdPath = `m/44'/0'/0'/0/${addressIndex}/`;
+    const request = await this.createRequest(
+      Method.POST, 
+      "/organization/wallet", 
+      {
+        type,
+        hdPath,
+      }
+    );
+    return request;
+  };
+
+  public async getAllWallets(): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.GET, "/organization/wallet"
+    );
+    return request;
+  }
+
+  public async grantPermissionToAsset(
+    asset: VaultAssetType,
+    assetId: string,
+    ownerType: PermissionOwnerType,
+    ownerId: string,
+    permissionType: VaultPermissions,
+  ): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.POST, 
+      `/vault/${asset}/${assetId}/permission`, 
+      {
+        ownerType,
+        ownerId,
+        permissionType,
+      }
+    );
     return request;
   }
 }
