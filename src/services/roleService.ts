@@ -189,11 +189,21 @@ const createOrgRole = async (
   role: {
     name: string;
     permissions: Array<string>;
-  }
+  },
+  vaultUserId: string
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createOrgGroup();
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
+
+  const request = await vault.grantPermissionToAsset(
+    VaultAssetType.GROUP,
+    vaultGroupId,
+    PermissionOwnerType.user,
+    vaultUserId,
+    VaultPermissions.AddRemoveUser
+  );
+  await vault.sendRequest(request);
   
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
@@ -320,11 +330,21 @@ const createMultiDeskRole = async (
   role: {
     name: string;
     permissions: Array<string>;
-  }
+  },
+  vaultUserId: string,
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createOrgGroup();
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
+
+  const request = await vault.grantPermissionToAsset(
+    VaultAssetType.GROUP,
+    vaultGroupId,
+    PermissionOwnerType.user,
+    vaultUserId,
+    VaultPermissions.AddRemoveUser
+  );
+  await vault.sendRequest(request);
   
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
@@ -457,11 +477,21 @@ const createDeskRole = async (
   role: {
     name: string;
     permissions: Array<string>;
-  }
+  },
+  vaultUserId: string,
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createOrgGroup();
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
+
+  const request = await vault.grantPermissionToAsset(
+    VaultAssetType.GROUP,
+    vaultGroupId,
+    PermissionOwnerType.user,
+    vaultUserId,
+    VaultPermissions.AddRemoveUser
+  );
+  await vault.sendRequest(request);
   
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 

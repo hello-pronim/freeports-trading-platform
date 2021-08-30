@@ -32,6 +32,7 @@ import {
   selectIsMultiDeskPermissionsLoading,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
+import { selectUser } from "../../../../slice/selectors";
 
 interface RoleType {
   name: string;
@@ -121,6 +122,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
     name: "",
     permissions: [],
   });
+  const currentUser = useSelector(selectUser);
 
   useEffect(() => {
     let unmounted = false;
@@ -139,7 +141,11 @@ const NewMultiDeskRole = (): React.ReactElement => {
   const handleRoleCreate = async (values: any) => {
     /* console.log(values); */
     await dispatch(
-      newMultiDeskRoleActions.addMultiDeskRole({ organizationId, role: values })
+      newMultiDeskRoleActions.addMultiDeskRole({ 
+        organizationId,
+        role: values,
+        vaultUserId: currentUser?.vaultUserId as string
+      })
     );
     history.push("/roles");
   };

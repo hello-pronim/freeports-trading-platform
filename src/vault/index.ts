@@ -439,6 +439,15 @@ export class Vault {
     return request;
   }
 
+  public async createOrgGroup(): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.POST,
+      "/organization/group"
+    );
+
+    return request;
+  }
+
   public async grantPermissions(
     ownerType: PermissionOwnerType,
     ownerId: string,
