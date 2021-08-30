@@ -43,6 +43,8 @@ export function* editOrgRole({
 }: PayloadAction<{
   organizationId: string;
   roleId: string;
+  vaultGroupId: string;
+  oldPermissions: string[]
   role: Role;
 }>): Generator<any> {
   try {
@@ -50,7 +52,9 @@ export function* editOrgRole({
       updateOrgRole,
       payload.organizationId,
       payload.roleId,
-      payload.role
+      payload.vaultGroupId,
+      payload.oldPermissions,
+      payload.role,
     );
     if (response) {
       yield put(actions.editOrgRoleSuccess(response as string));
@@ -66,7 +70,7 @@ export function* editOrgRole({
   } catch (error) {
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -145,6 +149,8 @@ export function* editMultiDeskRole({
 }: PayloadAction<{
   organizationId: string;
   roleId: string;
+  vaultGroupId: string;
+  oldPermissions: string[]
   role: Role;
 }>): Generator<any> {
   try {
@@ -152,7 +158,9 @@ export function* editMultiDeskRole({
       updateMultiDeskRole,
       payload.organizationId,
       payload.roleId,
-      payload.role
+      payload.vaultGroupId,
+      payload.oldPermissions,
+      payload.role,
     );
     if (response) {
       yield put(actions.editMultiDeskRoleSuccess(response as string));
@@ -254,6 +262,8 @@ export function* editDeskRole({
   organizationId: string;
   deskId: string;
   roleId: string;
+  vaultGroupId: string;
+  oldPermissions: string[];
   role: Role;
 }>): Generator<any> {
   try {
@@ -262,7 +272,9 @@ export function* editDeskRole({
       payload.organizationId,
       payload.deskId,
       payload.roleId,
-      payload.role
+      payload.vaultGroupId,
+      payload.oldPermissions,
+      payload.role,
     );
     if (response) {
       yield put(actions.editDeskRoleSuccess(response as string));

@@ -50,6 +50,8 @@ const slice = createSlice({
       action: PayloadAction<{
         organizationId: string;
         roleId: string;
+        vaultGroupId: string;
+        oldPermissions: string[];
         role: Role;
       }>
     ) {
@@ -89,6 +91,8 @@ const slice = createSlice({
       action: PayloadAction<{
         organizationId: string;
         roleId: string;
+        vaultGroupId: string;
+        oldPermissions: string[];
         role: Role;
       }>
     ) {
@@ -132,6 +136,8 @@ const slice = createSlice({
         organizationId: string;
         deskId: string;
         roleId: string;
+        vaultGroupId: string;
+        oldPermissions: string[];
         role: Role;
       }>
     ) {

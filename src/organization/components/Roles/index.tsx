@@ -258,28 +258,62 @@ const Roles = (): React.ReactElement => {
     dispatch(rolesActions.deleteDeskRole({ organizationId, deskId, roleId }));
   };
 
-  const handleOrgRoleUpdate = (values: any, roleId?: string) => {
+  const handleOrgRoleUpdate = (
+    values: any, 
+    roleId: string, 
+    vaultGroupId: string, 
+    oldPermissions: string[]
+  ) => {
     if (roleId) {
       dispatch(
-        rolesActions.editOrgRole({ organizationId, roleId, role: values })
+        rolesActions.editOrgRole({ 
+          organizationId, 
+          roleId, 
+          vaultGroupId, 
+          oldPermissions, 
+          role: values 
+        })
       );
     }
   };
 
-  const handleMultiDeskRoleUpdate = (values: any, roleId?: string) => {
+  const handleMultiDeskRoleUpdate = (
+    values: any, 
+    roleId: string, 
+    vaultGroupId: string, 
+    oldPermissions: string[]
+  ) => {
     if (roleId) {
       dispatch(
-        rolesActions.editMultiDeskRole({ organizationId, roleId, role: values })
+        rolesActions.editMultiDeskRole({ 
+          organizationId, 
+          roleId, 
+          vaultGroupId, 
+          oldPermissions, 
+          role: values 
+        })
       );
     }
   };
 
-  const handleDeskRoleUpdate = (values: any, roleId?: string) => {
+  const handleDeskRoleUpdate = (
+    values: any, 
+    roleId: string, 
+    vaultGroupId: string, 
+    oldPermissions: string[]
+  ) => {
     if (roleId) {
       const { deskId } = values;
       const role = { name: values.name, permissions: values.permissions };
       dispatch(
-        rolesActions.editDeskRole({ organizationId, deskId, roleId, role })
+        rolesActions.editDeskRole({ 
+          organizationId, 
+          deskId, 
+          roleId, 
+          vaultGroupId, 
+          oldPermissions, 
+          role 
+        })
       );
     }
   };
@@ -380,7 +414,12 @@ const Roles = (): React.ReactElement => {
                                       <div className={classes.roleWrapper}>
                                         <Form
                                           onSubmit={(values) =>
-                                            handleOrgRoleUpdate(values, role.id)
+                                            handleOrgRoleUpdate(
+                                              values, 
+                                              role.id as string, 
+                                              role.vaultGroupId as string, 
+                                              role.permissions
+                                            )
                                           }
                                           mutators={{
                                             ...arrayMutators,
@@ -620,7 +659,9 @@ const Roles = (): React.ReactElement => {
                                           onSubmit={(values) =>
                                             handleMultiDeskRoleUpdate(
                                               values,
-                                              role.id
+                                              role.id as string,
+                                              role.vaultGroupId as string,
+                                              role.permissions,
                                             )
                                           }
                                           mutators={{
@@ -862,7 +903,9 @@ const Roles = (): React.ReactElement => {
                                           onSubmit={(values) =>
                                             handleDeskRoleUpdate(
                                               values,
-                                              role.id
+                                              role.id as string,
+                                              role.vaultGroupId as string,
+                                              role.permissions,
                                             )
                                           }
                                           mutators={{

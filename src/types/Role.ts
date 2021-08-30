@@ -12,4 +12,6 @@ export default interface Role {
   desk?: Desk;
 
   effectiveDesks?: string[];
+
+  vaultGroupId?: string;
 }

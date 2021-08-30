@@ -192,7 +192,7 @@ const createOrgRole = async (
   },
   vaultUserId: string
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createOrgGroup();
+  const vaultCreateGroupRequest = await vault.createGroup();
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
 
@@ -226,14 +226,46 @@ const createOrgRole = async (
   });
 };
 
-const updateOrgRole = (
+const updateOrgRole = async (
   organizationId: string,
   roleId: string,
-  role: RoleType
+  vaultGroupId: string,
+  oldPermissions: Array<string>,
+  role: RoleType,
 ): Promise<string> => {
+  const oldPermissionsList = [...oldPermissions];
+  const newPermissionsList: string[] = [];
+  role.permissions.forEach(x => {
+    const index = oldPermissionsList.indexOf(x);
+    if (index !== -1) {
+      oldPermissionsList.splice(index, 1);
+    } else {
+      newPermissionsList.push(x);
+    }
+  })
+
+  const vaultRevokePermissionRequest = await vault.revokePermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    oldPermissionsList
+  );
+
+  const vaultGrantPermissionRequest = await vault.grantPermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    newPermissionsList
+  );
+  
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/organization/${organizationId}/role/${roleId}`, role)
+      .patch(
+        `/organization/${organizationId}/role/${roleId}`, 
+        {
+          ...role,
+          vaultRevokePermissionRequest,
+          vaultGrantPermissionRequest,
+        }
+      )
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -333,7 +365,7 @@ const createMultiDeskRole = async (
   },
   vaultUserId: string,
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createOrgGroup();
+  const vaultCreateGroupRequest = await vault.createGroup();
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
 
@@ -367,14 +399,46 @@ const createMultiDeskRole = async (
   });
 };
 
-const updateMultiDeskRole = (
+const updateMultiDeskRole = async (
   organizationId: string,
   roleId: string,
-  role: RoleType
+  vaultGroupId: string,
+  oldPermissions: Array<string>,
+  role: RoleType,
 ): Promise<string> => {
+  const oldPermissionsList = [...oldPermissions];
+  const newPermissionsList: string[] = [];
+  role.permissions.forEach(x => {
+    const index = oldPermissionsList.indexOf(x);
+    if (index !== -1) {
+      oldPermissionsList.splice(index, 1);
+    } else {
+      newPermissionsList.push(x);
+    }
+  })
+
+  const vaultRevokePermissionRequest = await vault.revokePermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    oldPermissionsList
+  );
+
+  const vaultGrantPermissionRequest = await vault.grantPermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    newPermissionsList
+  );
+
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/organization/${organizationId}/multidesk/role/${roleId}`, role)
+      .patch(
+        `/organization/${organizationId}/multidesk/role/${roleId}`, 
+        {
+          ...role,
+          vaultRevokePermissionRequest,
+          vaultGrantPermissionRequest,
+        }
+      )
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -480,7 +544,7 @@ const createDeskRole = async (
   },
   vaultUserId: string,
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createOrgGroup();
+  const vaultCreateGroupRequest = await vault.createGroup();
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
 
@@ -514,17 +578,46 @@ const createDeskRole = async (
   });
 };
 
-const updateDeskRole = (
+const updateDeskRole = async (
   organizationId: string,
   deskId: string,
   roleId: string,
-  role: RoleType
+  vaultGroupId: string,
+  oldPermissions: Array<string>,
+  role: RoleType,
 ): Promise<string> => {
+  const oldPermissionsList = [...oldPermissions];
+  const newPermissionsList: string[] = [];
+  role.permissions.forEach(x => {
+    const index = oldPermissionsList.indexOf(x);
+    if (index !== -1) {
+      oldPermissionsList.splice(index, 1);
+    } else {
+      newPermissionsList.push(x);
+    }
+  })
+
+  const vaultRevokePermissionRequest = await vault.revokePermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    oldPermissionsList
+  );
+
+  const vaultGrantPermissionRequest = await vault.grantPermissions(
+    PermissionOwnerType.group, 
+    vaultGroupId, 
+    newPermissionsList
+  );
+
   return new Promise((resolve, reject) => {
     axios
       .patch(
         `/organization/${organizationId}/desk/${deskId}/role/${roleId}`,
-        role
+        {
+          ...role,
+          vaultRevokePermissionRequest,
+          vaultGrantPermissionRequest,
+        }
       )
       .then((res: any) => {
         return resolve(res.data);
