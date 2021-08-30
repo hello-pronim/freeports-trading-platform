@@ -8,6 +8,7 @@ import { globalActions as actions } from ".";
 import { CurrentUser } from "../types/User";
 import { getClearerUser } from "../services/clearerUsersService";
 import { snackbarActions } from "../components/Snackbar/slice";
+import { getOrgUser } from "../services/orgUsersService";
 
 function* getCurrentClearerUser(): Generator<any> {
   try {
@@ -25,6 +26,23 @@ function* getCurrentClearerUser(): Generator<any> {
   }
 }
 
+function* getCurrentOrganizationUser(): Generator<any> {
+  try {
+    const userData = JSON.parse(localStorage.getItem("USER_DATA") || "{}");
+    if (userData.data) {
+      const user = yield call(getOrgUser, userData.data.organizationId, userData.data.id);
+
+      yield put(actions.setCurrentUser(user as CurrentUser));
+    }
+  } catch (error) {
+    snackbarActions.showSnackbar({
+      message: error.message,
+      type: "error",
+    });
+  }
+}
+
 export function* globalSaga(): Generator<any> {
   yield takeLatest(actions.getCurrentClearerUser, getCurrentClearerUser);
+  yield takeLatest(actions.getCurrentOrganizationUser, getCurrentOrganizationUser);
 }
