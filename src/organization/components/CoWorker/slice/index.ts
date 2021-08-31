@@ -67,6 +67,9 @@ const slice = createSlice({
         organizationId: string;
         id: string;
         updates: Partial<User>;
+        vaultUserId: string;
+        oldVaultGroup: string[];
+        newVaultGroup: string[];
       }>
     ) {
       state.formSubmitting = true;

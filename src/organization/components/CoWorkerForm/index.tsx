@@ -129,7 +129,11 @@ const validate = (values: any) => {
 interface CoWorkerFormProps {
   // eslint-disable-next-line react/require-default-props
   coWorker: Partial<User>;
-  onSubmit: (coWorker: User) => void;
+  onSubmit: (
+    coWorker: User,
+    oldVaultGroup: string[],
+    newVaultGroup: string[]
+  ) => void;
   onSendResetPasswordLink: () => void;
   formSubmitting: boolean;
   passwordResetting: boolean;
@@ -227,7 +231,30 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
       }
       return role;
     });
-    onSubmit(updates as User);
+
+    const existingRoles = orgRoles.concat(multiDeskRoles, deskRoles);
+
+    const oldVaultGroup: string[] = [];
+    coWorker.roles?.forEach((x: any) => {
+      const exist = existingRoles.find((y) => y.id === x.id);
+      if (exist && exist.vaultGroupId) {
+        oldVaultGroup.push(exist.vaultGroupId);
+      }
+    });
+    const newVaultGroup: string[] = [];
+    values.roles.forEach((x: any) => {
+      const exist = existingRoles.find((y) => y.id === x.id);
+      if (exist && exist.vaultGroupId) {
+        const index = oldVaultGroup.indexOf(exist.vaultGroupId);
+        if (index !== -1) {
+          oldVaultGroup.splice(index, 1);
+        } else {
+          newVaultGroup.push(exist.vaultGroupId);
+        }
+      }
+    });
+    
+    onSubmit(updates as User, oldVaultGroup, newVaultGroup);
   };
 
   const handleAddVaultUser = () => {
