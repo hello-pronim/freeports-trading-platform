@@ -246,16 +246,36 @@ const Roles = (): React.ReactElement => {
     setSelectedCategory(category);
   };
 
-  const onOrgRoleRemove = async (roleId: string) => {
-    dispatch(rolesActions.deleteOrgRole({ organizationId, roleId }));
+  const onOrgRoleRemove = async (roleId: string, vaultGroupId: string) => {
+    dispatch(rolesActions.deleteOrgRole({ 
+      organizationId, 
+      roleId, 
+      vaultGroupId 
+    }));
   };
 
-  const onMultiDeskRoleRemove = async (roleId: string) => {
-    dispatch(rolesActions.deleteMultiDeskRole({ organizationId, roleId }));
+  const onMultiDeskRoleRemove = async (
+    roleId: string, 
+    vaultGroupId: string
+  ) => {
+    dispatch(rolesActions.deleteMultiDeskRole({ 
+      organizationId,
+      roleId,
+      vaultGroupId,
+    }));
   };
 
-  const onDeskRoleRemove = async (deskId: string, roleId: string) => {
-    dispatch(rolesActions.deleteDeskRole({ organizationId, deskId, roleId }));
+  const onDeskRoleRemove = async (
+    deskId: string, 
+    roleId: string,
+    vaultGroupId: string
+  ) => {
+    dispatch(rolesActions.deleteDeskRole({ 
+      organizationId,
+      deskId,
+      roleId,
+      vaultGroupId,
+    }));
   };
 
   const handleOrgRoleUpdate = (
@@ -562,7 +582,10 @@ const Roles = (): React.ReactElement => {
                                                       disabled={orgRoleDeleting}
                                                       onClick={() =>
                                                         role.id &&
-                                                        onOrgRoleRemove(role.id)
+                                                        onOrgRoleRemove(
+                                                          role.id, 
+                                                          role.vaultGroupId as string
+                                                        )
                                                       }
                                                     >
                                                       Remove
@@ -801,7 +824,8 @@ const Roles = (): React.ReactElement => {
                                                       onClick={() =>
                                                         role.id &&
                                                         onMultiDeskRoleRemove(
-                                                          role.id
+                                                          role.id,
+                                                          role.vaultGroupId as string
                                                         )
                                                       }
                                                     >
@@ -1090,7 +1114,8 @@ const Roles = (): React.ReactElement => {
                                                         role.desk.id &&
                                                         onDeskRoleRemove(
                                                           role.desk.id,
-                                                          role.id
+                                                          role.id,
+                                                          role.vaultGroupId as string
                                                         )
                                                       }
                                                     >

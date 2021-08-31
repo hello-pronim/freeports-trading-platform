@@ -62,11 +62,18 @@ const slice = createSlice({
     },
     deleteOrgRole(
       state,
-      action: PayloadAction<{ organizationId: string; roleId: string }>
+      action: PayloadAction<{ 
+        organizationId: string; 
+        roleId: string;
+        vaultGroupId: string;
+      }>
     ) {
       state.orgRoleDeleting = true;
     },
     deleteOrgRoleSuccess(state, action: PayloadAction<string>) {
+      state.orgRoleDeleting = false;
+    },
+    deleteOrgRoleFailure(state) {
       state.orgRoleDeleting = false;
     },
     getOrgPermissions(state, action: PayloadAction<string>) {
@@ -103,11 +110,18 @@ const slice = createSlice({
     },
     deleteMultiDeskRole(
       state,
-      action: PayloadAction<{ organizationId: string; roleId: string }>
+      action: PayloadAction<{ 
+        organizationId: string; 
+        roleId: string;
+        vaultGroupId: string;
+      }>
     ) {
       state.multiDeskRoleDeleting = true;
     },
     deleteMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.multiDeskRoleDeleting = false;
+    },
+    deleteMultiDeskRoleFailure(state) {
       state.multiDeskRoleDeleting = false;
     },
     getMultiDeskPermissions(
@@ -152,11 +166,15 @@ const slice = createSlice({
         organizationId: string;
         deskId: string;
         roleId: string;
+        vaultGroupId: string;
       }>
     ) {
       state.deskRoleDeleting = true;
     },
     deleteDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.deskRoleDeleting = false;
+    },
+    deleteDeskRoleFailure(state) {
       state.deskRoleDeleting = false;
     },
     getDeskPermissions(

@@ -282,12 +282,15 @@ const updateOrgRole = async (
 
 const removeOrgRole = (
   organizationId: string,
-  roleId: string
+  roleId: string,
+  vaultGroupId: string
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
       .delete(`/organization/${organizationId}/role/${roleId}`)
-      .then((res: any) => {
+      .then(async (res: any) => {
+        const request = await vault.deleteGroup(vaultGroupId);
+        await vault.sendRequest(request);
         return resolve(res.data);
       })
       .catch((err) => {
@@ -455,12 +458,15 @@ const updateMultiDeskRole = async (
 
 const removeMultiDeskRole = (
   organizationId: string,
-  roleId: string
+  roleId: string,
+  vaultGroupId: string
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
       .delete(`/organization/${organizationId}/multidesk/role/${roleId}`)
-      .then((res: any) => {
+      .then(async (res: any) => {
+        const request = await vault.deleteGroup(vaultGroupId);
+        await vault.sendRequest(request);
         return resolve(res.data);
       })
       .catch((err) => {
@@ -636,12 +642,15 @@ const updateDeskRole = async (
 const removeDeskRole = (
   organizationId: string,
   deskId: string,
-  roleId: string
+  roleId: string,
+  vaultGroupId: string,
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
       .delete(`/organization/${organizationId}/desk/${deskId}/role/${roleId}`)
-      .then((res: any) => {
+      .then(async (res: any) => {
+        const request = await vault.deleteGroup(vaultGroupId);
+        await vault.sendRequest(request);
         return resolve(res.data);
       })
       .catch((err) => {

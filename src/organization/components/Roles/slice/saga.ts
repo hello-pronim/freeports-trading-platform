@@ -82,12 +82,14 @@ export function* deleteOrgRole({
 }: PayloadAction<{
   organizationId: string;
   roleId: string;
+  vaultGroupId: string;
 }>): Generator<any> {
   try {
     const response = yield call(
       removeOrgRole,
       payload.organizationId,
-      payload.roleId
+      payload.roleId,
+      payload.vaultGroupId
     );
     if (response) {
       yield put(actions.deleteOrgRoleSuccess(response as string));
@@ -101,12 +103,14 @@ export function* deleteOrgRole({
       );
     }
   } catch (error) {
+    yield put(actions.deleteOrgRoleFailure());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
+
   }
 }
 
@@ -188,12 +192,14 @@ export function* deleteMultiDeskRole({
 }: PayloadAction<{
   organizationId: string;
   roleId: string;
+  vaultGroupId: string;
 }>): Generator<any> {
   try {
     const response = yield call(
       removeMultiDeskRole,
       payload.organizationId,
-      payload.roleId
+      payload.roleId,
+      payload.vaultGroupId,
     );
     if (response) {
       yield put(actions.deleteMultiDeskRoleSuccess(response as string));
@@ -207,9 +213,10 @@ export function* deleteMultiDeskRole({
       );
     }
   } catch (error) {
+    yield put(actions.deleteMultiDeskRoleFailure());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -303,13 +310,15 @@ export function* deleteDeskRole({
   organizationId: string;
   deskId: string;
   roleId: string;
+  vaultGroupId: string;
 }>): Generator<any> {
   try {
     const response = yield call(
       removeDeskRole,
       payload.organizationId,
       payload.deskId,
-      payload.roleId
+      payload.roleId,
+      payload.vaultGroupId,
     );
     if (response) {
       yield put(actions.deleteDeskRoleSuccess(response as string));
@@ -323,9 +332,10 @@ export function* deleteDeskRole({
       );
     }
   } catch (error) {
+    yield put(actions.deleteDeskRoleFailure());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
