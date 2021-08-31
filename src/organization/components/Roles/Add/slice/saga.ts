@@ -35,12 +35,17 @@ export function* getOrgPermissions({
 
 export function* addOrgRole({
   payload,
-}: PayloadAction<{ organizationId: string; role: Role }>): Generator<any> {
+}: PayloadAction<{ 
+  organizationId: string; 
+  role: Role; 
+  vaultUserId: string;
+}>): Generator<any> {
   try {
     const response = yield call(
       createOrgRole,
       payload.organizationId,
-      payload.role
+      payload.role,
+      payload.vaultUserId,
     );
     if (response) {
       yield put(actions.addOrgRoleSuccess(response as string));
@@ -52,9 +57,10 @@ export function* addOrgRole({
       );
     }
   } catch (error) {
+    yield put(actions.addOrgRoleFailure());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -82,12 +88,17 @@ export function* getMultiDeskPermissions({
 
 export function* addMultiDeskRole({
   payload,
-}: PayloadAction<{ organizationId: string; role: Role }>): Generator<any> {
+}: PayloadAction<{ 
+  organizationId: string; 
+  role: Role; 
+  vaultUserId: string;
+}>): Generator<any> {
   try {
     const response = yield call(
       createMultiDeskRole,
       payload.organizationId,
-      payload.role
+      payload.role,
+      payload.vaultUserId,
     );
     if (response) {
       yield put(actions.addMultiDeskRoleSuccess(response as string));
@@ -99,9 +110,10 @@ export function* addMultiDeskRole({
       );
     }
   } catch (error) {
+    yield put(actions.addOrgRoleFailure());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -131,13 +143,15 @@ export function* addDeskRole({
   organizationId: string;
   deskId: string;
   role: Role;
+  vaultUserId: string;
 }>): Generator<any> {
   try {
     const response = yield call(
       createDeskRole,
       payload.organizationId,
       payload.deskId,
-      payload.role
+      payload.role,
+      payload.vaultUserId,
     );
     if (response) {
       yield put(actions.addDeskRoleSuccess(response as string));
@@ -149,9 +163,10 @@ export function* addDeskRole({
       );
     }
   } catch (error) {
+    yield put(actions.addOrgRoleFailure());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );

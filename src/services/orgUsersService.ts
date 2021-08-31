@@ -3,6 +3,7 @@ import { ResourceCreatedResponse } from "../types/ResourceCreatedResponse";
 import User from "../types/User";
 import axios from "../util/axios";
 import { VaultRequestDto } from "./vaultService";
+import vault from "../vault";
 
 const getOrgUsers = (
   organizationId: string,
@@ -53,14 +54,30 @@ const getOrgUser = (organizationId: string, userId: string): Promise<User> => {
   });
 };
 
-const updateOrgUser = (
+const updateOrgUser = async (
   organizationId: string,
   id: string,
-  user: Partial<User>
+  user: Partial<User>,
+  vaultUserId: string,
+  oldVaultGroup: string[],
+  newVaultGroup: string[]
 ): Promise<User> => {
+  const removeFromGroupRequests = await vault.removeUserFromMultipleGroup(
+    vaultUserId,
+    oldVaultGroup
+  );
+  const addToGroupRequests = await vault.addUserToMultipleGroup(
+    vaultUserId,
+    newVaultGroup
+  );
+
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/organization/${organizationId}/user/${id}`, user)
+      .patch(`/organization/${organizationId}/user/${id}`, {
+        ...user,
+        removeFromGroupRequests,
+        addToGroupRequests,
+      })
       .then((res: any) => {
         return resolve(res.data);
       })

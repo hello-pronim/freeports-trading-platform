@@ -8,4 +8,6 @@ export default interface DeskRole {
   desk: Desk;
 
   permissions: Array<string>;
+
+  vaultGroupId?: string;
 }

@@ -162,13 +162,19 @@ export function* updateCoWorker({
   organizationId: string;
   id: string;
   updates: Partial<User>;
+  vaultUserId: string;
+  oldVaultGroup: string[];
+  newVaultGroup: string[];
 }>): Generator<any> {
   try {
     const response = yield call(
       updateOrgUser,
       payload.organizationId,
       payload.id,
-      payload.updates
+      payload.updates,
+      payload.vaultUserId,
+      payload.oldVaultGroup,
+      payload.newVaultGroup
     );
     if (payload.updates.roles) {
       // assign organization roles to user

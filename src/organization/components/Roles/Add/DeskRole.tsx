@@ -35,6 +35,7 @@ import {
 } from "./slice/selectors";
 import { selectDesks, selectIsDesksLoading } from "../../Desks/slice/selectors";
 import Loader from "../../../../components/Loader";
+import { selectUser } from "../../../../slice/selectors";
 
 interface RoleType {
   name: string;
@@ -133,6 +134,7 @@ const NewDeskRole = (): React.ReactElement => {
     name: "",
     permissions: [],
   });
+  const currentUser = useSelector(selectUser);
 
   useEffect(() => {
     let unmounted = false;
@@ -161,6 +163,7 @@ const NewDeskRole = (): React.ReactElement => {
         organizationId,
         deskId,
         role,
+        vaultUserId: currentUser?.vaultUserId as string
       })
     );
     history.push("/roles");

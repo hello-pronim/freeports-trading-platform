@@ -32,6 +32,7 @@ import {
   selectIsOrgPermissionsLoading,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
+import { selectUser } from "../../../../slice/selectors";
 
 interface RoleType {
   name: string;
@@ -118,6 +119,7 @@ const NewOrgRole = (): React.ReactElement => {
     name: "",
     permissions: [],
   });
+  const currentUser = useSelector(selectUser);
 
   useEffect(() => {
     let unmounted = false;
@@ -136,7 +138,11 @@ const NewOrgRole = (): React.ReactElement => {
   const handleRoleCreate = async (values: any) => {
     /* console.log(values); */
     await dispatch(
-      newOrgRoleActions.addOrgRole({ organizationId, role: values })
+      newOrgRoleActions.addOrgRole({ 
+        organizationId, 
+        role: values, 
+        vaultUserId: currentUser?.vaultUserId as string 
+      })
     );
     history.push("/roles");
   };
