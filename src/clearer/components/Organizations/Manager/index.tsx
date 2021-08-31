@@ -271,7 +271,7 @@ const Manager = (props: any): React.ReactElement => {
       const organization = await getOrganization(orgId);
       const vaultRequest = await vault.createOrganizationManager(
         organization.vaultOrganizationId,
-        managerInfo.publicKeys.key
+        managerInfo.publicKey.key
       );
       await createVaultUser(managerInfo.id, vaultRequest)
         .then(() => {
