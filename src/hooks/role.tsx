@@ -59,14 +59,15 @@ function useRole(): any {
 
     return newRoleId;
   };
-  const removeRole = async (id: string) => {
+  const removeRole = async (id: string, vaultGroupId: string) => {
     dispatch(clearError());
-    const oldRoleId = await deleteRole(id)
+    const oldRoleId = await deleteRole(id, vaultGroupId)
       .then((data) => {
         return data;
       })
       .catch((err) => {
         dispatch(setError(err));
+        return err;
       });
 
     return oldRoleId;

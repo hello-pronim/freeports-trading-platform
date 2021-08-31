@@ -113,11 +113,16 @@ const modifyRole = async (
   });
 };
 
-const deleteRole = (id: string): Promise<string> => {
+const deleteRole = async (
+  id: string, 
+  vaultGroupId: string
+): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
       .delete(`/role/${id}`)
-      .then((res: any) => {
+      .then(async (res: any) => {
+        const request = await vault.deleteGroup(vaultGroupId);
+        await vault.sendRequest(request);
         return resolve(res.data);
       })
       .catch((err) => {

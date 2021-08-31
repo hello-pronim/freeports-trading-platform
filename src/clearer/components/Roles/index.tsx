@@ -207,33 +207,27 @@ const Roles = (): React.ReactElement => {
     setShowAlert(true);
   };
 
-  const onRoleRemove = async (roleId: string) => {
+  const onRoleRemove = async (roleId: string, vaultGroupId: string) => {
     // const newRoles = roles.filter((role: any) => role.id !== roleId);
     setRemoving(true);
     setShowAlert(false);
     setSubmitResponse({ type: "", message: "" });
-    await removeRole(roleId)
-      .then((data: string) => {
-        if (data !== "") {
-          setRemoving(false);
-          setSubmitResponse({
-            type: "success",
-            message: "Role has been removed successfully.",
-          });
-          setShowAlert(true);
-
-          const newRoles = roles.filter((role) => role.id !== roleId);
-          setRoles(newRoles);
-        }
-      })
-      .catch((err: any) => {
-        setSaving(false);
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-        setShowAlert(true);
+    const response = await removeRole(roleId, vaultGroupId);
+    if (response.errorType) {
+      setSubmitResponse({
+        type: "error",
+        message: response.message,
       });
+    } else {
+      setSubmitResponse({
+        type: "success",
+        message: "Role has been removed successfully.",
+      });
+      const newRoles = roles.filter((role) => role.id !== roleId);
+      setRoles(newRoles);
+    }
+    setRemoving(false);
+    setShowAlert(true);
   };
 
   const handleNewRoleClick = () => {
@@ -348,7 +342,10 @@ const Roles = (): React.ReactElement => {
                               variant="contained"
                               size="small"
                               disabled={removing}
-                              onClick={() => onRoleRemove(role.id)}
+                              onClick={() => onRoleRemove(
+                                role.id, 
+                                role.vaultGroupId as string
+                              )}
                             >
                               Remove
                             </Button>
