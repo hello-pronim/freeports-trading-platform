@@ -57,11 +57,11 @@ const useStyle = makeStyles((theme: Theme) =>
       position: "relative",
       width: 200,
       height: 200,
-      "&:hover, &:focus": {
+      /* "&:hover, &:focus": {
         "& $logoImage": {
           opacity: 0.5,
         },
-      },
+      }, */
     },
     logoImage: {
       width: "100%",
@@ -239,16 +239,17 @@ const Settings = (): React.ReactElement => {
               <Grid item xs={6}>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <TextField
+                    {/* <TextField
                       InputProps={{
                         readOnly: true,
                       }}
-                      label="Nickname"
+                      label="Organization name"
                       variant="outlined"
                       value={orgDetail.name}
                       onChange={handleName}
                       fullWidth
-                    />
+                    /> */}
+                    <Typography>{`Company name: ${orgDetail.name}`}</Typography>
                   </Grid>
                   <Grid item xs={12}>
                     {accounts.length > 0 ? (
@@ -278,7 +279,7 @@ const Settings = (): React.ReactElement => {
                                 </Typography>
                               </Grid>
                               <Grid item xs={12}>
-                                <Input
+                                {/* <Input
                                   readOnly
                                   endAdornment={
                                     <InputAdornment position="end">
@@ -287,7 +288,8 @@ const Settings = (): React.ReactElement => {
                                   }
                                   value={orgDetail.commissionOrganization}
                                   onChange={handleCommission}
-                                />
+                                /> */}
+                                <Typography>{`${orgDetail.commissionOrganization}%`}</Typography>
                               </Grid>
                             </Grid>
                           </Grid>
@@ -302,7 +304,7 @@ const Settings = (): React.ReactElement => {
                                 </Typography>
                               </Grid>
                               <Grid item xs={12}>
-                                <Input
+                                {/* <Input
                                   readOnly
                                   endAdornment={
                                     <InputAdornment position="end">
@@ -311,7 +313,8 @@ const Settings = (): React.ReactElement => {
                                   }
                                   value={orgDetail.commissionClearer}
                                   onChange={handleClearer}
-                                />
+                                /> */}
+                                <Typography>{`${orgDetail.commissionClearer}%`}</Typography>
                               </Grid>
                             </Grid>
                           </Grid>
@@ -375,38 +378,19 @@ const Settings = (): React.ReactElement => {
                       alt="Avatar"
                       className={classes.logoImage}
                     />
-                    <input
+                    {/* <input
                       type="file"
                       name="avatar"
                       className={classes.logoFileInput}
                       onChange={onLogoFileChange}
-                    />
+                    /> */}
                   </div>
-                  {/* <CardMedia
-                    style={{ marginTop: 20 }}
-                    component="img"
-                    height="140"
-                    image={orgDetail.logo}
-                  />
-                  <ImageUploader
-                    withIcon={showingIcon}
-                    withLabel={showingIcon}
-                    buttonText="Choose Image"
-                    onChange={(ChangeEvent) => ondrop(ChangeEvent)}
-                    buttonStyles={{
-                      width: "100%",
-                    }}
-                    fileContainerStyle={{
-                      margin: 0,
-                      padding: 0,
-                    }}
-                  /> */}
                 </Grid>
               </Grid>
             </Grid>
           </CardContent>
           <Divider />
-          <CardActions>
+          {/* <CardActions>
             <Grid container item justify="flex-end" xs={12}>
               <div className={classes.progressButtonWrapper}>
                 <Button
@@ -426,7 +410,7 @@ const Settings = (): React.ReactElement => {
                 )}
               </div>
             </Grid>
-          </CardActions>
+          </CardActions> */}
         </Card>
         <Snackbar
           autoHideDuration={2000}

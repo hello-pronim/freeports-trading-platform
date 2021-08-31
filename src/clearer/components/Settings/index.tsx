@@ -57,6 +57,7 @@ const useStyle = makeStyles((theme: Theme) =>
       position: "relative",
       width: 200,
       height: 200,
+      margin: "auto",
       "&:hover, &:focus": {
         "& $logoImage": {
           opacity: 0.5,
@@ -239,16 +240,17 @@ const Settings = (): React.ReactElement => {
               <Grid item xs={6}>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <TextField
+                    {/* <TextField
                       InputProps={{
                         readOnly: true,
                       }}
-                      label="Nickname"
+                      label="Company name"
                       variant="outlined"
                       value={orgDetail.name}
                       onChange={handleName}
                       fullWidth
-                    />
+                    /> */}
+                    <Typography>Company name</Typography>
                   </Grid>
                   <Grid item xs={12}>
                     {accounts.length > 0 ? (
@@ -263,7 +265,7 @@ const Settings = (): React.ReactElement => {
                       <></>
                     )}
                   </Grid>
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <Card variant="outlined">
                       <CardContent>
                         <Grid container spacing={4}>
@@ -359,57 +361,28 @@ const Settings = (): React.ReactElement => {
                       </CardContent>
                     </Card>
                   </Grid>
+                 */}
                 </Grid>
               </Grid>
               <Grid item xs={6}>
-                <Grid container justify="center">
-                  <Typography className={classes.logoText}>Logo</Typography>
-                </Grid>
-                <Grid
-                  item
-                  container
-                  xs={12}
-                  alignItems="center"
-                  justify="center"
-                >
-                  <div className={classes.logoImageContainer}>
-                    <Avatar
-                      src={orgDetail.logo}
-                      alt="Avatar"
-                      className={classes.logoImage}
-                    />
-                    <input
-                      type="file"
-                      name="avatar"
-                      className={classes.logoFileInput}
-                      onChange={onLogoFileChange}
-                    />
-                  </div>
-                  {/* <CardMedia
-                    style={{ marginTop: 20 }}
-                    component="img"
-                    height="140"
-                    image={orgDetail.logo}
+                <div className={classes.logoImageContainer}>
+                  <Avatar
+                    src={orgDetail.logo}
+                    alt="Avatar"
+                    className={classes.logoImage}
                   />
-                  <ImageUploader
-                    withIcon={showingIcon}
-                    withLabel={showingIcon}
-                    buttonText="Choose Image"
-                    onChange={(ChangeEvent) => ondrop(ChangeEvent)}
-                    buttonStyles={{
-                      width: "100%",
-                    }}
-                    fileContainerStyle={{
-                      margin: 0,
-                      padding: 0,
-                    }}
-                  /> */}
-                </Grid>
+                  <input
+                    type="file"
+                    name="avatar"
+                    className={classes.logoFileInput}
+                    onChange={onLogoFileChange}
+                  />
+                </div>
               </Grid>
             </Grid>
           </CardContent>
           <Divider />
-          <CardActions>
+          {/* <CardActions>
             <Grid container item justify="flex-end" xs={12}>
               <div className={classes.progressButtonWrapper}>
                 <Button
@@ -429,7 +402,7 @@ const Settings = (): React.ReactElement => {
                 )}
               </div>
             </Grid>
-          </CardActions>
+          </CardActions> */}
         </Card>
         <Snackbar
           autoHideDuration={2000}
