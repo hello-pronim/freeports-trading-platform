@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import axios, { AxiosResponse } from "axios";
-
+import Lockr from "lockr";
 import { VaultAccountType } from "./enum/vault-account-type";
 import { PermissionOwnerType } from "./enum/permission-owner-type";
 import { VaultAssetType } from "./enum/asset-type";
@@ -233,7 +233,7 @@ export class Vault {
   }
 
   public async authenticate(): Promise<string> {
-    const { tokenString } = await this.createToken("0");
+    const { tokenString } = await this.createToken();
     this.accessToken = tokenString;
     this.tokenObtainedAt = Date.now();
 
@@ -344,8 +344,15 @@ export class Vault {
     return signature;
   }
 
-  private async createToken(organizationId: string) {
+  private async createToken() {
     // const publicKeyDER = this.publicKey.export({ type: "spki", format: "der" });
+
+    let organizationId = 0;
+    
+    const { vaultOrganizationId } = Lockr.get("USER_DATA");
+    if (vaultOrganizationId) {
+      organizationId = vaultOrganizationId;
+    }
 
     const reqBody = {
       publicKey: this.publicKey,

@@ -25,6 +25,7 @@ interface LoginUserResponseType {
   nickname: string;
   email: string;
   organization?: string;
+  vaultOrganizationId?: string;
 }
 interface LoginTokenResponseType {
   tokenType: string;
@@ -57,6 +58,7 @@ function setIdentity(data: LoginResponseType) {
   Lockr.set("USER_DATA", {
     id: data.user.id,
     organizationId: data.user.organization,
+    vaultOrganizationId: data.user.vaultOrganizationId,
   });
   Lockr.set("OTP_DEFINED", data.isOTPDefined);
 }

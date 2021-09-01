@@ -48,4 +48,5 @@ export default interface User {
 
 export interface CurrentUser extends Omit<User, "roles"> {
   roles: RoleResponse[];
+  vaultOrganizationId?: string;
 }
