@@ -27,6 +27,7 @@ import {
   selectMultiDeskRoles,
   selectDeskRoles,
   selectIsUserAddingToVault,
+  selectIsUserDeletingFromVault,
 } from "./slice/selectors";
 import User from "../../../types/User";
 import { selectUser } from "../../../slice/selectors";
@@ -161,6 +162,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const deskRoles = useSelector(selectDeskRoles);
   const currentUser = useSelector(selectUser);
   const addingUserToVault = useSelector(selectIsUserAddingToVault);
+  const removingUserFromVault = useSelector(selectIsUserDeletingFromVault);
   const canCreateVaultUser =
     currentUser &&
     currentUser.vaultUserId &&
@@ -169,6 +171,15 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     coWorker.publicKey &&
     coWorker.publicKey.status === userPublicKeyStatus.requesting &&
     !coWorker.vaultUserId;
+
+  const canRemoveVaultUser =
+    currentUser &&
+    currentUser.vaultUserId &&
+    currentUser.publicKey &&
+    currentUser.publicKey.status === userPublicKeyStatus.approved &&
+    coWorker.publicKey &&
+    coWorker.publicKey.status === userPublicKeyStatus.revoking &&
+    coWorker.vaultUserId;
 
   useEffect(() => {
     let unmounted = false;
@@ -253,7 +264,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         }
       }
     });
-    
+
     onSubmit(updates as User, oldVaultGroup, newVaultGroup);
   };
 
@@ -261,12 +272,25 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     if (coWorker.id && coWorker.publicKey) {
       dispatch(
         coworkerActions.addUserToVault({
+          organizationId,
           userId: coWorker.id,
           publicKey: coWorker.publicKey,
         })
       );
     }
   };
+
+  const handleRemoveVaultUser = () => {
+    if (coWorker.id && coWorker.publicKey) {
+      dispatch(
+        coworkerActions.removeUserFromVault({
+          userVaultId: coWorker.vaultUserId || "",
+          userId: coWorker.id,
+        })
+      );
+    }
+  };
+
   return (
     <Container>
       <Form
@@ -527,6 +551,27 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                       )}
                     </div>
                   </Grid>
+                  {canRemoveVaultUser && (
+                    <Grid item>
+                      <div className={classes.progressButtonWrapper}>
+                        <Button
+                          fullWidth
+                          color="secondary"
+                          variant="outlined"
+                          onClick={handleRemoveVaultUser}
+                          disabled={removingUserFromVault}
+                        >
+                          Remove from vault
+                        </Button>
+                        {removingUserFromVault && (
+                          <CircularProgress
+                            size={24}
+                            className={classes.progressButton}
+                          />
+                        )}
+                      </div>
+                    </Grid>
+                  )}
                   <Grid item>
                     <div className={classes.progressButtonWrapper}>
                       <Button

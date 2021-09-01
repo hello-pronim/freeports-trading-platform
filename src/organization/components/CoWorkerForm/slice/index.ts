@@ -17,6 +17,7 @@ export const initialState: OrgCoWorkerFormState = {
   deskRoles: [],
   loading: false,
   addingUserToVault: false,
+  deletingUserFromVault: false,
 };
 
 const slice = createSlice({
@@ -49,12 +50,25 @@ const slice = createSlice({
     },
     addUserToVault(
       state,
-      action: PayloadAction<{ userId: string; publicKey: PublicKeyDoc }>
+      action: PayloadAction<{
+        organizationId: string;
+        userId: string;
+        publicKey: PublicKeyDoc;
+      }>
     ) {
       state.addingUserToVault = true;
     },
     addUserToVaultSuccess(state) {
       state.addingUserToVault = false;
+    },
+    removeUserFromVault(
+      state,
+      action: PayloadAction<{ userVaultId: string; userId: string }>
+    ) {
+      state.deletingUserFromVault = true;
+    },
+    removeUserFromVaultSuccess(state) {
+      state.deletingUserFromVault = false;
     },
   },
 });

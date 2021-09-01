@@ -114,13 +114,40 @@ const resumeOrgUser = (organizationId: string, id: string): Promise<any> => {
 };
 
 const createVaultUser = (
+  organizationId: string,
+  userId: string,
+  vaultRequest: VaultRequestDto
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `/organization/${organizationId}/user/${userId}/public-key/approve`,
+        {
+          vaultRequest,
+        }
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const removeVaultUser = (
+  organizationId: string,
   id: string,
   vaultRequest: VaultRequestDto
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`/user/${id}/vault-user`, { vaultRequest })
+      .post(`/organization/${organizationId}/user/${id}/public-key/revoke`, {
+        vaultRequest,
+      })
       .then((res: any) => {
+        console.log(" user update response ", res.data);
+
         return resolve(res.data);
       })
       .catch((err) => {
@@ -151,5 +178,6 @@ export {
   suspendOrgUser,
   resumeOrgUser,
   createVaultUser,
+  removeVaultUser,
   sendResetPasswordEmail,
 };

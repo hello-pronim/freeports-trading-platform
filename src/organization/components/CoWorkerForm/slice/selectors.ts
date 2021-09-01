@@ -27,3 +27,8 @@ export const selectIsUserAddingToVault = createSelector(
   [selectDomain],
   (orgCoWorkerFormState) => orgCoWorkerFormState.addingUserToVault
 );
+
+export const selectIsUserDeletingFromVault = createSelector(
+  [selectDomain],
+  (orgCoWorkerFormState) => orgCoWorkerFormState.deletingUserFromVault
+);

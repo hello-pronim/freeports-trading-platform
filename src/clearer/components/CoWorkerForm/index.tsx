@@ -406,7 +406,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                               )
                             }
                           >
-                            Approve public key and add to vault
+                            Add to vault
                           </Button>
                           {addingUserToVault && (
                             <CircularProgress
@@ -426,7 +426,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                               onClick={handleRemoveVaultUser}
                               disabled={removingUserFromVault}
                             >
-                              Revoke public key and remove from vault
+                              Remove from vault
                             </Button>
                             {removingUserFromVault && (
                               <CircularProgress

@@ -7,4 +7,5 @@ export interface OrgCoWorkerFormState {
   deskRoles: Role[];
   loading: boolean;
   addingUserToVault: boolean;
+  deletingUserFromVault: boolean;
 }

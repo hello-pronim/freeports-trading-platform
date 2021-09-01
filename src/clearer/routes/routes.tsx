@@ -111,9 +111,9 @@ export default [
     component: lazy(() => import("../../components/VaultRequest")),
   },
   /* {
-    path: "/error",
+    path: "/requests",
     exact: true,
     auth: true,
-    component: lazy(() => import("../components/Error")),
+    component: lazy(() => import("../components/Requests")),
   }, */
 ];
