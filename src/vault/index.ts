@@ -136,12 +136,17 @@ export class Vault {
   }
 
   public createVaultUser = async (
-    publicKey: string
+    publicKey: string,
+    isOrg = false,
   ): Promise<VaultRequestDto> => {
     console.log("createVaultUser ", this);
-    const request = await this.createRequest(Method.POST, "/vault/user", {
-      publicKey,
-    });
+    const request = await this.createRequest(
+      Method.POST, 
+      `/${isOrg ? 'organization' : 'vault'}/user`, 
+      {
+        publicKey,
+      }
+    );
     return request;
   };
 
@@ -157,8 +162,14 @@ export class Vault {
     return request;
   }
 
-  public deleteVaultUser = async (id: string): Promise<VaultRequestDto> => {
-    const request = await this.createRequest(Method.DELETE, `/vault/user/${id}`);
+  public deleteVaultUser = async (
+    id: string,
+    isOrg = false,
+  ): Promise<VaultRequestDto> => {
+    const request = await this.createRequest(
+      Method.DELETE, 
+      `/${isOrg ? 'organization' : 'vault'}/user/${id}`
+    );
     return request;
   }
 
@@ -369,13 +380,18 @@ export class Vault {
   private async grantPermission(
     permissionType: VaultPermissions,
     ownerType: PermissionOwnerType,
-    ownerId: string
+    ownerId: string,
+    isOrg = false,
   ) {
-    const request = await this.createRequest(Method.POST, "/vault/permission", {
-      permissionType,
-      ownerType,
-      ownerId,
-    });
+    const request = await this.createRequest(
+      Method.POST, 
+      `/${isOrg ? 'organization' : 'vault'}/permission`, 
+      {
+        permissionType,
+        ownerType,
+        ownerId,
+      }
+    );
     return request;
   }
 
@@ -437,28 +453,24 @@ export class Vault {
     );
   }
 
-  public async createGroup(): Promise<VaultRequestDto> {
+  public async createGroup(
+    isOrg = false,
+  ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.POST,
-      "/vault/group"
+      `/${isOrg ? 'organization' : 'vault'}/group`
     );
 
     return request;
   }
 
-  public async deleteGroup(groupId: string): Promise<VaultRequestDto> {
+  public async deleteGroup(
+    groupId: string,
+    isOrg = false,
+  ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.DELETE,
-      `/vault/group/${groupId}`
-    );
-
-    return request;
-  }
-
-  public async createOrgGroup(): Promise<VaultRequestDto> {
-    const request = await this.createRequest(
-      Method.POST,
-      "/organization/group"
+      `/${isOrg ? 'organization' : 'vault'}/group/${groupId}`
     );
 
     return request;
@@ -468,6 +480,7 @@ export class Vault {
     ownerType: PermissionOwnerType,
     ownerId: string,
     rolePermissions: Array<string>,
+    isOrg = false,
   ): Promise<VaultRequestDto[]> {
     const permissions: Array<VaultPermissions> = [];
 
@@ -487,7 +500,8 @@ export class Vault {
         return this.grantPermission(
           permission as VaultPermissions,
           ownerType,
-          ownerId
+          ownerId,
+          isOrg,
         );
       })
     );
@@ -549,6 +563,7 @@ export class Vault {
     ownerType: PermissionOwnerType,
     ownerId: string,
     rolePermissions: Array<string>,
+    isOrg = false,
   ): Promise<VaultRequestDto[]> {
     const permissions: Array<VaultPermissions> = [];
 
@@ -568,7 +583,8 @@ export class Vault {
         return this.revokePermission(
           permission as VaultPermissions,
           ownerType,
-          ownerId
+          ownerId,
+          isOrg,
         );
       })
     );
@@ -577,11 +593,12 @@ export class Vault {
   private async revokePermission(
     permissionType: VaultPermissions,
     ownerType: PermissionOwnerType,
-    ownerId: string
+    ownerId: string,
+    isOrg = false,
   ) {
     const request = await this.createRequest(
       Method.DELETE, 
-      "/vault/permission", 
+      `/${isOrg ? 'organization' : 'vault'}/permission`, 
       {
         permissionType,
         ownerType,
@@ -628,10 +645,11 @@ export class Vault {
     ownerType: PermissionOwnerType,
     ownerId: string,
     permissionType: VaultPermissions,
+    isOrg = false,
   ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.POST, 
-      `/vault/${asset}/${assetId}/permission`, 
+      `/${isOrg ? 'organization' : 'vault'}/${asset}/${assetId}/permission`, 
       {
         ownerType,
         ownerId,

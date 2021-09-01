@@ -197,7 +197,7 @@ const createOrgRole = async (
   },
   vaultUserId: string
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createGroup(true);
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
 
@@ -206,14 +206,16 @@ const createOrgRole = async (
     vaultGroupId,
     PermissionOwnerType.user,
     vaultUserId,
-    VaultPermissions.AddRemoveUser
+    VaultPermissions.AddRemoveUser,
+    true
   );
   await vault.sendRequest(request);
   
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    role.permissions
+    role.permissions,
+    true
   );
   return new Promise((resolve, reject) => {
     axios
@@ -252,13 +254,15 @@ const updateOrgRole = async (
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    oldPermissionsList
+    oldPermissionsList,
+    true
   );
 
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    newPermissionsList
+    newPermissionsList,
+    true
   );
   
   return new Promise((resolve, reject) => {
@@ -289,7 +293,7 @@ const removeOrgRole = (
     axios
       .delete(`/organization/${organizationId}/role/${roleId}`)
       .then(async (res: any) => {
-        const request = await vault.deleteGroup(vaultGroupId);
+        const request = await vault.deleteGroup(vaultGroupId, true);
         await vault.sendRequest(request);
         return resolve(res.data);
       })
@@ -373,7 +377,7 @@ const createMultiDeskRole = async (
   },
   vaultUserId: string,
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createGroup(true);
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
 
@@ -382,14 +386,16 @@ const createMultiDeskRole = async (
     vaultGroupId,
     PermissionOwnerType.user,
     vaultUserId,
-    VaultPermissions.AddRemoveUser
+    VaultPermissions.AddRemoveUser,
+    true
   );
   await vault.sendRequest(request);
   
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    role.permissions
+    role.permissions,
+    true
   );
   return new Promise((resolve, reject) => {
     axios
@@ -428,13 +434,15 @@ const updateMultiDeskRole = async (
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    oldPermissionsList
+    oldPermissionsList,
+    true
   );
 
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    newPermissionsList
+    newPermissionsList,
+    true
   );
 
   return new Promise((resolve, reject) => {
@@ -465,7 +473,7 @@ const removeMultiDeskRole = (
     axios
       .delete(`/organization/${organizationId}/multidesk/role/${roleId}`)
       .then(async (res: any) => {
-        const request = await vault.deleteGroup(vaultGroupId);
+        const request = await vault.deleteGroup(vaultGroupId, true);
         await vault.sendRequest(request);
         return resolve(res.data);
       })
@@ -555,7 +563,7 @@ const createDeskRole = async (
   },
   vaultUserId: string,
 ): Promise<string> => {
-  const vaultCreateGroupRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createGroup(true);
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
 
@@ -564,14 +572,16 @@ const createDeskRole = async (
     vaultGroupId,
     PermissionOwnerType.user,
     vaultUserId,
-    VaultPermissions.AddRemoveUser
+    VaultPermissions.AddRemoveUser,
+    true
   );
   await vault.sendRequest(request);
   
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    role.permissions
+    role.permissions,
+    true
   );
   return new Promise((resolve, reject) => {
     axios
@@ -611,13 +621,15 @@ const updateDeskRole = async (
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    oldPermissionsList
+    oldPermissionsList,
+    true
   );
 
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    newPermissionsList
+    newPermissionsList,
+    true
   );
 
   return new Promise((resolve, reject) => {
@@ -649,7 +661,7 @@ const removeDeskRole = (
     axios
       .delete(`/organization/${organizationId}/desk/${deskId}/role/${roleId}`)
       .then(async (res: any) => {
-        const request = await vault.deleteGroup(vaultGroupId);
+        const request = await vault.deleteGroup(vaultGroupId, true);
         await vault.sendRequest(request);
         return resolve(res.data);
       })

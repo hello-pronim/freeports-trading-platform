@@ -66,7 +66,8 @@ export function* addUserToVault({
   try {
     const createVaultUserRequest = yield call(
       vault.createVaultUser,
-      publicKey.key
+      publicKey.key,
+      true
     );
 
     console.log("create vault user req ", createVaultUserRequest);
