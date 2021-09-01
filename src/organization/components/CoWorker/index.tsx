@@ -146,7 +146,7 @@ const CoWorker = (): React.ReactElement => {
   const handleCoWorkerUpdate = (
     updates: User,
     oldVaultGroup: string[],
-    newVaultGroup: string[],
+    newVaultGroup: string[]
   ) => {
     console.log("CoWorker update", updates, selectedCoWorker);
     if (selectedCoWorker.id && selectedCoWorker.vaultUserId) {
@@ -301,7 +301,8 @@ const CoWorker = (): React.ReactElement => {
                               {coWorkerId &&
                                 coWorkerId !== "new" &&
                                 !selectedCoWorker.publicKey &&
-                                !selectedCoWorker.hasPassword && (
+                                !selectedCoWorker.hasPassword &&
+                                !selectedCoWorker.suspended && (
                                   <Chip
                                     label="Invite sent"
                                     variant="outlined"
@@ -311,7 +312,8 @@ const CoWorker = (): React.ReactElement => {
                               {coWorkerId &&
                                 coWorkerId !== "new" &&
                                 !selectedCoWorker.publicKey &&
-                                selectedCoWorker.hasPassword && (
+                                selectedCoWorker.hasPassword &&
+                                !selectedCoWorker.suspended && (
                                   <Chip
                                     label="Waiting public key"
                                     variant="outlined"
@@ -322,7 +324,8 @@ const CoWorker = (): React.ReactElement => {
                                 coWorkerId !== "new" &&
                                 selectedCoWorker.publicKey &&
                                 selectedCoWorker.hasPassword &&
-                                selectedCoWorker.vaultUserId === undefined && (
+                                selectedCoWorker.vaultUserId === undefined &&
+                                !selectedCoWorker.suspended && (
                                   <Chip
                                     label="Trust required"
                                     variant="outlined"
@@ -331,7 +334,8 @@ const CoWorker = (): React.ReactElement => {
                                 )}
                               {coWorkerId &&
                                 coWorkerId !== "new" &&
-                                selectedCoWorker.vaultUserId && (
+                                selectedCoWorker.vaultUserId &&
+                                !selectedCoWorker.suspended && (
                                   <Chip
                                     label="Active"
                                     variant="outlined"
