@@ -11,6 +11,10 @@ import {
   Button,
   CircularProgress,
   Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   Grid,
   InputLabel,
@@ -30,6 +34,7 @@ import {
 import { selectUser } from "../../../../slice/selectors";
 import vault from "../../../../vault";
 import { userPublicKeyStatus } from "../../../../util/constants";
+import { generateCertificationEmojis } from "../../../../util/sas";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -82,6 +87,18 @@ const useStyle = makeStyles((theme) => ({
     marginTop: -12,
     marginLeft: -12,
   },
+  emojiBlock: {
+    display: "inline-block",
+    margin: theme.spacing(1),
+    textAlign: "center",
+  },
+  emojiIcon: {
+    fontSize: "24px",
+  },
+  emojiName: {
+    textTransform: "uppercase",
+    fontSize: "12px",
+  },
 }));
 
 interface managerType {
@@ -120,6 +137,8 @@ const Manager = (props: any): React.ReactElement => {
   const [addingVaultUser, setAddingVaultUser] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [managerInfo, setManagerInfo] = useState<any>(null);
+  const [publicKeyEmojisDialog, setPublicKeyEmojisDialog] = useState(false);
+  const [publicKeyEmojis, setPublicKeyEmojis] = useState<any>([]);
 
   useEffect(() => {
     let mounted = false;
@@ -280,6 +299,7 @@ const Manager = (props: any): React.ReactElement => {
             message: "Successfully added vault user",
           });
           setViewAddToVault(false);
+          setPublicKeyEmojisDialog(false);
         })
         .catch((err) => {
           setSubmitResponse({
@@ -290,6 +310,13 @@ const Manager = (props: any): React.ReactElement => {
       setAddingVaultUser(false);
       setShowAlert(true);
     }
+  };
+
+  const onViewPublicKey = () => {
+    const emojis = generateCertificationEmojis(managerInfo.publicKey.key);
+
+    setPublicKeyEmojis(emojis);
+    setPublicKeyEmojisDialog(true);
   };
 
   return (
@@ -399,17 +426,12 @@ const Manager = (props: any): React.ReactElement => {
       <AccordionActions>
         <Grid item container xs={12} justify="space-between">
           {viewAddToVault && (
-            <div className={classes.progressButtonWrapper}>
-              <Button color="primary" onClick={onClickAddVaultUser}>
-                Add to Vault
-              </Button>
-              {addingVaultUser && (
-                <CircularProgress
-                  size={24}
-                  className={classes.progressButton}
-                />
-              )}
-            </div>
+            <Button 
+              color="primary" 
+              onClick={onViewPublicKey}
+            >
+              Add to Vault
+            </Button>
           )}
           <div className={classes.progressButtonWrapper}>
             <Button
@@ -450,6 +472,54 @@ const Manager = (props: any): React.ReactElement => {
             {submitResponse.message}
           </Alert>
         </Snackbar>
+        <Dialog
+          open={publicKeyEmojisDialog}
+          onClose={() => setPublicKeyEmojisDialog(false)}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Approve public key</DialogTitle>
+          <Divider />
+          <DialogContent>
+            <Grid container>
+              <Grid item xs={12}>
+                {publicKeyEmojis.map((emoji: any) => {
+                  return (
+                    <div className={classes.emojiBlock} key={emoji}>
+                      <div className={classes.emojiIcon}>{emoji[0]}</div>
+                      <div className={classes.emojiName}>{emoji[1]}</div>
+                    </div>
+                  );
+                })}
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <Divider />
+          <DialogActions>
+            <Button
+              onClick={() => setPublicKeyEmojisDialog(false)}
+              color="secondary"
+              variant="contained"
+            >
+              Close
+            </Button>
+            <div className={classes.progressButtonWrapper}>
+              <Button
+                onClick={onClickAddVaultUser}
+                color="primary"
+                variant="contained"
+                disabled={addingVaultUser}
+              >
+                Approve
+              </Button>
+              {addingVaultUser && (
+                <CircularProgress
+                  size={24}
+                  className={classes.progressButton}
+                />
+              )}
+            </div>
+          </DialogActions>
+        </Dialog>
       </AccordionActions>
     </Accordion>
   );
