@@ -7,14 +7,15 @@ import { desksActions as actions } from ".";
 
 import {
   getAllDesks,
+  getMyDesks,
   createDesk,
   deleteDesk,
 } from "../../../../services/deskService";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
 
-export function* getDesks({ payload }: PayloadAction<string>): Generator<any> {
+export function* getDesks(): Generator<any> {
   try {
-    const response = yield call(getAllDesks, payload);
+    const response = yield call(getMyDesks);
     if (response)
       yield put(
         actions.getDesksSuccess((response as PaginatedResponse<Desk>).content)
@@ -46,7 +47,7 @@ export function* addDesk({
           type: "success",
         })
       );
-      yield put(actions.getDesks(payload.organizationId));
+      yield put(actions.getDesks());
       yield take(actions.getDesksSuccess);
     }
   } catch (error) {
@@ -76,7 +77,7 @@ export function* removeDesk({
           type: "success",
         })
       );
-      yield put(actions.getDesks(payload.organizationId));
+      yield put(actions.getDesks());
       yield take(actions.getDesksSuccess);
     }
   } catch (error) {

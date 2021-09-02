@@ -29,19 +29,23 @@ const slice = createSlice({
   reducers: {
     addOrgRole(
       state,
-      action: PayloadAction<{ organizationId: string; role: Role; vaultUserId: string }>
+      action: PayloadAction<{
+        organizationId: string;
+        role: Role;
+        vaultUserId: string;
+      }>
     ) {
       state.orgRoleCreating = true;
     },
     addOrgRoleSuccess(state, action: PayloadAction<string>) {
       state.orgRoleCreating = false;
     },
-    addOrgRoleFailure(state) {
+    addOrgRoleFailed(state) {
       state.orgRoleCreating = false;
     },
     addMultiDeskRole(
       state,
-      action: PayloadAction<{ 
+      action: PayloadAction<{
         organizationId: string;
         role: Role;
         vaultUserId: string;
@@ -50,6 +54,9 @@ const slice = createSlice({
       state.multiDeskRoleCreating = true;
     },
     addMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.multiDeskRoleCreating = false;
+    },
+    addMultiDeskRoleFailed(state) {
       state.multiDeskRoleCreating = false;
     },
     addDeskRole(
@@ -64,6 +71,9 @@ const slice = createSlice({
       state.deskRoleCreating = true;
     },
     addDeskRoleSuccess(state, action: PayloadAction<string>) {
+      state.deskRoleCreating = false;
+    },
+    addDeskRoleFailed(state) {
       state.deskRoleCreating = false;
     },
     getOrgPermissions(state, action: PayloadAction<string>) {

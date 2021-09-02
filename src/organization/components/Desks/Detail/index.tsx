@@ -121,7 +121,7 @@ const Detail = (): React.ReactElement => {
   useEffect(() => {
     let mounted = false;
     const init = async () => {
-      await dispatch(desksActions.getDesks(organizationId));
+      await dispatch(desksActions.getDesks());
       await dispatch(deskDetailActions.getDesk({ organizationId, deskId }));
     };
     init();

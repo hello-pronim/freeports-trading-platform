@@ -186,7 +186,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
 
     dispatch(coworkerActions.getOrgRoles(organizationId));
     dispatch(coworkerActions.getMultiDeskRoles(organizationId));
-    dispatch(desksActions.getDesks(organizationId));
+    dispatch(desksActions.getDesks());
     dispatch(coworkerActions.getDeskRoles(organizationId));
 
     return () => {

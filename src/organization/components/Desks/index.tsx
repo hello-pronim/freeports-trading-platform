@@ -102,7 +102,7 @@ const Desks = (): React.ReactElement => {
   const deskDeleting = useSelector(selectIsDeskDeleting);
 
   useEffect(() => {
-    dispatch(actions.getDesks(organizationId));
+    dispatch(actions.getDesks());
   }, []);
 
   const handleDialogOpen = () => {

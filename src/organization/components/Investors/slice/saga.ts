@@ -57,6 +57,7 @@ export function* addInvestor({
       yield take(actions.getInvestorsSuccess);
     }
   } catch (error) {
+    yield put(actions.addInvestorFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -92,6 +93,7 @@ export function* removeInvestor({
       yield take(actions.getInvestorsSuccess);
     }
   } catch (error) {
+    yield put(actions.removeInvestorFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,

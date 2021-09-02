@@ -35,9 +35,9 @@ export function* getOrgPermissions({
 
 export function* addOrgRole({
   payload,
-}: PayloadAction<{ 
-  organizationId: string; 
-  role: Role; 
+}: PayloadAction<{
+  organizationId: string;
+  role: Role;
   vaultUserId: string;
 }>): Generator<any> {
   try {
@@ -45,7 +45,7 @@ export function* addOrgRole({
       createOrgRole,
       payload.organizationId,
       payload.role,
-      payload.vaultUserId,
+      payload.vaultUserId
     );
     if (response) {
       yield put(actions.addOrgRoleSuccess(response as string));
@@ -57,7 +57,7 @@ export function* addOrgRole({
       );
     }
   } catch (error) {
-    yield put(actions.addOrgRoleFailure());
+    yield put(actions.addOrgRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,
@@ -88,9 +88,9 @@ export function* getMultiDeskPermissions({
 
 export function* addMultiDeskRole({
   payload,
-}: PayloadAction<{ 
-  organizationId: string; 
-  role: Role; 
+}: PayloadAction<{
+  organizationId: string;
+  role: Role;
   vaultUserId: string;
 }>): Generator<any> {
   try {
@@ -98,7 +98,7 @@ export function* addMultiDeskRole({
       createMultiDeskRole,
       payload.organizationId,
       payload.role,
-      payload.vaultUserId,
+      payload.vaultUserId
     );
     if (response) {
       yield put(actions.addMultiDeskRoleSuccess(response as string));
@@ -110,7 +110,7 @@ export function* addMultiDeskRole({
       );
     }
   } catch (error) {
-    yield put(actions.addOrgRoleFailure());
+    yield put(actions.addMultiDeskRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,
@@ -151,7 +151,7 @@ export function* addDeskRole({
       payload.organizationId,
       payload.deskId,
       payload.role,
-      payload.vaultUserId,
+      payload.vaultUserId
     );
     if (response) {
       yield put(actions.addDeskRoleSuccess(response as string));
@@ -163,7 +163,7 @@ export function* addDeskRole({
       );
     }
   } catch (error) {
-    yield put(actions.addOrgRoleFailure());
+    yield put(actions.addDeskRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,

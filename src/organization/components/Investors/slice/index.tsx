@@ -42,6 +42,9 @@ const slice = createSlice({
     addInvestorSuccess(state, action: PayloadAction<string>) {
       state.creating = false;
     },
+    addInvestorFailed(state) {
+      state.creating = false;
+    },
     removeInvestor(
       state,
       action: PayloadAction<{
@@ -53,6 +56,9 @@ const slice = createSlice({
       state.deleting = true;
     },
     removeInvestorSuccess(state, action: PayloadAction<string>) {
+      state.deleting = false;
+    },
+    removeInvestorFailed(state) {
       state.deleting = false;
     },
   },

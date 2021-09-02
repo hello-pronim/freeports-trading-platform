@@ -14,6 +14,19 @@ const getAllDesks = (organizationId: string): Promise<Desk[]> => {
   });
 };
 
+const getMyDesks = (): Promise<Desk[]> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`/my/desk`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
 const getDesk = (organizationId: string, deskId: string): Promise<Desk> => {
   return new Promise((resolve, reject) => {
     axios
@@ -53,4 +66,11 @@ const deleteDesk = (organizationId: string, deskId: string): Promise<any> => {
   });
 };
 
-export { getAllDesks as default, getAllDesks, getDesk, createDesk, deleteDesk };
+export {
+  getAllDesks as default,
+  getAllDesks,
+  getMyDesks,
+  getDesk,
+  createDesk,
+  deleteDesk,
+};

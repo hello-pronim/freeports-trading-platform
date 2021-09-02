@@ -140,7 +140,7 @@ const NewDeskRole = (): React.ReactElement => {
     let unmounted = false;
 
     const init = async () => {
-      await dispatch(desksActions.getDesks(organizationId));
+      await dispatch(desksActions.getDesks());
       await dispatch(newDeskRoleActions.getDeskPermissions(organizationId));
     };
 
@@ -163,10 +163,10 @@ const NewDeskRole = (): React.ReactElement => {
         organizationId,
         deskId,
         role,
-        vaultUserId: currentUser?.vaultUserId as string
+        vaultUserId: currentUser?.vaultUserId as string,
       })
     );
-    history.push("/roles");
+    // history.push("/roles");
   };
 
   const handleCancelClick = () => {

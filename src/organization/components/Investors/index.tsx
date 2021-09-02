@@ -222,7 +222,7 @@ const Investors = (): React.ReactElement => {
         setTradingAccounts(orgDetail.clearing);
       }
       await dispatch(investorsActions.getInvestors());
-      await dispatch(deskActions.getDesks(organizationId));
+      await dispatch(deskActions.getDesks());
     };
     init();
 

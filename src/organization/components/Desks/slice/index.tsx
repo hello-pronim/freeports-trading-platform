@@ -21,7 +21,7 @@ const slice = createSlice({
   name: "desks",
   initialState,
   reducers: {
-    getDesks(state, action: PayloadAction<string>) {
+    getDesks(state) {
       state.loading = true;
       state.desks = [];
     },
