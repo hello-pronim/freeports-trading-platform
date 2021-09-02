@@ -674,23 +674,25 @@ const EditOrganizer = (): React.ReactElement => {
               </CardContent>
               <Divider />
               <CardActions>
-                <Grid container item justify="flex-end" xs={12}>
-                  <div className={classes.progressButtonWrapper}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={onHandleUpdate}
-                      disabled={orgUpdating}
-                    >
-                      SAVE CHANGES
-                    </Button>
-                    {orgUpdating && (
-                      <CircularProgress
-                        size={24}
-                        className={classes.progressButton}
-                      />
-                    )}
-                  </div>
+                <Grid container justify="flex-end">
+                  <Grid item>
+                    <div className={classes.progressButtonWrapper}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={onHandleUpdate}
+                        disabled={orgUpdating}
+                      >
+                        SAVE CHANGES
+                      </Button>
+                      {orgUpdating && (
+                        <CircularProgress
+                          size={24}
+                          className={classes.progressButton}
+                        />
+                      )}
+                    </div>
+                  </Grid>
                 </Grid>
               </CardActions>
             </Card>

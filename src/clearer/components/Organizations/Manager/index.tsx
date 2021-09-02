@@ -288,6 +288,7 @@ const Manager = (props: any): React.ReactElement => {
     if (managerInfo.id && managerInfo.publicKey) {
       setAddingVaultUser(true);
       const organization = await getOrganization(orgId);
+      console.log(organization);
       const vaultRequest = await vault.createOrganizationManager(
         organization.vaultOrganizationId,
         managerInfo.publicKey.key
@@ -372,92 +373,101 @@ const Manager = (props: any): React.ReactElement => {
       </AccordionSummary>
       <Divider />
       <AccordionDetails>
-        <Grid container spacing={1} xs={12}>
-          <Grid item container justify="center" xs={12}>
-            <div className={classes.profileImageContainer}>
-              <Avatar
-                src={manager.avatar}
-                alt="Avatar"
-                className={classes.profileImage}
-              />
-              <input
-                type="file"
-                name="avatar"
-                className={classes.profileFileInput}
-                onChange={onAvatarChange}
-              />
-            </div>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Grid container justify="center">
+              <div className={classes.profileImageContainer}>
+                <Avatar
+                  src={manager.avatar}
+                  alt="Avatar"
+                  className={classes.profileImage}
+                />
+                <input
+                  type="file"
+                  name="avatar"
+                  className={classes.profileFileInput}
+                  onChange={onAvatarChange}
+                />
+              </div>
+            </Grid>
           </Grid>
-          <Grid item container direction="row" spacing={2} xs={12}>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <TextField
-                  label="Nick Name"
-                  variant="outlined"
-                  value={manager.nickname}
-                  onChange={onHandleName}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={6}>
-              <FormControl fullWidth>
-                <TextField
-                  label="Email"
-                  variant="outlined"
-                  value={manager.email}
-                  onChange={onHandleEmail}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={6}>
-              <FormControl fullWidth>
-                <TextField
-                  label="Phone"
-                  variant="outlined"
-                  value={manager.phone}
-                  onChange={onHandlePhone}
-                />
-              </FormControl>
-            </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <TextField
+                label="Nick Name"
+                variant="outlined"
+                value={manager.nickname}
+                onChange={onHandleName}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl fullWidth>
+              <TextField
+                label="Email"
+                variant="outlined"
+                value={manager.email}
+                onChange={onHandleEmail}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl fullWidth>
+              <TextField
+                label="Phone"
+                variant="outlined"
+                value={manager.phone}
+                onChange={onHandlePhone}
+              />
+            </FormControl>
           </Grid>
         </Grid>
       </AccordionDetails>
       <Divider />
       <AccordionActions>
-        <Grid item container xs={12} justify="space-between">
+        <Grid container justify="space-between">
           {viewAddToVault && (
-            <Button 
-              color="primary" 
-              onClick={onViewPublicKey}
-            >
-              Add to Vault
-            </Button>
+            <Grid item>
+              <Button color="primary" onClick={onViewPublicKey}>
+                Add to Vault
+              </Button>
+            </Grid>
           )}
-          <div className={classes.progressButtonWrapper}>
-            <Button
-              color="primary"
-              onClick={handleSendResetPasswordLink}
-              disabled={sendingEmail}
-            >
-              Send Reset Password
-            </Button>
-            {sendingEmail && (
-              <CircularProgress size={24} className={classes.progressButton} />
-            )}
-          </div>
-          <div className={classes.progressButtonWrapper}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={updateSubmit}
-              disabled={managerUpdating}
-            >
-              Save Changes
-            </Button>
-            {managerUpdating && (
-              <CircularProgress size={24} className={classes.progressButton} />
-            )}
-          </div>
+          <Grid item>
+            <div className={classes.progressButtonWrapper}>
+              <Button
+                color="primary"
+                onClick={handleSendResetPasswordLink}
+                disabled={sendingEmail}
+              >
+                Send Reset Password
+              </Button>
+              {sendingEmail && (
+                <CircularProgress
+                  size={24}
+                  className={classes.progressButton}
+                />
+              )}
+            </div>
+          </Grid>
+          <Grid item>
+            <div className={classes.progressButtonWrapper}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={updateSubmit}
+                disabled={managerUpdating}
+              >
+                Save Changes
+              </Button>
+              {managerUpdating && (
+                <CircularProgress
+                  size={24}
+                  className={classes.progressButton}
+                />
+              )}
+            </div>
+          </Grid>
         </Grid>
         <Snackbar
           autoHideDuration={2000}

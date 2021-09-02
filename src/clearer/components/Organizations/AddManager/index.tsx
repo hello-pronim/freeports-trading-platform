@@ -238,10 +238,12 @@ const AddManager = (): React.ReactElement => {
                 </CardContent>
                 <Divider />
                 <CardActions>
-                  <Grid item container xs={12} justify="flex-end">
-                    <Button variant="contained" color="primary" type="submit">
-                      Submit
-                    </Button>
+                  <Grid container justify="flex-end">
+                    <Grid item>
+                      <Button variant="contained" color="primary" type="submit">
+                        Submit
+                      </Button>
+                    </Grid>
                   </Grid>
                 </CardActions>
               </Card>

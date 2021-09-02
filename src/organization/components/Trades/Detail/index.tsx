@@ -480,10 +480,12 @@ const TradeDetail = (): React.ReactElement => {
                             <Grid key={rfq.id} item xs={3}>
                               <Card className="w-100">
                                 <CardContent>
-                                  <Grid container justify="flex-end" xs={12}>
-                                    <Typography variant="body1">
-                                      {rfq.brokerId}
-                                    </Typography>
+                                  <Grid container justify="flex-end">
+                                    <Grid item>
+                                      <Typography variant="body1">
+                                        {rfq.brokerId}
+                                      </Typography>
+                                    </Grid>
                                   </Grid>
                                   <Grid
                                     container
@@ -511,21 +513,31 @@ const TradeDetail = (): React.ReactElement => {
                                       />
                                     </Typography>
                                   </Grid>
-                                  <Grid container justify="flex-end" xs={12}>
-                                    <Typography
-                                      variant="body2"
-                                      style={{
-                                        fontWeight: 600,
-                                        marginRight: "10px",
-                                      }}
-                                    >
-                                      Rate
-                                    </Typography>
-                                    <Typography variant="body2">
-                                      {`${tradeRequest.currencyTo} `}
-                                      <AccurateNumber number={rfq.price} />
-                                      {`/${tradeRequest.currencyFrom}`}
-                                    </Typography>
+                                  <Grid container justify="flex-end">
+                                    <Grid item>
+                                      <Grid container spacing={1}>
+                                        <Grid item>
+                                          <Typography
+                                            variant="body2"
+                                            style={{
+                                              fontWeight: 600,
+                                              marginRight: "10px",
+                                            }}
+                                          >
+                                            Rate
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item>
+                                          <Typography variant="body2">
+                                            {`${tradeRequest.currencyTo} `}
+                                            <AccurateNumber
+                                              number={rfq.price}
+                                            />
+                                            {`/${tradeRequest.currencyFrom}`}
+                                          </Typography>
+                                        </Grid>
+                                      </Grid>
+                                    </Grid>
                                   </Grid>
                                 </CardContent>
                                 <Divider className={classes.dividerColor} />

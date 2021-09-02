@@ -191,7 +191,7 @@ const AddRole = (): React.ReactElement => {
               <CardHeader title="Create new Organization role" />
               <Divider />
               <CardContent>
-                <Grid container item xs={12}>
+                <Grid container>
                   <Grid item xs={4}>
                     <TextField
                       className={classes.roleNameInput}
@@ -201,7 +201,7 @@ const AddRole = (): React.ReactElement => {
                     />
                   </Grid>
                 </Grid>
-                <Grid container item xs={12}>
+                <Grid container>
                   {permissions.map((perm: PermissionType) => (
                     <Grid item key={perm.name} xs={12}>
                       <FormGroup className={classes.permissionContainer}>
@@ -241,23 +241,25 @@ const AddRole = (): React.ReactElement => {
               <Divider />
               <CardActions>
                 <Grid container justify="flex-end">
-                  <div className={classes.progressButtonWrapper}>
-                    <Button
-                      variant="contained"
-                      size="large"
-                      color="primary"
-                      onClick={onRoleCreate}
-                      disabled={loading}
-                    >
-                      Create Role
-                    </Button>
-                    {loading && (
-                      <CircularProgress
-                        size={24}
-                        className={classes.progressButton}
-                      />
-                    )}
-                  </div>
+                  <Grid item>
+                    <div className={classes.progressButtonWrapper}>
+                      <Button
+                        variant="contained"
+                        size="large"
+                        color="primary"
+                        onClick={onRoleCreate}
+                        disabled={loading}
+                      >
+                        Create Role
+                      </Button>
+                      {loading && (
+                        <CircularProgress
+                          size={24}
+                          className={classes.progressButton}
+                        />
+                      )}
+                    </div>
+                  </Grid>
                 </Grid>
                 <Snackbar
                   autoHideDuration={2000}
