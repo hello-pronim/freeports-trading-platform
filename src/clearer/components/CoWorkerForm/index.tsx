@@ -393,50 +393,6 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                           variant="outlined"
                         />
                       </Grid>
-                      <Grid item xs={6}>
-                        <div className={classes.progressButtonWrapper}>
-                          <Button
-                            fullWidth
-                            color="primary"
-                            variant="outlined"
-                            disabled={!canCreateVaultUser || addingUserToVault}
-                            onClick={() =>
-                              onViewPublicKey(
-                                coWorker.publicKey ? coWorker.publicKey.key : ""
-                              )
-                            }
-                          >
-                            Add to vault
-                          </Button>
-                          {addingUserToVault && (
-                            <CircularProgress
-                              size={24}
-                              className={classes.progressButton}
-                            />
-                          )}
-                        </div>
-                      </Grid>
-                      {canRemoveVaultUser && (
-                        <Grid item xs={6}>
-                          <div className={classes.progressButtonWrapper}>
-                            <Button
-                              fullWidth
-                              color="secondary"
-                              variant="outlined"
-                              onClick={handleRemoveVaultUser}
-                              disabled={removingUserFromVault}
-                            >
-                              Remove from vault
-                            </Button>
-                            {removingUserFromVault && (
-                              <CircularProgress
-                                size={24}
-                                className={classes.progressButton}
-                              />
-                            )}
-                          </div>
-                        </Grid>
-                      )}
                     </Grid>
                   </Grid>
                   <Grid item xs={4}>
@@ -449,17 +405,52 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
               </Grid>
               <Grid item xs={12}>
                 <Grid container justify="flex-end" spacing={1}>
-                  {/* <Grid item>
-                    <Button
-                      variant="contained"
-                      disabled={!canCreateVaultUser}
-                      fullWidth
-                      color="primary"
-                      onClick={handleAddVaultUser}
-                    >
-                      Add to vault
-                    </Button>
-                  </Grid> */}
+                  {canCreateVaultUser && (
+                    <Grid item>
+                      <div className={classes.progressButtonWrapper}>
+                        <Button
+                          fullWidth
+                          color="primary"
+                          variant="outlined"
+                          disabled={addingUserToVault}
+                          onClick={() =>
+                            onViewPublicKey(
+                              coWorker.publicKey ? coWorker.publicKey.key : ""
+                            )
+                          }
+                        >
+                          Add to vault
+                        </Button>
+                        {addingUserToVault && (
+                          <CircularProgress
+                            size={24}
+                            className={classes.progressButton}
+                          />
+                        )}
+                      </div>
+                    </Grid>
+                  )}
+                  {canRemoveVaultUser && (
+                    <Grid item>
+                      <div className={classes.progressButtonWrapper}>
+                        <Button
+                          fullWidth
+                          color="secondary"
+                          variant="outlined"
+                          onClick={handleRemoveVaultUser}
+                          disabled={removingUserFromVault}
+                        >
+                          Remove from vault
+                        </Button>
+                        {removingUserFromVault && (
+                          <CircularProgress
+                            size={24}
+                            className={classes.progressButton}
+                          />
+                        )}
+                      </div>
+                    </Grid>
+                  )}
                   {coWorker.id && (
                     <Grid item>
                       <div className={classes.progressButtonWrapper}>

@@ -31,6 +31,7 @@ import MaterialTable from "material-table";
 import { useInvestorsSlice } from "./slice";
 import { useInvestorDetailSlice } from "./Detail/slice";
 import { useDesksSlice } from "../Desks/slice";
+import { snackbarActions } from "../../../components/Snackbar/slice";
 import {
   selectInvestors,
   selectIsInvestorsLoading,
@@ -151,6 +152,7 @@ const Investors = (): React.ReactElement => {
   const { actions: investorsActions } = useInvestorsSlice();
   const { actions: investorDetailActions } = useInvestorDetailSlice();
   const { actions: deskActions } = useDesksSlice();
+
   const { organizationId } = Lockr.get("USER_DATA");
   const [investor, setInvestor] = useState<investorType>({
     deskId: "",
@@ -218,8 +220,17 @@ const Investors = (): React.ReactElement => {
     let mounted = false;
     const init = async () => {
       const orgDetail = await getOrganization(organizationId);
-      if (!mounted && orgDetail.clearing) {
-        setTradingAccounts(orgDetail.clearing);
+
+      if (!mounted) {
+        if (orgDetail === undefined) {
+          dispatch(
+            snackbarActions.showSnackbar({
+              message: "You don't have permission to get organization detail",
+              type: "error",
+            })
+          );
+        } else if (orgDetail && orgDetail.clearing)
+          setTradingAccounts(orgDetail.clearing);
       }
       await dispatch(investorsActions.getInvestors());
       await dispatch(deskActions.getDesks());

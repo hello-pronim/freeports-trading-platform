@@ -166,7 +166,7 @@ const NewDeskRole = (): React.ReactElement => {
         vaultUserId: currentUser?.vaultUserId as string,
       })
     );
-    // history.push("/roles");
+    history.push("/roles");
   };
 
   const handleCancelClick = () => {

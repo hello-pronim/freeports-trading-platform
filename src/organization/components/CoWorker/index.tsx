@@ -32,6 +32,7 @@ import profile from "../../../assets/images/profile.jpg";
 import CoWorkerForm from "../CoWorkerForm";
 import User from "../../../types/User";
 import { useCoWorkersSlice, initialState } from "./slice";
+import { snackbarActions } from "../../../components/Snackbar/slice";
 import {
   selectCoWorkers,
   selectIsCoWorkersLoading,
@@ -107,11 +108,7 @@ const CoWorker = (): React.ReactElement => {
   const suspendStateLoading: boolean = useSelector(selectIsSuspendStateLoading);
   const passwordResetting = useSelector(selectIsPasswordResetting);
   const [coWorkerSearch, setCoWorkerSearch] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [submitResponse, setSubmitResponse] = useState({
-    type: "success",
-    message: "",
-  });
+
   if (
     coWorkerId &&
     coWorkerId !== "new" &&
@@ -173,11 +170,12 @@ const CoWorker = (): React.ReactElement => {
         })
       );
     } else {
-      setSubmitResponse({
-        type: "error",
-        message: "Add user to vault and then try again",
-      });
-      setShowAlert(true);
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Add user to vault and then try again",
+          type: "error",
+        })
+      );
     }
   };
 
@@ -435,23 +433,6 @@ const CoWorker = (): React.ReactElement => {
             </Grid>
           </Grid>
         </Grid>
-        <Snackbar
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={showAlert}
-          onClose={() => {
-            setShowAlert(false);
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowAlert(false);
-            }}
-            severity={submitResponse.type === "success" ? "success" : "error"}
-          >
-            {submitResponse.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </div>
   );

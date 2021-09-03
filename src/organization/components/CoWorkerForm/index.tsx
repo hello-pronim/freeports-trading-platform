@@ -424,9 +424,9 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                                     <MenuItem key={item.id} value={item.id}>
                                       <Checkbox
                                         checked={
-                                          values.roles[i].effectiveDesks.indexOf(
-                                            item.id
-                                          ) > -1
+                                          values.roles[
+                                            i
+                                          ].effectiveDesks.indexOf(item.id) > -1
                                         }
                                       />
                                       <ListItemText>{item.name}</ListItemText>
@@ -476,8 +476,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                     </FieldArray>
                   </Grid>
                   <Grid item xs={12}>
-                  <Divider variant="fullWidth" />
-                </Grid>
+                    <Divider variant="fullWidth" />
+                  </Grid>
                 </>
               )}
               <Grid item xs={12}>
@@ -530,31 +530,28 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Divider />
               </Grid>
               <Grid item xs={12}>
-                <Grid
-                  container
-                  alignItems="center"
-                  justify="flex-end"
-                  spacing={1}
-                >
-                  <Grid item>
-                    <div className={classes.progressButtonWrapper}>
-                      <Button
-                        variant="contained"
-                        disabled={!canCreateVaultUser || addingUserToVault}
-                        fullWidth
-                        color="primary"
-                        onClick={handleAddVaultUser}
-                      >
-                        Add to vault
-                      </Button>
-                      {addingUserToVault && (
-                        <CircularProgress
-                          size={24}
-                          className={classes.progressButton}
-                        />
-                      )}
-                    </div>
-                  </Grid>
+                <Grid container alignItems="center" justify="flex-end">
+                  {canCreateVaultUser && (
+                    <Grid item>
+                      <div className={classes.progressButtonWrapper}>
+                        <Button
+                          variant="contained"
+                          disabled={addingUserToVault}
+                          fullWidth
+                          color="primary"
+                          onClick={handleAddVaultUser}
+                        >
+                          Add to vault
+                        </Button>
+                        {addingUserToVault && (
+                          <CircularProgress
+                            size={24}
+                            className={classes.progressButton}
+                          />
+                        )}
+                      </div>
+                    </Grid>
+                  )}
                   {canRemoveVaultUser && (
                     <Grid item>
                       <div className={classes.progressButtonWrapper}>

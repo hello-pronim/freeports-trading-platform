@@ -45,6 +45,9 @@ const slice = createSlice({
       state.orgRolesLoading = false;
       state.orgRoles = action.payload;
     },
+    getOrgRolesFailed(state) {
+      state.orgRolesLoading = false;
+    },
     editOrgRole(
       state,
       action: PayloadAction<{
@@ -60,10 +63,13 @@ const slice = createSlice({
     editOrgRoleSuccess(state, action: PayloadAction<string>) {
       state.orgRoleUpdating = false;
     },
+    editOrgRoleFailed(state) {
+      state.orgRoleUpdating = false;
+    },
     deleteOrgRole(
       state,
-      action: PayloadAction<{ 
-        organizationId: string; 
+      action: PayloadAction<{
+        organizationId: string;
         roleId: string;
         vaultGroupId: string;
       }>
@@ -73,7 +79,7 @@ const slice = createSlice({
     deleteOrgRoleSuccess(state, action: PayloadAction<string>) {
       state.orgRoleDeleting = false;
     },
-    deleteOrgRoleFailure(state) {
+    deleteOrgRoleFailed(state) {
       state.orgRoleDeleting = false;
     },
     getOrgPermissions(state, action: PayloadAction<string>) {
@@ -84,6 +90,9 @@ const slice = createSlice({
       state.orgPermissionsLoading = false;
       state.orgPermissions = action.payload;
     },
+    getOrgPermissionsFailed(state) {
+      state.orgPermissionsLoading = false;
+    },
     // multi-desk roles
     getMultiDeskRoles(state, action: PayloadAction<string>) {
       state.multiDeskRolesLoading = true;
@@ -92,6 +101,9 @@ const slice = createSlice({
     getMultiDeskRolesSuccess(state, action: PayloadAction<Role[]>) {
       state.multiDeskRolesLoading = false;
       state.multiDeskRoles = action.payload;
+    },
+    getMultiDeskRolesFailed(state) {
+      state.multiDeskRolesLoading = false;
     },
     editMultiDeskRole(
       state,
@@ -108,10 +120,13 @@ const slice = createSlice({
     editMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
       state.multiDeskRoleUpdating = false;
     },
+    editMultiDeskRoleFailed(state) {
+      state.multiDeskRoleUpdating = false;
+    },
     deleteMultiDeskRole(
       state,
-      action: PayloadAction<{ 
-        organizationId: string; 
+      action: PayloadAction<{
+        organizationId: string;
         roleId: string;
         vaultGroupId: string;
       }>
@@ -121,7 +136,7 @@ const slice = createSlice({
     deleteMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
       state.multiDeskRoleDeleting = false;
     },
-    deleteMultiDeskRoleFailure(state) {
+    deleteMultiDeskRoleFailed(state) {
       state.multiDeskRoleDeleting = false;
     },
     getMultiDeskPermissions(
@@ -135,6 +150,9 @@ const slice = createSlice({
       state.multiDeskPermissionsLoading = false;
       state.multiDeskPermissions = action.payload;
     },
+    getMultiDeskPermissionsFailed(state) {
+      state.multiDeskPermissionsLoading = false;
+    },
     // desk roles
     getDeskRoles(state, action: PayloadAction<string>) {
       state.deskRolesLoading = true;
@@ -143,6 +161,9 @@ const slice = createSlice({
     getDeskRolesSuccess(state, action: PayloadAction<DeskRole[]>) {
       state.deskRolesLoading = false;
       state.deskRoles = action.payload;
+    },
+    getDeskRolesFailed(state) {
+      state.deskRolesLoading = false;
     },
     editDeskRole(
       state,
@@ -160,6 +181,9 @@ const slice = createSlice({
     editDeskRoleSuccess(state, action: PayloadAction<string>) {
       state.deskRoleUpdating = false;
     },
+    editDeskRoleFailed(state) {
+      state.deskRoleUpdating = false;
+    },
     deleteDeskRole(
       state,
       action: PayloadAction<{
@@ -174,7 +198,7 @@ const slice = createSlice({
     deleteDeskRoleSuccess(state, action: PayloadAction<string>) {
       state.deskRoleDeleting = false;
     },
-    deleteDeskRoleFailure(state) {
+    deleteDeskRoleFailed(state) {
       state.deskRoleDeleting = false;
     },
     getDeskPermissions(
@@ -187,6 +211,9 @@ const slice = createSlice({
     getDeskPermissionsSuccess(state, action: PayloadAction<Permission[]>) {
       state.deskPermissionsLoading = false;
       state.deskPermissions = action.payload;
+    },
+    getDeskPermissionsFailed(state) {
+      state.deskPermissionsLoading = false;
     },
   },
 });

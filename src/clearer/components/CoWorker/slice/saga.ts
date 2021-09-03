@@ -58,10 +58,10 @@ export function* createCoWorker({
     if (payload.user.roles?.length) {
       const roles: Array<string> = [];
       payload.user.roles.forEach((role) => {
-        if(role.id) {
+        if (role.id) {
           roles.push(role.id);
         }
-      })
+      });
       yield call(
         assignClearerRolesToUser,
         (response as ResourceCreatedResponse).id,
@@ -100,7 +100,7 @@ export function* createCoWorker({
 }
 export function* updateCoWorker({
   payload,
-}: PayloadAction<{ 
+}: PayloadAction<{
   updates: Partial<User>;
   id: string;
   vaultUserId: string;
@@ -119,15 +119,11 @@ export function* updateCoWorker({
     if (payload.updates.roles) {
       const roles: Array<string> = [];
       payload.updates.roles.forEach((role) => {
-        if(role.id) {
+        if (role.id) {
           roles.push(role.id);
         }
-      })
-      yield call(
-        updateClearerRolesToUser,
-        payload.id,
-        roles
-      );
+      });
+      yield call(updateClearerRolesToUser, payload.id, roles);
     }
 
     yield put(
@@ -169,9 +165,11 @@ export function* getCoWorker({ payload }: PayloadAction<User>): Generator<any> {
       if (!(response as User).roles || !(response as User).roles?.length) {
         (response as User).roles = [];
       } else {
-        response.roles = response.roles?.map((r: any) => ({
-          id: r.id,
-        }));
+        response.roles = response.roles
+          ?.filter((r: any) => !r.system)
+          .map((r: any) => ({
+            id: r.id,
+          }));
       }
       yield put(actions.selectCoWorkerSuccess(response as User));
     } else {
