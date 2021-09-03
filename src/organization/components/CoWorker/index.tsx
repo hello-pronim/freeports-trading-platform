@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
 import { useSelector, useDispatch } from "react-redux";
@@ -16,6 +17,7 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
+  Snackbar,
   TextField,
   Typography,
 } from "@material-ui/core";
@@ -24,6 +26,7 @@ import DoneIcon from "@material-ui/icons/Done";
 import BlockIcon from "@material-ui/icons/Block";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SearchIcon from "@material-ui/icons/Search";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import profile from "../../../assets/images/profile.jpg";
 import CoWorkerForm from "../CoWorkerForm";
@@ -84,6 +87,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
 const defaultCoWorker = initialState.selectedCoWorker;
 const CoWorker = (): React.ReactElement => {
   const classes = useStyles();
@@ -100,6 +107,11 @@ const CoWorker = (): React.ReactElement => {
   const suspendStateLoading: boolean = useSelector(selectIsSuspendStateLoading);
   const passwordResetting = useSelector(selectIsPasswordResetting);
   const [coWorkerSearch, setCoWorkerSearch] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [submitResponse, setSubmitResponse] = useState({
+    type: "success",
+    message: "",
+  });
   if (
     coWorkerId &&
     coWorkerId !== "new" &&
@@ -160,6 +172,12 @@ const CoWorker = (): React.ReactElement => {
           newVaultGroup,
         })
       );
+    } else {
+      setSubmitResponse({
+        type: "error",
+        message: "Add user to vault and then try again",
+      });
+      setShowAlert(true);
     }
   };
 
@@ -417,6 +435,23 @@ const CoWorker = (): React.ReactElement => {
             </Grid>
           </Grid>
         </Grid>
+        <Snackbar
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={showAlert}
+          onClose={() => {
+            setShowAlert(false);
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowAlert(false);
+            }}
+            severity={submitResponse.type === "success" ? "success" : "error"}
+          >
+            {submitResponse.message}
+          </Alert>
+        </Snackbar>
       </Container>
     </div>
   );

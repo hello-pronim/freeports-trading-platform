@@ -315,167 +315,171 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         }) => (
           <form onSubmit={handleSubmit} noValidate>
             <Grid container alignItems="flex-start" spacing={2}>
-              <Grid item xs={12}>
-                <FieldArray name="roles">
-                  {({ fields }) =>
-                    fields.map((name, i) => (
-                      <Grid container key={name} spacing={2}>
-                        <Grid
-                          item
-                          xs={5}
-                          className={
-                            values.roles[i] ? classes.fixSelectLabel : ""
-                          }
-                        >
-                          <Select
-                            native
-                            name={`${name}.id`}
-                            inputProps={{
-                              name: "role",
-                              id: "role-select",
-                            }}
-                            autoWidth
-                            label="Role"
-                            variant="outlined"
-                            inputLabelProps={{
-                              shrink: !!values.roles[i],
-                              filled: true,
-                            }}
-                          >
-                            <option aria-label="None" value="" />
-                            {orgRoles.length && (
-                              <optgroup label="Organization roles">
-                                {orgRoles
-                                  .filter(
-                                    (role) =>
-                                      values.roles[i].id === role.id ||
-                                      values.roles.filter(
-                                        (r: any) => r.id === role.id
-                                      ).length === 0
-                                  )
-                                  .map((r) => (
-                                    <option key={r.id} value={r.id}>
-                                      {r.name}
-                                    </option>
-                                  ))}
-                              </optgroup>
-                            )}
-                            {multiDeskRoles.length && (
-                              <optgroup label="Multi-desk roles">
-                                {multiDeskRoles
-                                  .filter(
-                                    (role) =>
-                                      values.roles[i].id === role.id ||
-                                      values.roles.filter(
-                                        (r: any) => r.id === role.id
-                                      ).length === 0
-                                  )
-                                  .map((r) => (
-                                    <option key={r.id} value={r.id}>
-                                      {r.name}
-                                    </option>
-                                  ))}
-                              </optgroup>
-                            )}
-                            {deskRoles.length && (
-                              <optgroup label="Desk roles">
-                                {deskRoles
-                                  .filter(
-                                    (role) =>
-                                      values.roles[i].id === role.id ||
-                                      values.roles.filter(
-                                        (r: any) => r.id === role.id
-                                      ).length === 0
-                                  )
-                                  .map((r) => (
-                                    <option key={r.id} value={r.id}>
-                                      {r.name}
-                                    </option>
-                                  ))}
-                              </optgroup>
-                            )}
-                          </Select>
-                        </Grid>
-                        {multiDeskRoles.filter(
-                          (role) => values.roles[i].id === role.id
-                        ).length > 0 && (
-                          <Grid item xs={5}>
-                            <Select
-                              multiple
-                              displayEmpty
-                              name={`${name}.effectiveDesks`}
-                              variant="outlined"
-                              label="Desks"
-                              renderValue={(selected: any) => {
-                                return desks
-                                  .filter((desk: deskType) =>
-                                    selected.includes(desk.id)
-                                  )
-                                  .map((desk: deskType) => desk.name)
-                                  .join(", ");
-                              }}
+              {coWorker.vaultUserId && (
+                <>
+                  <Grid item xs={12}>
+                    <FieldArray name="roles">
+                      {({ fields }) =>
+                        fields.map((name, i) => (
+                          <Grid container key={name} spacing={2}>
+                            <Grid
+                              item
+                              xs={5}
+                              className={
+                                values.roles[i] ? classes.fixSelectLabel : ""
+                              }
                             >
-                              <MenuItem disabled value="">
-                                <em>Select</em>
-                              </MenuItem>
-                              {desks.map((item: deskType) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                  <Checkbox
-                                    checked={
-                                      values.roles[i].effectiveDesks.indexOf(
-                                        item.id
-                                      ) > -1
-                                    }
-                                  />
-                                  <ListItemText>{item.name}</ListItemText>
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </Grid>
-                        )}
-                        <Grid item xs={2}>
-                          <Grid container spacing={1}>
-                            {fields.length !== 1 && (
-                              <Grid item>
-                                <IconButton
-                                  onClick={() => fields.remove(i)}
-                                  aria-label="Remove role"
+                              <Select
+                                native
+                                name={`${name}.id`}
+                                inputProps={{
+                                  name: "role",
+                                  id: "role-select",
+                                }}
+                                autoWidth
+                                label="Role"
+                                variant="outlined"
+                                inputLabelProps={{
+                                  shrink: !!values.roles[i],
+                                  filled: true,
+                                }}
+                              >
+                                <option aria-label="None" value="" />
+                                {orgRoles.length && (
+                                  <optgroup label="Organization roles">
+                                    {orgRoles
+                                      .filter(
+                                        (role) =>
+                                          values.roles[i].id === role.id ||
+                                          values.roles.filter(
+                                            (r: any) => r.id === role.id
+                                          ).length === 0
+                                      )
+                                      .map((r) => (
+                                        <option key={r.id} value={r.id}>
+                                          {r.name}
+                                        </option>
+                                      ))}
+                                  </optgroup>
+                                )}
+                                {multiDeskRoles.length && (
+                                  <optgroup label="Multi-desk roles">
+                                    {multiDeskRoles
+                                      .filter(
+                                        (role) =>
+                                          values.roles[i].id === role.id ||
+                                          values.roles.filter(
+                                            (r: any) => r.id === role.id
+                                          ).length === 0
+                                      )
+                                      .map((r) => (
+                                        <option key={r.id} value={r.id}>
+                                          {r.name}
+                                        </option>
+                                      ))}
+                                  </optgroup>
+                                )}
+                                {deskRoles.length && (
+                                  <optgroup label="Desk roles">
+                                    {deskRoles
+                                      .filter(
+                                        (role) =>
+                                          values.roles[i].id === role.id ||
+                                          values.roles.filter(
+                                            (r: any) => r.id === role.id
+                                          ).length === 0
+                                      )
+                                      .map((r) => (
+                                        <option key={r.id} value={r.id}>
+                                          {r.name}
+                                        </option>
+                                      ))}
+                                  </optgroup>
+                                )}
+                              </Select>
+                            </Grid>
+                            {multiDeskRoles.filter(
+                              (role) => values.roles[i].id === role.id
+                            ).length > 0 && (
+                              <Grid item xs={5}>
+                                <Select
+                                  multiple
+                                  displayEmpty
+                                  name={`${name}.effectiveDesks`}
+                                  variant="outlined"
+                                  label="Desks"
+                                  renderValue={(selected: any) => {
+                                    return desks
+                                      .filter((desk: deskType) =>
+                                        selected.includes(desk.id)
+                                      )
+                                      .map((desk: deskType) => desk.name)
+                                      .join(", ");
+                                  }}
                                 >
-                                  <DeleteForeverIcon />
-                                </IconButton>
+                                  <MenuItem disabled value="">
+                                    <em>Select</em>
+                                  </MenuItem>
+                                  {desks.map((item: deskType) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                      <Checkbox
+                                        checked={
+                                          values.roles[i].effectiveDesks.indexOf(
+                                            item.id
+                                          ) > -1
+                                        }
+                                      />
+                                      <ListItemText>{item.name}</ListItemText>
+                                    </MenuItem>
+                                  ))}
+                                </Select>
                               </Grid>
                             )}
-                            {i === (fields.length || 0) - 1 &&
-                              (fields.length || 0) <
-                                orgRoles.length +
-                                  multiDeskRoles.length +
-                                  deskRoles.length && (
-                                <Grid item>
-                                  <IconButton
-                                    onClick={() =>
-                                      push("roles", {
-                                        id: "",
-                                        kind: "",
-                                        desk: "",
-                                        effectiveDesks: [],
-                                      })
-                                    }
-                                    aria-label="Add role"
-                                  >
-                                    <AddCircleOutlineIcon />
-                                  </IconButton>
-                                </Grid>
-                              )}
+                            <Grid item xs={2}>
+                              <Grid container spacing={1}>
+                                {fields.length !== 1 && (
+                                  <Grid item>
+                                    <IconButton
+                                      onClick={() => fields.remove(i)}
+                                      aria-label="Remove role"
+                                    >
+                                      <DeleteForeverIcon />
+                                    </IconButton>
+                                  </Grid>
+                                )}
+                                {i === (fields.length || 0) - 1 &&
+                                  (fields.length || 0) <
+                                    orgRoles.length +
+                                      multiDeskRoles.length +
+                                      deskRoles.length && (
+                                    <Grid item>
+                                      <IconButton
+                                        onClick={() =>
+                                          push("roles", {
+                                            id: "",
+                                            kind: "",
+                                            desk: "",
+                                            effectiveDesks: [],
+                                          })
+                                        }
+                                        aria-label="Add role"
+                                      >
+                                        <AddCircleOutlineIcon />
+                                      </IconButton>
+                                    </Grid>
+                                  )}
+                              </Grid>
+                            </Grid>
                           </Grid>
-                        </Grid>
-                      </Grid>
-                    ))
-                  }
-                </FieldArray>
-              </Grid>
-              <Grid item xs={12}>
-                <Divider variant="fullWidth" />
-              </Grid>
+                        ))
+                      }
+                    </FieldArray>
+                  </Grid>
+                  <Grid item xs={12}>
+                  <Divider variant="fullWidth" />
+                </Grid>
+                </>
+              )}
               <Grid item xs={12}>
                 <Grid container spacing={4}>
                   <Grid item xs={7}>
