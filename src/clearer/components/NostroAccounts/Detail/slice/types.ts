@@ -9,4 +9,5 @@ export interface AccountDetailState {
   gettingOperations: boolean;
   deletingOperation: boolean;
   moveRequests: Array<any>;
+  gettingMoveRequests: boolean;
 }

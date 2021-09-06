@@ -22,6 +22,7 @@ export function* retrieveAccount({
     const response = yield call(getAccount, payload);
     if (response) yield put(actions.getAccountSuccess(response as Account));
   } catch (error) {
+    yield put(actions.getAccountFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -43,6 +44,7 @@ export function* getOperations({
         )
       );
   } catch (error) {
+    yield put(actions.getOperationsFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -54,12 +56,15 @@ export function* getOperations({
 
 export function* addOperation({
   payload,
-}: PayloadAction<{ accountId: string; operation: Array<Operation> }>): Generator<any> {
+}: PayloadAction<{
+  accountId: string;
+  operations: Array<Operation>;
+}>): Generator<any> {
   try {
     const response = yield call(
       createOperation,
       payload.accountId,
-      payload.operation
+      payload.operations
     );
     if (response) {
       yield put(actions.addOperationSuccess(response as string));
@@ -80,6 +85,7 @@ export function* addOperation({
       );
     }
   } catch (error) {
+    yield put(actions.addOperationFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -117,6 +123,7 @@ export function* removeOperation({
       );
     }
   } catch (error) {
+    yield put(actions.removeOperationFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -138,6 +145,7 @@ export function* getMoveRequests({
         )
       );
   } catch (error) {
+    yield put(actions.getMoveRequestsFailed);
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,

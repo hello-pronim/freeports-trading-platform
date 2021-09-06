@@ -14,4 +14,6 @@ export default interface Operation {
   createdAt?: string;
 
   importId?: string;
+
+  reconciledId?: string;
 }

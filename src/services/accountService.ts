@@ -101,11 +101,11 @@ const getAllOperations = (accountId: string): Promise<Operation[]> => {
 
 const createOperation = (
   accountId: string,
-  operation: Array<Operation>
+  operations: Array<Operation>
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`/account/${accountId}/operation`, operation)
+      .post(`/account/${accountId}/operation`, operations)
       .then((res: any) => {
         return resolve(res.data);
       })

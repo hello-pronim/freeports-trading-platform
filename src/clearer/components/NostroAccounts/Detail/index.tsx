@@ -54,14 +54,7 @@ import {
   selectMoveRequests,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
-
-interface operationType {
-  amount: number;
-  date: string;
-  label?: string;
-  type: string;
-  importId?: string;
-}
+import Operation from "../../../../types/Operation";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -129,7 +122,7 @@ const Detail = (): React.ReactElement => {
   const { actions: accountDetailActions } = useAccountDetailSlice();
   const accounts = useSelector(selectAccounts);
   const operations = useSelector(selectOperations);
-  const [operation, setOperation] = useState<operationType>({
+  const [operation, setOperation] = useState<Operation>({
     amount: 0,
     date: "",
     label: "",
@@ -179,9 +172,9 @@ const Detail = (): React.ReactElement => {
     setCreateModalOpen(false);
   };
 
-  const handleOperationCreate = async (values: operationType) => {
+  const handleOperationCreate = async (values: Operation) => {
     await dispatch(
-      accountDetailActions.addOperation({ accountId, operation: [values] })
+      accountDetailActions.addOperation({ accountId, operations: [values] })
     );
     setCreateModalOpen(false);
   };
@@ -203,7 +196,7 @@ const Detail = (): React.ReactElement => {
           dispatch(
             accountDetailActions.addOperation({
               accountId,
-              operation: entryObjArray,
+              operations: entryObjArray,
             })
           );
         }
@@ -237,7 +230,7 @@ const Detail = (): React.ReactElement => {
       reader.readAsText(file);
     }
 
-    let entryObjArray: Array<operationType> = [];
+    let entryObjArray: Array<Operation> = [];
     const reader = new FileReader();
     const parser = new DOMParser();
     readFile(0);
@@ -394,12 +387,10 @@ const Detail = (): React.ReactElement => {
                 {accountDetailLoading && <Loader />}
                 {!accountDetailLoading && (
                   <Grid container spacing={4}>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
-                          <Typography variant="h6">
-                            Requested Operation
-                          </Typography>
+                          <Typography variant="h6">Operations</Typography>
                         </Grid>
                         <Grid item xs={12}>
                           <MaterialTable
@@ -456,13 +447,11 @@ const Detail = (): React.ReactElement => {
                           />
                         </Grid>
                       </Grid>
-                    </Grid>
+                    </Grid> */}
                     <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
-                          <Typography variant="h6">
-                            Pending reconciliations
-                          </Typography>
+                          <Typography variant="h6">Operations</Typography>
                         </Grid>
                         <Grid item xs={12}>
                           <MaterialTable
@@ -556,7 +545,7 @@ const Detail = (): React.ReactElement => {
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <Typography variant="h6">
@@ -616,7 +605,7 @@ const Detail = (): React.ReactElement => {
                           />
                         </Grid>
                       </Grid>
-                    </Grid>
+                    </Grid> */}
                   </Grid>
                 )}
               </Grid>
@@ -685,6 +674,7 @@ const Detail = (): React.ReactElement => {
                     <Grid item xs={4}>
                       <Radios
                         name="type"
+                        color="primary"
                         formControlProps={{ margin: "none" }}
                         radioGroupProps={{ row: true }}
                         data={[

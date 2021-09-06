@@ -30,6 +30,7 @@ export const initialState: AccountDetailState = {
   gettingOperations: false,
   deletingOperation: false,
   moveRequests: [],
+  gettingMoveRequests: false,
 };
 
 const slice = createSlice({
@@ -44,6 +45,9 @@ const slice = createSlice({
       state.loading = false;
       state.selectedAccount = action.payload;
     },
+    getAccountFailed(state) {
+      state.loading = false;
+    },
     getOperations(state, action: PayloadAction<string>) {
       state.gettingOperations = true;
       state.operations = [];
@@ -52,13 +56,19 @@ const slice = createSlice({
       state.gettingOperations = false;
       state.operations = action.payload;
     },
+    getOperationsFailed(state) {
+      state.gettingOperations = false;
+    },
     addOperation(
       state,
-      action: PayloadAction<{ accountId: string; operation: Array<Operation> }>
+      action: PayloadAction<{ accountId: string; operations: Array<Operation> }>
     ) {
       state.creatingOperation = true;
     },
     addOperationSuccess(state, action: PayloadAction<string>) {
+      state.creatingOperation = false;
+    },
+    addOperationFailed(state) {
       state.creatingOperation = false;
     },
     removeOperation(
@@ -70,11 +80,19 @@ const slice = createSlice({
     removeOperationSuccess(state, action: PayloadAction<string>) {
       state.deletingOperation = false;
     },
+    removeOperationFailed(state) {
+      state.deletingOperation = false;
+    },
     getMoveRequests(state, action: PayloadAction<string>) {
+      state.gettingMoveRequests = true;
       state.moveRequests = [];
     },
     getMoveRequestsSuccess(state, action: PayloadAction<Operation[]>) {
+      state.gettingMoveRequests = false;
       state.moveRequests = action.payload;
+    },
+    getMoveRequestsFailed(state) {
+      state.gettingMoveRequests = false;
     },
   },
 });
