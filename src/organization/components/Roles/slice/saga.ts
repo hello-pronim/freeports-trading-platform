@@ -29,9 +29,10 @@ export function* getOrgRoles({
     const response = yield call(getAllOrgRoles, payload);
     if (response) yield put(actions.getOrgRolesSuccess(response as Role[]));
   } catch (error) {
+    yield put(actions.getOrgRolesFailed());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -44,7 +45,7 @@ export function* editOrgRole({
   organizationId: string;
   roleId: string;
   vaultGroupId: string;
-  oldPermissions: string[]
+  oldPermissions: string[];
   role: Role;
 }>): Generator<any> {
   try {
@@ -54,7 +55,7 @@ export function* editOrgRole({
       payload.roleId,
       payload.vaultGroupId,
       payload.oldPermissions,
-      payload.role,
+      payload.role
     );
     if (response) {
       yield put(actions.editOrgRoleSuccess(response as string));
@@ -68,6 +69,7 @@ export function* editOrgRole({
       );
     }
   } catch (error) {
+    yield put(actions.editOrgRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,
@@ -103,14 +105,13 @@ export function* deleteOrgRole({
       );
     }
   } catch (error) {
-    yield put(actions.deleteOrgRoleFailure());
+    yield put(actions.deleteOrgRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,
         type: "error",
       })
     );
-
   }
 }
 
@@ -122,9 +123,10 @@ export function* getOrgPermissions({
     if (response)
       yield put(actions.getOrgPermissionsSuccess(response as Permission[]));
   } catch (error) {
+    yield put(actions.getOrgPermissionsFailed());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -139,9 +141,10 @@ export function* getMultiDeskRoles({
     if (response)
       yield put(actions.getMultiDeskRolesSuccess(response as Role[]));
   } catch (error) {
+    yield put(actions.getMultiDeskRolesFailed());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -154,7 +157,7 @@ export function* editMultiDeskRole({
   organizationId: string;
   roleId: string;
   vaultGroupId: string;
-  oldPermissions: string[]
+  oldPermissions: string[];
   role: Role;
 }>): Generator<any> {
   try {
@@ -164,7 +167,7 @@ export function* editMultiDeskRole({
       payload.roleId,
       payload.vaultGroupId,
       payload.oldPermissions,
-      payload.role,
+      payload.role
     );
     if (response) {
       yield put(actions.editMultiDeskRoleSuccess(response as string));
@@ -178,9 +181,10 @@ export function* editMultiDeskRole({
       );
     }
   } catch (error) {
+    yield put(actions.editMultiDeskRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -199,7 +203,7 @@ export function* deleteMultiDeskRole({
       removeMultiDeskRole,
       payload.organizationId,
       payload.roleId,
-      payload.vaultGroupId,
+      payload.vaultGroupId
     );
     if (response) {
       yield put(actions.deleteMultiDeskRoleSuccess(response as string));
@@ -213,7 +217,7 @@ export function* deleteMultiDeskRole({
       );
     }
   } catch (error) {
-    yield put(actions.deleteMultiDeskRoleFailure());
+    yield put(actions.deleteMultiDeskRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,
@@ -237,9 +241,10 @@ export function* getMultiDeskPermissions({
         actions.getMultiDeskPermissionsSuccess(response as Permission[])
       );
   } catch (error) {
+    yield put(actions.getMultiDeskPermissionsFailed());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -254,9 +259,10 @@ export function* getDeskRoles({
     if (response)
       yield put(actions.getDeskRolesSuccess(response as DeskRole[]));
   } catch (error) {
+    yield put(actions.getDeskRolesFailed());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -281,7 +287,7 @@ export function* editDeskRole({
       payload.roleId,
       payload.vaultGroupId,
       payload.oldPermissions,
-      payload.role,
+      payload.role
     );
     if (response) {
       yield put(actions.editDeskRoleSuccess(response as string));
@@ -295,9 +301,10 @@ export function* editDeskRole({
       );
     }
   } catch (error) {
+    yield put(actions.editDeskRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
@@ -318,7 +325,7 @@ export function* deleteDeskRole({
       payload.organizationId,
       payload.deskId,
       payload.roleId,
-      payload.vaultGroupId,
+      payload.vaultGroupId
     );
     if (response) {
       yield put(actions.deleteDeskRoleSuccess(response as string));
@@ -332,7 +339,7 @@ export function* deleteDeskRole({
       );
     }
   } catch (error) {
-    yield put(actions.deleteDeskRoleFailure());
+    yield put(actions.deleteDeskRoleFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.message,
@@ -354,46 +361,15 @@ export function* getDeskPermissions({
     if (response)
       yield put(actions.getDeskPermissionsSuccess(response as Permission[]));
   } catch (error) {
+    yield put(actions.getDeskPermissionsFailed());
     yield put(
       snackbarActions.showSnackbar({
-        message: error.data.message,
+        message: error.message,
         type: "error",
       })
     );
   }
 }
-/* export function* removeRole({
-  payload,
-}: PayloadAction<{
-  organizationId: string;
-  roleId: string;
-}>): Generator<any> {
-  try {
-    const response = yield call(
-      deleteOrgRole,
-      payload.organizationId,
-      payload.roleId
-    );
-    if (response) {
-      yield put(actions.removeRoleSuccess(response as string));
-      yield put(
-        snackbarActions.showSnackbar({
-          message: "Role has been deleted successfully",
-          type: "success",
-        })
-      );
-      yield put(actions.getRoles(payload.organizationId));
-      yield take(actions.getRolesSuccess);
-    }
-  } catch (error) {
-    yield put(
-      snackbarActions.showSnackbar({
-        message: error.data.message,
-        type: "error",
-      })
-    );
-  }
-} */
 
 export function* rolesSaga(): Generator<any> {
   yield takeEvery(actions.getOrgRoles, getOrgRoles);

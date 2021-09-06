@@ -225,10 +225,17 @@ const Manager = (props: any): React.ReactElement => {
       setSendingEmail(true);
       await sendResetPasswordEmail(managerId)
         .then((data) => {
-          setSubmitResponse({
-            type: "success",
-            message: "Successfully sent reset password email",
-          });
+          if (data.success) {
+            setSubmitResponse({
+              type: "success",
+              message: "Successfully sent reset password email",
+            });
+          } else {
+            setSubmitResponse({
+              type: "error",
+              message: "An error occurs while sending reset link",
+            });
+          }
         })
         .catch((err) => {
           setSubmitResponse({
@@ -288,7 +295,6 @@ const Manager = (props: any): React.ReactElement => {
     if (managerInfo.id && managerInfo.publicKey) {
       setAddingVaultUser(true);
       const organization = await getOrganization(orgId);
-      console.log(organization);
       const vaultRequest = await vault.createOrganizationManager(
         organization.vaultOrganizationId,
         managerInfo.publicKey.key
@@ -297,7 +303,7 @@ const Manager = (props: any): React.ReactElement => {
         .then(() => {
           setSubmitResponse({
             type: "success",
-            message: "Successfully added vault user",
+            message: "This user has been added to Vault successfully",
           });
           setViewAddToVault(false);
           setPublicKeyEmojisDialog(false);
@@ -425,17 +431,24 @@ const Manager = (props: any): React.ReactElement => {
       </AccordionDetails>
       <Divider />
       <AccordionActions>
-        <Grid container justify="space-between">
+        <Grid container justify="flex-end">
           {viewAddToVault && (
             <Grid item>
-              <Button color="primary" onClick={onViewPublicKey}>
-                Add to Vault
-              </Button>
+              <div className={classes.progressButtonWrapper}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={onViewPublicKey}
+                >
+                  Add to Vault
+                </Button>
+              </div>
             </Grid>
           )}
           <Grid item>
             <div className={classes.progressButtonWrapper}>
               <Button
+                variant="contained"
                 color="primary"
                 onClick={handleSendResetPasswordLink}
                 disabled={sendingEmail}
@@ -458,7 +471,7 @@ const Manager = (props: any): React.ReactElement => {
                 onClick={updateSubmit}
                 disabled={managerUpdating}
               >
-                Save Changes
+                Save
               </Button>
               {managerUpdating && (
                 <CircularProgress

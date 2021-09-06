@@ -256,7 +256,9 @@ const Settings = (): React.ReactElement => {
                       <Grid container spacing={1}>
                         <Grid item xs={12}>
                           {accounts.map((account) => (
-                            <Typography>{`Account: ${account.iban}`}</Typography>
+                            <Typography
+                              key={account.account}
+                            >{`Account: ${account.iban}`}</Typography>
                           ))}
                         </Grid>
                       </Grid>

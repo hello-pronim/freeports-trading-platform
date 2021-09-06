@@ -47,29 +47,32 @@ export enum VaultPermissions {
 }
 
 const roleVaultPermission = {
-  'clearer.organization.create': ['CreateDeleteOrganization'],
-  
-  'clearer.role.create': ['CreateDeleteGroup', 'GrantRevokePermission'],
-  'organization.#organizationId#.role.create': ['CreateDeleteGroup', 'GrantRevokePermission'],
-  'desk.#deskId#.role.create': ['CreateDeleteGroup', 'GrantRevokePermission'],
+  "clearer.organization.create": ["CreateDeleteOrganization"],
 
-  'clearer.role.update': ['GrantRevokePermission'],
-  'organization.#organizationId#.role.update': ['GrantRevokePermission'],
-  'desk.#deskId#.role.update': ['GrantRevokePermission'],
+  "clearer.role.create": ["CreateDeleteGroup", "GrantRevokePermission"],
+  "organization.#organizationId#.role.create": [
+    "CreateDeleteGroup",
+    "GrantRevokePermission",
+  ],
+  "desk.#deskId#.role.create": ["CreateDeleteGroup", "GrantRevokePermission"],
 
-  'clearer.role.delete': ['GrantRevokePermission'],
-  'organization.#organizationId#.role.delete': ['GrantRevokePermission'],
-  'desk.#deskId#.role.delete': ['GrantRevokePermission'],
+  "clearer.role.update": ["GrantRevokePermission"],
+  "organization.#organizationId#.role.update": ["GrantRevokePermission"],
+  "desk.#deskId#.role.update": ["GrantRevokePermission"],
 
-  'clearer.role.assign': ['AddRemoveUser'],
-  'organization.#organizationId#.role.assign': ['AddRemoveUser'],
-  'desk.#deskId#.role.assign': ['AddRemoveUser'],
+  "clearer.role.delete": ["GrantRevokePermission"],
+  "organization.#organizationId#.role.delete": ["GrantRevokePermission"],
+  "desk.#deskId#.role.delete": ["GrantRevokePermission"],
 
-  'clearer.account.create': ['CreateWallet'],
-  'desk.#deskId#.account.create': ['CreateWallet'],
+  "clearer.role.assign": ["AddRemoveUser"],
+  "organization.#organizationId#.role.assign": ["AddRemoveUser"],
+  "desk.#deskId#.role.assign": ["AddRemoveUser"],
 
-  'clearer.account.delete': ['DeleteWallet'],
-  'desk.#deskId#.account.delete': ['DeleteWallet'],
+  "clearer.account.create": ["CreateWallet"],
+  "desk.#deskId#.account.create": ["CreateWallet"],
+
+  "clearer.account.delete": ["DeleteWallet"],
+  "desk.#deskId#.account.delete": ["DeleteWallet"],
 };
 
 interface AuthenticateResponse {
@@ -137,12 +140,12 @@ export class Vault {
 
   public createVaultUser = async (
     publicKey: string,
-    isOrg = false,
+    isOrg = false
   ): Promise<VaultRequestDto> => {
     console.log("createVaultUser ", this);
     const request = await this.createRequest(
-      Method.POST, 
-      `/${isOrg ? 'organization' : 'vault'}/user`, 
+      Method.POST,
+      `/${isOrg ? "organization" : "vault"}/user`,
       {
         publicKey,
       }
@@ -164,14 +167,14 @@ export class Vault {
 
   public deleteVaultUser = async (
     id: string,
-    isOrg = false,
+    isOrg = false
   ): Promise<VaultRequestDto> => {
     const request = await this.createRequest(
-      Method.DELETE, 
-      `/${isOrg ? 'organization' : 'vault'}/user/${id}`
+      Method.DELETE,
+      `/${isOrg ? "organization" : "vault"}/user/${id}`
     );
     return request;
-  }
+  };
 
   public async deleteOrganizationUser(id: string): Promise<VaultRequestDto> {
     const request = await this.createRequest(
@@ -359,7 +362,7 @@ export class Vault {
     // const publicKeyDER = this.publicKey.export({ type: "spki", format: "der" });
 
     let organizationId = 0;
-    
+
     const { vaultOrganizationId } = Lockr.get("USER_DATA");
     if (vaultOrganizationId) {
       organizationId = vaultOrganizationId;
@@ -381,11 +384,11 @@ export class Vault {
     permissionType: VaultPermissions,
     ownerType: PermissionOwnerType,
     ownerId: string,
-    isOrg = false,
+    isOrg = false
   ) {
     const request = await this.createRequest(
-      Method.POST, 
-      `/${isOrg ? 'organization' : 'vault'}/permission`, 
+      Method.POST,
+      `/${isOrg ? "organization" : "vault"}/permission`,
       {
         permissionType,
         ownerType,
@@ -453,12 +456,10 @@ export class Vault {
     );
   }
 
-  public async createGroup(
-    isOrg = false,
-  ): Promise<VaultRequestDto> {
+  public async createGroup(isOrg = false): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.POST,
-      `/${isOrg ? 'organization' : 'vault'}/group`
+      `/${isOrg ? "organization" : "vault"}/group`
     );
 
     return request;
@@ -466,11 +467,11 @@ export class Vault {
 
   public async deleteGroup(
     groupId: string,
-    isOrg = false,
+    isOrg = false
   ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.DELETE,
-      `/${isOrg ? 'organization' : 'vault'}/group/${groupId}`
+      `/${isOrg ? "organization" : "vault"}/group/${groupId}`
     );
 
     return request;
@@ -480,12 +481,13 @@ export class Vault {
     ownerType: PermissionOwnerType,
     ownerId: string,
     rolePermissions: Array<string>,
-    isOrg = false,
+    isOrg = false
   ): Promise<VaultRequestDto[]> {
     const permissions: Array<VaultPermissions> = [];
 
     rolePermissions.forEach((rPermission) => {
-      const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
+      const vPermissions =
+        roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
       if (vPermissions) {
         vPermissions.forEach((vPermission) => {
           if (!permissions.includes(vPermission as VaultPermissions)) {
@@ -493,7 +495,7 @@ export class Vault {
           }
         });
       }
-    })
+    });
 
     return Promise.all(
       permissions.map((permission) => {
@@ -501,7 +503,7 @@ export class Vault {
           permission as VaultPermissions,
           ownerType,
           ownerId,
-          isOrg,
+          isOrg
         );
       })
     );
@@ -510,7 +512,7 @@ export class Vault {
   public async removeUserFromGroup(
     userId: string,
     groupId: string
-): Promise<VaultRequestDto> {
+  ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.DELETE,
       `/group/${groupId}/user/${userId}`
@@ -525,10 +527,7 @@ export class Vault {
   ): Promise<VaultRequestDto[]> {
     return Promise.all(
       groupIds.map((groupId) => {
-        return this.removeUserFromGroup(
-          userId,
-          groupId
-        );
+        return this.removeUserFromGroup(userId, groupId);
       })
     );
   }
@@ -536,7 +535,7 @@ export class Vault {
   public async addUserToGroup(
     userId: string,
     groupId: string
-): Promise<VaultRequestDto> {
+  ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.POST,
       `/group/${groupId}/user/${userId}`
@@ -551,10 +550,7 @@ export class Vault {
   ): Promise<VaultRequestDto[]> {
     return Promise.all(
       groupIds.map((groupId) => {
-        return this.addUserToGroup(
-          userId,
-          groupId
-        );
+        return this.addUserToGroup(userId, groupId);
       })
     );
   }
@@ -563,12 +559,13 @@ export class Vault {
     ownerType: PermissionOwnerType,
     ownerId: string,
     rolePermissions: Array<string>,
-    isOrg = false,
+    isOrg = false
   ): Promise<VaultRequestDto[]> {
     const permissions: Array<VaultPermissions> = [];
 
     rolePermissions.forEach((rPermission) => {
-      const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
+      const vPermissions =
+        roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
       if (vPermissions) {
         vPermissions.forEach((vPermission) => {
           if (!permissions.includes(vPermission as VaultPermissions)) {
@@ -576,7 +573,7 @@ export class Vault {
           }
         });
       }
-    })
+    });
 
     return Promise.all(
       permissions.map((permission) => {
@@ -584,7 +581,7 @@ export class Vault {
           permission as VaultPermissions,
           ownerType,
           ownerId,
-          isOrg,
+          isOrg
         );
       })
     );
@@ -594,11 +591,11 @@ export class Vault {
     permissionType: VaultPermissions,
     ownerType: PermissionOwnerType,
     ownerId: string,
-    isOrg = false,
+    isOrg = false
   ) {
     const request = await this.createRequest(
-      Method.DELETE, 
-      `/${isOrg ? 'organization' : 'vault'}/permission`, 
+      Method.DELETE,
+      `/${isOrg ? "organization" : "vault"}/permission`,
       {
         permissionType,
         ownerType,
@@ -608,22 +605,20 @@ export class Vault {
     return request;
   }
 
-  public createWallet = async (
-    type: string
-  ): Promise<VaultRequestDto> => {
+  public createWallet = async (type: string): Promise<VaultRequestDto> => {
     const getWalletsRequest = await this.getAllWallets();
     const response = await sendRequest(getWalletsRequest);
 
     let addressIndex = 0;
     if (response.wallets && response.wallets.length) {
       const lastPath = response.wallets.pop().hdPath;
-      addressIndex = Number(lastPath.split('/').pop()) + 1;
+      addressIndex = Number(lastPath.split("/").pop()) + 1;
     }
 
     const hdPath = `m/44'/0'/0'/0/${addressIndex}/`;
     const request = await this.createRequest(
-      Method.POST, 
-      "/organization/wallet", 
+      Method.POST,
+      "/organization/wallet",
       {
         type,
         hdPath,
@@ -634,7 +629,8 @@ export class Vault {
 
   public async getAllWallets(): Promise<VaultRequestDto> {
     const request = await this.createRequest(
-      Method.GET, "/organization/wallet"
+      Method.GET,
+      "/organization/wallet"
     );
     return request;
   }
@@ -645,11 +641,11 @@ export class Vault {
     ownerType: PermissionOwnerType,
     ownerId: string,
     permissionType: VaultPermissions,
-    isOrg = false,
+    isOrg = false
   ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
-      Method.POST, 
-      `/${isOrg ? 'organization' : 'vault'}/${asset}/${assetId}/permission`, 
+      Method.POST,
+      `/${isOrg ? "organization" : "vault"}/${asset}/${assetId}/permission`,
       {
         ownerType,
         ownerId,
