@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +26,7 @@ import {
   ListItemText,
   List,
   makeStyles,
+  Snackbar,
   TextField,
   Theme,
   Tooltip,
@@ -36,6 +38,7 @@ import CompareArrowsIcon from "@material-ui/icons/CompareArrows";
 import SearchIcon from "@material-ui/icons/Search";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import MaterialTable from "material-table";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import { trades } from "./data";
 import { useInvestorsSlice } from "../slice";
@@ -56,6 +59,7 @@ import { useOrganization } from "../../../../hooks";
 import Account from "../../../../types/Account";
 import TradeRequest from "../../../../types/TradeRequest";
 import { CryptoCurrencies } from "../../../../types/Currencies";
+import vault from "../../../../vault"
 
 interface tradeType {
   accountFrom: string;
@@ -161,6 +165,10 @@ const validateAccount = (values: any) => {
   return errors;
 };
 
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
 const InvestorDetail = (): React.ReactElement => {
   const classes = useStyles();
   const history = useHistory();
@@ -199,6 +207,11 @@ const InvestorDetail = (): React.ReactElement => {
     name: "",
     currency: "",
     type: "crypto",
+  });
+  const [showAlert, setShowAlert] = useState(false);
+  const [submitResponse, setSubmitResponse] = useState({
+    type: "success",
+    message: "",
   });
 
   const getQuantityLabel = (values: any): string => {
@@ -303,15 +316,30 @@ const InvestorDetail = (): React.ReactElement => {
   };
 
   const handleAccountCreate = async (values: Account) => {
-    await dispatch(
-      investorDetailActions.addInvestorAccount({
-        organizationId,
-        deskId,
-        investorId,
-        account: values,
-      })
-    );
-    setCreateAccountModalOpen(false);
+    try {
+      const newAccount = { ...values };
+      const vaultCreateWalletRequest = await vault.createWallet(
+        newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum",
+      );
+      const response = await vault.sendRequest(vaultCreateWalletRequest);
+      newAccount.vaultWalletId = response.wallet.id;
+
+      await dispatch(
+        investorDetailActions.addInvestorAccount({
+          organizationId,
+          deskId,
+          investorId,
+          account: newAccount,
+        })
+      );
+      setCreateAccountModalOpen(false);
+    } catch (error: any) {
+      setSubmitResponse({
+        type: "error",
+        message: error.message,
+      });
+      setShowAlert(true);
+    }
   };
 
   const handleBackClick = () => {
@@ -908,6 +936,23 @@ const InvestorDetail = (): React.ReactElement => {
             )}
           />
         </Dialog>
+        <Snackbar
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={showAlert}
+          onClose={() => {
+            setShowAlert(false);
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowAlert(false);
+            }}
+            severity={submitResponse.type === "success" ? "success" : "error"}
+          >
+            {submitResponse.message}
+          </Alert>
+        </Snackbar>
       </Container>
     </div>
   );
