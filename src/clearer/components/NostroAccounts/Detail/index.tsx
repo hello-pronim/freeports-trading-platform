@@ -387,10 +387,12 @@ const Detail = (): React.ReactElement => {
                 {accountDetailLoading && <Loader />}
                 {!accountDetailLoading && (
                   <Grid container spacing={4}>
-                    {/* <Grid item xs={12}>
+                    <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
-                          <Typography variant="h6">Operations</Typography>
+                          <Typography variant="h6">
+                            Requested Operation
+                          </Typography>
                         </Grid>
                         <Grid item xs={12}>
                           <MaterialTable
@@ -447,11 +449,13 @@ const Detail = (): React.ReactElement => {
                           />
                         </Grid>
                       </Grid>
-                    </Grid> */}
+                    </Grid>
                     <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
-                          <Typography variant="h6">Operations</Typography>
+                          <Typography variant="h6">
+                            Pending reconciliations
+                          </Typography>
                         </Grid>
                         <Grid item xs={12}>
                           <MaterialTable
@@ -545,7 +549,7 @@ const Detail = (): React.ReactElement => {
                         </Grid>
                       </Grid>
                     </Grid>
-                    {/* <Grid item xs={12}>
+                    <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <Typography variant="h6">
@@ -605,7 +609,7 @@ const Detail = (): React.ReactElement => {
                           />
                         </Grid>
                       </Grid>
-                    </Grid> */}
+                    </Grid>
                   </Grid>
                 )}
               </Grid>
