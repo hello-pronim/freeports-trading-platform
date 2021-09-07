@@ -176,12 +176,26 @@ export function* addInvestorAccount({
       yield take(actions.getInvestorAccountsSuccess);
     }
   } catch (error) {
-    yield put(
-      snackbarActions.showSnackbar({
-        message: error.data.message,
-        type: "error",
-      })
-    );
+    const errorList = error.data.message;
+    if (Array.isArray(errorList)) {
+      if (errorList.length) {
+        if (errorList[0].constraints.IsUnique) {
+          yield put(
+            snackbarActions.showSnackbar({
+              message: errorList[0].constraints.IsUnique,
+              type: "error",
+            })
+          );
+        }
+      }
+    } else {
+      yield put(
+        snackbarActions.showSnackbar({
+          message: error.data.message,
+          type: "error",
+        })
+      );
+    }
   }
 }
 

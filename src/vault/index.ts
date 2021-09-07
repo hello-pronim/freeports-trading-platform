@@ -611,7 +611,8 @@ export class Vault {
 
     let addressIndex = 0;
     if (response.wallets && response.wallets.length) {
-      const lastPath = response.wallets.pop().hdPath;
+      response.wallets.sort((a: any, b: any) => (Number(a.id) < Number(b.id)) ? 1 : -1);
+      const lastPath = response.wallets[0].hdPath;
       addressIndex = Number(lastPath.split("/")[5]) + 1;
     }
 
