@@ -612,7 +612,7 @@ export class Vault {
     let addressIndex = 0;
     if (response.wallets && response.wallets.length) {
       const lastPath = response.wallets.pop().hdPath;
-      addressIndex = Number(lastPath.split("/").pop()) + 1;
+      addressIndex = Number(lastPath.split("/")[5]) + 1;
     }
 
     const hdPath = `m/44'/0'/0'/0/${addressIndex}/`;
