@@ -324,6 +324,10 @@ const InvestorDetail = (): React.ReactElement => {
       const response = await vault.sendRequest(vaultCreateWalletRequest);
       newAccount.vaultWalletId = response.wallet.id;
 
+      const vaultGetWalletsRequest = await vault.getAllWallets();
+      const response2 = await vault.sendRequest(vaultGetWalletsRequest);
+      newAccount.publicAddress = response2.wallets.filter((x: any) => x.id === newAccount.vaultWalletId)[0].address;
+
       await dispatch(
         investorDetailActions.addInvestorAccount({
           organizationId,
