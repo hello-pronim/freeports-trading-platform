@@ -110,6 +110,46 @@ const createInvestorAccount = (
   });
 };
 
+const deleteInvestorAccount = (
+  organizationId: string,
+  deskId: string,
+  investorId: string,
+  accountId: string
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .delete(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/account/${accountId}`
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const getInvestorAccountOperations = (
+  organizationId: string,
+  deskId: string,
+  investorId: string,
+  accountId: string
+): Promise<Account[]> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/account/${accountId}/operations`
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
 export {
   getAllInvestors as default,
   getAllInvestors,
@@ -118,4 +158,6 @@ export {
   deleteInvestor,
   getInvestorAccounts,
   createInvestorAccount,
+  deleteInvestorAccount,
+  getInvestorAccountOperations,
 };

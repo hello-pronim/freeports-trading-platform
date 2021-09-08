@@ -20,15 +20,33 @@ const defaultInvestor = {
   createdAt: "",
 };
 
+const defaultInvestorAccount = {
+  id: "",
+  name: "",
+  currency: "",
+  type: "crypto",
+  publicAddress: "",
+  vaultWalletId: "",
+  hdPath: "",
+  balance: 0,
+  balanceUpdatedAt: "",
+};
+
 export const initialState: InvestorDetailState = {
   selectedInvestor: defaultInvestor,
-  tradeRequests: [],
-  investorAccounts: [],
   loadingDetail: false,
+
+  tradeRequests: [],
   loadingTradeRequests: false,
   creatingTradeRequest: false,
+
+  investorAccounts: [],
   loadingInvestorAccounts: false,
   creatingInvestorAccount: false,
+  deletingInvestorAccount: false,
+
+  selectedInvestorAccount: defaultInvestorAccount,
+  loadingInvestorAccountDetail: false,
 };
 
 const slice = createSlice({
@@ -111,6 +129,26 @@ const slice = createSlice({
     addInvestorAccountSuccess(state, action: PayloadAction<string>) {
       state.creatingInvestorAccount = false;
     },
+    removeInvestorAccount(state, action: PayloadAction<{ organizationId: string; deskId: string; investorId: string, accountId: string }>) {
+      state.deletingInvestorAccount = true;
+    },
+    removeInvestorAccountSuccess(state) {
+      state.deletingInvestorAccount = false;
+    },
+    getInvestorAccount(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+        accountId: string;
+      }>
+    ) {
+      state.loadingInvestorAccountDetail = true;
+    },
+    getInvestorAccountSuccess(state, action: PayloadAction<string>) {
+      state.loadingInvestorAccountDetail = false;
+    },
   },
 });
 
@@ -122,3 +160,4 @@ export const useInvestorDetailSlice = () => {
   (window as any).action = slice.actions;
   return { actions: slice.actions };
 };
+  

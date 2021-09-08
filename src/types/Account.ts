@@ -9,6 +9,8 @@ export default interface Account {
 
   balance?: number;
 
+  balanceUpdatedAt?: string;
+
   iban?: string;
 
   publicAddress?: string;

@@ -4,11 +4,17 @@ import TradeRequest from "../../../../../types/TradeRequest";
 
 export interface InvestorDetailState {
   selectedInvestor: Investor;
-  tradeRequests: TradeRequest[];
-  investorAccounts: Account[];
   loadingDetail: boolean;
+
+  tradeRequests: TradeRequest[];
   loadingTradeRequests: boolean;
   creatingTradeRequest: boolean;
+
+  investorAccounts: Account[];
   loadingInvestorAccounts: boolean;
   creatingInvestorAccount: boolean;
+  deletingInvestorAccount: boolean;
+
+  selectedInvestorAccount: Account;
+  loadingInvestorAccountDetail: boolean;
 }

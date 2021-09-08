@@ -10,6 +10,7 @@ import {
   getInvestor,
   getInvestorAccounts,
   createInvestorAccount,
+  deleteInvestorAccount,
 } from "../../../../../services/investorService";
 import {
   getInvestorTradeRequests,
@@ -199,6 +200,63 @@ export function* addInvestorAccount({
   }
 }
 
+export function* removeInvestorAccount({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+  accountId: string;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      deleteInvestorAccount,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId,
+      payload.accountId
+    );
+    if (response) {
+      yield put(actions.removeInvestorAccountSuccess());
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Investor account has been deleted successfully",
+          type: "success",
+        })
+      );
+      yield put(
+        actions.getInvestorAccounts({
+          organizationId: payload.organizationId,
+          deskId: payload.deskId,
+          investorId: payload.investorId,
+        })
+      );
+      yield take(actions.getInvestorAccountsSuccess);
+    }
+  } catch (error) {
+    const errorList = error.data.message;
+    if (Array.isArray(errorList)) {
+      if (errorList.length) {
+        if (errorList[0].constraints.IsUnique) {
+          yield put(
+            snackbarActions.showSnackbar({
+              message: errorList[0].constraints.IsUnique,
+              type: "error",
+            })
+          );
+        }
+      }
+    } else {
+      yield put(
+        snackbarActions.showSnackbar({
+          message: error.data.message,
+          type: "error",
+        })
+      );
+    }
+  }
+}
+
 export function* investorDetailSaga(): Generator<any> {
   yield takeEvery(actions.getInvestor, retrieveInvestor);
   yield takeEvery(
@@ -208,4 +266,5 @@ export function* investorDetailSaga(): Generator<any> {
   yield takeEvery(actions.addTradeRequest, addTradeRequest);
   yield takeEvery(actions.getInvestorAccounts, retrieveInvestorAccounts);
   yield takeEvery(actions.addInvestorAccount, addInvestorAccount);
+  yield takeEvery(actions.removeInvestorAccount, removeInvestorAccount);
 }
