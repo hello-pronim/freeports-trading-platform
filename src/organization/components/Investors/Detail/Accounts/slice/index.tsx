@@ -51,6 +51,9 @@ const slice = createSlice({
       state.loadingAccountOperations = false;
       state.accountOperations = action.payload;
     },
+    getInvestorAccountOperationsFailed(state) {
+      state.loadingAccountOperations = false;
+    },
   },
 });
 

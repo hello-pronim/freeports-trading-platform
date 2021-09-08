@@ -22,6 +22,7 @@ export function* getInvestors({ payload }: PayloadAction): Generator<any> {
         )
       );
   } catch (error) {
+    yield put(actions.getInvestorsFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,

@@ -30,6 +30,7 @@ export function* retrieveInvestorAccountOperations({
         )
       );
   } catch (error) {
+    yield put(actions.getInvestorAccountOperationsFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,

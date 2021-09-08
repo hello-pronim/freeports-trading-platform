@@ -35,6 +35,7 @@ export function* retrieveInvestor({
     );
     if (response) yield put(actions.getInvestorSuccess(response as Investor));
   } catch (error) {
+    yield put(actions.getInvestorFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -65,6 +66,7 @@ export function* retrieveInvestorTradeRequests({
         )
       );
   } catch (error) {
+    yield put(actions.getInvestorTradeRequestsFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -108,6 +110,7 @@ export function* addTradeRequest({
       yield take(actions.getInvestorTradeRequestsSuccess);
     }
   } catch (error) {
+    yield put(actions.addTradeRequestFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -134,6 +137,7 @@ export function* retrieveInvestorAccounts({
     if (response)
       yield put(actions.getInvestorAccountsSuccess(response as Account[]));
   } catch (error) {
+    yield put(actions.getInvestorAccountsFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -177,6 +181,7 @@ export function* addInvestorAccount({
       yield take(actions.getInvestorAccountsSuccess);
     }
   } catch (error) {
+    yield put(actions.addInvestorAccountFailed());
     const errorList = error.data.message;
     if (Array.isArray(errorList)) {
       if (errorList.length) {
@@ -234,6 +239,7 @@ export function* removeInvestorAccount({
       yield take(actions.getInvestorAccountsSuccess);
     }
   } catch (error) {
+    yield put(actions.removeInvestorAccountFailed());
     const errorList = error.data.message;
     if (Array.isArray(errorList)) {
       if (errorList.length) {

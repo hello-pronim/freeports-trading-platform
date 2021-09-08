@@ -29,6 +29,9 @@ const slice = createSlice({
       state.loading = false;
       state.investors = action.payload;
     },
+    getInvestorsFailed(state) {
+      state.loading = false;
+    },
     addInvestor(
       state,
       action: PayloadAction<{

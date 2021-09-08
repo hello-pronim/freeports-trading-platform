@@ -68,6 +68,9 @@ const slice = createSlice({
       state.loadingDetail = false;
       state.selectedInvestor = action.payload;
     },
+    getInvestorFailed(state) {
+      state.loadingDetail = false;
+    },
     getInvestorTradeRequests(
       state,
       action: PayloadAction<{
@@ -86,6 +89,9 @@ const slice = createSlice({
       state.loadingTradeRequests = false;
       state.tradeRequests = action.payload;
     },
+    getInvestorTradeRequestsFailed(state) {
+      state.loadingTradeRequests = false;
+    },
     addTradeRequest(
       state,
       action: PayloadAction<{
@@ -98,6 +104,9 @@ const slice = createSlice({
       state.creatingTradeRequest = true;
     },
     addTradeRequestSuccess(state, action: PayloadAction<string>) {
+      state.creatingTradeRequest = false;
+    },
+    addTradeRequestFailed(state) {
       state.creatingTradeRequest = false;
     },
     getInvestorAccounts(
@@ -115,6 +124,9 @@ const slice = createSlice({
       state.loadingInvestorAccounts = false;
       state.investorAccounts = action.payload;
     },
+    getInvestorAccountsFailed(state) {
+      state.loadingInvestorAccounts = false;
+    },
     addInvestorAccount(
       state,
       action: PayloadAction<{
@@ -129,10 +141,24 @@ const slice = createSlice({
     addInvestorAccountSuccess(state, action: PayloadAction<string>) {
       state.creatingInvestorAccount = false;
     },
-    removeInvestorAccount(state, action: PayloadAction<{ organizationId: string; deskId: string; investorId: string, accountId: string }>) {
+    addInvestorAccountFailed(state) {
+      state.creatingInvestorAccount = false;
+    },
+    removeInvestorAccount(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+        accountId: string;
+      }>
+    ) {
       state.deletingInvestorAccount = true;
     },
     removeInvestorAccountSuccess(state) {
+      state.deletingInvestorAccount = false;
+    },
+    removeInvestorAccountFailed(state) {
       state.deletingInvestorAccount = false;
     },
     getInvestorAccount(
@@ -149,6 +175,9 @@ const slice = createSlice({
     getInvestorAccountSuccess(state, action: PayloadAction<string>) {
       state.loadingInvestorAccountDetail = false;
     },
+    getInvestorAccountFailed(state) {
+      state.loadingInvestorAccountDetail = false;
+    },
   },
 });
 
@@ -160,4 +189,3 @@ export const useInvestorDetailSlice = () => {
   (window as any).action = slice.actions;
   return { actions: slice.actions };
 };
-  
