@@ -36,6 +36,7 @@ import AddCircleIcon from "@material-ui/icons/AddCircle";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import CompareArrowsIcon from "@material-ui/icons/CompareArrows";
 import SearchIcon from "@material-ui/icons/Search";
+import DeleteIcon from "@material-ui/icons/Delete";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import MaterialTable from "material-table";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
@@ -356,6 +357,21 @@ const InvestorDetail = (): React.ReactElement => {
     return `${id.substring(0, 10)}...${id.charAt(id.length - 1)}`;
   };
 
+  const onHandleAccountDelete = (accountId: string) => {
+    dispatch(
+      investorDetailActions.removeInvestorAccount({
+        organizationId,
+        deskId,
+        investorId,
+        accountId,
+      })
+    );
+  };
+
+  const onHandleAccountView = (accountId: string) => {
+    history.push(`/desks/${deskId}/investors/${investorId}/accounts/${accountId}`);
+  }
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -575,7 +591,11 @@ const InvestorDetail = (): React.ReactElement => {
 
                                     return (
                                       <Tooltip title={id} placement="top" arrow>
-                                        <Link to="/">{getShortId(id)}</Link>
+                                        <Link
+                                          to={`/desks/${deskId}/investors/${investorId}/accounts/${id}`}
+                                        >
+                                          {getShortId(id)}
+                                        </Link>
                                       </Tooltip>
                                     );
                                   },
@@ -593,24 +613,36 @@ const InvestorDetail = (): React.ReactElement => {
                                   },
                                 },
                                 {
-                                  title: "Rules",
+                                  title: "Actions",
                                   render: (rowData: any) => {
-                                    const { id } = rowData;
+                                    const { id: accountId } = rowData;
 
                                     return (
                                       <div>
                                         <IconButton
                                           color="inherit"
-                                          aria-label="Add Role"
+                                          aria-label="View details"
+                                          onClick={() => {
+                                            onHandleAccountView(accountId);
+                                          }}
                                         >
                                           <VisibilityIcon
                                             fontSize="small"
                                             color="primary"
                                           />
                                         </IconButton>
-                                        <Button color="primary">
-                                          Transfer!
-                                        </Button>
+                                        <IconButton
+                                          color="inherit"
+                                          onClick={() =>
+                                            onHandleAccountDelete(accountId)
+                                          }
+                                        >
+                                          <DeleteIcon
+                                            fontSize="small"
+                                            color="error"
+                                            className="icon-delete"
+                                          />
+                                        </IconButton>
                                       </div>
                                     );
                                   },
