@@ -59,7 +59,7 @@ import { useOrganization } from "../../../../hooks";
 import Account from "../../../../types/Account";
 import TradeRequest from "../../../../types/TradeRequest";
 import { CryptoCurrencies } from "../../../../types/Currencies";
-import vault from "../../../../vault"
+import vault from "../../../../vault";
 
 interface tradeType {
   accountFrom: string;
@@ -319,14 +319,16 @@ const InvestorDetail = (): React.ReactElement => {
     try {
       const newAccount = { ...values };
       const vaultCreateWalletRequest = await vault.createWallet(
-        newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum",
+        newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum"
       );
       const response = await vault.sendRequest(vaultCreateWalletRequest);
       newAccount.vaultWalletId = response.wallet.id;
 
       const vaultGetWalletsRequest = await vault.getAllWallets();
       const response2 = await vault.sendRequest(vaultGetWalletsRequest);
-      newAccount.publicAddress = response2.wallets.filter((x: any) => x.id === newAccount.vaultWalletId)[0].address;
+      newAccount.publicAddress = response2.wallets.filter(
+        (x: any) => x.id === newAccount.vaultWalletId
+      )[0].address;
 
       await dispatch(
         investorDetailActions.addInvestorAccount({

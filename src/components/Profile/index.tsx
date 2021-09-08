@@ -505,16 +505,16 @@ const Profile = (): React.ReactElement => {
                     <Grid container alignItems="center" justify="center">
                       <div className={classes.profileImageContainer}>
                         <Avatar
-                          src={avatar}
+                          src={profile.avatar}
                           alt="Avatar"
                           className={classes.profileImage}
                         />
-                        <input
+                        {/* <input
                           type="file"
                           name="avatar"
                           className={classes.fileInput}
                           onChange={onAvatarChange}
-                        />
+                        /> */}
                       </div>
                     </Grid>
                   </Grid>
