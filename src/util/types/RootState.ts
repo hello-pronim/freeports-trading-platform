@@ -10,6 +10,7 @@ import { DesksState } from "../../organization/components/Desks/slice/types";
 import { DeskDetailState } from "../../organization/components/Desks/Detail/slice/types";
 import { InvestorsState } from "../../organization/components/Investors/slice/types";
 import { InvestorDetailState } from "../../organization/components/Investors/Detail/slice/types";
+import { InvestorAccountDetailState } from "../../organization/components/Investors/Detail/Accounts/slice/types";
 import { TradesState } from "../../organization/components/Trades/slice/types";
 import { TradeDetailState } from "../../organization/components/Trades/Detail/slice/types";
 import { OrgRolesState } from "../../organization/components/Roles/slice/types";
@@ -40,6 +41,7 @@ export interface RootState {
   global?: GlobalState;
   investors?: InvestorsState;
   investorDetail?: InvestorDetailState;
+  investorAccountDetail?: InvestorAccountDetailState;
   trades?: TradesState;
   tradeDetail?: TradeDetailState;
   orgRoles?: OrgRolesState;
