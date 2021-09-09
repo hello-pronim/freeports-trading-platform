@@ -1,6 +1,7 @@
 import PaginatedResponse from "../types/PaginatedResponse";
 import { ResourceCreatedResponse } from "../types/ResourceCreatedResponse";
 import User from "../types/User";
+import Clearer from "../types/Clearer";
 import axios from "../util/axios";
 import { VaultRequestDto } from "./vaultService";
 import vault from "../vault";
@@ -67,7 +68,7 @@ const updateClearerUser = async (
       .patch(`/user/${id}`, {
         ...user,
         removeFromGroupRequests,
-        addToGroupRequests
+        addToGroupRequests,
       })
       .then((res: any) => {
         console.log(" user update response ", res.data);
@@ -146,7 +147,7 @@ const removeVaultUser = (
   });
 };
 
-const sendResetPasswordEmail = (userId:string): Promise<any> => {
+const sendResetPasswordEmail = (userId: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
       .post(`/user/${userId}/email-resetpassword`)
@@ -159,10 +160,37 @@ const sendResetPasswordEmail = (userId:string): Promise<any> => {
   });
 };
 
-const resetOTP = (userId:string): Promise<any> => {
+const resetOTP = (userId: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
       .post(`/user/${userId}/reset-otp`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const getClearerSettings = (): Promise<Clearer> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`/settings`)
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response.data);
+      });
+  });
+};
+
+const updateClearerSettings = async (settings: Clearer): Promise<any> => {
+  const vaultRequest = await vault.createOrganization();
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/settings`, { ...settings, vaultRequest })
       .then((res: any) => {
         return resolve(res.data);
       })
@@ -182,5 +210,7 @@ export {
   createVaultUser,
   removeVaultUser,
   sendResetPasswordEmail,
-  resetOTP
+  resetOTP,
+  getClearerSettings,
+  updateClearerSettings,
 };

@@ -6,6 +6,7 @@ import { ClearerCoWorkersState } from "../../clearer/components/CoWorker/slice/t
 import { ClearerCoWorkerFormState } from "../../clearer/components/CoWorkerForm/slice/types";
 import { OrganizationsState } from "../../clearer/components/Organizations/slice/types";
 /* import { OrganizationDetailState } from "../../clearer/components/Organizations/Detail/slice/types"; */
+import { ClearerSettingsState } from "../../clearer/components/Settings/slice/types";
 import { DesksState } from "../../organization/components/Desks/slice/types";
 import { DeskDetailState } from "../../organization/components/Desks/Detail/slice/types";
 import { InvestorsState } from "../../organization/components/Investors/slice/types";
@@ -35,6 +36,7 @@ export interface RootState {
   accountDetail?: AccountDetailState;
   clearerCoWorkers?: ClearerCoWorkersState;
   clearerCoWorkerForm: ClearerCoWorkerFormState;
+  clearerSettings?: ClearerSettingsState;
   organizations?: OrganizationsState;
   desks?: DesksState;
   deskDetail?: DeskDetailState;

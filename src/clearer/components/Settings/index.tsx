@@ -1,6 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
+import { useDispatch, useSelector } from "react-redux";
+import { Field, Form } from "react-final-form";
+import { TextField, Select } from "mui-rff";
+import arrayMutators from "final-form-arrays";
+import { FieldArray } from "react-final-form-arrays";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import {
   Avatar,
@@ -13,22 +18,18 @@ import {
   Container,
   Divider,
   Grid,
-  Input,
-  InputAdornment,
-  Snackbar,
-  TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import { useClearerSettingsSlice } from "./slice";
+import {
+  selectClearerSettings,
+  selectIsFormLoading,
+  selectIsFormSubmitting,
+} from "./slice/selectors";
+import AvatarInput from "../../../components/AvatarInput";
+import Loader from "../../../components/Loader";
 
-import { useOrganization } from "../../../hooks";
-
-interface accountType {
-  currency: string;
-  iban: string;
-  account: string;
-}
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -78,7 +79,6 @@ const useStyle = makeStyles((theme: Theme) =>
       left: 0,
       cursor: "pointer",
     },
-
     progressButtonWrapper: {
       margin: theme.spacing(1),
       position: "relative",
@@ -94,54 +94,28 @@ const useStyle = makeStyles((theme: Theme) =>
   })
 );
 
-const Alert = (props: AlertProps) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
+const validate = (values: any) => {
+  const errors: { [key: string]: string } = {};
+
+  if (!values.name) {
+    errors.name = "This Field Required";
+  }
+
+  return errors;
 };
 
 const Settings = (): React.ReactElement => {
-  const { organizationId } = Lockr.get("USER_DATA");
   const classes = useStyle();
-  const { getOrganization, updateOrganization } = useOrganization();
-  const [orgDetail, setOrgDetail] = useState({
-    id: "",
-    name: "",
-    createdAt: "",
-    commissionOrganization: "",
-    commissionClearer: "",
-    logo: "",
-    userActive: 0,
-    userSuspended: 0,
-    accountList: [],
-  });
-  const [accounts, setAccounts] = useState<Array<accountType>>([]);
-  const [loading, setLoading] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [submitResponse, setSubmitResponse] = useState({
-    type: "success",
-    message: "",
-  });
+  const dispatch = useDispatch();
+  const { actions: clearerSettingsActions } = useClearerSettingsSlice();
+  const clearerSettings = useSelector(selectClearerSettings);
+  const formLoading = useSelector(selectIsFormLoading);
+  const formSubmitting = useSelector(selectIsFormSubmitting);
 
   useEffect(() => {
     let mounted = false;
     const init = async () => {
-      const detail = await getOrganization(organizationId);
-
-      if (!mounted) {
-        if (detail) {
-          setOrgDetail({
-            id: detail.id,
-            name: detail.name,
-            createdAt: new Date(detail.createdAt).toDateString(),
-            logo: detail.logo,
-            commissionOrganization: detail.commissionOrganization,
-            commissionClearer: detail.commissionClearer,
-            userActive: detail.userActive,
-            userSuspended: detail.userSuspended,
-            accountList: detail.clearing,
-          });
-          setAccounts(detail.clearing);
-        }
-      }
+      dispatch(clearerSettingsActions.retrieveClearerSettings());
     };
     init();
     return () => {
@@ -149,84 +123,9 @@ const Settings = (): React.ReactElement => {
     };
   }, []);
 
-  const onLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { files } = e.currentTarget;
-    if (files && files.length) {
-      const reader = new FileReader();
-      reader.onload = (event: any) => {
-        const newOrgDetail = { ...orgDetail };
-        newOrgDetail.logo = event.target.result;
-        setOrgDetail(newOrgDetail);
-      };
-      reader.readAsDataURL(files[0]);
-    }
-  };
-
-  const handleName = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = event.target;
-    const newOrgDetail = { ...orgDetail };
-    newOrgDetail.name = value;
-    setOrgDetail(newOrgDetail);
-  };
-
-  const handleClearer = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = event.target;
-    const newOrgDetail = { ...orgDetail };
-    newOrgDetail.commissionClearer = value;
-    setOrgDetail(newOrgDetail);
-  };
-
-  const handleCommission = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = event.target;
-    const newOrgDetail = { ...orgDetail };
-    newOrgDetail.commissionOrganization = value;
-    setOrgDetail(newOrgDetail);
-  };
-
-  const handleDialog = () => {
-    console.log(orgDetail);
-  };
-
-  const onHandleUpdate = async () => {
-    setLoading(true);
-    setShowAlert(false);
-
-    await updateOrganization(
-      organizationId,
-      orgDetail.createdAt,
-      orgDetail.name,
-      orgDetail.logo,
-      orgDetail.commissionOrganization,
-      orgDetail.commissionClearer
-    )
-      .then((data: string) => {
-        if (data !== "") {
-          setLoading(false);
-          setSubmitResponse({
-            type: "success",
-            message: "Updated successfully.",
-          });
-          setShowAlert(true);
-        }
-      })
-      .catch((err: any) => {
-        setLoading(false);
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-        setShowAlert(true);
-      });
-  };
-
-  const handleAlertClose = () => {
-    setShowAlert(false);
+  const handleOnSubmit = (values: any) => {
+    console.log(values);
+    dispatch(clearerSettingsActions.saveClearerSettings(values));
   };
 
   return (
@@ -236,189 +135,118 @@ const Settings = (): React.ReactElement => {
           <CardHeader title="Settings" />
           <Divider />
           <CardContent>
-            <Grid container spacing={4}>
-              <Grid item xs={6}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    {/* <TextField
-                      InputProps={{
-                        readOnly: true,
-                      }}
-                      label="Company name"
-                      variant="outlined"
-                      value={orgDetail.name}
-                      onChange={handleName}
-                      fullWidth
-                    /> */}
-                    <Typography>Company name</Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    {accounts.length > 0 ? (
-                      <Grid container spacing={1}>
-                        <Grid item xs={12}>
-                          {accounts.map((account) => (
-                            <Typography>{`Account: ${account.iban}`}</Typography>
-                          ))}
-                        </Grid>
-                      </Grid>
-                    ) : (
-                      <></>
-                    )}
-                  </Grid>
-                  {/* <Grid item xs={12}>
-                    <Card variant="outlined">
-                      <CardContent>
+            {formLoading && <Loader />}
+            {!formLoading && (
+              <Form
+                onSubmit={handleOnSubmit}
+                mutators={{
+                  ...arrayMutators,
+                }}
+                initialValues={clearerSettings}
+                validate={validate}
+                render={({
+                  handleSubmit,
+                  submitting,
+                  pristine,
+                  form: {
+                    mutators: { push },
+                  },
+                  values,
+                }) => (
+                  <form onSubmit={handleSubmit} noValidate>
+                    <Grid container alignItems="flex-start" spacing={2}>
+                      <Grid item xs={12}>
                         <Grid container spacing={4}>
                           <Grid item xs={6}>
-                            <Grid container spacing={1}>
+                            <Grid container spacing={2}>
                               <Grid item xs={12}>
-                                <Typography
-                                  variant="body2"
-                                  style={{ fontWeight: "bold" }}
-                                >
-                                  Commission rates
-                                </Typography>
+                                <TextField
+                                  required
+                                  id="companyName"
+                                  name="name"
+                                  label="Company name"
+                                  variant="outlined"
+                                />
                               </Grid>
-                              <Grid item xs={12}>
-                                <Input
-                                  readOnly
-                                  endAdornment={
-                                    <InputAdornment position="end">
-                                      %
-                                    </InputAdornment>
-                                  }
-                                  value={orgDetail.commissionOrganization}
-                                  onChange={handleCommission}
+                              <Grid item xs={6}>
+                                <TextField
+                                  id="street"
+                                  name="street"
+                                  label="Street"
+                                  variant="outlined"
+                                />
+                              </Grid>
+                              <Grid item xs={6}>
+                                <TextField
+                                  id="street2"
+                                  name="street2"
+                                  label="Street2"
+                                  variant="outlined"
+                                />
+                              </Grid>
+                              <Grid item xs={6}>
+                                <TextField
+                                  id="zip"
+                                  label="Zip"
+                                  name="zip"
+                                  variant="outlined"
+                                />
+                              </Grid>
+                              <Grid item xs={6}>
+                                <TextField
+                                  id="city"
+                                  label="City"
+                                  name="city"
+                                  variant="outlined"
+                                />
+                              </Grid>
+                              <Grid item xs={6}>
+                                <TextField
+                                  id="country"
+                                  label="Country"
+                                  name="country"
+                                  variant="outlined"
                                 />
                               </Grid>
                             </Grid>
                           </Grid>
                           <Grid item xs={6}>
-                            <Grid container spacing={1}>
-                              <Grid item xs={12}>
-                                <Typography
-                                  variant="body2"
-                                  style={{ fontWeight: "bold" }}
-                                >
-                                  Clear Commission rates
-                                </Typography>
-                              </Grid>
-                              <Grid item xs={12}>
-                                <Input
-                                  readOnly
-                                  endAdornment={
-                                    <InputAdornment position="end">
-                                      %
-                                    </InputAdornment>
-                                  }
-                                  value={orgDetail.commissionClearer}
-                                  onChange={handleClearer}
-                                />
-                              </Grid>
-                            </Grid>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Grid container spacing={1}>
-                              <Grid item xs={12}>
-                                <Typography
-                                  variant="body2"
-                                  style={{ fontWeight: "bold" }}
-                                >
-                                  Active Users
-                                </Typography>
-                              </Grid>
-                              <Grid item xs={12}>
-                                <Typography
-                                  variant="body2"
-                                  style={{ fontWeight: "bold" }}
-                                >
-                                  {orgDetail.userActive}
-                                </Typography>
-                              </Grid>
-                            </Grid>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Grid container spacing={1}>
-                              <Grid item xs={12}>
-                                <Typography
-                                  variant="body2"
-                                  style={{ fontWeight: "bold" }}
-                                >
-                                  Disabled Users
-                                </Typography>
-                              </Grid>
-                              <Grid item xs={12}>
-                                <Typography
-                                  variant="body2"
-                                  style={{ fontWeight: "bold" }}
-                                >
-                                  {orgDetail.userSuspended}
-                                </Typography>
-                              </Grid>
-                            </Grid>
+                            <Field name="logo" render={AvatarInput} />
                           </Grid>
                         </Grid>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                 */}
-                </Grid>
-              </Grid>
-              <Grid item xs={6}>
-                <div className={classes.logoImageContainer}>
-                  <Avatar
-                    src={orgDetail.logo}
-                    alt="Avatar"
-                    className={classes.logoImage}
-                  />
-                  <input
-                    type="file"
-                    name="avatar"
-                    className={classes.logoFileInput}
-                    onChange={onLogoFileChange}
-                  />
-                </div>
-              </Grid>
-            </Grid>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Divider />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Grid container justify="flex-end" spacing={1}>
+                          <Grid item>
+                            <div className={classes.progressButtonWrapper}>
+                              <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                disabled={formSubmitting}
+                              >
+                                Save Changes
+                              </Button>
+                              {formSubmitting && (
+                                <CircularProgress
+                                  size={24}
+                                  className={classes.progressButton}
+                                />
+                              )}
+                            </div>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </form>
+                )}
+              />
+            )}
           </CardContent>
-          <Divider />
-          {/* <CardActions>
-            <Grid container justify="flex-end">
-              <Grid item>
-                <div className={classes.progressButtonWrapper}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={onHandleUpdate}
-                    disabled={loading}
-                  >
-                    SAVE CHANGES
-                  </Button>
-
-                  {loading && (
-                    <CircularProgress
-                      size={24}
-                      className={classes.progressButton}
-                    />
-                  )}
-                </div>
-              </Grid>
-            </Grid>
-          </CardActions> */}
         </Card>
-        <Snackbar
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={showAlert}
-          onClose={handleAlertClose}
-        >
-          <Alert
-            onClose={handleAlertClose}
-            severity={submitResponse.type === "success" ? "success" : "error"}
-          >
-            {submitResponse.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </div>
   );
