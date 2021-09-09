@@ -220,6 +220,10 @@ const InvestorDetail = (): React.ReactElement => {
     }
   };
 
+  const handleBackClick = () => {
+    history.push(`/desks/${deskId}/investors/${investorId}`);
+  };
+
   const getShortId = (id: string) => {
     return `${id.substring(0, 10)}...${id.charAt(id.length - 1)}`;
   };
@@ -231,25 +235,13 @@ const InvestorDetail = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container alignItems="center" spacing={4}>
               <Grid item xs={3}>
-                <Grid container>
-                  <Grid item xs={12}>
-                    <Grid container alignItems="center" spacing={2}>
-                      <Grid item>
-                        <Typography variant="h6">ACCOUNTS</Typography>
-                      </Grid>
-                      <Grid item>
-                        <IconButton
-                          color="primary"
-                          aria-label="Add"
-                          className={classes.addButton}
-                          onClick={handleCreateAccountModalOpen}
-                        >
-                          <Icon fontSize="large">add_circle</Icon>
-                        </IconButton>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
+                <IconButton
+                  color="inherit"
+                  aria-label="Back"
+                  onClick={handleBackClick}
+                >
+                  <ArrowBackIosIcon fontSize="small" color="primary" />
+                </IconButton>
               </Grid>
               <Grid item xs={9}>
                 <Grid
@@ -273,6 +265,23 @@ const InvestorDetail = (): React.ReactElement => {
               <Grid container spacing={4}>
                 <Grid item xs={3}>
                   <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Grid container alignItems="center" spacing={2}>
+                      <Grid item>
+                        <Typography variant="h6">ACCOUNTS</Typography>
+                      </Grid>
+                      <Grid item>
+                        <IconButton
+                          color="primary"
+                          aria-label="Add"
+                          className={classes.addButton}
+                          onClick={handleCreateAccountModalOpen}
+                        >
+                          <Icon fontSize="large">add_circle</Icon>
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  </Grid>
                     <Grid item xs={12}>
                       <TextField
                         className="w-100"
