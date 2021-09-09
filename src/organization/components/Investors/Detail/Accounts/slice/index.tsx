@@ -7,6 +7,7 @@ import {
   useInjectSaga,
 } from "../../../../../../util/redux-injectors";
 import InvestorAccountOperation from "../../../../../../types/InvestorAccountOperation";
+import InvestorAccountBalance from "../../../../../../types/InvestorAccountBalance";
 import { investorAccountDetailSaga } from "./saga";
 import { InvestorAccountDetailState } from "./types";
 import PaginatedResponse from "../../../../../../types/PaginatedResponse";
@@ -23,16 +24,50 @@ const defaultInvestorAccountOperation = {
   finalNTx: 0,
   txrefs: [],
 };
+const defaultInvestorAccountBalance = {
+  address: "",
+  totalReceived: 0,
+  totalSent: 0,
+  balance: 0,
+  unconfirmedBalance: 0,
+  finalBalance: 0,
+  nTx: 0,
+  unconfirmedNTx: 0,
+  finalNTx: 0,
+};
 
 export const initialState: InvestorAccountDetailState = {
   accountOperations: defaultInvestorAccountOperation,
   loadingAccountOperations: false,
+  accountBalance: defaultInvestorAccountBalance,
+  loadingAccountBalance: false,
 };
 
 const slice = createSlice({
   name: "investorAccountDetail",
   initialState,
   reducers: {
+    getInvestorAccountBalance(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+        accountId: string;
+      }>
+    ) {
+      state.loadingAccountBalance = true;
+    },
+    getInvestorAccountBalanceSuccess(
+      state,
+      action: PayloadAction<InvestorAccountBalance>
+    ) {
+      state.loadingAccountBalance = false;
+      state.accountBalance = action.payload;
+    },
+    getInvestorAccountBalanceFailed(state) {
+      state.loadingAccountBalance = false;
+    },
     getInvestorAccountOperations(
       state,
       action: PayloadAction<{

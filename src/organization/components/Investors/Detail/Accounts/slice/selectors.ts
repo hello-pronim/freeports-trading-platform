@@ -17,3 +17,13 @@ export const selectIsInvestorAccountOperationsLoading = createSelector(
   [selectDomain],
   (investorDetailState) => investorDetailState.loadingAccountOperations
 );
+
+export const selectInvestorAccountBalance = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.accountBalance
+);
+
+export const selectIsInvestorAccountBalanceLoading = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.loadingAccountBalance
+);

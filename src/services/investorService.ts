@@ -135,11 +135,31 @@ const getInvestorAccountOperations = (
   deskId: string,
   investorId: string,
   accountId: string
-): Promise<Account[]> => {
+): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
       .get(
         `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/account/${accountId}/operations`
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const getInvestorAccountBalance = (
+  organizationId: string,
+  deskId: string,
+  investorId: string,
+  accountId: string
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/account/${accountId}/balance`
       )
       .then((res: any) => {
         return resolve(res.data);
@@ -160,4 +180,5 @@ export {
   createInvestorAccount,
   deleteInvestorAccount,
   getInvestorAccountOperations,
+  getInvestorAccountBalance,
 };

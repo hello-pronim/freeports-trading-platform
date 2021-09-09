@@ -9,6 +9,7 @@ import { investorDetailActions as actions } from ".";
 import {
   getInvestor,
   getInvestorAccounts,
+  // getInvestorAccount,
   createInvestorAccount,
   deleteInvestorAccount,
 } from "../../../../../services/investorService";
@@ -263,6 +264,34 @@ export function* removeInvestorAccount({
   }
 }
 
+// export function* retrieveInvestorAccount({
+//   payload,
+// }: PayloadAction<{
+//   organizationId: string;
+//   deskId: string;
+//   investorId: string;
+//   accountId: string;
+// }>): Generator<any> {
+//   try {
+//     const response = yield call(
+//       getInvestorAccount,
+//       payload.organizationId,
+//       payload.deskId,
+//       payload.investorId,
+//       payload.accountId
+//     );
+//     if (response) yield put(actions.getInvestorAccountSuccess());
+//   } catch (error) {
+//     yield put(actions.getInvestorAccountFailed());
+//     yield put(
+//       snackbarActions.showSnackbar({
+//         message: error.data.message,
+//         type: "error",
+//       })
+//     );
+//   }
+// }
+
 export function* investorDetailSaga(): Generator<any> {
   yield takeEvery(actions.getInvestor, retrieveInvestor);
   yield takeEvery(
@@ -273,4 +302,5 @@ export function* investorDetailSaga(): Generator<any> {
   yield takeEvery(actions.getInvestorAccounts, retrieveInvestorAccounts);
   yield takeEvery(actions.addInvestorAccount, addInvestorAccount);
   yield takeEvery(actions.removeInvestorAccount, removeInvestorAccount);
+  // yield takeEvery(actions.getInvestorAccount, retrieveInvestorAccount);
 }

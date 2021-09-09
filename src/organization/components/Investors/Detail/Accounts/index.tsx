@@ -52,6 +52,8 @@ import {
 import {
   selectInvestorAccountOperations,
   selectIsInvestorAccountOperationsLoading,
+  selectInvestorAccountBalance,
+  selectIsInvestorAccountBalanceLoading,
 } from "./slice/selectors";
 import Loader from "../../../../../components/Loader";
 import Account from "../../../../../types/Account";
@@ -135,7 +137,9 @@ const InvestorDetail = (): React.ReactElement => {
   const investorAccountOperations = useSelector(
     selectInvestorAccountOperations
   );
+  const investorAccountBalance = useSelector(selectInvestorAccountBalance);
   const selectedInvestorAccount = useSelector(selectInvestorAccount);
+  console.log(selectedInvestorAccount);
   const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
   const investorAccountCreating = useSelector(selectIsInvestorAccountCreating);
   const investorAccountDetailLoading = useSelector(
@@ -143,6 +147,9 @@ const InvestorDetail = (): React.ReactElement => {
   );
   const investorAccountOperationsLoading = useSelector(
     selectIsInvestorAccountOperationsLoading
+  );
+  const investorAccountBalanceLoading = useSelector(
+    selectIsInvestorAccountBalanceLoading
   );
   const [searchText, setSearchText] = useState("");
   const [createAccountModalOpen, setCreateAccountModalOpen] = useState(false);
@@ -164,7 +171,23 @@ const InvestorDetail = (): React.ReactElement => {
 
   useEffect(() => {
     dispatch(
+      investorDetailActions.getInvestorAccount({
+        organizationId,
+        deskId,
+        investorId,
+        accountId,
+      })
+    );
+    dispatch(
       investorAccountDetailActions.getInvestorAccountOperations({
+        organizationId,
+        deskId,
+        investorId,
+        accountId,
+      })
+    );
+    dispatch(
+      investorAccountDetailActions.getInvestorAccountBalance({
         organizationId,
         deskId,
         investorId,
@@ -243,20 +266,23 @@ const InvestorDetail = (): React.ReactElement => {
                   <ArrowBackIosIcon fontSize="small" color="primary" />
                 </IconButton>
               </Grid>
-              <Grid item xs={9}>
-                <Grid
-                  container
-                  item
-                  alignItems="center"
-                  justify="space-between"
-                >
-                  <Typography variant="h5">{`Balance: ${0}`}</Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {`Account ID: ${accountId}`}
-                  </Typography>
+              {investorAccountBalanceLoading && <Loader />}
+              {!investorAccountBalanceLoading && (
+                <Grid item xs={9}>
+                  <Grid
+                    container
+                    item
+                    alignItems="center"
+                    justify="space-between"
+                  >
+                    <Typography variant="h5">{`Balance: ${investorAccountBalance.balance}`}</Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      {`Account ID: ${accountId}`}
+                    </Typography>
+                  </Grid>
+                  <Divider />
                 </Grid>
-                <Divider />
-              </Grid>
+              )}
             </Grid>
           </Grid>
           <Grid item xs={12}>
@@ -265,23 +291,23 @@ const InvestorDetail = (): React.ReactElement => {
               <Grid container spacing={4}>
                 <Grid item xs={3}>
                   <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Grid container alignItems="center" spacing={2}>
-                      <Grid item>
-                        <Typography variant="h6">ACCOUNTS</Typography>
-                      </Grid>
-                      <Grid item>
-                        <IconButton
-                          color="primary"
-                          aria-label="Add"
-                          className={classes.addButton}
-                          onClick={handleCreateAccountModalOpen}
-                        >
-                          <Icon fontSize="large">add_circle</Icon>
-                        </IconButton>
+                    <Grid item xs={12}>
+                      <Grid container alignItems="center" spacing={2}>
+                        <Grid item>
+                          <Typography variant="h6">ACCOUNTS</Typography>
+                        </Grid>
+                        <Grid item>
+                          <IconButton
+                            color="primary"
+                            aria-label="Add"
+                            className={classes.addButton}
+                            onClick={handleCreateAccountModalOpen}
+                          >
+                            <Icon fontSize="large">add_circle</Icon>
+                          </IconButton>
+                        </Grid>
                       </Grid>
                     </Grid>
-                  </Grid>
                     <Grid item xs={12}>
                       <TextField
                         className="w-100"
@@ -352,16 +378,12 @@ const InvestorDetail = (): React.ReactElement => {
                             <MaterialTable
                               columns={[
                                 {
-                                  field: "txHash",
-                                  title: "Hash",
-                                },
-                                {
-                                  field: "txInputN",
-                                  title: "Input",
-                                },
-                                {
-                                  field: "txOutputN",
-                                  title: "Output",
+                                  field: "confirmed",
+                                  title: "Confirmed date",
+                                  render: (rowData: any) => {
+                                    const { confirmed } = rowData;
+                                    return convertDateToDMY(confirmed);
+                                  },
                                 },
                                 {
                                   field: "value",

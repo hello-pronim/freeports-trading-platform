@@ -172,7 +172,7 @@ const slice = createSlice({
     ) {
       state.loadingInvestorAccountDetail = true;
     },
-    getInvestorAccountSuccess(state, action: PayloadAction<string>) {
+    getInvestorAccountSuccess(state) {
       state.loadingInvestorAccountDetail = false;
     },
     getInvestorAccountFailed(state) {
