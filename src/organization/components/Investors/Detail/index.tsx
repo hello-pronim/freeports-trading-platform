@@ -369,8 +369,10 @@ const InvestorDetail = (): React.ReactElement => {
   };
 
   const onHandleAccountView = (accountId: string) => {
-    history.push(`/desks/${deskId}/investors/${investorId}/accounts/${accountId}`);
-  }
+    history.push(
+      `/desks/${deskId}/investors/${investorId}/accounts/${accountId}`
+    );
+  };
 
   return (
     <div className="main-wrapper">
@@ -940,7 +942,7 @@ const InvestorDetail = (): React.ReactElement => {
                       >
                         <option value="0">Select...</option>
                         <option value="BTC">BTC</option>
-                        <option value="ETHER">ETHER</option>
+                        <option value="ETH">ETH</option>
                       </MuiSelect>
                     </Grid>
                   </Grid>

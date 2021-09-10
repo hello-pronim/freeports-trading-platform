@@ -139,7 +139,6 @@ const InvestorDetail = (): React.ReactElement => {
   );
   const investorAccountBalance = useSelector(selectInvestorAccountBalance);
   const selectedInvestorAccount = useSelector(selectInvestorAccount);
-  console.log(selectedInvestorAccount);
   const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
   const investorAccountCreating = useSelector(selectIsInvestorAccountCreating);
   const investorAccountDetailLoading = useSelector(
@@ -460,7 +459,7 @@ const InvestorDetail = (): React.ReactElement => {
                       >
                         <option value="0">Select...</option>
                         <option value="BTC">BTC</option>
-                        <option value="ETHER">ETHER</option>
+                        <option value="ETH">ETH</option>
                       </MuiSelect>
                     </Grid>
                   </Grid>
