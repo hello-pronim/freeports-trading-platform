@@ -37,7 +37,7 @@ import {
   selectIsAccountDeleting,
 } from "./slice/selectors";
 import Loader from "../../../components/Loader";
-import vault from "../../../vault"
+import vault from "../../../vault";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -112,7 +112,7 @@ const NostroAccounts = (): React.ReactElement => {
     vaultWalletId: "",
   });
   const fiat: Array<string> = ["CHF", "EUR", "USD"];
-  const crypto: Array<string> = ["BTC", "ETHER"];
+  const crypto: Array<string> = ["BTC", "ETH"];
 
   const [cryptoAdrDlgView, setCryptoAdrDlgView] = useState(false);
   const [creatingCryptoAdr, setCreatingCryptoAdr] = useState(false);
@@ -227,7 +227,7 @@ const NostroAccounts = (): React.ReactElement => {
 
     try {
       const vaultCreateWalletRequest = await vault.createWallet(
-        newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum",
+        newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum"
       );
       const response = await vault.sendRequest(vaultCreateWalletRequest);
       newAccount.vaultWalletId = response.wallet.id;
@@ -314,7 +314,7 @@ const NostroAccounts = (): React.ReactElement => {
                                     <option value="EUR">EUR</option>
                                     <option value="USD">USD</option>
                                     <option value="BTC">BTC</option>
-                                    <option value="ETHER">ETHER</option>
+                                    <option value="ETH">ETH</option>
                                   </Select>
                                 </Grid>
                               </Grid>
@@ -382,8 +382,8 @@ const NostroAccounts = (): React.ReactElement => {
                     </Dialog>
                   </Grid>
                   <Grid item>
-                    <Button 
-                      variant="contained" 
+                    <Button
+                      variant="contained"
                       color="primary"
                       onClick={() => {
                         setCryptoAdrDlgView(true);
@@ -402,10 +402,7 @@ const NostroAccounts = (): React.ReactElement => {
                       <Form
                         onSubmit={onSubmitCryptoAdr}
                         validate={cryptoAddressFormvalidate}
-                        render={({
-                          handleSubmit,
-                          pristine,
-                        }) => (
+                        render={({ handleSubmit, pristine }) => (
                           <form onSubmit={handleSubmit} noValidate>
                             <DialogTitle id="form-dialog-title">
                               New Crypto Address
@@ -432,7 +429,7 @@ const NostroAccounts = (): React.ReactElement => {
                                     fullWidth
                                   >
                                     <option value="BTC">Bitcoin</option>
-                                    <option value="ETHER">Ethereum</option>
+                                    <option value="ETH">Ethereum</option>
                                   </Select>
                                 </Grid>
                               </Grid>
