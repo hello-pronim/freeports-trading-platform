@@ -145,6 +145,7 @@ const InvestorDetail = (): React.ReactElement => {
   );
   const investorAccountBalance = useSelector(selectInvestorAccountBalance);
   const selectedInvestorAccount = useSelector(selectInvestorAccount);
+  const { currency } = selectedInvestorAccount;
   const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
   const investorAccountCreating = useSelector(selectIsInvestorAccountCreating);
   const investorAccountDetailLoading = useSelector(
@@ -163,6 +164,8 @@ const InvestorDetail = (): React.ReactElement => {
     currency: "",
     type: "crypto",
   });
+  const btcRate = 100000000;
+  const ethRate = 1000000000000000000;
 
   useEffect(() => {
     dispatch(
@@ -280,7 +283,20 @@ const InvestorDetail = (): React.ReactElement => {
                     alignItems="center"
                     justify="space-between"
                   >
-                    <Typography variant="h5">{`Balance: ${investorAccountBalance.balance}`}</Typography>
+                    {currency === "BTC" && (
+                      <Typography variant="h5">
+                        {`Balance: ${currency} ${
+                          investorAccountBalance.balance / btcRate
+                        }`}
+                      </Typography>
+                    )}
+                    {currency === "ETH" && (
+                      <Typography variant="h5">
+                        {`Balance: ${currency} ${
+                          investorAccountBalance.balance / ethRate
+                        }`}
+                      </Typography>
+                    )}
                     <Typography variant="body2" color="textSecondary">
                       {`Account ID: ${accountId}`}
                     </Typography>
@@ -395,10 +411,7 @@ const InvestorDetail = (): React.ReactElement => {
                                   title: "Value",
                                   render: (rowData: any) => {
                                     const { value } = rowData;
-                                    const btcRate = 100000000;
-                                    const ethRate = 1000000000000000000;
-                                    const { currency } =
-                                      selectedInvestorAccount;
+
                                     if (currency === "BTC")
                                       return `${currency} ${value / btcRate}`;
                                     if (currency === "ETH")
