@@ -51,8 +51,3 @@ export const selectInvestorAccount = createSelector(
   [selectDomain],
   (investorDetailState) => investorDetailState.selectedInvestorAccount
 );
-
-export const selectIsInvestorAccountDetailLoading = createSelector(
-  [selectDomain],
-  (investorDetailState) => investorDetailState.loadingInvestorAccountDetail
-);
