@@ -89,6 +89,26 @@ const getInvestorAccounts = (
   });
 };
 
+const getInvestorAccount = (
+  organizationId: string,
+  deskId: string,
+  investorId: string,
+  accountId: string
+): Promise<Account> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/account/${accountId}`
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
 const createInvestorAccount = (
   organizationId: string,
   deskId: string,
@@ -177,6 +197,7 @@ export {
   createInvestor,
   deleteInvestor,
   getInvestorAccounts,
+  getInvestorAccount,
   createInvestorAccount,
   deleteInvestorAccount,
   getInvestorAccountOperations,

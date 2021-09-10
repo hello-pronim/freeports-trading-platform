@@ -47,6 +47,7 @@ import {
   selectInvestorAccount,
   selectIsInvestorAccountsLoading,
   selectIsInvestorAccountCreating,
+  selectIsInvestorAccountDetailLoading,
 } from "../slice/selectors";
 import {
   selectInvestorAccountOperations,
@@ -95,16 +96,22 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const convertDateToDMY = (date: string) => {
-  const d = new Date(date);
-  let month = `${d.getMonth() + 1}`;
-  let day = `${d.getDate()}`;
-  const year = `${d.getFullYear()}`;
+const convertDateToDMYHIS = (datetime: string) => {
+  const dt = new Date(datetime);
+  let month = `${dt.getMonth() + 1}`;
+  let day = `${dt.getDate()}`;
+  const year = `${dt.getFullYear()}`;
+  let hour = `${dt.getHours()}`;
+  let minute = `${dt.getMinutes()}`;
+  let second = `${dt.getSeconds()}`;
 
   if (month.length < 2) month = `0${month}`;
   if (day.length < 2) day = `0${day}`;
+  if (hour.length < 2) hour = `0${hour}`;
+  if (minute.length < 2) minute = `0${minute}`;
+  if (second.length < 2) second = `0${second}`;
 
-  return [day, month, year].join(".");
+  return `${[day, month, year].join(".")} ${[hour, minute, second].join(":")}`;
 };
 
 const validateAccount = (values: any) => {
@@ -140,6 +147,9 @@ const InvestorDetail = (): React.ReactElement => {
   const selectedInvestorAccount = useSelector(selectInvestorAccount);
   const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
   const investorAccountCreating = useSelector(selectIsInvestorAccountCreating);
+  const investorAccountDetailLoading = useSelector(
+    selectIsInvestorAccountDetailLoading
+  );
   const investorAccountOperationsLoading = useSelector(
     selectIsInvestorAccountOperationsLoading
   );
@@ -281,79 +291,81 @@ const InvestorDetail = (): React.ReactElement => {
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            <Grid container spacing={4}>
-              <Grid item xs={3}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Grid container alignItems="center" spacing={2}>
-                      <Grid item>
-                        <Typography variant="h6">ACCOUNTS</Typography>
-                      </Grid>
-                      <Grid item>
-                        <IconButton
-                          color="primary"
-                          aria-label="Add"
-                          className={classes.addButton}
-                          onClick={handleCreateAccountModalOpen}
-                        >
-                          <Icon fontSize="large">add_circle</Icon>
-                        </IconButton>
+            {investorAccountDetailLoading && <Loader />}
+            {!investorAccountDetailLoading && (
+              <Grid container spacing={4}>
+                <Grid item xs={3}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Grid container alignItems="center" spacing={2}>
+                        <Grid item>
+                          <Typography variant="h6">ACCOUNTS</Typography>
+                        </Grid>
+                        <Grid item>
+                          <IconButton
+                            color="primary"
+                            aria-label="Add"
+                            className={classes.addButton}
+                            onClick={handleCreateAccountModalOpen}
+                          >
+                            <Icon fontSize="large">add_circle</Icon>
+                          </IconButton>
+                        </Grid>
                       </Grid>
                     </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      className="w-100"
-                      placeholder="Search..."
-                      value={searchText}
-                      onChange={onSearchTextChange}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SearchIcon />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    {investorAccountsLoading && <Loader />}
-                    {!investorAccountsLoading && (
-                      <List component="nav" aria-label="Investor's Accounts">
-                        {investorAccounts
-                          .filter((investorAccountItem) =>
-                            investorAccountItem.name
-                              .toLowerCase()
-                              .includes(searchText.toLowerCase())
-                          )
-                          .map((investorAccountItem) => (
-                            <ListItem
-                              component={Link}
-                              button
-                              key={investorAccountItem.id}
-                              selected={investorAccountItem.id === accountId}
-                              to={`/desks/${deskId}/investors/${investorId}/accounts/${investorAccountItem.id}`}
-                            >
-                              <ListItemText
-                                primary={investorAccountItem.name}
-                              />
-                            </ListItem>
-                          ))}
-                      </List>
-                    )}
+                    <Grid item xs={12}>
+                      <TextField
+                        className="w-100"
+                        placeholder="Search..."
+                        value={searchText}
+                        onChange={onSearchTextChange}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SearchIcon />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      {investorAccountsLoading && <Loader />}
+                      {!investorAccountsLoading && (
+                        <List component="nav" aria-label="Investor's Accounts">
+                          {investorAccounts
+                            .filter((investorAccountItem) =>
+                              investorAccountItem.name
+                                .toLowerCase()
+                                .includes(searchText.toLowerCase())
+                            )
+                            .map((investorAccountItem) => (
+                              <ListItem
+                                component={Link}
+                                button
+                                key={investorAccountItem.id}
+                                selected={investorAccountItem.id === accountId}
+                                to={`/desks/${deskId}/investors/${investorId}/accounts/${investorAccountItem.id}`}
+                              >
+                                <ListItemText
+                                  primary={investorAccountItem.name}
+                                />
+                              </ListItem>
+                            ))}
+                        </List>
+                      )}
+                    </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
-              <Grid item xs={9}>
-                <Grid container spacing={4}>
-                  <Grid item xs={12}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <Grid container alignItems="center" spacing={1}>
-                          <Grid item>
-                            <Typography variant="h6">Operations</Typography>
-                          </Grid>
-                          {/* <Grid item>
+                <Grid item xs={9}>
+                  <Grid container spacing={4}>
+                    <Grid item xs={12}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Grid container alignItems="center" spacing={1}>
+                            <Grid item>
+                              <Typography variant="h6">Operations</Typography>
+                            </Grid>
+                            {/* <Grid item>
                               <IconButton
                                 color="primary"
                                 aria-label="Add"
@@ -363,47 +375,60 @@ const InvestorDetail = (): React.ReactElement => {
                                 <Icon fontSize="large">add_circle</Icon>
                               </IconButton>
                             </Grid> */}
+                          </Grid>
                         </Grid>
-                      </Grid>
-                      <Grid item xs={12}>
-                        {investorAccountsLoading && <Loader />}
-                        {!investorAccountsLoading && (
-                          <MaterialTable
-                            columns={[
-                              {
-                                field: "confirmed",
-                                title: "Confirmed date",
-                                render: (rowData: any) => {
-                                  const { confirmed } = rowData;
-                                  return convertDateToDMY(confirmed);
+                        <Grid item xs={12}>
+                          {investorAccountsLoading && <Loader />}
+                          {!investorAccountsLoading && (
+                            <MaterialTable
+                              columns={[
+                                {
+                                  field: "confirmed",
+                                  title: "Confirmed date",
+                                  render: (rowData: any) => {
+                                    const { confirmed } = rowData;
+                                    return convertDateToDMYHIS(confirmed);
+                                  },
                                 },
-                              },
-                              {
-                                field: "value",
-                                title: "Value",
-                              },
-                            ]}
-                            data={
-                              investorAccountOperations.txrefs
-                                ? investorAccountOperations.txrefs.map(
-                                    (operation: any) => ({
-                                      ...operation,
-                                    })
-                                  )
-                                : []
-                            }
-                            options={{
-                              sorting: false,
-                              toolbar: false,
-                            }}
-                          />
-                        )}
+                                {
+                                  field: "value",
+                                  title: "Value",
+                                  render: (rowData: any) => {
+                                    const { value } = rowData;
+                                    const btcRate = 100000000;
+                                    const ethRate = 1000000000000000000;
+                                    const { currency } =
+                                      selectedInvestorAccount;
+                                    if (currency === "BTC")
+                                      return `${currency} ${value / btcRate}`;
+                                    if (currency === "ETH")
+                                      return `${currency} ${value / ethRate}`;
+                                    return value;
+                                  },
+                                },
+                              ]}
+                              data={
+                                investorAccountOperations.txrefs
+                                  ? investorAccountOperations.txrefs.map(
+                                      (operation: any) => ({
+                                        ...operation,
+                                      })
+                                    )
+                                  : []
+                              }
+                              options={{
+                                sorting: false,
+                                toolbar: false,
+                              }}
+                            />
+                          )}
+                        </Grid>
                       </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-            </Grid>
+            )}
           </Grid>
         </Grid>
         <Dialog
