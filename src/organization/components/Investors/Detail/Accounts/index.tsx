@@ -96,16 +96,22 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const convertDateToDMY = (date: string) => {
-  const d = new Date(date);
-  let month = `${d.getMonth() + 1}`;
-  let day = `${d.getDate()}`;
-  const year = `${d.getFullYear()}`;
+const convertDateToDMYHIS = (datetime: string) => {
+  const dt = new Date(datetime);
+  let month = `${dt.getMonth() + 1}`;
+  let day = `${dt.getDate()}`;
+  const year = `${dt.getFullYear()}`;
+  let hour = `${dt.getHours()}`;
+  let minute = `${dt.getMinutes()}`;
+  let second = `${dt.getSeconds()}`;
 
   if (month.length < 2) month = `0${month}`;
   if (day.length < 2) day = `0${day}`;
+  if (hour.length < 2) hour = `0${hour}`;
+  if (minute.length < 2) minute = `0${minute}`;
+  if (second.length < 2) second = `0${second}`;
 
-  return [day, month, year].join(".");
+  return `${[day, month, year].join(".")} ${[hour, minute, second].join(":")}`;
 };
 
 const validateAccount = (values: any) => {
@@ -139,7 +145,7 @@ const InvestorDetail = (): React.ReactElement => {
   );
   const investorAccountBalance = useSelector(selectInvestorAccountBalance);
   const selectedInvestorAccount = useSelector(selectInvestorAccount);
-  console.log(selectedInvestorAccount);
+  const { currency } = selectedInvestorAccount;
   const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
   const investorAccountCreating = useSelector(selectIsInvestorAccountCreating);
   const investorAccountDetailLoading = useSelector(
@@ -158,6 +164,8 @@ const InvestorDetail = (): React.ReactElement => {
     currency: "",
     type: "crypto",
   });
+  const btcRate = 100000000;
+  const ethRate = 1000000000000000000;
 
   useEffect(() => {
     dispatch(
@@ -275,7 +283,20 @@ const InvestorDetail = (): React.ReactElement => {
                     alignItems="center"
                     justify="space-between"
                   >
-                    <Typography variant="h5">{`Balance: ${investorAccountBalance.balance}`}</Typography>
+                    {currency === "BTC" && (
+                      <Typography variant="h5">
+                        {`Balance: ${currency} ${
+                          investorAccountBalance.balance / btcRate
+                        }`}
+                      </Typography>
+                    )}
+                    {currency === "ETH" && (
+                      <Typography variant="h5">
+                        {`Balance: ${currency} ${
+                          investorAccountBalance.balance / ethRate
+                        }`}
+                      </Typography>
+                    )}
                     <Typography variant="body2" color="textSecondary">
                       {`Account ID: ${accountId}`}
                     </Typography>
@@ -382,12 +403,21 @@ const InvestorDetail = (): React.ReactElement => {
                                   title: "Confirmed date",
                                   render: (rowData: any) => {
                                     const { confirmed } = rowData;
-                                    return convertDateToDMY(confirmed);
+                                    return convertDateToDMYHIS(confirmed);
                                   },
                                 },
                                 {
                                   field: "value",
                                   title: "Value",
+                                  render: (rowData: any) => {
+                                    const { value } = rowData;
+
+                                    if (currency === "BTC")
+                                      return `${currency} ${value / btcRate}`;
+                                    if (currency === "ETH")
+                                      return `${currency} ${value / ethRate}`;
+                                    return value;
+                                  },
                                 },
                               ]}
                               data={
@@ -460,7 +490,7 @@ const InvestorDetail = (): React.ReactElement => {
                       >
                         <option value="0">Select...</option>
                         <option value="BTC">BTC</option>
-                        <option value="ETHER">ETHER</option>
+                        <option value="ETH">ETH</option>
                       </MuiSelect>
                     </Grid>
                   </Grid>
