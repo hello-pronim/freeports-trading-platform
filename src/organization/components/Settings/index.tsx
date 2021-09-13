@@ -23,6 +23,7 @@ import {
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import { useOrganization } from "../../../hooks";
+import { setOrganizationAddressbook } from "../../../services/organizationService";
 
 interface accountType {
   currency: string;
@@ -119,6 +120,8 @@ const Settings = (): React.ReactElement => {
     type: "success",
     message: "",
   });
+  const [creatingAddressBook, setCreatingAddressBook] = useState(false);
+  const [cryptoAccounts, setCryptoAccounts] = useState<Array<accountType>>([]);
 
   useEffect(() => {
     let mounted = false;
@@ -139,6 +142,7 @@ const Settings = (): React.ReactElement => {
             accountList: detail.clearing,
           });
           setAccounts(detail.clearing);
+          setCryptoAccounts(detail.clearing.filter((x: accountType) => x.iban === undefined));
         }
       }
     };
@@ -228,6 +232,27 @@ const Settings = (): React.ReactElement => {
     setShowAlert(false);
   };
 
+  const onClickTrustAccounts = async () => {
+    const cryptoAccountList = cryptoAccounts.map(({ account }) => account);
+
+    setCreatingAddressBook(true);
+    await setOrganizationAddressbook(organizationId, cryptoAccountList)
+      .then((data) => {
+        setSubmitResponse({
+          type: "success",
+          message: "Successfully done.",
+        });
+      })
+      .catch((err) => {
+        setSubmitResponse({
+          type: "error",
+          message: err.data.message,
+        });
+      });
+    setCreatingAddressBook(false);
+    setShowAlert(true);
+  };
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -260,6 +285,25 @@ const Settings = (): React.ReactElement => {
                               key={account.account}
                             >{`Account: ${account.iban}`}</Typography>
                           ))}
+                        </Grid>
+                        <Grid item xs={12}>
+                          <div className={classes.progressButtonWrapper}>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={onClickTrustAccounts}
+                              disabled={creatingAddressBook || cryptoAccounts.length === 0}
+                            >
+                              Trust Nostro Accounts
+                            </Button>
+
+                            {creatingAddressBook && (
+                              <CircularProgress
+                                size={24}
+                                className={classes.progressButton}
+                              />
+                            )}
+                          </div>
                         </Grid>
                       </Grid>
                     ) : (

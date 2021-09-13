@@ -181,6 +181,24 @@ const resumeOrganizationManager = (
   });
 };
 
+const setOrganizationAddressbook = (
+  organizationId: string,
+  address: string[],
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`/organization/${organizationId}/addressbook`, {
+        address,
+      })
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
 export {
   retrieveOrganizations as default,
   retrieveOrganizations,
@@ -193,4 +211,5 @@ export {
   updateOrganizationManager,
   suspendOrganizationManager,
   resumeOrganizationManager,
+  setOrganizationAddressbook,
 };
