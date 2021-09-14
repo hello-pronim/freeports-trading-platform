@@ -6,7 +6,7 @@ import {
   useInjectReducer,
   useInjectSaga,
 } from "../../../../../util/redux-injectors";
-import Desk from "../../../../../types/Desk";
+import Desk, { TradeLevel } from "../../../../../types/Desk";
 import { deskDetailSaga } from "./saga";
 import { DeskDetailState } from "./types";
 
@@ -19,6 +19,7 @@ const defaultDesk = {
 export const initialState: DeskDetailState = {
   selectedDesk: defaultDesk,
   loading: false,
+  formSubmitting: false,
 };
 
 const slice = createSlice({
@@ -35,6 +36,25 @@ const slice = createSlice({
     getDeskSuccess(state, action: PayloadAction<Desk>) {
       state.loading = false;
       state.selectedDesk = action.payload;
+    },
+    getDeskFailed(state) {
+      state.loading = false;
+    },
+    saveTradeLevels(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        tradeLevels: TradeLevel[];
+      }>
+    ) {
+      state.formSubmitting = true;
+    },
+    saveTradeLevelsSuccess(state) {
+      state.formSubmitting = false;
+    },
+    saveTradeLevelsFailed(state) {
+      state.formSubmitting = false;
     },
   },
 });

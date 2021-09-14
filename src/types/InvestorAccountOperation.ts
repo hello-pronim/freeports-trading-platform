@@ -1,4 +1,4 @@
-interface InvestorAccountAddressTx {
+export interface InvestorAccountAddressTx {
   txHash: string;
   blockHeight: number;
   txInputN: number;

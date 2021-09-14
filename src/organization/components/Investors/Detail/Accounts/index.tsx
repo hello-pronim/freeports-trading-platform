@@ -31,13 +31,10 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import CompareArrowsIcon from "@material-ui/icons/CompareArrows";
 import SearchIcon from "@material-ui/icons/Search";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import MaterialTable from "material-table";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
 import { snackbarActions } from "../../../../../components/Snackbar/slice";
 import { useInvestorDetailSlice } from "../slice";
@@ -58,6 +55,7 @@ import {
 import Loader from "../../../../../components/Loader";
 import Account from "../../../../../types/Account";
 import vault from "../../../../../vault";
+import { InvestorAccountAddressTx } from "../../../../../types/InvestorAccountOperation";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -164,6 +162,21 @@ const InvestorDetail = (): React.ReactElement => {
     currency: "",
     type: "crypto",
   });
+  const [selectedOperationDetail, setSelectedOperationDetail] =
+    useState<InvestorAccountAddressTx>({
+      txHash: "",
+      blockHeight: 0,
+      txInputN: 0,
+      txOutputN: 0,
+      value: 0,
+      refBalance: 0,
+      spent: false,
+      confirmations: 0,
+      confirmed: "",
+      doubleSpend: false,
+    });
+  const [operationDetailDialogOpen, setOperationDetailDialogOpen] =
+    useState(false);
   const btcRate = 100000000;
   const ethRate = 1000000000000000000;
 
@@ -255,8 +268,17 @@ const InvestorDetail = (): React.ReactElement => {
     history.push(`/desks/${deskId}/investors/${investorId}`);
   };
 
-  const getShortId = (id: string) => {
-    return `${id.substring(0, 10)}...${id.charAt(id.length - 1)}`;
+  const getShortForm = (id: string) => {
+    return `${id.substring(0, 10)}...${id.substr(id.length - 10)}`;
+  };
+
+  const handleOperationView = (rowData: any) => {
+    setSelectedOperationDetail(rowData);
+    setOperationDetailDialogOpen(true);
+  };
+
+  const handleOperationDetailDialogClose = () => {
+    setOperationDetailDialogOpen(false);
   };
 
   return (
@@ -394,13 +416,43 @@ const InvestorDetail = (): React.ReactElement => {
                           </Grid>
                         </Grid>
                         <Grid item xs={12}>
-                          {investorAccountsLoading && <Loader />}
-                          {!investorAccountsLoading && (
+                          {investorAccountOperationsLoading && <Loader />}
+                          {!investorAccountOperationsLoading && (
                             <MaterialTable
                               columns={[
                                 {
+                                  field: "txHash",
+                                  title: "Hash",
+                                  cellStyle: {
+                                    width: "40%",
+                                  },
+                                  render: (rowData: any) => {
+                                    const { txHash } = rowData;
+                                    return (
+                                      <Tooltip
+                                        title={txHash}
+                                        placement="top"
+                                        arrow
+                                      >
+                                        <Button
+                                          onClick={() =>
+                                            handleOperationView(rowData)
+                                          }
+                                        >
+                                          <Typography>
+                                            {getShortForm(txHash)}
+                                          </Typography>
+                                        </Button>
+                                      </Tooltip>
+                                    );
+                                  },
+                                },
+                                {
                                   field: "confirmed",
                                   title: "Confirmed date",
+                                  cellStyle: {
+                                    width: "20%",
+                                  },
                                   render: (rowData: any) => {
                                     const { confirmed } = rowData;
                                     return convertDateToDMYHIS(confirmed);
@@ -409,14 +461,42 @@ const InvestorDetail = (): React.ReactElement => {
                                 {
                                   field: "value",
                                   title: "Value",
+                                  cellStyle: {
+                                    width: "20%",
+                                  },
                                   render: (rowData: any) => {
-                                    const { value } = rowData;
+                                    const { value, sent } = rowData;
 
                                     if (currency === "BTC")
-                                      return `${currency} ${value / btcRate}`;
+                                      return `${sent ? "-" : " "} ${currency} ${
+                                        value / btcRate
+                                      }`;
                                     if (currency === "ETH")
-                                      return `${currency} ${value / ethRate}`;
+                                      return `${sent ? "-" : " "} ${currency} ${
+                                        value / ethRate
+                                      }`;
                                     return value;
+                                  },
+                                },
+                                {
+                                  title: "Actions",
+                                  render: (rowData: any) => {
+                                    return (
+                                      <div>
+                                        <IconButton
+                                          color="inherit"
+                                          aria-label="View details"
+                                          onClick={() => {
+                                            handleOperationView(rowData);
+                                          }}
+                                        >
+                                          <VisibilityIcon
+                                            fontSize="small"
+                                            color="primary"
+                                          />
+                                        </IconButton>
+                                      </div>
+                                    );
                                   },
                                 },
                               ]}
@@ -523,6 +603,34 @@ const InvestorDetail = (): React.ReactElement => {
               </form>
             )}
           />
+        </Dialog>
+        <Dialog
+          open={operationDetailDialogOpen}
+          onClose={handleOperationDetailDialogClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">
+            View operation details
+          </DialogTitle>
+          <Divider />
+          <DialogContent>
+            <Grid container>
+              {Object.keys(selectedOperationDetail).map((key: string) => (
+                <Grid item xs={12} key={key}>
+                  <Typography>{`${key}: `}</Typography>
+                </Grid>
+              ))}
+            </Grid>
+          </DialogContent>
+          <Divider />
+          <DialogActions>
+            <Button
+              onClick={handleOperationDetailDialogClose}
+              variant="contained"
+            >
+              Cancel
+            </Button>
+          </DialogActions>
         </Dialog>
       </Container>
     </div>

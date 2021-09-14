@@ -4,11 +4,16 @@ import Lockr from "lockr";
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Form } from "react-final-form";
+import { Field, Form } from "react-final-form";
+import { FieldArray } from "react-final-form-arrays";
 import arrayMutators from "final-form-arrays";
-import { TextField as MuiTextField } from "mui-rff";
+import { TextField as MuiTextField, Select } from "mui-rff";
 import {
   Button,
+  Card,
+  CardHeader,
+  CardContent,
+  CardActions,
   CircularProgress,
   Container,
   createStyles,
@@ -25,10 +30,13 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
+  MenuItem,
   Theme,
   TextField,
   Typography,
 } from "@material-ui/core";
+import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import SearchIcon from "@material-ui/icons/Search";
 import red from "@material-ui/core/colors/red";
 
@@ -39,8 +47,13 @@ import {
   selectIsDesksLoading,
   selectIsDeskCreating,
 } from "../slice/selectors";
-import { selectDeskDetail, selectIsDetailLoading } from "./slice/selectors";
+import {
+  selectDeskDetail,
+  selectIsDetailLoading,
+  selectIsFormSubmitting,
+} from "./slice/selectors";
 import Loader from "../../../../components/Loader";
+import Desk, { TradeLevel } from "../../../../types/Desk";
 
 interface deskType {
   name: string;
@@ -92,7 +105,7 @@ const convertDateToDMY = (date: string) => {
 };
 
 const validate = (values: any) => {
-  const errors: Partial<deskType> = {};
+  const errors: Partial<Desk> = {};
   if (!values.name) {
     errors.name = "This Field Required";
   }
@@ -107,16 +120,19 @@ const Detail = (): React.ReactElement => {
   const { actions: desksActions } = useDesksSlice();
   const { actions: deskDetailActions } = useDeskDetailSlice();
   const desks = useSelector(selectDesks);
-  const [desk, setDesk] = useState<deskType>({
+  const [desk, setDesk] = useState<Desk>({
     name: "",
     tradeLevels: [],
   });
   const selectedDesk = useSelector(selectDeskDetail);
+  const { tradeLevels } = selectedDesk;
   const desksLoading = useSelector(selectIsDesksLoading);
   const deskDetailLoading = useSelector(selectIsDetailLoading);
   const deskCreating = useSelector(selectIsDeskCreating);
+  const formSubmitting = useSelector(selectIsFormSubmitting);
   const [searchText, setSearchText] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const currencyList = ["CHF", "USD", "EUR", "BTC", "ETH"];
 
   useEffect(() => {
     let mounted = false;
@@ -144,97 +160,280 @@ const Detail = (): React.ReactElement => {
     setDialogOpen(false);
   };
 
-  const handleDeskCreate = async (values: deskType) => {
+  const handleDeskCreate = async (values: Desk) => {
     await dispatch(desksActions.addDesk({ organizationId, desk: values }));
     setDialogOpen(false);
+  };
+
+  const handleTradeLevelsUpdate = (values: Desk) => {
+    dispatch(
+      deskDetailActions.saveTradeLevels({
+        organizationId,
+        deskId,
+        tradeLevels: values.tradeLevels as TradeLevel[],
+      })
+    );
   };
 
   return (
     <div className="main-wrapper">
       <Container>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Grid container alignItems="center" spacing={2}>
-              <Grid item>
-                <Typography variant="h5">Desks</Typography>
+        <Grid container spacing={4}>
+          <Grid item xs={3}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Grid container alignItems="center" spacing={2}>
+                  <Grid item>
+                    <Typography variant="h5">Desks</Typography>
+                  </Grid>
+                  <Grid item>
+                    <IconButton
+                      className={classes.addButton}
+                      color="primary"
+                      onClick={handleDialogOpen}
+                    >
+                      <Icon fontSize="large">add_circle</Icon>
+                    </IconButton>
+                  </Grid>
+                </Grid>
               </Grid>
-              <Grid item>
-                <IconButton
-                  className={classes.addButton}
-                  color="primary"
-                  onClick={handleDialogOpen}
-                >
-                  <Icon fontSize="large">add_circle</Icon>
-                </IconButton>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={12}>
+                    <TextField
+                      className="w-100"
+                      placeholder="Search..."
+                      value={searchText}
+                      onChange={onSearchTextChange}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                  {desksLoading && <Loader />}
+                  {!desksLoading && (
+                    <List component="nav" aria-label="desks">
+                      {desks
+                        .filter((deskItem) =>
+                          deskItem.name
+                            .toLowerCase()
+                            .includes(searchText.toLowerCase())
+                        )
+                        .map((deskItem) => (
+                          <ListItem
+                            component={Link}
+                            button
+                            key={deskItem.id}
+                            selected={deskItem.id === deskId}
+                            to={`/desks/${deskItem.id}`}
+                          >
+                            <ListItemText primary={deskItem.name} />
+                          </ListItem>
+                        ))}
+                    </List>
+                  )}
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <Grid container spacing={4}>
-              <Grid item xs={3}>
-                <Grid>
-                  <TextField
-                    className="w-100"
-                    placeholder="Search..."
-                    value={searchText}
-                    onChange={onSearchTextChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon />
-                        </InputAdornment>
-                      ),
+          <Grid item xs={9}>
+            {deskDetailLoading && <Loader />}
+            {!deskDetailLoading && (
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Grid container justify="space-between" alignItems="center">
+                    <Grid item>
+                      <Typography variant="h5">{selectedDesk.name}</Typography>
+                    </Grid>
+                    <Grid item>
+                      {selectedDesk.createdAt && (
+                        <Typography variant="body2" color="textSecondary">
+                          {`Creation date: ${convertDateToDMY(
+                            selectedDesk.createdAt
+                          )}`}
+                        </Typography>
+                      )}
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                  <Divider />
+                </Grid>
+                <Grid item xs={12}>
+                  <Form
+                    onSubmit={handleTradeLevelsUpdate}
+                    mutators={{
+                      ...arrayMutators,
                     }}
+                    initialValues={
+                      selectedDesk.tradeLevels &&
+                      selectedDesk.tradeLevels.length > 0
+                        ? selectedDesk
+                        : {
+                            ...selectedDesk,
+                            tradeLevels: [
+                              {
+                                currency: "",
+                                small: "",
+                                medium: "",
+                                mediumSplitBy: "",
+                              },
+                            ],
+                          }
+                    }
+                    render={({
+                      handleSubmit,
+                      submitting,
+                      pristine,
+                      form: {
+                        mutators: { push },
+                      },
+                      values,
+                    }) => (
+                      <form onSubmit={handleSubmit} noValidate>
+                        <Card>
+                          <CardHeader
+                            title={
+                              <Typography variant="h6">Trade Levels</Typography>
+                            }
+                          />
+                          <Divider />
+                          <CardContent>
+                            <Grid item xs={12}>
+                              <FieldArray name="tradeLevels">
+                                {({ fields }) =>
+                                  fields.map((name, i) => (
+                                    <Grid container key={name} spacing={2}>
+                                      <Grid item xs={3}>
+                                        <Select
+                                          native
+                                          name={`${name}.currency`}
+                                          variant="outlined"
+                                          label="Currency"
+                                        >
+                                          <option aria-label="None" value="" />
+                                          {currencyList
+                                            .filter(
+                                              (currencyItem: string) =>
+                                                values.tradeLevels &&
+                                                (values.tradeLevels[i]
+                                                  .currency === currencyItem ||
+                                                  values.tradeLevels.filter(
+                                                    (level: any) =>
+                                                      level.currency ===
+                                                      currencyItem
+                                                  ).length === 0)
+                                            )
+                                            .map((currencyItem: string) => (
+                                              <option value={currencyItem}>
+                                                {currencyItem}
+                                              </option>
+                                            ))}
+                                        </Select>
+                                      </Grid>
+                                      <Grid item xs={2}>
+                                        <MuiTextField
+                                          name={`${name}.small`}
+                                          label="Small"
+                                          variant="outlined"
+                                        />
+                                      </Grid>
+                                      <Grid item xs={2}>
+                                        <MuiTextField
+                                          name={`${name}.medium`}
+                                          label="Medium"
+                                          variant="outlined"
+                                        />
+                                      </Grid>
+                                      <Grid item xs={3}>
+                                        <MuiTextField
+                                          name={`${name}.mediumSplitBy`}
+                                          label="Medium split by"
+                                          variant="outlined"
+                                        />
+                                      </Grid>
+                                      <Grid item xs={2}>
+                                        <Grid container spacing={1}>
+                                          {fields.length !== 1 && (
+                                            <Grid item>
+                                              <IconButton
+                                                onClick={() => fields.remove(i)}
+                                                aria-label="Remove"
+                                              >
+                                                <DeleteForeverIcon />
+                                              </IconButton>
+                                            </Grid>
+                                          )}
+                                          {i === (fields.length || 0) - 1 &&
+                                            i < currencyList.length - 1 && (
+                                              <Grid item>
+                                                <IconButton
+                                                  onClick={() =>
+                                                    push("tradeLevels", {
+                                                      currency: "",
+                                                      small: "",
+                                                      medium: "",
+                                                      mediumSplitBy: "",
+                                                    })
+                                                  }
+                                                  aria-label="Add"
+                                                >
+                                                  <AddCircleOutlineIcon />
+                                                </IconButton>
+                                              </Grid>
+                                            )}
+                                        </Grid>
+                                      </Grid>
+                                    </Grid>
+                                  ))
+                                }
+                              </FieldArray>
+                            </Grid>
+                          </CardContent>
+                          <Divider />
+                          <CardActions>
+                            <Grid item xs={12}>
+                              <Grid
+                                container
+                                alignItems="center"
+                                justify="flex-end"
+                              >
+                                <Grid item>
+                                  <div
+                                    className={classes.progressButtonWrapper}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      type="submit"
+                                      disabled={formSubmitting}
+                                    >
+                                      Save Changes
+                                    </Button>
+                                    {formSubmitting && (
+                                      <CircularProgress
+                                        size={24}
+                                        className={classes.progressButton}
+                                      />
+                                    )}
+                                  </div>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                          </CardActions>
+                        </Card>
+                      </form>
+                    )}
                   />
                 </Grid>
-                {desksLoading && <Loader />}
-                {!desksLoading && (
-                  <List component="nav" aria-label="desks">
-                    {desks
-                      .filter((deskItem) =>
-                        deskItem.name
-                          .toLowerCase()
-                          .includes(searchText.toLowerCase())
-                      )
-                      .map((deskItem) => (
-                        <ListItem
-                          component={Link}
-                          button
-                          key={deskItem.id}
-                          selected={deskItem.id === deskId}
-                          to={`/desks/${deskItem.id}`}
-                        >
-                          <ListItemText primary={deskItem.name} />
-                        </ListItem>
-                      ))}
-                  </List>
-                )}
               </Grid>
-              <Grid item xs={9}>
-                {deskDetailLoading && <Loader />}
-                {!deskDetailLoading && (
-                  <Container>
-                    <Grid container>
-                      <Grid item xs={12}>
-                        <Typography variant="h5">
-                          {selectedDesk.name}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        {selectedDesk.createdAt && (
-                          <Typography variant="body2" color="textSecondary">
-                            {`Creation date: ${convertDateToDMY(
-                              selectedDesk.createdAt
-                            )}`}
-                          </Typography>
-                        )}
-                      </Grid>
-                    </Grid>
-                    <Divider />
-                  </Container>
-                )}
-              </Grid>
-            </Grid>
+            )}
           </Grid>
         </Grid>
         <Dialog

@@ -16,3 +16,8 @@ export const selectIsDetailLoading = createSelector(
   [selectDomain],
   (deskDetailState) => deskDetailState.loading
 );
+
+export const selectIsFormSubmitting = createSelector(
+  [selectDomain],
+  (deskDetailState) => deskDetailState.formSubmitting
+);

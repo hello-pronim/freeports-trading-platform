@@ -1,3 +1,10 @@
+export interface TradeLevel {
+  currency: string;
+  small: string;
+  medium: string;
+  mediumSplitBy: string;
+  inherited: string;
+}
 export default interface Desk {
   id?: string;
 
@@ -8,6 +15,8 @@ export default interface Desk {
   coworkers?: number;
 
   value?: number;
+
+  tradeLevels?: TradeLevel[];
 
   createdAt?: string;
 }

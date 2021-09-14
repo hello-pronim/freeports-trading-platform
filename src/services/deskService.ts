@@ -1,5 +1,5 @@
 import axios from "../util/axios";
-import Desk from "../types/Desk";
+import Desk, { TradeLevel } from "../types/Desk";
 
 const getAllDesks = (organizationId: string): Promise<Desk[]> => {
   return new Promise((resolve, reject) => {
@@ -66,6 +66,25 @@ const deleteDesk = (organizationId: string, deskId: string): Promise<any> => {
   });
 };
 
+const updateTradeLevels = (
+  organizationId: string,
+  deskId: string,
+  tradeLevels: TradeLevel[]
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(`/organization/${organizationId}/desk/${deskId}/trade-level`, {
+        tradeLevels,
+      })
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
 export {
   getAllDesks as default,
   getAllDesks,
@@ -73,4 +92,5 @@ export {
   getDesk,
   createDesk,
   deleteDesk,
+  updateTradeLevels,
 };

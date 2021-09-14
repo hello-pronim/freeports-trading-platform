@@ -214,6 +214,8 @@ const InvestorDetail = (): React.ReactElement => {
     type: "success",
     message: "",
   });
+  const btcRate = 100000000;
+  const ethRate = 1000000000000000000;
 
   const getQuantityLabel = (values: any): string => {
     if (values) {
@@ -586,7 +588,7 @@ const InvestorDetail = (): React.ReactElement => {
                                   field: "id",
                                   title: "Account ID",
                                   cellStyle: {
-                                    width: "25%",
+                                    width: "30%",
                                   },
                                   render: (rowData: any) => {
                                     const { id } = rowData;
@@ -606,12 +608,16 @@ const InvestorDetail = (): React.ReactElement => {
                                   field: "balance",
                                   title: "Balance",
                                   cellStyle: {
-                                    width: "25%",
+                                    width: "40%",
                                   },
                                   render: (rowData: any) => {
                                     const { balance = 0, currency } = rowData;
 
-                                    return <>{`${currency} ${balance}`}</>;
+                                    if (currency === "BTC")
+                                      return `${currency} ${balance / btcRate}`;
+                                    if (currency === "ETH")
+                                      return `${currency} ${balance / ethRate}`;
+                                    return `${currency} ${balance}`;
                                   },
                                 },
                                 {
@@ -724,7 +730,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 render: (rowData: any) => {
                                   const { balance = 0, currency } = rowData;
 
-                                  return <>{`${currency} ${balance}`}</>;
+                                  return `${currency} ${balance}`;
                                 },
                               },
                             ]}
