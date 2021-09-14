@@ -18,6 +18,7 @@ import { OrgRolesState } from "../../organization/components/Roles/slice/types";
 import { NewOrgRoleState } from "../../organization/components/Roles/Add/slice/types";
 import { OrgCoWorkersState } from "../../organization/components/CoWorker/slice/types";
 import { OrgCoWorkerFormState } from "../../organization/components/CoWorkerForm/slice/types";
+import { OrgSettingsState } from "../../organization/components/Settings/slice/types";
 import { SnackbarState } from "../../components/Snackbar/slice/types";
 import { ProfileState } from "../../components/Profile/slice/types";
 import { GlobalState } from "../../slice/types";
@@ -50,6 +51,7 @@ export interface RootState {
   newOrgRole?: NewOrgRoleState;
   orgCoWorkers?: OrgCoWorkersState;
   orgCoWorkerForm: OrgCoWorkerFormState;
+  orgSettings?: OrgSettingsState;
   auth?: any;
   profileForm?: ProfileState;
   snackbar: SnackbarState;

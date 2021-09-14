@@ -1,7 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import Lockr from "lockr";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { useDispatch, useSelector } from "react-redux";
+import { Field, Form } from "react-final-form";
+import { FieldArray } from "react-final-form-arrays";
+import arrayMutators from "final-form-arrays";
+import { TextField as MuiTextField, Select } from "mui-rff";
 import {
   Avatar,
   Button,
@@ -11,19 +15,30 @@ import {
   CardContent,
   CircularProgress,
   Container,
+  createStyles,
   Divider,
   Grid,
+  IconButton,
   Input,
   InputAdornment,
+  makeStyles,
   Snackbar,
   TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 
+import { TradeLevel } from "../../../types/Organization";
+import { useOrgSettingsSlice } from "./slice";
+import {
+  selectIsTradeLevelsUpdating,
+  selectIsAccountsTrusting,
+} from "./slice/selectors";
 import { useOrganization } from "../../../hooks";
-import { setOrganizationAddressbook } from "../../../services/organizationService";
+import { setOrgAddressBook } from "../../../services/organizationService";
 
 interface accountType {
   currency: string;
@@ -94,13 +109,10 @@ const useStyle = makeStyles((theme: Theme) =>
   })
 );
 
-const Alert = (props: AlertProps) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-};
-
 const Settings = (): React.ReactElement => {
-  const { organizationId } = Lockr.get("USER_DATA");
   const classes = useStyle();
+  const dispatch = useDispatch();
+  const { organizationId } = Lockr.get("USER_DATA");
   const { getOrganization, updateOrganization } = useOrganization();
   const [orgDetail, setOrgDetail] = useState({
     id: "",
@@ -112,16 +124,15 @@ const Settings = (): React.ReactElement => {
     userActive: 0,
     userSuspended: 0,
     accountList: [],
+    tradeLevels: [],
   });
   const [accounts, setAccounts] = useState<Array<accountType>>([]);
-  const [loading, setLoading] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [submitResponse, setSubmitResponse] = useState({
-    type: "success",
-    message: "",
-  });
   const [creatingAddressBook, setCreatingAddressBook] = useState(false);
   const [cryptoAccounts, setCryptoAccounts] = useState<Array<accountType>>([]);
+  const { actions: orgSettingsActions } = useOrgSettingsSlice();
+  const tradeLevelsUpdating = useSelector(selectIsTradeLevelsUpdating);
+  const accountsTrusting = useSelector(selectIsAccountsTrusting);
+  const currencyList = ["CHF", "USD", "EUR", "BTC", "ETH"];
 
   useEffect(() => {
     let mounted = false;
@@ -140,9 +151,12 @@ const Settings = (): React.ReactElement => {
             userActive: detail.userActive,
             userSuspended: detail.userSuspended,
             accountList: detail.clearing,
+            tradeLevels: detail.tradeLevels,
           });
           setAccounts(detail.clearing);
-          setCryptoAccounts(detail.clearing.filter((x: accountType) => x.iban === undefined));
+          setCryptoAccounts(
+            detail.clearing.filter((x: accountType) => x.iban === undefined)
+          );
         }
       }
     };
@@ -164,107 +178,42 @@ const Settings = (): React.ReactElement => {
       reader.readAsDataURL(files[0]);
     }
   };
-
-  const handleName = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = event.target;
-    const newOrgDetail = { ...orgDetail };
-    newOrgDetail.name = value;
-    setOrgDetail(newOrgDetail);
-  };
-
-  const handleClearer = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = event.target;
-    const newOrgDetail = { ...orgDetail };
-    newOrgDetail.commissionClearer = value;
-    setOrgDetail(newOrgDetail);
-  };
-
-  const handleCommission = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = event.target;
-    const newOrgDetail = { ...orgDetail };
-    newOrgDetail.commissionOrganization = value;
-    setOrgDetail(newOrgDetail);
-  };
-
-  const handleDialog = () => {
-    console.log(orgDetail);
-  };
-
-  const onHandleUpdate = async () => {
-    setLoading(true);
-    setShowAlert(false);
-
-    await updateOrganization(
-      organizationId,
-      orgDetail.createdAt,
-      orgDetail.name,
-      orgDetail.logo,
-      orgDetail.commissionOrganization,
-      orgDetail.commissionClearer
-    )
-      .then((data: string) => {
-        if (data !== "") {
-          setLoading(false);
-          setSubmitResponse({
-            type: "success",
-            message: "Updated successfully.",
-          });
-          setShowAlert(true);
-        }
-      })
-      .catch((err: any) => {
-        setLoading(false);
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-        setShowAlert(true);
-      });
-  };
-
-  const handleAlertClose = () => {
-    setShowAlert(false);
-  };
-
-  const onClickTrustAccounts = async () => {
+  const handleAccountsTrust = () => {
     const cryptoAccountList = cryptoAccounts.map(({ account }) => account);
 
-    setCreatingAddressBook(true);
-    await setOrganizationAddressbook(organizationId, cryptoAccountList)
-      .then((data) => {
-        setSubmitResponse({
-          type: "success",
-          message: "Successfully done.",
-        });
+    dispatch(
+      orgSettingsActions.trustAccounts({
+        organizationId,
+        address: cryptoAccountList,
       })
-      .catch((err) => {
-        setSubmitResponse({
-          type: "error",
-          message: err.data.message,
-        });
-      });
-    setCreatingAddressBook(false);
-    setShowAlert(true);
+    );
+  };
+
+  const handleTradeLevelsUpdate = (values: any) => {
+    dispatch(
+      orgSettingsActions.saveTradeLevels({
+        organizationId,
+        tradeLevels: values.tradeLevels as TradeLevel[],
+      })
+    );
   };
 
   return (
     <div className="main-wrapper">
       <Container>
         <Card>
-          <CardHeader title="Settings" />
+          <CardHeader
+            title={
+              <Typography variant="h5">{`Settings (${orgDetail.name})`}</Typography>
+            }
+          />
           <Divider />
           <CardContent>
             <Grid container spacing={4}>
-              <Grid item xs={6}>
+              <Grid item xs={8}>
                 <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    {/* <TextField
+                  {/* <Grid item xs={12}>
+                    <TextField
                       InputProps={{
                         readOnly: true,
                       }}
@@ -273,45 +222,236 @@ const Settings = (): React.ReactElement => {
                       value={orgDetail.name}
                       onChange={handleName}
                       fullWidth
-                    /> */}
+                    /> 
                     <Typography>{`Company name: ${orgDetail.name}`}</Typography>
-                  </Grid>
+                  </Grid> */}
                   <Grid item xs={12}>
                     {accounts.length > 0 ? (
-                      <Grid container spacing={1}>
-                        <Grid item xs={12}>
-                          {accounts.map((account) => (
-                            <Typography
-                              key={account.account}
-                            >{`Account: ${account.iban}`}</Typography>
-                          ))}
-                        </Grid>
-                        <Grid item xs={12}>
-                          <div className={classes.progressButtonWrapper}>
-                            <Button
-                              variant="contained"
-                              color="primary"
-                              onClick={onClickTrustAccounts}
-                              disabled={creatingAddressBook || cryptoAccounts.length === 0}
-                            >
-                              Trust Nostro Accounts
-                            </Button>
+                      <Card variant="outlined">
+                        <CardHeader
+                          title={<Typography variant="h6">Accounts</Typography>}
+                        />
+                        <Divider />
+                        <CardContent>
+                          <Grid container spacing={1}>
+                            <Grid item xs={12}>
+                              {accounts.map((account) => (
+                                <Typography
+                                  key={account.account}
+                                >{`Account: ${account.iban}`}</Typography>
+                              ))}
+                            </Grid>
+                          </Grid>
+                        </CardContent>
+                        <CardActions>
+                          <Grid container justify="flex-end">
+                            <Grid item>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={handleAccountsTrust}
+                                  disabled={
+                                    accountsTrusting ||
+                                    cryptoAccounts.length === 0
+                                  }
+                                >
+                                  Trust Nostro Accounts
+                                </Button>
 
-                            {creatingAddressBook && (
-                              <CircularProgress
-                                size={24}
-                                className={classes.progressButton}
-                              />
-                            )}
-                          </div>
-                        </Grid>
-                      </Grid>
+                                {accountsTrusting && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                            </Grid>
+                          </Grid>
+                        </CardActions>
+                      </Card>
                     ) : (
                       <></>
                     )}
                   </Grid>
                   <Grid item xs={12}>
+                    <Form
+                      onSubmit={handleTradeLevelsUpdate}
+                      mutators={{
+                        ...arrayMutators,
+                      }}
+                      initialValues={
+                        orgDetail.tradeLevels &&
+                        orgDetail.tradeLevels.length > 0
+                          ? orgDetail
+                          : {
+                              ...orgDetail,
+                              tradeLevels: [
+                                {
+                                  currency: "",
+                                  small: "",
+                                  medium: "",
+                                  mediumSplitBy: "",
+                                },
+                              ],
+                            }
+                      }
+                      render={({
+                        handleSubmit,
+                        submitting,
+                        pristine,
+                        form: {
+                          mutators: { push },
+                        },
+                        values,
+                      }) => (
+                        <form onSubmit={handleSubmit} noValidate>
+                          <Card variant="outlined">
+                            <CardHeader
+                              title={
+                                <Typography variant="h6">
+                                  Trade levels
+                                </Typography>
+                              }
+                            />
+                            <Divider />
+                            <CardContent>
+                              <Grid container>
+                                <Grid item xs={12}>
+                                  <FieldArray name="tradeLevels">
+                                    {({ fields }) =>
+                                      fields.map((name, i) => (
+                                        <Grid container key={name} spacing={2}>
+                                          <Grid item xs={3}>
+                                            <Select
+                                              native
+                                              name={`${name}.currency`}
+                                              variant="outlined"
+                                              label="Currency"
+                                            >
+                                              <option
+                                                aria-label="None"
+                                                value=""
+                                              />
+                                              {currencyList
+                                                .filter(
+                                                  (currencyItem: string) =>
+                                                    values.tradeLevels &&
+                                                    (values.tradeLevels[i]
+                                                      .currency ===
+                                                      currencyItem ||
+                                                      values.tradeLevels.filter(
+                                                        (level: any) =>
+                                                          level.currency ===
+                                                          currencyItem
+                                                      ).length === 0)
+                                                )
+                                                .map((currencyItem: string) => (
+                                                  <option value={currencyItem}>
+                                                    {currencyItem}
+                                                  </option>
+                                                ))}
+                                            </Select>
+                                          </Grid>
+                                          <Grid item xs={2}>
+                                            <MuiTextField
+                                              name={`${name}.small`}
+                                              label="Small"
+                                              variant="outlined"
+                                            />
+                                          </Grid>
+                                          <Grid item xs={2}>
+                                            <MuiTextField
+                                              name={`${name}.medium`}
+                                              label="Medium"
+                                              variant="outlined"
+                                            />
+                                          </Grid>
+                                          <Grid item xs={3}>
+                                            <MuiTextField
+                                              name={`${name}.mediumSplitBy`}
+                                              label="Medium split by"
+                                              variant="outlined"
+                                            />
+                                          </Grid>
+                                          <Grid item xs={2}>
+                                            <Grid container spacing={1}>
+                                              {fields.length !== 1 && (
+                                                <Grid item>
+                                                  <IconButton
+                                                    onClick={() =>
+                                                      fields.remove(i)
+                                                    }
+                                                    aria-label="Remove"
+                                                  >
+                                                    <DeleteForeverIcon />
+                                                  </IconButton>
+                                                </Grid>
+                                              )}
+                                              {i === (fields.length || 0) - 1 &&
+                                                i < currencyList.length - 1 && (
+                                                  <Grid item>
+                                                    <IconButton
+                                                      onClick={() =>
+                                                        push("tradeLevels", {
+                                                          currency: "",
+                                                          small: "",
+                                                          medium: "",
+                                                          mediumSplitBy: "",
+                                                        })
+                                                      }
+                                                      aria-label="Add"
+                                                    >
+                                                      <AddCircleOutlineIcon />
+                                                    </IconButton>
+                                                  </Grid>
+                                                )}
+                                            </Grid>
+                                          </Grid>
+                                        </Grid>
+                                      ))
+                                    }
+                                  </FieldArray>
+                                </Grid>
+                              </Grid>
+                            </CardContent>
+                            <CardActions>
+                              <Grid container justify="flex-end">
+                                <Grid item>
+                                  <div
+                                    className={classes.progressButtonWrapper}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      type="submit"
+                                      disabled={tradeLevelsUpdating}
+                                    >
+                                      Save Changes
+                                    </Button>
+                                    {tradeLevelsUpdating && (
+                                      <CircularProgress
+                                        size={24}
+                                        className={classes.progressButton}
+                                      />
+                                    )}
+                                  </div>
+                                </Grid>
+                              </Grid>
+                            </CardActions>
+                          </Card>
+                        </form>
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
                     <Card variant="outlined">
+                      <CardHeader
+                        title={
+                          <Typography variant="h6">Commissions</Typography>
+                        }
+                      />
+                      <Divider />
                       <CardContent>
                         <Grid container spacing={4}>
                           <Grid item xs={6}>
@@ -410,7 +550,7 @@ const Settings = (): React.ReactElement => {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <Grid
                   item
                   container
@@ -460,19 +600,6 @@ const Settings = (): React.ReactElement => {
             </Grid>
           </CardActions> */}
         </Card>
-        <Snackbar
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={showAlert}
-          onClose={handleAlertClose}
-        >
-          <Alert
-            onClose={handleAlertClose}
-            severity={submitResponse.type === "success" ? "success" : "error"}
-          >
-            {submitResponse.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </div>
   );

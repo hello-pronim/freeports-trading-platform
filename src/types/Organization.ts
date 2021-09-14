@@ -1,3 +1,9 @@
+export interface TradeLevel {
+  currency: string;
+  small: string;
+  medium: string;
+  mediumSplitBy: string;
+}
 export default interface Organization {
   id?: string;
 
@@ -27,6 +33,8 @@ export default interface Organization {
       authorization: string;
     };
   };
+
+  tradeLevels?: TradeLevel[];
 
   commissionOrganization?: string;
 

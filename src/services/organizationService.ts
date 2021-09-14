@@ -1,6 +1,6 @@
 import axios from "../util/axios";
 import vault from "../vault";
-import Organization from "../types/Organization";
+import Organization, { TradeLevel } from "../types/Organization";
 
 const retrieveOrganizations = (): Promise<Array<any>> => {
   return new Promise((resolve, reject) => {
@@ -181,14 +181,32 @@ const resumeOrganizationManager = (
   });
 };
 
-const setOrganizationAddressbook = (
+const setOrgAddressBook = (
   organizationId: string,
-  address: string[],
+  address: string[]
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
       .post(`/organization/${organizationId}/addressbook`, {
         address,
+      })
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const updateTradeLevels = (
+  organizationId: string,
+  tradeLevels: TradeLevel[]
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(`/organization/${organizationId}/trade-level`, {
+        tradeLevels,
       })
       .then((res: any) => {
         return resolve(res.data);
@@ -211,5 +229,6 @@ export {
   updateOrganizationManager,
   suspendOrganizationManager,
   resumeOrganizationManager,
-  setOrganizationAddressbook,
+  setOrgAddressBook,
+  updateTradeLevels,
 };
