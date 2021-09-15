@@ -74,7 +74,7 @@ const Trades = (): React.ReactElement => {
               <Grid item xs={12}>
                 <Grid container alignItems="center" justify="space-between">
                   <Grid item>
-                    <Typography variant="h5">TRADE REQUESTS</Typography>
+                    <Typography variant="h5">ORDER REQUESTS</Typography>
                   </Grid>
                   <Grid item>
                     <Button color="primary" variant="contained">
@@ -89,6 +89,21 @@ const Trades = (): React.ReactElement => {
                 {!tradeRequestsLoading && (
                   <MaterialTable
                     columns={[
+                      {
+                        field: "friendlyId",
+                        title: "Order ID",
+                        render: (rowData: any) => {
+                          const { id, investor } = rowData;
+
+                          return (
+                            <Link
+                              to={`/desks/${investor.desk}/investors/${investor.id}/trades/${id}`}
+                            >
+                             {id}
+                            </Link>
+                          );
+                        },
+                      },
                       {
                         field: "createdAt",
                         title: "Date",
@@ -114,39 +129,24 @@ const Trades = (): React.ReactElement => {
                         },
                       },
                       {
-                        field: "type",
-                        title: "Order",
-                      },
-                      {
                         field: "status",
                         title: "Status",
                       },
                       {
-                        title: "Send",
+                        field: "quantity",
+                        title: "Quantity",
+                        render: (rowData: any) => {
+                          const { quantity, currencyTo } = rowData;
+                          return `${quantity} ${currencyTo}`;
+                        },
                       },
                       {
-                        title: "Receive",
-                      },
-                      {
-                        title: "Broker",
+                        field: "currencyFrom",
+                        title: "from"
                       },
                       {
                         title: "Commission",
-                      },
-                      {
-                        title: "Actions",
-                        render: (rowData: any) => {
-                          const { id, investor } = rowData;
-
-                          return (
-                            <Link
-                              to={`/desks/${investor.desk}/investors/${investor.id}/trades/${id}`}
-                            >
-                              <SyncAltIcon />
-                            </Link>
-                          );
-                        },
-                      },
+                      }
                     ]}
                     data={tradeRequests.map((investorItem: any) => ({
                       ...investorItem,
@@ -194,13 +194,6 @@ const Trades = (): React.ReactElement => {
                       },
                     },
                     {
-                      field: "status",
-                      title: "Status",
-                      cellStyle: {
-                        width: "12%",
-                      },
-                    },
-                    {
                       field: "send",
                       title: "Send",
                       cellStyle: {
@@ -210,13 +203,6 @@ const Trades = (): React.ReactElement => {
                     {
                       field: "receive",
                       title: "Receive",
-                      cellStyle: {
-                        width: "12%",
-                      },
-                    },
-                    {
-                      field: "broker",
-                      title: "Broker",
                       cellStyle: {
                         width: "12%",
                       },
