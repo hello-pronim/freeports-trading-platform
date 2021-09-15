@@ -473,7 +473,7 @@ const EditOrganizer = (): React.ReactElement => {
                       <TextField
                         type="text"
                         value={orgDetail.name}
-                        label="Nickname"
+                        label="Name"
                         variant="outlined"
                         onChange={onHandleNameChange}
                         fullWidth
@@ -585,7 +585,7 @@ const EditOrganizer = (): React.ReactElement => {
                                       variant="body2"
                                       style={{ fontWeight: "bold" }}
                                     >
-                                      Commission rates
+                                      Organization fees
                                     </Typography>
                                   </Grid>
                                   <Grid item xs={12}>
@@ -608,7 +608,7 @@ const EditOrganizer = (): React.ReactElement => {
                                       variant="body2"
                                       style={{ fontWeight: "bold" }}
                                     >
-                                      Clear Commission rates
+                                      Clearning fees
                                     </Typography>
                                   </Grid>
                                   <Grid item xs={12}>
