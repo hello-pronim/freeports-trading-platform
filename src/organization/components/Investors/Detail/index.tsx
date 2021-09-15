@@ -471,7 +471,7 @@ const InvestorDetail = (): React.ReactElement => {
                             justify="space-between"
                           >
                             <Grid item>
-                              <Typography variant="h6">TRADES</Typography>
+                              <Typography variant="h6">ORDER REQUESTS</Typography>
                             </Grid>
                             <Grid item>
                               <Button
@@ -484,7 +484,7 @@ const InvestorDetail = (): React.ReactElement => {
                                     <CompareArrowsIcon />
                                   </Grid>
                                   <Grid item>
-                                    <Typography>INITIATE NEW TRADE</Typography>
+                                    <Typography>INITIATE NEW ORDER</Typography>
                                   </Grid>
                                 </Grid>
                               </Button>
@@ -499,9 +499,15 @@ const InvestorDetail = (): React.ReactElement => {
                                 {
                                   title: "ID",
                                   render: (rowData: any) => {
-                                    const { friendlyId } = rowData;
+                                    const { id } = rowData;
 
-                                    return <Link to="/">{friendlyId}</Link>;
+                                    return (
+                                      <Link
+                                        to={`/desks/${deskId}/investors/${investorId}/trades/${id}`}
+                                      >
+                                       {getShortId(id)}
+                                      </Link>
+                                    );
                                   },
                                 },
                                 {
@@ -515,7 +521,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 },
                                 {
                                   field: "order",
-                                  title: "Order",
+                                  title: "Processing",
                                   render: (rowData: any) => {
                                     const { type } = rowData;
 
@@ -773,7 +779,7 @@ const InvestorDetail = (): React.ReactElement => {
               values,
             }) => (
               <form onSubmit={handleSubmit} noValidate>
-                <DialogTitle id="form-dialog-title">Create Trade</DialogTitle>
+                <DialogTitle id="form-dialog-title">Create Order</DialogTitle>
                 <Divider />
                 <DialogContent>
                   <Grid container spacing={2}>
