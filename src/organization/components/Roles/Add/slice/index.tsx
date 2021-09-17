@@ -12,8 +12,6 @@ import { newOrgRoleSaga } from "./saga";
 import { NewOrgRoleState } from "./types";
 
 export const initialState: NewOrgRoleState = {
-  multiDeskRoleCreating: false,
-  deskRoleCreating: false,
   orgPermissions: [],
   multiDeskPermissions: [],
   deskPermissions: [],
@@ -26,39 +24,6 @@ const slice = createSlice({
   name: "newOrgRole",
   initialState,
   reducers: {
-    addMultiDeskRole(
-      state,
-      action: PayloadAction<{
-        organizationId: string;
-        role: Role;
-        vaultUserId: string;
-      }>
-    ) {
-      state.multiDeskRoleCreating = true;
-    },
-    addMultiDeskRoleSuccess(state, action: PayloadAction<string>) {
-      state.multiDeskRoleCreating = false;
-    },
-    addMultiDeskRoleFailed(state) {
-      state.multiDeskRoleCreating = false;
-    },
-    addDeskRole(
-      state,
-      action: PayloadAction<{
-        organizationId: string;
-        deskId: string;
-        role: Role;
-        vaultUserId: string;
-      }>
-    ) {
-      state.deskRoleCreating = true;
-    },
-    addDeskRoleSuccess(state, action: PayloadAction<string>) {
-      state.deskRoleCreating = false;
-    },
-    addDeskRoleFailed(state) {
-      state.deskRoleCreating = false;
-    },
     getOrgPermissions(state, action: PayloadAction<string>) {
       state.orgPermissionsLoading = true;
       state.orgPermissions = [];

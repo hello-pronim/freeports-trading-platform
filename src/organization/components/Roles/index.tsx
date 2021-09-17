@@ -949,6 +949,21 @@ const Roles = (): React.ReactElement => {
                                                         {role.name}
                                                       </Typography>
                                                     </Grid>
+                                                    <Grid 
+                                                      item
+                                                      style={{ marginLeft: "auto" }}
+                                                    >
+                                                      <IconButton
+                                                        style={{ padding: 0 }}
+                                                        onClick={(event) => {
+                                                          event.stopPropagation();
+                                                          openLockModal(role);
+                                                        }}
+                                                        disabled={!lockUsability}
+                                                      >
+                                                        <Lock fontSize="default" />
+                                                      </IconButton>
+                                                    </Grid>
                                                   </Grid>
                                                 </AccordionSummary>
                                                 <AccordionDetails>
@@ -1208,6 +1223,21 @@ const Roles = (): React.ReactElement => {
                                                       >
                                                         {`(${role.desk.name})`}
                                                       </Typography>
+                                                    </Grid>
+                                                    <Grid 
+                                                      item
+                                                      style={{ marginLeft: "auto" }}
+                                                    >
+                                                      <IconButton
+                                                        style={{ padding: 0 }}
+                                                        onClick={(event) => {
+                                                          event.stopPropagation();
+                                                          openLockModal(role);
+                                                        }}
+                                                        disabled={!lockUsability}
+                                                      >
+                                                        <Lock fontSize="default" />
+                                                      </IconButton>
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionSummary>

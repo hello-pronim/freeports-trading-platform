@@ -8,9 +8,7 @@ import { newOrgRoleActions as actions } from ".";
 
 import {
   getAllOrgPermissions,
-  createMultiDeskRole,
   getAllMultiDeskPermissions,
-  createDeskRole,
   getAllDeskPermissions,
 } from "../../../../../services/roleService";
 import { snackbarActions } from "../../../../../components/Snackbar/slice";
@@ -51,40 +49,6 @@ export function* getMultiDeskPermissions({
   }
 }
 
-export function* addMultiDeskRole({
-  payload,
-}: PayloadAction<{
-  organizationId: string;
-  role: Role;
-  vaultUserId: string;
-}>): Generator<any> {
-  try {
-    const response = yield call(
-      createMultiDeskRole,
-      payload.organizationId,
-      payload.role,
-      payload.vaultUserId
-    );
-    if (response) {
-      yield put(actions.addMultiDeskRoleSuccess(response as string));
-      yield put(
-        snackbarActions.showSnackbar({
-          message: "New multi-desk role has been created successfully",
-          type: "success",
-        })
-      );
-    }
-  } catch (error) {
-    yield put(actions.addMultiDeskRoleFailed());
-    yield put(
-      snackbarActions.showSnackbar({
-        message: error.message,
-        type: "error",
-      })
-    );
-  }
-}
-
 export function* getDeskPermissions({
   payload,
 }: PayloadAction<string>): Generator<any> {
@@ -102,46 +66,8 @@ export function* getDeskPermissions({
   }
 }
 
-export function* addDeskRole({
-  payload,
-}: PayloadAction<{
-  organizationId: string;
-  deskId: string;
-  role: Role;
-  vaultUserId: string;
-}>): Generator<any> {
-  try {
-    const response = yield call(
-      createDeskRole,
-      payload.organizationId,
-      payload.deskId,
-      payload.role,
-      payload.vaultUserId
-    );
-    if (response) {
-      yield put(actions.addDeskRoleSuccess(response as string));
-      yield put(
-        snackbarActions.showSnackbar({
-          message: "New desk role has been created successfully",
-          type: "success",
-        })
-      );
-    }
-  } catch (error) {
-    yield put(actions.addDeskRoleFailed());
-    yield put(
-      snackbarActions.showSnackbar({
-        message: error.message,
-        type: "error",
-      })
-    );
-  }
-}
-
 export function* newOrgRoleSaga(): Generator<any> {
   yield takeEvery(actions.getOrgPermissions, getOrgPermissions);
   yield takeEvery(actions.getMultiDeskPermissions, getMultiDeskPermissions);
-  yield takeEvery(actions.addMultiDeskRole, addMultiDeskRole);
   yield takeEvery(actions.getDeskPermissions, getDeskPermissions);
-  yield takeEvery(actions.addDeskRole, addDeskRole);
 }

@@ -66,10 +66,6 @@ const roleVaultPermission = {
   "organization.#organizationId#.role.delete": ["GrantRevokePermission"],
   "desk.#deskId#.role.delete": ["GrantRevokePermission"],
 
-  "clearer.role.assign": ["AddRemoveUser"],
-  "organization.#organizationId#.role.assign": ["AddRemoveUser"],
-  "desk.#deskId#.role.assign": ["AddRemoveUser"],
-
   "clearer.account.create": ["CreateWallet"],
   "desk.#deskId#.account.create": ["CreateWallet", "CreateDeleteAddressBook"],
 

@@ -17,11 +17,6 @@ export const selectIsOrgPermissionsLoading = createSelector(
   (newOrgRoleState) => newOrgRoleState.orgPermissionsLoading
 );
 
-export const selectIsMultiDeskRoleCreating = createSelector(
-  [selectDomain],
-  (newOrgRoleState) => newOrgRoleState.multiDeskRoleCreating
-);
-
 export const selectMultiDeskPermissions = createSelector(
   [selectDomain],
   (newOrgRoleState) => newOrgRoleState.multiDeskPermissions
@@ -30,11 +25,6 @@ export const selectMultiDeskPermissions = createSelector(
 export const selectIsMultiDeskPermissionsLoading = createSelector(
   [selectDomain],
   (newOrgRoleState) => newOrgRoleState.multiDeskPermissionsLoading
-);
-
-export const selectIsDeskRoleCreating = createSelector(
-  [selectDomain],
-  (newOrgRoleState) => newOrgRoleState.deskRoleCreating
 );
 
 export const selectDeskPermissions = createSelector(
