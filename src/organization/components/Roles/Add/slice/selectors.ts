@@ -7,11 +7,6 @@ import { RootState } from "../../../../../util/types/RootState";
 const selectDomain = (state: RootState) => state.newOrgRole || initialState;
 
 // eslint-disable-next-line import/prefer-default-export
-export const selectIsOrgRoleCreating = createSelector(
-  [selectDomain],
-  (newOrgRoleState) => newOrgRoleState.orgRoleCreating
-);
-
 export const selectOrgPermissions = createSelector(
   [selectDomain],
   (newOrgRoleState) => newOrgRoleState.orgPermissions

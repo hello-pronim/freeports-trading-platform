@@ -12,7 +12,6 @@ import { newOrgRoleSaga } from "./saga";
 import { NewOrgRoleState } from "./types";
 
 export const initialState: NewOrgRoleState = {
-  orgRoleCreating: false,
   multiDeskRoleCreating: false,
   deskRoleCreating: false,
   orgPermissions: [],
@@ -27,22 +26,6 @@ const slice = createSlice({
   name: "newOrgRole",
   initialState,
   reducers: {
-    addOrgRole(
-      state,
-      action: PayloadAction<{
-        organizationId: string;
-        role: Role;
-        vaultUserId: string;
-      }>
-    ) {
-      state.orgRoleCreating = true;
-    },
-    addOrgRoleSuccess(state, action: PayloadAction<string>) {
-      state.orgRoleCreating = false;
-    },
-    addOrgRoleFailed(state) {
-      state.orgRoleCreating = false;
-    },
     addMultiDeskRole(
       state,
       action: PayloadAction<{

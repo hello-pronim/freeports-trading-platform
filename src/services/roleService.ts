@@ -191,12 +191,9 @@ const getAllOrgRoles = (organizationId: string): Promise<Array<RoleType>> => {
 
 const createOrgRole = async (
   organizationId: string,
-  role: {
-    name: string;
-    permissions: Array<string>;
-  },
+  roleName: string,
   vaultUserId: string
-): Promise<string> => {
+): Promise<any> => {
   const vaultCreateGroupRequest = await vault.createGroup(true);
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
@@ -211,21 +208,14 @@ const createOrgRole = async (
   );
   await vault.sendRequest(request);
   
-  const vaultGrantPermissionRequest = await vault.grantPermissions(
-    PermissionOwnerType.group, 
-    vaultGroupId, 
-    role.permissions,
-    true
-  );
   return new Promise((resolve, reject) => {
     axios
       .post(`/organization/${organizationId}/role`, {
-        ...role,
+        name: roleName,
         vaultGroupId,
-        vaultGrantPermissionRequest,
       })
       .then((res: any) => {
-        return resolve(res.data);
+        return resolve({...res.data, vaultGroupId});
       })
       .catch((err) => {
         return reject(err.response.data);
