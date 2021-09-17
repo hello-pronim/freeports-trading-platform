@@ -3,6 +3,9 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import Account from "../../../../../types/Account";
 import Investor from "../../../../../types/Investor";
 import TradeRequest from "../../../../../types/TradeRequest";
+import FundRequest from "../../../../../types/FundRequest";
+import RefundRequest from "../../../../../types/RefundRequest";
+import MoveRequest from "../../../../../types/MoveRequest";
 
 import { investorDetailActions as actions } from ".";
 
@@ -12,6 +15,12 @@ import {
   getInvestorAccount,
   createInvestorAccount,
   deleteInvestorAccount,
+  getFundRequests,
+  createFundRequest,
+  getRefundRequests,
+  createRefundRequest,
+  getMoveRequests,
+  createMoveRequest,
 } from "../../../../../services/investorService";
 import {
   getInvestorTradeRequests,
@@ -112,6 +121,231 @@ export function* addTradeRequest({
     }
   } catch (error) {
     yield put(actions.addTradeRequestFailed());
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* retrieveInvestorFundRequests({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      getFundRequests,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId
+    );
+    if (response)
+      yield put(
+        actions.getInvestorFundRequestsSuccess(
+          (response as PaginatedResponse<FundRequest>).content
+        )
+      );
+  } catch (error) {
+    yield put(actions.getInvestorFundRequestsFailed());
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* addInvestorFundRequest({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+  request: FundRequest;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      createFundRequest,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId,
+      payload.request
+    );
+    if (response) {
+      yield put(actions.addInvestorFundRequestSuccess());
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Fund has been created successfully",
+          type: "success",
+        })
+      );
+      yield put(
+        actions.getInvestorFundRequests({
+          organizationId: payload.organizationId,
+          deskId: payload.deskId,
+          investorId: payload.investorId,
+        })
+      );
+      yield take(actions.getInvestorFundRequestsSuccess);
+    }
+  } catch (error) {
+    yield put(actions.addInvestorFundRequestFailed());
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* retrieveInvestorRefundRequests({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      getRefundRequests,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId
+    );
+    if (response)
+      yield put(
+        actions.getInvestorRefundRequestsSuccess(
+          (response as PaginatedResponse<RefundRequest>).content
+        )
+      );
+  } catch (error) {
+    yield put(actions.getInvestorRefundRequestsFailed());
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* addInvestorRefundRequest({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+  request: RefundRequest;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      createRefundRequest,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId,
+      payload.request
+    );
+    if (response) {
+      yield put(actions.addInvestorRefundRequestSuccess());
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Refund request has been created successfully",
+          type: "success",
+        })
+      );
+      yield put(
+        actions.getInvestorRefundRequests({
+          organizationId: payload.organizationId,
+          deskId: payload.deskId,
+          investorId: payload.investorId,
+        })
+      );
+      yield take(actions.getInvestorRefundRequestsSuccess);
+    }
+  } catch (error) {
+    yield put(actions.addInvestorRefundRequestFailed());
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* retrieveInvestorMoveRequests({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      getMoveRequests,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId
+    );
+    if (response)
+      yield put(
+        actions.getInvestorMoveRequestsSuccess(
+          (response as PaginatedResponse<MoveRequest>).content
+        )
+      );
+  } catch (error) {
+    yield put(actions.getInvestorMoveRequestsFailed());
+    yield put(
+      snackbarActions.showSnackbar({
+        message: error.data.message,
+        type: "error",
+      })
+    );
+  }
+}
+
+export function* addInvestorMoveRequest({
+  payload,
+}: PayloadAction<{
+  organizationId: string;
+  deskId: string;
+  investorId: string;
+  request: MoveRequest;
+}>): Generator<any> {
+  try {
+    const response = yield call(
+      createMoveRequest,
+      payload.organizationId,
+      payload.deskId,
+      payload.investorId,
+      payload.request
+    );
+    if (response) {
+      yield put(actions.addInvestorMoveRequestSuccess());
+      yield put(
+        snackbarActions.showSnackbar({
+          message: "Move request has been created successfully",
+          type: "success",
+        })
+      );
+      yield put(
+        actions.getInvestorMoveRequests({
+          organizationId: payload.organizationId,
+          deskId: payload.deskId,
+          investorId: payload.investorId,
+        })
+      );
+      yield take(actions.getInvestorMoveRequestsSuccess);
+    }
+  } catch (error) {
+    yield put(actions.addInvestorMoveRequestFailed());
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
@@ -300,6 +534,21 @@ export function* investorDetailSaga(): Generator<any> {
     retrieveInvestorTradeRequests
   );
   yield takeEvery(actions.addTradeRequest, addTradeRequest);
+  yield takeEvery(
+    actions.getInvestorFundRequests,
+    retrieveInvestorFundRequests
+  );
+  yield takeEvery(actions.addInvestorFundRequest, addInvestorFundRequest);
+  yield takeEvery(
+    actions.getInvestorRefundRequests,
+    retrieveInvestorRefundRequests
+  );
+  yield takeEvery(actions.addInvestorRefundRequest, addInvestorRefundRequest);
+  yield takeEvery(
+    actions.getInvestorMoveRequests,
+    retrieveInvestorMoveRequests
+  );
+  yield takeEvery(actions.addInvestorMoveRequest, addInvestorMoveRequest);
   yield takeEvery(actions.getInvestorAccounts, retrieveInvestorAccounts);
   yield takeEvery(actions.addInvestorAccount, addInvestorAccount);
   yield takeEvery(actions.removeInvestorAccount, removeInvestorAccount);

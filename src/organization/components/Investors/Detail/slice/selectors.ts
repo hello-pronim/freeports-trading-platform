@@ -32,6 +32,51 @@ export const selectIsTradeRequestCreating = createSelector(
   (investorDetailState) => investorDetailState.creatingTradeRequest
 );
 
+export const selectFundRequests = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.fundRequests
+);
+
+export const selectIsFundRequestsLoading = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.loadingFundRequests
+);
+
+export const selectIsFundRequestCreating = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.creatingFundRequest
+);
+
+export const selectRefundRequests = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.refundRequests
+);
+
+export const selectIsRefundRequestsLoading = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.loadingRefundRequests
+);
+
+export const selectIsRefundRequestCreating = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.creatingRefundRequest
+);
+
+export const selectMoveRequests = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.moveRequests
+);
+
+export const selectIsMoveRequestsLoading = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.loadingMoveRequests
+);
+
+export const selectIsMoveRequestCreating = createSelector(
+  [selectDomain],
+  (investorDetailState) => investorDetailState.creatingMoveRequest
+);
+
 export const selectInvestorAccounts = createSelector(
   [selectDomain],
   (investorDetailState) => investorDetailState.investorAccounts

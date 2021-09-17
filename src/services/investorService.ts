@@ -1,6 +1,9 @@
 import axios from "../util/axios";
 import Account from "../types/Account";
 import Investor from "../types/Investor";
+import FundRequest from "../types/FundRequest";
+import RefundRequest from "../types/RefundRequest";
+import MoveRequest from "../types/MoveRequest";
 
 const getAllInvestors = (): Promise<Investor[]> => {
   return new Promise((resolve, reject) => {
@@ -190,6 +193,126 @@ const getInvestorAccountBalance = (
   });
 };
 
+const getFundRequests = (
+  organizationId: string,
+  deskId: string,
+  investorId: string
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/fund`
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const createFundRequest = (
+  organizationId: string,
+  deskId: string,
+  investorId: string,
+  request: FundRequest
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/fund`,
+        request
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const getRefundRequests = (
+  organizationId: string,
+  deskId: string,
+  investorId: string
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/refund`
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const createRefundRequest = (
+  organizationId: string,
+  deskId: string,
+  investorId: string,
+  request: RefundRequest
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/refund`,
+        request
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const getMoveRequests = (
+  organizationId: string,
+  deskId: string,
+  investorId: string
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/move`
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
+const createMoveRequest = (
+  organizationId: string,
+  deskId: string,
+  investorId: string,
+  request: MoveRequest
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `/organization/${organizationId}/desk/${deskId}/investor/${investorId}/move`,
+        request
+      )
+      .then((res: any) => {
+        return resolve(res.data);
+      })
+      .catch((err) => {
+        return reject(err.response);
+      });
+  });
+};
+
 export {
   getAllInvestors as default,
   getAllInvestors,
@@ -202,4 +325,10 @@ export {
   deleteInvestorAccount,
   getInvestorAccountOperations,
   getInvestorAccountBalance,
+  getFundRequests,
+  createFundRequest,
+  getRefundRequests,
+  createRefundRequest,
+  getMoveRequests,
+  createMoveRequest,
 };
