@@ -21,6 +21,10 @@ import {
   CircularProgress,
   Container,
   createStyles,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   FormControlLabel,
   FormGroup,
@@ -32,13 +36,16 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
+  Snackbar,
   TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SearchIcon from "@material-ui/icons/Search";
+import Lock from '@material-ui/icons/Lock';
 
 import { useRolesSlice } from "./slice";
 import { useDesksSlice } from "../Desks/slice";
@@ -67,18 +74,30 @@ import Role from "../../../types/Role";
 import DeskRole from "../../../types/DeskRole";
 import Permission from "../../../types/Permission";
 import Loader from "../../../components/Loader";
+import vault, { VaultPermissions } from "../../../vault";
+import { PermissionOwnerType } from "../../../vault/enum/permission-owner-type";
+import { VaultAssetType } from "../../../vault/enum/asset-type";
+import { selectUser } from "../../../slice/selectors";
 
 interface RoleType {
   name: string;
   permissions: Array<string>;
 }
+
 interface PermissionType {
   name: string;
   permissions: Array<{ code: string; name: string }>;
 }
+
 interface DeskType {
   id?: string;
   name: string;
+}
+
+interface LockPermissionsType {
+  addRemoveUser: Array<string>;
+  createDeleteRuleTree: Array<string>;
+  getRuleTrees: Array<string>;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -176,6 +195,10 @@ const deskRoleValidate = (values: any) => {
   return errors;
 };
 
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
 const Roles = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -207,6 +230,7 @@ const Roles = (): React.ReactElement => {
   const deskRoleUpdating = useSelector(selectIsDeskRoleUpdating);
   const deskRoleDeleting = useSelector(selectIsDeskRoleDeleting);
   const deskPermissionsLoading = useSelector(selectIsDeskPermissionsLoading);
+  const currentUser = useSelector(selectUser);
 
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -216,6 +240,24 @@ const Roles = (): React.ReactElement => {
     { name: "Multi-desk roles", value: "multi-desk" },
     { name: "Desk roles", value: "desk" },
   ];
+
+  const [lockModalView, setLockModalView] = useState(false);
+  const [lockModalProcessing, setLockModalProcessing] = useState(false);
+  const [lockingRole, setLockingRole] = useState({
+    name: "",
+    vaultGroupId: "",
+  });
+  const [lockPermissions, setLockPermissions] = useState<LockPermissionsType>({
+    addRemoveUser: [],
+    createDeleteRuleTree: [],
+    getRuleTrees: [],
+  });
+  const [lockUsability , setLockUsability] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [submitResponse, setSubmitResponse] = useState({
+    type: "success",
+    message: "",
+  });
 
   useEffect(() => {
     let unmounted = false;
@@ -228,6 +270,7 @@ const Roles = (): React.ReactElement => {
       dispatch(rolesActions.getMultiDeskPermissions({ organizationId }));
       dispatch(desksActions.getDesks());
       dispatch(rolesActions.getDeskPermissions({ organizationId }));
+      setLockUsability(vault.checkUserLockUsability(currentUser));
     };
 
     init();
@@ -355,6 +398,166 @@ const Roles = (): React.ReactElement => {
   const handleNewDeskRoleClick = () => {
     history.push("/desk/roles/add");
   };
+
+  const openLockModal = async (role: any) => {
+    setLockingRole(role);
+    try {
+      const request = await vault.getAssetPermissions(
+        VaultAssetType.GROUP,
+        role.vaultGroupId,
+        true,
+      );
+      const permissions = await vault.sendRequest(request);
+      
+      const addRemoveUser: string[] = [];
+      const createDeleteRuleTree: string[] = [];
+      const getRuleTrees: string[] = [];
+      permissions.groupPermissions.forEach((x: any) => {
+        switch (x.permissionType) {
+          case VaultPermissions.AddRemoveUser:
+            addRemoveUser.push(x.groupId);
+            break;
+          case VaultPermissions.CreateDeleteRuleTree:
+            createDeleteRuleTree.push(x.groupId);
+            break;
+          case VaultPermissions.GetRuleTrees:
+            getRuleTrees.push(x.groupId);
+            break;
+          default:
+            break;
+        }
+      })
+      setLockPermissions({
+        addRemoveUser,
+        createDeleteRuleTree,
+        getRuleTrees
+      })
+      setLockModalView(true); 
+    } catch (error) {
+      setSubmitResponse({
+        type: "error",
+        message: error.message,
+      });
+      setShowAlert(true);
+    }
+  }
+
+  const handleLockPermission = async (values: any) => {
+    setLockModalProcessing(true);
+    try {
+      const addRemoveUserOld = [...lockPermissions.addRemoveUser];
+      const addRemoveUserNew: string[] = [];
+      values.addRemoveUser.forEach((x: string) => {
+        const index = addRemoveUserOld.indexOf(x);
+        if (index !== -1) {
+          addRemoveUserOld.splice(index, 1);
+        } else {
+          addRemoveUserNew.push(x);
+        }
+      })
+      await Promise.all(addRemoveUserOld.map(async (vaultGroupId: string) => {
+        const request = await vault.revokePermissionFromAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.AddRemoveUser,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(addRemoveUserNew.map(async (vaultGroupId: string) => {
+        const request = await vault.grantPermissionToAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.AddRemoveUser,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      const createDeleteRuleTreeOld = [...lockPermissions.createDeleteRuleTree];
+      const createDeleteRuleTreeNew: string[] = [];
+      values.createDeleteRuleTree.forEach((x: string) => {
+        const index = createDeleteRuleTreeOld.indexOf(x);
+        if (index !== -1) {
+          createDeleteRuleTreeOld.splice(index, 1);
+        } else {
+          createDeleteRuleTreeNew.push(x);
+        }
+      })
+      await Promise.all(createDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
+        const request = await vault.revokePermissionFromAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.CreateDeleteRuleTree,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(createDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
+        const request = await vault.grantPermissionToAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.CreateDeleteRuleTree,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      const getRuleTreesOld = [...lockPermissions.getRuleTrees];
+      const getRuleTreesNew: string[] = [];
+      values.getRuleTrees.forEach((x: string) => {
+        const index = getRuleTreesOld.indexOf(x);
+        if (index !== -1) {
+          getRuleTreesOld.splice(index, 1);
+        } else {
+          getRuleTreesNew.push(x);
+        }
+      })
+      await Promise.all(getRuleTreesOld.map(async (vaultGroupId: string) => {
+        const request = await vault.revokePermissionFromAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.GetRuleTrees,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(getRuleTreesNew.map(async (vaultGroupId: string) => {
+        const request = await vault.grantPermissionToAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.GetRuleTrees,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      setSubmitResponse({
+        type: "success",
+        message: "Successfully updated!",
+      });
+      setLockModalView(false);
+    } catch (error) {
+      setSubmitResponse({
+        type: "error",
+        message: error.message,
+      });
+    }
+    setShowAlert(true);
+    setLockModalProcessing(false);
+  }
 
   return (
     <div className="main-wrapper">
@@ -491,6 +694,21 @@ const Roles = (): React.ReactElement => {
                                                           classes.roleDescription
                                                         }
                                                       />
+                                                    </Grid>
+                                                    <Grid 
+                                                      item
+                                                      style={{ marginLeft: "auto" }}
+                                                    >
+                                                      <IconButton
+                                                        style={{ padding: 0 }}
+                                                        onClick={(event) => {
+                                                          event.stopPropagation();
+                                                          openLockModal(role);
+                                                        }}
+                                                        disabled={!lockUsability}
+                                                      >
+                                                        <Lock fontSize="default" />
+                                                      </IconButton>
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionSummary>
@@ -1182,6 +1400,193 @@ const Roles = (): React.ReactElement => {
             </Grid>
           </Grid>
         </Grid>
+        <Dialog
+          open={lockModalView}
+          onClose={() => {
+            setLockModalView(false);
+          }}
+          aria-labelledby="form-dialog-title"
+        >
+          <Form
+            onSubmit={handleLockPermission}
+            initialValues={lockPermissions}
+            render={({
+              handleSubmit,
+            }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <DialogTitle id="form-dialog-title">
+                  {`Permission of ${lockingRole.name}`}
+                </DialogTitle>
+                <Divider />
+                <DialogContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.permissionContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.permissionName}
+                        >
+                          Assign Users (AddRemoveUser)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="addRemoveUser[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.permissionContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.permissionName}
+                        >
+                          Create Rules (CreateDeleteRuleTree)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="createDeleteRuleTree[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.permissionContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.permissionName}
+                        >
+                          Display Rules (GetRuleTrees)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="getRuleTrees[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <Divider />
+                <DialogActions>
+                  <Button
+                    onClick={() => {
+                      setLockModalView(false);
+                    }}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={lockModalProcessing}
+                    >
+                      Save
+                    </Button>
+                    {lockModalProcessing && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
+        <Snackbar
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={showAlert}
+          onClose={() => {
+            setShowAlert(false);
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowAlert(false);
+            }}
+            severity={submitResponse.type === "success" ? "success" : "error"}
+          >
+            {submitResponse.message}
+          </Alert>
+        </Snackbar>
       </Container>
     </div>
   );

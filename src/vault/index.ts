@@ -43,6 +43,8 @@ export enum VaultPermissions {
   "JoinOrganizationUser" = "JoinOrganizationUser",
   "CreateAccount" = "CreateAccount",
   "WalletTransaction" = "WalletTransaction",
+  "CreateDeleteRuleTree" = "CreateDeleteRuleTree",
+  "GetRuleTrees" = "GetRuleTrees",
   // 'Wipe' = 'Wipe',
 }
 
@@ -69,10 +71,22 @@ const roleVaultPermission = {
   "desk.#deskId#.role.assign": ["AddRemoveUser"],
 
   "clearer.account.create": ["CreateWallet"],
-  "desk.#deskId#.account.create": ["CreateWallet"],
+  "desk.#deskId#.account.create": ["CreateWallet", "CreateDeleteAddressBook"],
 
   "clearer.account.delete": ["DeleteWallet"],
   "desk.#deskId#.account.delete": ["DeleteWallet"],
+
+  "organization.#organizationId#.initiate_nostro_account": ["CreateDeleteAddressBook"],
+  "organization.#organizationId#.approve_nostro_account": ["GrantRevokePermission"],
+  "organization.#organizationId#.role.read": ["GetUserPermissions"],
+  "desk.#deskId#.role.read": ["GetUserPermissions"],
+  "organization.#organizationId#.role.permission": ["GrantRevokePermission"],
+  "desk.#deskId#.role.permission": ["GrantRevokePermission"],
+  "desk.#deskId#.account.read": ["GetUserPermissions"],
+  "desk.#deskId#.account.permission": ["GrantRevokePermission"],
+
+  "clearer.account.read": ["GetUserPermissions"],
+  "clearer.account.permission": ["GrantRevokePermission"],
 };
 
 interface AuthenticateResponse {
@@ -654,6 +668,57 @@ export class Vault {
       }
     );
     return request;
+  }
+
+  public async getAssetPermissions(
+    asset: VaultAssetType,
+    assetId: string,
+    isOrg = false
+  ): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.GET,
+      `/${isOrg ? "organization" : "vault"}/${asset}/${assetId}/permission`,
+    );
+    return request;
+  }
+
+  public async revokePermissionFromAsset(
+    asset: VaultAssetType,
+    assetId: string,
+    ownerType: PermissionOwnerType,
+    ownerId: string,
+    permissionType: VaultPermissions,
+    isOrg = false
+  ): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.DELETE,
+      `/${isOrg ? "organization" : "vault"}/${asset}/${assetId}/permission`,
+      {
+        ownerType,
+        ownerId,
+        permissionType,
+      }
+    );
+    return request;
+  }
+
+  public checkUserLockUsability(user: any): boolean {
+    let getUserPermissions = false;
+    let grantRevokePermission = false;
+    user.roles.forEach((role: any) => {
+      role.permissions.forEach((rPermission: string) => {
+        const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
+        if (vPermissions) {
+          if (vPermissions.includes(VaultPermissions.GetUserPermissions)) {
+            getUserPermissions = true;
+          }
+          if (vPermissions.includes(VaultPermissions.GrantRevokePermission)) {
+            grantRevokePermission = true;
+          }
+        }
+      });
+    });
+    return getUserPermissions && grantRevokePermission;
   }
 }
 

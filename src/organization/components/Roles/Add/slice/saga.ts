@@ -7,7 +7,6 @@ import PaginatedResponse from "../../../../../types/PaginatedResponse";
 import { newOrgRoleActions as actions } from ".";
 
 import {
-  createOrgRole,
   getAllOrgPermissions,
   createMultiDeskRole,
   getAllMultiDeskPermissions,
@@ -27,40 +26,6 @@ export function* getOrgPermissions({
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
-        type: "error",
-      })
-    );
-  }
-}
-
-export function* addOrgRole({
-  payload,
-}: PayloadAction<{
-  organizationId: string;
-  role: Role;
-  vaultUserId: string;
-}>): Generator<any> {
-  try {
-    const response = yield call(
-      createOrgRole,
-      payload.organizationId,
-      payload.role,
-      payload.vaultUserId
-    );
-    if (response) {
-      yield put(actions.addOrgRoleSuccess(response as string));
-      yield put(
-        snackbarActions.showSnackbar({
-          message: "New organization role has been created successfully",
-          type: "success",
-        })
-      );
-    }
-  } catch (error) {
-    yield put(actions.addOrgRoleFailed());
-    yield put(
-      snackbarActions.showSnackbar({
-        message: error.message,
         type: "error",
       })
     );
@@ -175,7 +140,6 @@ export function* addDeskRole({
 
 export function* newOrgRoleSaga(): Generator<any> {
   yield takeEvery(actions.getOrgPermissions, getOrgPermissions);
-  yield takeEvery(actions.addOrgRole, addOrgRole);
   yield takeEvery(actions.getMultiDeskPermissions, getMultiDeskPermissions);
   yield takeEvery(actions.addMultiDeskRole, addMultiDeskRole);
   yield takeEvery(actions.getDeskPermissions, getDeskPermissions);
