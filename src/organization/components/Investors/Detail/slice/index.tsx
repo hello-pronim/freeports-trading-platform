@@ -9,6 +9,9 @@ import {
 import Account from "../../../../../types/Account";
 import Investor from "../../../../../types/Investor";
 import TradeRequest from "../../../../../types/TradeRequest";
+import FundRequest from "../../../../../types/FundRequest";
+import RefundRequest from "../../../../../types/RefundRequest";
+import MoveRequest from "../../../../../types/MoveRequest";
 import { investorDetailSaga } from "./saga";
 import { InvestorDetailState } from "./types";
 import PaginatedResponse from "../../../../../types/PaginatedResponse";
@@ -39,6 +42,16 @@ export const initialState: InvestorDetailState = {
   tradeRequests: [],
   loadingTradeRequests: false,
   creatingTradeRequest: false,
+
+  fundRequests: [],
+  loadingFundRequests: false,
+  creatingFundRequest: false,
+  refundRequests: [],
+  loadingRefundRequests: false,
+  creatingRefundRequest: false,
+  moveRequests: [],
+  loadingMoveRequests: false,
+  creatingMoveRequest: false,
 
   investorAccounts: [],
   loadingInvestorAccounts: false,
@@ -108,6 +121,117 @@ const slice = createSlice({
     },
     addTradeRequestFailed(state) {
       state.creatingTradeRequest = false;
+    },
+    getInvestorFundRequests(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+      }>
+    ) {
+      state.loadingFundRequests = true;
+    },
+    getInvestorFundRequestsSuccess(
+      state,
+      action: PayloadAction<FundRequest[]>
+    ) {
+      state.loadingFundRequests = false;
+      state.fundRequests = action.payload;
+    },
+    getInvestorFundRequestsFailed(state) {
+      state.loadingFundRequests = false;
+    },
+    addInvestorFundRequest(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+        request: FundRequest;
+      }>
+    ) {
+      state.creatingFundRequest = true;
+    },
+    addInvestorFundRequestSuccess(state) {
+      state.creatingFundRequest = false;
+    },
+    addInvestorFundRequestFailed(state) {
+      state.creatingFundRequest = false;
+    },
+    getInvestorRefundRequests(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+      }>
+    ) {
+      state.loadingRefundRequests = true;
+    },
+    getInvestorRefundRequestsSuccess(
+      state,
+      action: PayloadAction<RefundRequest[]>
+    ) {
+      state.loadingRefundRequests = false;
+      state.refundRequests = action.payload;
+    },
+    getInvestorRefundRequestsFailed(state) {
+      state.loadingRefundRequests = false;
+    },
+    addInvestorRefundRequest(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+        request: RefundRequest;
+      }>
+    ) {
+      state.creatingRefundRequest = true;
+    },
+    addInvestorRefundRequestSuccess(state) {
+      state.creatingRefundRequest = false;
+    },
+    addInvestorRefundRequestFailed(state) {
+      state.creatingRefundRequest = false;
+    },
+    getInvestorMoveRequests(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+      }>
+    ) {
+      state.loadingMoveRequests = true;
+    },
+    getInvestorMoveRequestsSuccess(
+      state,
+      action: PayloadAction<MoveRequest[]>
+    ) {
+      state.loadingMoveRequests = false;
+      state.moveRequests = action.payload;
+    },
+    getInvestorMoveRequestsFailed(state) {
+      state.loadingMoveRequests = false;
+    },
+    addInvestorMoveRequest(
+      state,
+      action: PayloadAction<{
+        organizationId: string;
+        deskId: string;
+        investorId: string;
+        request: MoveRequest;
+      }>
+    ) {
+      state.creatingMoveRequest = true;
+    },
+    addInvestorMoveRequestSuccess(state) {
+      state.creatingMoveRequest = false;
+    },
+    addInvestorMoveRequestFailed(state) {
+      state.creatingMoveRequest = false;
     },
     getInvestorAccounts(
       state,

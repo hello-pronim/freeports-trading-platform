@@ -105,12 +105,6 @@ const Alert = (props: AlertProps) => {
 const Roles = (): React.ReactElement => {
   const classes = useStyles();
   const history = useHistory();
-  const { error } = useSelector(
-    (state: any) => ({
-      error: state.global.error,
-    }),
-    shallowEqual
-  );
   const { retrieveRoles, retrievePermissions, updateRole, removeRole } =
     useRole();
   const [roles, setRoles] = useState([] as any[]);
@@ -185,7 +179,9 @@ const Roles = (): React.ReactElement => {
   const onRoleSave = async (roleId: string) => {
     const newRole = roles.filter((role: RoleType) => role.id === roleId)[0];
     const oldRoles = await retrieveRoles();
-    const oldPermissions = oldRoles.find((role: RoleType) => role.id === roleId).permissions;
+    const oldPermissions = oldRoles.find(
+      (role: RoleType) => role.id === roleId
+    ).permissions;
 
     setSaving(true);
     setShowAlert(false);
@@ -342,10 +338,12 @@ const Roles = (): React.ReactElement => {
                               variant="contained"
                               size="small"
                               disabled={removing}
-                              onClick={() => onRoleRemove(
-                                role.id, 
-                                role.vaultGroupId as string
-                              )}
+                              onClick={() =>
+                                onRoleRemove(
+                                  role.id,
+                                  role.vaultGroupId as string
+                                )
+                              }
                             >
                               Remove
                             </Button>

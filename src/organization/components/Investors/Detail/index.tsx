@@ -51,6 +51,15 @@ import {
   selectTradeRequests,
   selectIsTradeRequestsLoading,
   selectIsTradeRequestCreating,
+  selectFundRequests,
+  selectIsFundRequestsLoading,
+  selectIsFundRequestCreating,
+  selectRefundRequests,
+  selectIsRefundRequestsLoading,
+  selectIsRefundRequestCreating,
+  selectMoveRequests,
+  selectIsMoveRequestsLoading,
+  selectIsMoveRequestCreating,
   selectInvestorAccounts,
   selectIsInvestorAccountsLoading,
   selectIsInvestorAccountCreating,
@@ -59,6 +68,9 @@ import Loader from "../../../../components/Loader";
 import { useOrganization } from "../../../../hooks";
 import Account from "../../../../types/Account";
 import TradeRequest from "../../../../types/TradeRequest";
+import FundRequest from "../../../../types/FundRequest";
+import RefundRequest from "../../../../types/RefundRequest";
+import MoveRequest from "../../../../types/MoveRequest";
 import { CryptoCurrencies } from "../../../../types/Currencies";
 import vault from "../../../../vault";
 
@@ -166,6 +178,62 @@ const validateAccount = (values: any) => {
   return errors;
 };
 
+const validateFundRequest = (values: FundRequest) => {
+  const errors: Partial<FundRequest> = {};
+
+  if (!values.accountFrom) {
+    errors.accountFrom = "This Field Required";
+  }
+
+  if (!values.accountTo) {
+    errors.accountTo = "This Field Required";
+  }
+
+  if (!values.quantity) {
+    errors.quantity = "This Field Required";
+  }
+
+  return errors;
+};
+
+const validateRefundRequest = (values: RefundRequest) => {
+  const errors: Partial<RefundRequest> = {};
+
+  if (!values.accountFrom) {
+    errors.accountFrom = "This Field Required";
+  }
+
+  if (!values.accountTo) {
+    errors.accountTo = "This Field Required";
+  }
+
+  if (!values.quantity) {
+    errors.quantity = "This Field Required";
+  }
+
+  return errors;
+};
+
+const validateMoveRequest = (values: MoveRequest) => {
+  const errors: Partial<MoveRequest> = {};
+
+  if (!values.accountFrom) {
+    errors.accountFrom = "This Field Required";
+  }
+
+  if (!values.publicAddressTo) {
+    errors.publicAddressTo = "This Field Required";
+  }
+
+  if (!values.quantity) {
+    errors.quantity = "This Field Required";
+  }
+
+  return errors;
+
+  return errors;
+};
+
 const Alert = (props: AlertProps) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 };
@@ -190,12 +258,32 @@ const InvestorDetail = (): React.ReactElement => {
   const investorAccounts = useSelector(selectInvestorAccounts);
   const investorAccountsLoading = useSelector(selectIsInvestorAccountsLoading);
   const investorAccountCreating = useSelector(selectIsInvestorAccountCreating);
+  const fundRequests = useSelector(selectFundRequests);
+  const fundRequestsLoading = useSelector(selectIsFundRequestsLoading);
+  const fundRequestCreating = useSelector(selectIsFundRequestCreating);
+  const refundRequests = useSelector(selectRefundRequests);
+  const refundRequestsLoading = useSelector(selectIsRefundRequestsLoading);
+  const refundRequestCreating = useSelector(selectIsRefundRequestCreating);
+  const moveRequests = useSelector(selectMoveRequests);
+  const moveRequestsLoading = useSelector(selectIsMoveRequestsLoading);
+  const moveRequestCreating = useSelector(selectIsMoveRequestCreating);
+  const transferRequests = [
+    ...fundRequests,
+    ...refundRequests,
+    ...moveRequests,
+  ];
   const [searchText, setSearchText] = useState("");
   const [tradingAccounts, setTradingAccounts] = useState<
     Array<{ currency: string; iban: string; account: string; balance?: number }>
   >([]);
   const [createTradeModalOpen, setCreateTradeModalOpen] = useState(false);
   const [createAccountModalOpen, setCreateAccountModalOpen] = useState(false);
+  const [createFundRequestModalOpen, setCreateFundRequestModalOpen] =
+    useState(false);
+  const [createRefundRequestModalOpen, setCreateRefundRequestModalOpen] =
+    useState(false);
+  const [createMoveRequestModalOpen, setCreateMoveRequestModalOpen] =
+    useState(false);
   const [defaultTradeRequest, setDefaultTradeRequest] = useState<tradeType>({
     accountFrom: "",
     accountTo: "",
@@ -203,6 +291,25 @@ const InvestorDetail = (): React.ReactElement => {
     quantity: "",
     limitPrice: "",
     limitTime: "",
+  });
+  const [defaultFundRequest, setDefaultFundRequest] = useState<FundRequest>({
+    accountFrom: "",
+    accountTo: "",
+    quantity: "",
+    description: "",
+  });
+  const [defaultRefundRequest, setDefaultRefundRequest] =
+    useState<RefundRequest>({
+      accountFrom: "",
+      accountTo: "",
+      quantity: "",
+      description: "",
+    });
+  const [defaultMoveRequest, setDefaultMoveRequest] = useState<MoveRequest>({
+    accountFrom: "",
+    publicAddressTo: "",
+    quantity: "",
+    description: "",
   });
   const [defaultAccount, setDefaultAccount] = useState<Account>({
     name: "",
@@ -245,6 +352,26 @@ const InvestorDetail = (): React.ReactElement => {
     return "Quantity";
   };
 
+  const convertDateToDMYHIS = (datetime: string) => {
+    const dt = new Date(datetime);
+    let month = `${dt.getMonth() + 1}`;
+    let day = `${dt.getDate()}`;
+    const year = `${dt.getFullYear()}`;
+    let hour = `${dt.getHours()}`;
+    let minute = `${dt.getMinutes()}`;
+    let second = `${dt.getSeconds()}`;
+
+    if (month.length < 2) month = `0${month}`;
+    if (day.length < 2) day = `0${day}`;
+    if (hour.length < 2) hour = `0${hour}`;
+    if (minute.length < 2) minute = `0${minute}`;
+    if (second.length < 2) second = `0${second}`;
+
+    return `${[day, month, year].join(".")} ${[hour, minute, second].join(
+      ":"
+    )}`;
+  };
+
   useEffect(() => {
     let mounted = false;
     const init = async () => {
@@ -271,6 +398,27 @@ const InvestorDetail = (): React.ReactElement => {
     );
     dispatch(
       investorDetailActions.getInvestorTradeRequests({
+        organizationId,
+        deskId,
+        investorId,
+      })
+    );
+    dispatch(
+      investorDetailActions.getInvestorFundRequests({
+        organizationId,
+        deskId,
+        investorId,
+      })
+    );
+    dispatch(
+      investorDetailActions.getInvestorRefundRequests({
+        organizationId,
+        deskId,
+        investorId,
+      })
+    );
+    dispatch(
+      investorDetailActions.getInvestorMoveRequests({
         organizationId,
         deskId,
         investorId,
@@ -318,6 +466,31 @@ const InvestorDetail = (): React.ReactElement => {
     setCreateAccountModalOpen(false);
   };
 
+  const handleCreateFundRequestModalOpen = () => {
+    setCreateFundRequestModalOpen(true);
+  };
+
+  const handleCreateFundRequestModalClose = () => {
+    setCreateFundRequestModalOpen(false);
+  };
+
+  const handleCreateRefundRequestModalOpen = () => {
+    setCreateRefundRequestModalOpen(true);
+  };
+
+  const handleCreateRefundRequestModalClose = () => {
+    setCreateRefundRequestModalOpen(false);
+  };
+
+  const handleCreateMoveRequestModalOpen = (accountFrom: string) => {
+    setDefaultMoveRequest({ ...defaultMoveRequest, accountFrom });
+    setCreateMoveRequestModalOpen(true);
+  };
+
+  const handleCreateMoveRequestModalClose = () => {
+    setCreateMoveRequestModalOpen(false);
+  };
+
   const handleAccountCreate = async (values: Account) => {
     try {
       const newAccount = { ...values };
@@ -351,6 +524,42 @@ const InvestorDetail = (): React.ReactElement => {
     }
   };
 
+  const handleFundRequestCreate = async (values: FundRequest) => {
+    await dispatch(
+      investorDetailActions.addInvestorFundRequest({
+        organizationId,
+        deskId,
+        investorId,
+        request: values,
+      })
+    );
+    setCreateFundRequestModalOpen(false);
+  };
+
+  const handleRefundRequestCreate = async (values: RefundRequest) => {
+    await dispatch(
+      investorDetailActions.addInvestorRefundRequest({
+        organizationId,
+        deskId,
+        investorId,
+        request: values,
+      })
+    );
+    setCreateRefundRequestModalOpen(false);
+  };
+
+  const handleMoveRequestCreate = async (values: MoveRequest) => {
+    await dispatch(
+      investorDetailActions.addInvestorMoveRequest({
+        organizationId,
+        deskId,
+        investorId,
+        request: values,
+      })
+    );
+    setCreateMoveRequestModalOpen(false);
+  };
+
   const handleBackClick = () => {
     history.push("/investors");
   };
@@ -359,7 +568,7 @@ const InvestorDetail = (): React.ReactElement => {
     return `${id.substring(0, 10)}...${id.charAt(id.length - 1)}`;
   };
 
-  const onHandleAccountDelete = (accountId: string) => {
+  const handleAccountDelete = (accountId: string) => {
     dispatch(
       investorDetailActions.removeInvestorAccount({
         organizationId,
@@ -370,10 +579,16 @@ const InvestorDetail = (): React.ReactElement => {
     );
   };
 
-  const onHandleAccountView = (accountId: string) => {
-    history.push(
-      `/desks/${deskId}/investors/${investorId}/accounts/${accountId}`
-    );
+  const sortTransferRequestsByDate = () => {
+    return (a: any, b: any) => {
+      if (a.createdAt && b.createdAt && a.createdAt < b.createdAt) {
+        return 1;
+      }
+      if (a.createdAt && b.createdAt && a.createdAt > b.createdAt) {
+        return -1;
+      }
+      return 0;
+    };
   };
 
   return (
@@ -471,7 +686,9 @@ const InvestorDetail = (): React.ReactElement => {
                             justify="space-between"
                           >
                             <Grid item>
-                              <Typography variant="h6">ORDER REQUESTS</Typography>
+                              <Typography variant="h6">
+                                ORDER REQUESTS
+                              </Typography>
                             </Grid>
                             <Grid item>
                               <Button
@@ -505,7 +722,7 @@ const InvestorDetail = (): React.ReactElement => {
                                       <Link
                                         to={`/desks/${deskId}/investors/${investorId}/trades/${id}`}
                                       >
-                                       {getShortId(id)}
+                                        {getShortId(id)}
                                       </Link>
                                     );
                                   },
@@ -564,6 +781,78 @@ const InvestorDetail = (): React.ReactElement => {
                         </Grid>
                       </Grid>
                     </Grid>
+                    <Grid item xs={12}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Typography variant="h6">
+                            TRANSFER REQUESTS
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          {(fundRequestsLoading ||
+                            refundRequestsLoading ||
+                            moveRequestsLoading) && <Loader />}
+                          {!fundRequestsLoading &&
+                            !refundRequestsLoading &&
+                            !moveRequestsLoading && (
+                              <MaterialTable
+                                columns={[
+                                  {
+                                    field: "createdAt",
+                                    title: "Date",
+                                    render: (rowData: any) => {
+                                      const { createdAt } = rowData;
+                                      return convertDateToDMYHIS(createdAt);
+                                    },
+                                  },
+                                  {
+                                    field: "kind",
+                                    title: "Kind",
+                                    render: (rowData: any) => {
+                                      const { kind } = rowData;
+                                      if (kind === "RequestFund") return "Fund";
+                                      if (kind === "RequestRefund")
+                                        return "Refund";
+                                      if (kind === "RequestMove") return "Move";
+                                      return kind;
+                                    },
+                                  },
+                                  {
+                                    field: "quantity",
+                                    title: "Amount",
+                                  },
+                                  {
+                                    field: "status",
+                                    title: "Status",
+                                  },
+                                  {
+                                    title: "Actions",
+                                    render: (rowData: any) => {
+                                      return (
+                                        <Button
+                                          color="primary"
+                                          aria-label="Cancel"
+                                        >
+                                          Cancel
+                                        </Button>
+                                      );
+                                    },
+                                  },
+                                ]}
+                                data={transferRequests
+                                  .sort(sortTransferRequestsByDate())
+                                  .map((request: any) => ({
+                                    ...request,
+                                  }))}
+                                options={{
+                                  sorting: false,
+                                  toolbar: false,
+                                }}
+                              />
+                            )}
+                        </Grid>
+                      </Grid>
+                    </Grid>
                     <Grid item xs={6}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
@@ -614,7 +903,7 @@ const InvestorDetail = (): React.ReactElement => {
                                   field: "balance",
                                   title: "Balance",
                                   cellStyle: {
-                                    width: "40%",
+                                    width: "35%",
                                   },
                                   render: (rowData: any) => {
                                     const { balance = 0, currency } = rowData;
@@ -629,26 +918,25 @@ const InvestorDetail = (): React.ReactElement => {
                                 {
                                   title: "Actions",
                                   render: (rowData: any) => {
-                                    const { id: accountId } = rowData;
+                                    const { id } = rowData;
 
                                     return (
                                       <div>
-                                        <IconButton
-                                          color="inherit"
+                                        <Button
+                                          color="primary"
                                           aria-label="View details"
                                           onClick={() => {
-                                            onHandleAccountView(accountId);
+                                            handleCreateMoveRequestModalOpen(
+                                              id
+                                            );
                                           }}
                                         >
-                                          <VisibilityIcon
-                                            fontSize="small"
-                                            color="primary"
-                                          />
-                                        </IconButton>
+                                          Move
+                                        </Button>
                                         <IconButton
                                           color="inherit"
                                           onClick={() =>
-                                            onHandleAccountDelete(accountId)
+                                            handleAccountDelete(id)
                                           }
                                         >
                                           <DeleteIcon
@@ -705,8 +993,18 @@ const InvestorDetail = (): React.ReactElement => {
                               </Grid>
                             </Grid>
                             <Grid item>
-                              <Button color="primary">Fund!</Button>
-                              <Button color="primary">Refund!</Button>
+                              <Button
+                                color="primary"
+                                onClick={handleCreateFundRequestModalOpen}
+                              >
+                                Fund!
+                              </Button>
+                              <Button
+                                color="primary"
+                                onClick={handleCreateRefundRequestModalOpen}
+                              >
+                                Refund!
+                              </Button>
                             </Grid>
                           </Grid>
                         </Grid>
@@ -930,7 +1228,9 @@ const InvestorDetail = (): React.ReactElement => {
               values,
             }) => (
               <form onSubmit={handleSubmit} noValidate>
-                <DialogTitle id="form-dialog-title">Create account</DialogTitle>
+                <DialogTitle id="form-dialog-title">
+                  Create fund request
+                </DialogTitle>
                 <Divider />
                 <DialogContent>
                   <Grid container spacing={2}>
@@ -977,6 +1277,349 @@ const InvestorDetail = (): React.ReactElement => {
                       Create
                     </Button>
                     {investorAccountCreating && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
+        <Dialog
+          open={createFundRequestModalOpen}
+          onClose={handleCreateFundRequestModalClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <Form
+            onSubmit={handleFundRequestCreate}
+            mutators={{
+              ...arrayMutators,
+            }}
+            initialValues={defaultFundRequest}
+            validate={validateFundRequest}
+            render={({
+              handleSubmit,
+              submitting,
+              pristine,
+              form: {
+                mutators: { push },
+              },
+              values,
+            }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <DialogTitle id="form-dialog-title">
+                  Create fund request
+                </DialogTitle>
+                <Divider />
+                <DialogContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={4}>
+                      <MuiSelect
+                        native
+                        name="accountFrom"
+                        label="Account From"
+                        variant="outlined"
+                        fullWidth
+                      >
+                        <option value="0">Select...</option>
+                        {investorAccounts.map((account: any) => (
+                          <option key={account.id} value={account.id}>
+                            {account.id}
+                          </option>
+                        ))}
+                      </MuiSelect>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <MuiSelect
+                        native
+                        name="accountTo"
+                        label="Account To"
+                        variant="outlined"
+                        fullWidth
+                      >
+                        <option value="0">Select...</option>
+                        {values.accountFrom
+                          ? tradingAccounts
+                              .filter(
+                                (account: accountType) =>
+                                  account.currency ===
+                                  investorAccounts.filter(
+                                    (acc: any) => acc.id === values.accountFrom
+                                  )[0].currency
+                              )
+                              .map((account: accountType) => (
+                                <option
+                                  key={account.account}
+                                  value={account.account}
+                                >
+                                  {account.account}
+                                </option>
+                              ))
+                          : tradingAccounts.map((account: accountType) => (
+                              <option
+                                key={account.account}
+                                value={account.account}
+                              >
+                                {account.account}
+                              </option>
+                            ))}
+                      </MuiSelect>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <MuiTextField
+                        required
+                        label="Quantity"
+                        type="text"
+                        name="quantity"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <MuiTextField
+                        label="Description"
+                        type="text"
+                        name="description"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <Divider />
+                <DialogActions>
+                  <Button
+                    onClick={handleCreateFundRequestModalClose}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={fundRequestCreating}
+                    >
+                      Create
+                    </Button>
+                    {fundRequestCreating && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
+        <Dialog
+          open={createRefundRequestModalOpen}
+          onClose={handleCreateRefundRequestModalClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <Form
+            onSubmit={handleRefundRequestCreate}
+            mutators={{
+              ...arrayMutators,
+            }}
+            initialValues={defaultRefundRequest}
+            validate={validateRefundRequest}
+            render={({
+              handleSubmit,
+              submitting,
+              pristine,
+              form: {
+                mutators: { push },
+              },
+              values,
+            }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <DialogTitle id="form-dialog-title">
+                  Create refund request
+                </DialogTitle>
+                <Divider />
+                <DialogContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={4}>
+                      <MuiSelect
+                        native
+                        name="accountFrom"
+                        label="Account From"
+                        variant="outlined"
+                        fullWidth
+                      >
+                        <option value="0">Select...</option>
+                        {tradingAccounts.map((account: accountType) => (
+                          <option key={account.account} value={account.account}>
+                            {account.account}
+                          </option>
+                        ))}
+                      </MuiSelect>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <MuiSelect
+                        native
+                        name="accountTo"
+                        label="Account To"
+                        variant="outlined"
+                        fullWidth
+                      >
+                        <option value="0">Select...</option>
+                        {values.accountFrom
+                          ? investorAccounts
+                              .filter(
+                                (account: any) =>
+                                  account.currency ===
+                                  tradingAccounts.filter(
+                                    (acc: accountType) =>
+                                      acc.account === values.accountFrom
+                                  )[0].currency
+                              )
+                              .map((account: any) => (
+                                <option key={account.id} value={account.id}>
+                                  {account.id}
+                                </option>
+                              ))
+                          : investorAccounts.map((account: any) => (
+                              <option key={account.id} value={account.id}>
+                                {account.id}
+                              </option>
+                            ))}
+                      </MuiSelect>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <MuiTextField
+                        required
+                        label="Quantity"
+                        type="text"
+                        name="quantity"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <MuiTextField
+                        label="Description"
+                        type="text"
+                        name="description"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <Divider />
+                <DialogActions>
+                  <Button
+                    onClick={handleCreateRefundRequestModalClose}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={refundRequestCreating}
+                    >
+                      Create
+                    </Button>
+                    {refundRequestCreating && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
+        <Dialog
+          open={createMoveRequestModalOpen}
+          onClose={handleCreateMoveRequestModalClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <Form
+            onSubmit={handleMoveRequestCreate}
+            mutators={{
+              ...arrayMutators,
+            }}
+            initialValues={defaultMoveRequest}
+            validate={validateMoveRequest}
+            render={({
+              handleSubmit,
+              submitting,
+              pristine,
+              form: {
+                mutators: { push },
+              },
+              values,
+            }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <DialogTitle id="form-dialog-title">
+                  Create move request
+                </DialogTitle>
+                <Divider />
+                <DialogContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <MuiTextField
+                        required
+                        label="Public address"
+                        type="text"
+                        name="publicAddressTo"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <MuiTextField
+                        required
+                        label="Quantity"
+                        type="text"
+                        name="quantity"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <MuiTextField
+                        label="Description"
+                        type="text"
+                        name="description"
+                        variant="outlined"
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <Divider />
+                <DialogActions>
+                  <Button
+                    onClick={handleCreateMoveRequestModalClose}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={moveRequestCreating}
+                    >
+                      Create
+                    </Button>
+                    {moveRequestCreating && (
                       <CircularProgress
                         size={24}
                         className={classes.progressButton}
