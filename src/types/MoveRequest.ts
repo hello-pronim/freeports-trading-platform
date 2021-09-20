@@ -5,6 +5,8 @@ export default interface MoveRequest {
 
   publicAddressTo: string;
 
+  currencyFrom?: string;
+
   kind?: string;
 
   friendlyId?: string;
