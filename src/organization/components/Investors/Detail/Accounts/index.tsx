@@ -589,11 +589,15 @@ const InvestorDetail = (): React.ReactElement => {
           <Divider />
           <DialogContent>
             <Grid container>
-              {Object.keys(selectedOperationDetail).map((key: string) => (
-                <Grid item xs={12} key={key}>
-                  <Typography>{`${key}: `}</Typography>
-                </Grid>
-              ))}
+              {Object.keys(selectedOperationDetail)
+                .filter((key: string) => key !== "tableData")
+                .map((key: string) => (
+                  <Grid item xs={12} key={key}>
+                    <Typography variant="body2">
+                      {`${key}: ${(selectedOperationDetail as any)[key]}`}
+                    </Typography>
+                  </Grid>
+                ))}
             </Grid>
           </DialogContent>
           <Divider />
