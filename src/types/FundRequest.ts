@@ -5,6 +5,10 @@ export default interface FundRequest {
 
   accountTo: string;
 
+  currencyFrom?: string;
+
+  currencyTo?: string;
+
   kind?: string;
 
   friendlyId?: string;

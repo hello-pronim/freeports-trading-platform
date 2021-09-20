@@ -180,12 +180,13 @@ const validateAccount = (values: any) => {
 
 const validateFundRequest = (values: FundRequest) => {
   const errors: Partial<FundRequest> = {};
+  console.log(values);
 
-  if (!values.accountFrom) {
+  if (values.accountFrom === "" || values.accountFrom === "0") {
     errors.accountFrom = "This Field Required";
   }
 
-  if (!values.accountTo) {
+  if (values.accountTo === "" || values.accountTo === "0") {
     errors.accountTo = "This Field Required";
   }
 
@@ -198,12 +199,13 @@ const validateFundRequest = (values: FundRequest) => {
 
 const validateRefundRequest = (values: RefundRequest) => {
   const errors: Partial<RefundRequest> = {};
+  console.log(values);
 
-  if (!values.accountFrom) {
+  if (values.accountFrom === "" || values.accountFrom === "0") {
     errors.accountFrom = "This Field Required";
   }
 
-  if (!values.accountTo) {
+  if (values.accountTo === "" || values.accountTo === "0") {
     errors.accountTo = "This Field Required";
   }
 
@@ -216,10 +218,6 @@ const validateRefundRequest = (values: RefundRequest) => {
 
 const validateMoveRequest = (values: MoveRequest) => {
   const errors: Partial<MoveRequest> = {};
-
-  if (!values.accountFrom) {
-    errors.accountFrom = "This Field Required";
-  }
 
   if (!values.publicAddressTo) {
     errors.publicAddressTo = "This Field Required";
@@ -1350,7 +1348,7 @@ const InvestorDetail = (): React.ReactElement => {
                         fullWidth
                       >
                         <option value="0">Select...</option>
-                        {values.accountFrom
+                        {values.accountFrom !== "" && values.accountFrom !== "0"
                           ? tradingAccounts
                               .filter(
                                 (account: accountType) =>
@@ -1479,8 +1477,10 @@ const InvestorDetail = (): React.ReactElement => {
                         variant="outlined"
                         fullWidth
                       >
-                        <option value="0">Select...</option>
-                        {values.accountFrom
+                        <option value="0" selected>
+                          Select...
+                        </option>
+                        {values.accountFrom !== "" && values.accountFrom !== "0"
                           ? investorAccounts
                               .filter(
                                 (account: any) =>
