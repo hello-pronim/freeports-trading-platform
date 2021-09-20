@@ -58,9 +58,6 @@ import Operation from "../../../../types/Operation";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    importButton: {
-      marginRight: "20px",
-    },
     fileInput: {
       display: "none",
     },
@@ -308,36 +305,6 @@ const Detail = (): React.ReactElement => {
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      className={classes.importButton}
-                      onClick={handleImportClick}
-                    >
-                      <InsertDriveFileIcon
-                        fontSize="small"
-                        style={{ color: "white" }}
-                      />
-                      IMPORT OPERATIONS
-                    </Button>
-                    <input
-                      type="file"
-                      ref={fileRef}
-                      accept=".xml"
-                      className={classes.fileInput}
-                      onChange={handleFileImport}
-                      multiple
-                    />
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleCreateModalOpen}
-                    >
-                      <EditIcon fontSize="small" style={{ color: "white" }} />
-                      CREATE OPERATIONS
-                    </Button>
-                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
@@ -390,72 +357,55 @@ const Detail = (): React.ReactElement => {
                     <Grid item xs={12}>
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
-                          <Typography variant="h6">
-                            Requested Operation
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <MaterialTable
-                            columns={[
-                              {
-                                title: "Date",
-                                cellStyle: {
-                                  width: "20%",
-                                },
-                                render: (rowData: any) => {
-                                  const { createdAt } = rowData;
-                                  return convertDateToDMY(createdAt);
-                                },
-                              },
-                              {
-                                field: "kind",
-                                title: "Kind",
-                                cellStyle: {
-                                  width: "20%",
-                                },
-                              },
-                              {
-                                title: "To",
-                                cellStyle: {
-                                  width: "20%",
-                                },
-                                render: (rowData: any) => {
-                                  const { accountTo } = rowData;
-                                  return accountTo ? accountTo.name : "";
-                                },
-                              },
-                              {
-                                title: "Quantity",
-                                cellStyle: {
-                                  width: "20%",
-                                },
-                                render: (rowData: any) => {
-                                  const { quantity } = rowData;
-                                  return `${selectedAccount.currency} ${quantity}`;
-                                },
-                              },
-                              {
-                                field: "status",
-                                title: "Status",
-                                cellStyle: {
-                                  width: "20%",
-                                },
-                              },
-                            ]}
-                            data={moveRequests}
-                            options={{
-                              toolbar: false,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                          <Typography variant="h6">
-                            Pending reconciliations
-                          </Typography>
+                          <Grid
+                            container
+                            justify="space-between"
+                            alignItems="center"
+                          >
+                            <Grid item>
+                              <Typography variant="h6">
+                                Pending reconciliations
+                              </Typography>
+                            </Grid>
+                            <Grid item>
+                              <Grid container alignItems="center" spacing={2}>
+                                <Grid item>
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleImportClick}
+                                  >
+                                    <InsertDriveFileIcon
+                                      fontSize="small"
+                                      style={{ color: "white" }}
+                                    />
+                                    IMPORT OPERATIONS
+                                  </Button>
+                                  <input
+                                    type="file"
+                                    ref={fileRef}
+                                    accept=".xml"
+                                    className={classes.fileInput}
+                                    onChange={handleFileImport}
+                                    multiple
+                                  />
+                                </Grid>
+                                <Grid item>
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleCreateModalOpen}
+                                  >
+                                    <EditIcon
+                                      fontSize="small"
+                                      style={{ color: "white" }}
+                                    />
+                                    CREATE OPERATIONS
+                                  </Button>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                          </Grid>
                         </Grid>
                         <Grid item xs={12}>
                           <MaterialTable
@@ -542,6 +492,69 @@ const Detail = (): React.ReactElement => {
                               date: convertDateToDMY(opt.date),
                             }))}
                             title=""
+                            options={{
+                              toolbar: false,
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Typography variant="h6">
+                            Requested Operation
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <MaterialTable
+                            columns={[
+                              {
+                                title: "Date",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                                render: (rowData: any) => {
+                                  const { createdAt } = rowData;
+                                  return convertDateToDMY(createdAt);
+                                },
+                              },
+                              {
+                                field: "kind",
+                                title: "Kind",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                              },
+                              {
+                                title: "To",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                                render: (rowData: any) => {
+                                  const { accountTo } = rowData;
+                                  return accountTo ? accountTo.name : "";
+                                },
+                              },
+                              {
+                                title: "Quantity",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                                render: (rowData: any) => {
+                                  const { quantity } = rowData;
+                                  return `${selectedAccount.currency} ${quantity}`;
+                                },
+                              },
+                              {
+                                field: "status",
+                                title: "Status",
+                                cellStyle: {
+                                  width: "20%",
+                                },
+                              },
+                            ]}
+                            data={moveRequests}
                             options={{
                               toolbar: false,
                             }}
