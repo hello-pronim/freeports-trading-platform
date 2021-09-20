@@ -231,36 +231,46 @@ const InvestorDetail = (): React.ReactElement => {
   };
 
   const handleAccountCreate = async (values: Account) => {
-    try {
-      const newAccount = { ...values };
-      const vaultCreateWalletRequest = await vault.createWallet(
-        newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum"
-      );
-      const response = await vault.sendRequest(vaultCreateWalletRequest);
-      newAccount.vaultWalletId = response.wallet.id;
-
-      const vaultGetWalletsRequest = await vault.getAllWallets();
-      const response2 = await vault.sendRequest(vaultGetWalletsRequest);
-      newAccount.publicAddress = response2.wallets.filter(
-        (x: any) => x.id === newAccount.vaultWalletId
-      )[0].address;
-
-      await dispatch(
-        investorDetailActions.addInvestorAccount({
-          organizationId,
-          deskId,
-          investorId,
-          account: newAccount,
-        })
-      );
-      setCreateAccountModalOpen(false);
-    } catch (error: any) {
+    const sameAccount = investorAccounts.filter(x => x.currency === values.currency);
+    if (sameAccount.length) {
       dispatch(
         snackbarActions.showSnackbar({
-          message: error.message,
+          message: "The account with same currency is already existing.",
           type: "error",
         })
       );
+    } else {
+      try {
+        const newAccount = { ...values };
+        const vaultCreateWalletRequest = await vault.createWallet(
+          newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum"
+        );
+        const response = await vault.sendRequest(vaultCreateWalletRequest);
+        newAccount.vaultWalletId = response.wallet.id;
+  
+        const vaultGetWalletsRequest = await vault.getAllWallets();
+        const response2 = await vault.sendRequest(vaultGetWalletsRequest);
+        newAccount.publicAddress = response2.wallets.filter(
+          (x: any) => x.id === newAccount.vaultWalletId
+        )[0].address;
+  
+        await dispatch(
+          investorDetailActions.addInvestorAccount({
+            organizationId,
+            deskId,
+            investorId,
+            account: newAccount,
+          })
+        );
+        setCreateAccountModalOpen(false);
+      } catch (error: any) {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: error.message,
+            type: "error",
+          })
+        );
+      } 
     }
   };
 
