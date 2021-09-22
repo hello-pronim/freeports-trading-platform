@@ -2,7 +2,7 @@
 /* eslint-disable class-methods-use-this */
 import axios, { AxiosResponse } from "axios";
 import Lockr from "lockr";
-import { VaultAccountType } from "./enum/vault-account-type";
+import { VaultWalletType } from "./enum/wallet-type";
 import { PermissionOwnerType } from "./enum/permission-owner-type";
 import { VaultAssetType } from "./enum/asset-type";
 import sendRequest, { Method, VaultRequestDto } from "../services/vaultService";
@@ -242,16 +242,6 @@ export class Vault {
     const request = await this.createRequest(
       Method.GET,
       `/vault/owner/${ownerId}/user/permission`
-    );
-    return request;
-  }
-
-  public async createAccount(type: VaultAccountType): Promise<VaultRequestDto> {
-    const request = await this.createRequest(
-      Method.POST,
-      "/vault/organization/account",
-
-      { type }
     );
     return request;
   }
@@ -701,20 +691,93 @@ export class Vault {
   public checkUserLockUsability(user: any): boolean {
     let getUserPermissions = false;
     let grantRevokePermission = false;
-    user.roles.forEach((role: any) => {
-      role.permissions.forEach((rPermission: string) => {
-        const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
-        if (vPermissions) {
-          if (vPermissions.includes(VaultPermissions.GetUserPermissions)) {
-            getUserPermissions = true;
+    if (user.roles) {
+      user.roles.forEach((role: any) => {
+        role.permissions.forEach((rPermission: string) => {
+          const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
+          if (vPermissions) {
+            if (vPermissions.includes(VaultPermissions.GetUserPermissions)) {
+              getUserPermissions = true;
+            }
+            if (vPermissions.includes(VaultPermissions.GrantRevokePermission)) {
+              grantRevokePermission = true;
+            }
           }
-          if (vPermissions.includes(VaultPermissions.GrantRevokePermission)) {
-            grantRevokePermission = true;
-          }
-        }
+        });
       });
-    });
+    }
     return getUserPermissions && grantRevokePermission;
+  }
+
+  public checkUserVaultPermission(
+    user: any, 
+    vPermission: VaultPermissions
+  ): boolean {
+    let hasPermission = false;
+    if (user.roles) {
+      user.roles.forEach((role: any) => {
+        role.permissions.forEach((rPermission: string) => {
+          const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
+          if (vPermissions) {
+            if (vPermissions.includes(vPermission)) {
+              hasPermission = true;
+            }
+          }
+        });
+      });
+    }
+    return hasPermission;
+  }
+
+  public async createAddressbook(): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.POST,
+      `/organization/address-book`
+    );
+    return request;
+  }
+
+  public async getAddressbook(
+    addressbookId: string
+  ): Promise<VaultRequestDto> {
+    const request = await this.createRequest(
+      Method.GET,
+      `/address-book/${addressbookId}`
+    );
+    return request;
+  }
+
+  public async deleteAddressbookEntry(
+    addressbookId: string,
+    address: string,
+  ) {
+    const request = await this.createRequest(
+      Method.DELETE,
+      `/address-book/${addressbookId}/address`,
+      {
+        addressIdentifierString: address,
+        addressIdentifier: "Address",
+      }
+    );
+    return request;
+  }
+
+  public async createAddressbookEntry(
+    addressbookId: string,
+    address: string,
+    name: string,
+    type: VaultWalletType,
+  ) {
+    const request = await this.createRequest(
+      Method.POST,
+      `/address-book/${addressbookId}/address`,
+      {
+        address,
+        name,
+        type,
+      }
+    );
+    return request;
   }
 }
 

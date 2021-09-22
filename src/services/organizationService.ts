@@ -181,14 +181,14 @@ const resumeOrganizationManager = (
   });
 };
 
-const setOrgAddressBook = (
+const updateTradeLevels = (
   organizationId: string,
-  address: string[]
+  tradeLevels: TradeLevel[]
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`/organization/${organizationId}/addressbook`, {
-        address,
+      .patch(`/organization/${organizationId}/trade-level`, {
+        tradeLevels,
       })
       .then((res: any) => {
         return resolve(res.data);
@@ -199,14 +199,14 @@ const setOrgAddressBook = (
   });
 };
 
-const updateTradeLevels = (
+const createOrganizationAddressbook = async (
   organizationId: string,
-  tradeLevels: TradeLevel[]
 ): Promise<any> => {
+  const vaultRequest = await vault.createAddressbook();
   return new Promise((resolve, reject) => {
     axios
-      .patch(`/organization/${organizationId}/trade-level`, {
-        tradeLevels,
+      .post(`/organization/${organizationId}/addressbook`, {
+        vaultRequest,
       })
       .then((res: any) => {
         return resolve(res.data);
@@ -229,6 +229,6 @@ export {
   updateOrganizationManager,
   suspendOrganizationManager,
   resumeOrganizationManager,
-  setOrgAddressBook,
   updateTradeLevels,
+  createOrganizationAddressbook,
 };

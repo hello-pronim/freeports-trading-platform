@@ -10,6 +10,7 @@ import {
   updateOrganizationManager,
   suspendOrganizationManager,
   resumeOrganizationManager,
+  createOrganizationAddressbook,
 } from "../services/organizationService";
 import { useGlobalSlice } from "../slice";
 
@@ -196,6 +197,22 @@ function useOrganization(): any {
     return resume;
   };
 
+  const addAddressbook = async (
+    organizerId: string,
+  ) => {
+    dispatch(actions.clearError());
+    const addressbook = await createOrganizationAddressbook(
+      organizerId,
+    )
+      .then((data) => {
+        return data;
+      })
+      .catch((err) => {
+        dispatch(actions.setError(err));
+      });
+    return addressbook;
+  };
+
   return {
     getOrganizations,
     getOrganization,
@@ -207,6 +224,7 @@ function useOrganization(): any {
     editManager,
     suspendManager,
     resumeManager,
+    addAddressbook,
   };
 }
 

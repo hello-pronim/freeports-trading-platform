@@ -13,28 +13,12 @@ import { OrgSettingsState } from "./types";
 export const initialState: OrgSettingsState = {
   settingsLoading: false,
   tradeLevelsUpdating: false,
-  accountsTrusting: false,
 };
 
 const slice = createSlice({
   name: "orgSettings",
   initialState,
   reducers: {
-    trustAccounts(
-      state,
-      action: PayloadAction<{
-        organizationId: string;
-        address: string[];
-      }>
-    ) {
-      state.accountsTrusting = true;
-    },
-    trustAccountsSuccess(state) {
-      state.accountsTrusting = false;
-    },
-    trustAccountsFailed(state) {
-      state.accountsTrusting = false;
-    },
     saveTradeLevels(
       state,
       action: PayloadAction<{
