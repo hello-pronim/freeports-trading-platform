@@ -64,6 +64,11 @@ const useStyles = makeStyles((theme: Theme) =>
       fontWeight: "bold",
       padding: 0,
     },
+    linkItem: {
+      color: "#599DE9",
+      fontWeight: "bold",
+      cursor: "pointer",
+    },
     currencyDropdown: {
       margin: theme.spacing(1),
       minWidth: 120,
@@ -433,9 +438,6 @@ const InvestorDetail = (): React.ReactElement => {
                                 {
                                   field: "txHash",
                                   title: "Hash",
-                                  cellStyle: {
-                                    width: "40%",
-                                  },
                                   render: (rowData: any) => {
                                     const { txHash } = rowData;
                                     return (
@@ -444,15 +446,14 @@ const InvestorDetail = (): React.ReactElement => {
                                         placement="top"
                                         arrow
                                       >
-                                        <Button
+                                        <Typography
+                                          className={classes.linkItem}
                                           onClick={() =>
                                             handleOperationView(rowData)
                                           }
                                         >
-                                          <Typography>
-                                            {getShortForm(txHash)}
-                                          </Typography>
-                                        </Button>
+                                          {getShortForm(txHash)}
+                                        </Typography>
                                       </Tooltip>
                                     );
                                   },
@@ -460,9 +461,6 @@ const InvestorDetail = (): React.ReactElement => {
                                 {
                                   field: "confirmed",
                                   title: "Confirmed date",
-                                  cellStyle: {
-                                    width: "20%",
-                                  },
                                   render: (rowData: any) => {
                                     const { confirmed } = rowData;
                                     return convertDateToDMYHIS(confirmed);
@@ -471,9 +469,6 @@ const InvestorDetail = (): React.ReactElement => {
                                 {
                                   field: "value",
                                   title: "Value",
-                                  cellStyle: {
-                                    width: "20%",
-                                  },
                                   render: (rowData: any) => {
                                     const { value, sent } = rowData;
 
@@ -486,27 +481,6 @@ const InvestorDetail = (): React.ReactElement => {
                                         value / ethRate
                                       }`;
                                     return value;
-                                  },
-                                },
-                                {
-                                  title: "Actions",
-                                  render: (rowData: any) => {
-                                    return (
-                                      <div>
-                                        <IconButton
-                                          color="inherit"
-                                          aria-label="View details"
-                                          onClick={() => {
-                                            handleOperationView(rowData);
-                                          }}
-                                        >
-                                          <VisibilityIcon
-                                            fontSize="small"
-                                            color="primary"
-                                          />
-                                        </IconButton>
-                                      </div>
-                                    );
                                   },
                                 },
                               ]}
@@ -625,11 +599,15 @@ const InvestorDetail = (): React.ReactElement => {
           <Divider />
           <DialogContent>
             <Grid container>
-              {Object.keys(selectedOperationDetail).map((key: string) => (
-                <Grid item xs={12} key={key}>
-                  <Typography>{`${key}: `}</Typography>
-                </Grid>
-              ))}
+              {Object.keys(selectedOperationDetail)
+                .filter((key: string) => key !== "tableData")
+                .map((key: string) => (
+                  <Grid item xs={12} key={key}>
+                    <Typography variant="body2">
+                      {`${key}: ${(selectedOperationDetail as any)[key]}`}
+                    </Typography>
+                  </Grid>
+                ))}
             </Grid>
           </DialogContent>
           <Divider />
