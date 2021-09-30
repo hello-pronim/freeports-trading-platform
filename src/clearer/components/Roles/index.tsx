@@ -12,6 +12,10 @@ import {
   CircularProgress,
   Container,
   createStyles,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   FormControlLabel,
   FormGroup,
@@ -27,8 +31,14 @@ import {
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import Lock from '@material-ui/icons/Lock';
+import { Form, Field } from "react-final-form";
 
 import { useRole } from "../../../hooks";
+import vault, { VaultPermissions } from "../../../vault";
+import { PermissionOwnerType } from "../../../vault/enum/permission-owner-type";
+import { VaultAssetType } from "../../../vault/enum/asset-type";
+import { selectUser } from "../../../slice/selectors";
 
 export interface RoleType {
   id: string;
@@ -36,9 +46,16 @@ export interface RoleType {
   permissions: Array<string>;
   vaultGroupId?: string;
 }
+
 interface PermissionType {
   name: string;
   permissions: Array<{ code: string; name: string }>;
+}
+
+interface LockPermissionsType {
+  addRemoveUser: Array<string>;
+  createDeleteRuleTree: Array<string>;
+  getRuleTrees: Array<string>;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -116,6 +133,18 @@ const Roles = (): React.ReactElement => {
     message: "",
   });
   const [showAlert, setShowAlert] = useState(false);
+  const currentUser = useSelector(selectUser);
+  const [lockModalView, setLockModalView] = useState(false);
+  const [lockModalProcessing, setLockModalProcessing] = useState(false);
+  const [lockingRole, setLockingRole] = useState({
+    name: "",
+    vaultGroupId: "",
+  });
+  const [lockPermissions, setLockPermissions] = useState<LockPermissionsType>({
+    addRemoveUser: [],
+    createDeleteRuleTree: [],
+    getRuleTrees: [],
+  });
 
   useEffect(() => {
     let unmounted = false;
@@ -234,6 +263,159 @@ const Roles = (): React.ReactElement => {
     setShowAlert(false);
   };
 
+  const openLockModal = async (role: any) => {
+    setLockingRole(role);
+    try {
+      const request = await vault.getAssetPermissions(
+        VaultAssetType.GROUP,
+        role.vaultGroupId,
+      );
+      const assetPermissions = await vault.sendRequest(request);
+      
+      const addRemoveUser: string[] = [];
+      const createDeleteRuleTree: string[] = [];
+      const getRuleTrees: string[] = [];
+      assetPermissions.groupPermissions.forEach((x: any) => {
+        switch (x.permissionType) {
+          case VaultPermissions.AddRemoveUser:
+            addRemoveUser.push(x.groupId);
+            break;
+          case VaultPermissions.CreateDeleteRuleTree:
+            createDeleteRuleTree.push(x.groupId);
+            break;
+          case VaultPermissions.GetRuleTrees:
+            getRuleTrees.push(x.groupId);
+            break;
+          default:
+            break;
+        }
+      })
+      setLockPermissions({
+        addRemoveUser,
+        createDeleteRuleTree,
+        getRuleTrees
+      })
+      setLockModalView(true); 
+    } catch (error) {
+      setSubmitResponse({
+        type: "error",
+        message: error.message,
+      });
+      setShowAlert(true);
+    }
+  }
+
+  const handleLockPermission = async (values: any) => {
+    setLockModalProcessing(true);
+    try {
+      const addRemoveUserOld = [...lockPermissions.addRemoveUser];
+      const addRemoveUserNew: string[] = [];
+      values.addRemoveUser.forEach((x: string) => {
+        const index = addRemoveUserOld.indexOf(x);
+        if (index !== -1) {
+          addRemoveUserOld.splice(index, 1);
+        } else {
+          addRemoveUserNew.push(x);
+        }
+      })
+      await Promise.all(addRemoveUserOld.map(async (vaultGroupId: string) => {
+        const request = await vault.revokePermissionFromAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.AddRemoveUser,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(addRemoveUserNew.map(async (vaultGroupId: string) => {
+        const request = await vault.grantPermissionToAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.AddRemoveUser,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      const createDeleteRuleTreeOld = [...lockPermissions.createDeleteRuleTree];
+      const createDeleteRuleTreeNew: string[] = [];
+      values.createDeleteRuleTree.forEach((x: string) => {
+        const index = createDeleteRuleTreeOld.indexOf(x);
+        if (index !== -1) {
+          createDeleteRuleTreeOld.splice(index, 1);
+        } else {
+          createDeleteRuleTreeNew.push(x);
+        }
+      })
+      await Promise.all(createDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
+        const request = await vault.revokePermissionFromAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.CreateDeleteRuleTree,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(createDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
+        const request = await vault.grantPermissionToAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.CreateDeleteRuleTree,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      const getRuleTreesOld = [...lockPermissions.getRuleTrees];
+      const getRuleTreesNew: string[] = [];
+      values.getRuleTrees.forEach((x: string) => {
+        const index = getRuleTreesOld.indexOf(x);
+        if (index !== -1) {
+          getRuleTreesOld.splice(index, 1);
+        } else {
+          getRuleTreesNew.push(x);
+        }
+      })
+      await Promise.all(getRuleTreesOld.map(async (vaultGroupId: string) => {
+        const request = await vault.revokePermissionFromAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.GetRuleTrees,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(getRuleTreesNew.map(async (vaultGroupId: string) => {
+        const request = await vault.grantPermissionToAsset(
+          VaultAssetType.GROUP,
+          lockingRole.vaultGroupId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.GetRuleTrees,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      setSubmitResponse({
+        type: "success",
+        message: "Successfully updated!",
+      });
+      setLockModalView(false);
+    } catch (error) {
+      setSubmitResponse({
+        type: "error",
+        message: error.message,
+      });
+    }
+    setShowAlert(true);
+    setLockModalProcessing(false);
+  }
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -274,6 +456,20 @@ const Roles = (): React.ReactElement => {
                           <div className={classes.column}>
                             <Typography className={classes.roleDescription} />
                           </div>
+                          <Grid 
+                            style={{ marginLeft: "auto" }}
+                          >
+                            <IconButton
+                              style={{ padding: 0 }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                openLockModal(role);
+                              }}
+                              disabled={!vault.checkUserLockUsability(currentUser)}
+                            >
+                              <Lock fontSize="default" />
+                            </IconButton>
+                          </Grid>
                         </AccordionSummary>
                         <AccordionDetails>
                           <Grid container item xs={12}>
@@ -396,6 +592,176 @@ const Roles = (): React.ReactElement => {
             </Snackbar>
           </Grid>
         </Grid>
+        <Dialog
+          open={lockModalView}
+          onClose={() => {
+            setLockModalView(false);
+          }}
+          aria-labelledby="form-dialog-title"
+        >
+          <Form
+            onSubmit={handleLockPermission}
+            initialValues={lockPermissions}
+            render={({
+              handleSubmit,
+            }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <DialogTitle id="form-dialog-title">
+                  {`Permission of ${lockingRole.name}`}
+                </DialogTitle>
+                <Divider />
+                <DialogContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.permissionContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.permissionName}
+                        >
+                          Assign Users (AddRemoveUser)
+                        </FormLabel>
+                        <Grid container>
+                          {roles.map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="addRemoveUser[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.permissionContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.permissionName}
+                        >
+                          Create Rules (CreateDeleteRuleTree)
+                        </FormLabel>
+                        <Grid container>
+                          {roles.map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="createDeleteRuleTree[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.permissionContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.permissionName}
+                        >
+                          Display Rules (GetRuleTrees)
+                        </FormLabel>
+                        <Grid container>
+                          {roles.map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="getRuleTrees[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <Divider />
+                <DialogActions>
+                  <Button
+                    onClick={() => {
+                      setLockModalView(false);
+                    }}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={lockModalProcessing}
+                    >
+                      Save
+                    </Button>
+                    {lockModalProcessing && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
       </Container>
     </div>
   );

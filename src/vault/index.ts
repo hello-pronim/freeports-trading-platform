@@ -691,7 +691,7 @@ export class Vault {
   public checkUserLockUsability(user: any): boolean {
     let getUserPermissions = false;
     let grantRevokePermission = false;
-    if (user.roles) {
+    if (user && user.roles) {
       user.roles.forEach((role: any) => {
         role.permissions.forEach((rPermission: string) => {
           const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
@@ -714,7 +714,7 @@ export class Vault {
     vPermission: VaultPermissions
   ): boolean {
     let hasPermission = false;
-    if (user.roles) {
+    if (user && user.roles) {
       user.roles.forEach((role: any) => {
         role.permissions.forEach((rPermission: string) => {
           const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];

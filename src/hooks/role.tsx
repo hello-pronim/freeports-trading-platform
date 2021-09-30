@@ -20,11 +20,10 @@ function useRole(): any {
   const dispatch = useDispatch();
   const currentUser = useSelector(selectUser);
 
-  const createNewRole = async (newRole: RoleType) => {
+  const createNewRole = async (roleName: string) => {
     dispatch(clearError());
-    const newRoleId = await addNewRole(
-      newRole.name, 
-      newRole.permissions, 
+    const newRole = await addNewRole(
+      roleName,
       currentUser?.vaultUserId as string
     )
       .then((data) => {
@@ -34,7 +33,7 @@ function useRole(): any {
         dispatch(setError(err));
       });
 
-    return newRoleId;
+    return newRole;
   };
   const updateRole = async (
     id: string, 
