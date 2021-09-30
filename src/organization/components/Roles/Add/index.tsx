@@ -21,11 +21,9 @@ import {
   FormLabel,
   Grid,
   makeStyles,
-  Snackbar,
   Theme,
   Typography,
 } from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useNewOrgRoleSlice } from "./slice";
 import {
   selectOrgPermissions,
@@ -43,6 +41,7 @@ import { createOrgRole, updateOrgRole } from "../../../../services/roleService";
 import vault, { VaultPermissions } from "../../../../vault";
 import { PermissionOwnerType } from "../../../../vault/enum/permission-owner-type";
 import { VaultAssetType } from "../../../../vault/enum/asset-type";
+import { snackbarActions } from "../../../../components/Snackbar/slice";
 
 interface RoleType {
   name: string;
@@ -116,10 +115,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Alert = (props: AlertProps) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-};
-
 const NewOrgRole = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -142,12 +137,7 @@ const NewOrgRole = (): React.ReactElement => {
     id: "",
     vaultGroupId: "",
   });
-  const [lockUsability , setLockUsability] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [submitResponse, setSubmitResponse] = useState({
-    type: "success",
-    message: "",
-  });
+  const [lockUsability, setLockUsability] = useState(false);
 
   useEffect(() => {
     let unmounted = false;
@@ -170,109 +160,120 @@ const NewOrgRole = (): React.ReactElement => {
   const handleRoleCreate = async (values: any) => {
     setWizardProccessing(true);
     await createOrgRole(
-      organizationId, 
-      values.name, 
+      organizationId,
+      values.name,
       currentUser?.vaultUserId as string
-    ).then((data) => {
-      setSubmitResponse({
-        type: "success",
-        message: "Successfully created a role",
+    )
+      .then((data) => {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: "Role has been created successfully",
+            type: "success",
+          })
+        );
+        setNewRole({
+          name: values.name,
+          id: data.id,
+          vaultGroupId: data.vaultGroupId,
+        });
+        if (lockUsability) {
+          setWizardStep(1);
+        } else {
+          setWizardStep(2);
+        }
+      })
+      .catch((err) => {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: err.message,
+            type: "error",
+          })
+        );
       });
-      setNewRole({
-        name: values.name,
-        id: data.id,
-        vaultGroupId: data.vaultGroupId,
-      });
-      if (lockUsability) {
-        setWizardStep(1);
-      } else {
-        setWizardStep(2);
-      }
-    }).catch((err) => {
-      setSubmitResponse({
-        type: "error",
-        message: err.message,
-      });
-    });
     setWizardProccessing(false);
-    setShowAlert(true);
   };
 
   const handleLockPermission = async (values: any) => {
-    if (values.addRemoveUser.length 
-      || values.createDeleteRuleTree.length 
-      || values.getRuleTrees.length) {
+    if (
+      values.addRemoveUser.length ||
+      values.createDeleteRuleTree.length ||
+      values.getRuleTrees.length
+    ) {
       setWizardProccessing(true);
       try {
-        await Promise.all(values.addRemoveUser.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.AddRemoveUser,
-            true,
-          );
-          await vault.sendRequest(request);
-        }));
-        await Promise.all(values.createDeleteRuleTree.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.CreateDeleteRuleTree,
-            true,
-          );
-          await vault.sendRequest(request);
-        }));
-        await Promise.all(values.getRuleTrees.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.GetRuleTrees,
-            true,
-          );
-          await vault.sendRequest(request);
-        }));
+        await Promise.all(
+          values.addRemoveUser.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.AddRemoveUser,
+              true
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        await Promise.all(
+          values.createDeleteRuleTree.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.CreateDeleteRuleTree,
+              true
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        await Promise.all(
+          values.getRuleTrees.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.GetRuleTrees,
+              true
+            );
+            await vault.sendRequest(request);
+          })
+        );
         setWizardStep(2);
       } catch (error) {
-        setSubmitResponse({
-          type: "error",
-          message: error.message,
-        });
-        setShowAlert(true);
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: error.message,
+            type: "error",
+          })
+        );
       }
       setWizardProccessing(false);
     } else {
       setWizardStep(2);
     }
-  }
+  };
 
   const handleDefinePermission = async (values: any) => {
     setWizardProccessing(true);
-    await updateOrgRole(
-      organizationId, 
-      newRole.id, 
-      newRole.vaultGroupId,
-      [],
-      {
-        name: newRole.name,
-        permissions: values.permissions,
-      }
-    ).then((data) => {
-      history.push("/roles");
-    }).catch((err) => {
-      setSubmitResponse({
-        type: "error",
-        message: err.message,
+    await updateOrgRole(organizationId, newRole.id, newRole.vaultGroupId, [], {
+      name: newRole.name,
+      permissions: values.permissions,
+    })
+      .then((data) => {
+        history.push("/roles");
+      })
+      .catch((err) => {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: err.message,
+            type: "error",
+          })
+        );
+        setWizardProccessing(false);
       });
-      setShowAlert(true);
-      setWizardProccessing(false);
-    });
-  }
+  };
 
   const handleCancelClick = () => {
     history.push("/roles");
@@ -285,9 +286,7 @@ const NewOrgRole = (): React.ReactElement => {
           <Form
             onSubmit={handleRoleCreate}
             validate={validate}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title="Create new Organization role" />
@@ -354,9 +353,7 @@ const NewOrgRole = (): React.ReactElement => {
               createDeleteRuleTree: [],
               getRuleTrees: [],
             }}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title={`Permission of ${newRole.name}`} />
@@ -364,9 +361,7 @@ const NewOrgRole = (): React.ReactElement => {
                   <CardContent>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -374,8 +369,9 @@ const NewOrgRole = (): React.ReactElement => {
                             Assign Users (AddRemoveUser)
                           </FormLabel>
                           <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
+                            {orgRoles
+                              .concat(multiDeskRoles, deskRoles)
+                              .map((x) => (
                                 <Grid item key={x.vaultGroupId} xs={2}>
                                   <Grid
                                     container
@@ -397,15 +393,12 @@ const NewOrgRole = (): React.ReactElement => {
                                     </Grid>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -413,8 +406,9 @@ const NewOrgRole = (): React.ReactElement => {
                             Create Rules (CreateDeleteRuleTree)
                           </FormLabel>
                           <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
+                            {orgRoles
+                              .concat(multiDeskRoles, deskRoles)
+                              .map((x) => (
                                 <Grid item key={x.vaultGroupId} xs={2}>
                                   <Grid
                                     container
@@ -436,15 +430,12 @@ const NewOrgRole = (): React.ReactElement => {
                                     </Grid>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -452,8 +443,9 @@ const NewOrgRole = (): React.ReactElement => {
                             Display Rules (GetRuleTrees)
                           </FormLabel>
                           <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
+                            {orgRoles
+                              .concat(multiDeskRoles, deskRoles)
+                              .map((x) => (
                                 <Grid item key={x.vaultGroupId} xs={2}>
                                   <Grid
                                     container
@@ -475,8 +467,7 @@ const NewOrgRole = (): React.ReactElement => {
                                     </Grid>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
@@ -526,9 +517,7 @@ const NewOrgRole = (): React.ReactElement => {
             initialValues={{
               permissions: [],
             }}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title="Define permissions" />
@@ -552,7 +541,10 @@ const NewOrgRole = (): React.ReactElement => {
                                   </FormLabel>
                                   <Grid container>
                                     {perm.permissions.map(
-                                      (avail: { name: string; code: string }) => (
+                                      (avail: {
+                                        name: string;
+                                        code: string;
+                                      }) => (
                                         <Grid item key={avail.code} xs={2}>
                                           <Grid
                                             container
@@ -623,23 +615,6 @@ const NewOrgRole = (): React.ReactElement => {
             )}
           />
         )}
-        <Snackbar
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={showAlert}
-          onClose={() => {
-            setShowAlert(false);
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowAlert(false);
-            }}
-            severity={submitResponse.type === "success" ? "success" : "error"}
-          >
-            {submitResponse.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </div>
   );
