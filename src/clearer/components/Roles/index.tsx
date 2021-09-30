@@ -23,11 +23,13 @@ import {
   Snackbar,
   TextField,
   Theme,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
+import Permission from "../../../types/Permission";
 import { useRole } from "../../../hooks";
 
 export interface RoleType {
@@ -87,9 +89,6 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: theme.palette.primary.main,
       textDecoration: "none",
-      "&:hover": {
-        textDecoration: "underline",
-      },
     },
     roleNameInput: {
       width: "100%",
@@ -108,7 +107,7 @@ const Roles = (): React.ReactElement => {
   const { retrieveRoles, retrievePermissions, updateRole, removeRole } =
     useRole();
   const [roles, setRoles] = useState([] as any[]);
-  const [permissions, setPermissions] = useState([] as any[]);
+  const [permissionGroups, setPermissionGroups] = useState([] as any[]);
   const [removing, setRemoving] = useState(false);
   const [saving, setSaving] = useState(false);
   const [submitResponse, setSubmitResponse] = useState({
@@ -126,7 +125,7 @@ const Roles = (): React.ReactElement => {
 
       if (!unmounted) {
         setRoles(rolesList);
-        setPermissions(permissionList);
+        setPermissionGroups(permissionList);
       }
     };
 
@@ -287,24 +286,45 @@ const Roles = (): React.ReactElement => {
                             </Grid>
                           </Grid>
                         </AccordionDetails>
-                        {permissions.map((perm: PermissionType) => (
+                        {permissionGroups.map((permissionGroup: Permission) => (
                           <FormGroup
-                            key={perm.name}
+                            key={permissionGroup.name}
                             className={classes.permissionContainer}
                           >
-                            <FormLabel
-                              component="legend"
-                              className={classes.permissionName}
-                            >
-                              {perm.name}
-                            </FormLabel>
+                            {permissionGroup.description ? (
+                              <Tooltip
+                                title={permissionGroup.description}
+                                placement="top-start"
+                                arrow
+                              >
+                                <FormLabel
+                                  component="legend"
+                                  className={`${classes.permissionName} ${classes.link}`}
+                                >
+                                  {permissionGroup.name}
+                                </FormLabel>
+                              </Tooltip>
+                            ) : (
+                              <FormLabel
+                                component="legend"
+                                className={classes.permissionName}
+                              >
+                                {permissionGroup.name}
+                              </FormLabel>
+                            )}
+                            {permissionGroup.description}
                             <AccordionDetails
                               className={classes.permissionDetails}
                             >
-                              {perm.permissions.map(
-                                (avail: { name: string; code: string }) => (
+                              {permissionGroup.permissions.map(
+                                (permission: {
+                                  name: string;
+                                  code: string;
+                                  description?: string;
+                                  dependsOn?: string[];
+                                }) => (
                                   <div
-                                    key={avail.code}
+                                    key={permission.code}
                                     className={classes.column}
                                   >
                                     <FormControlLabel
@@ -312,10 +332,10 @@ const Roles = (): React.ReactElement => {
                                       control={
                                         <Checkbox
                                           color="primary"
-                                          name={avail.code}
+                                          name={permission.code}
                                           checked={Boolean(
                                             role.permissions.includes(
-                                              avail.code
+                                              permission.code
                                             )
                                           )}
                                           onChange={(e) =>
@@ -323,7 +343,26 @@ const Roles = (): React.ReactElement => {
                                           }
                                         />
                                       }
-                                      label={avail.name}
+                                      label={
+                                        permission.description ? (
+                                          <Tooltip
+                                            title={permission.description}
+                                            placement="top-start"
+                                            arrow
+                                          >
+                                            <Typography
+                                              variant="body2"
+                                              className={classes.link}
+                                            >
+                                              {permission.name}
+                                            </Typography>
+                                          </Tooltip>
+                                        ) : (
+                                          <Typography variant="body2">
+                                            {permission.name}
+                                          </Typography>
+                                        )
+                                      }
                                     />
                                   </div>
                                 )

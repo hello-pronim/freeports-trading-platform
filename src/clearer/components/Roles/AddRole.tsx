@@ -17,22 +17,21 @@ import {
   FormLabel,
   Grid,
   makeStyles,
+  Popover,
   Snackbar,
   TextField,
   Theme,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
+import Permission from "../../../types/Permission";
 import { useRole } from "../../../hooks";
 
 interface RoleType {
   name: string;
   permissions: Array<string>;
-}
-interface PermissionType {
-  name: string;
-  permissions: Array<{ code: string; name: string }>;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -78,9 +77,6 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: theme.palette.primary.main,
       textDecoration: "none",
-      "&:hover": {
-        textDecoration: "underline",
-      },
     },
     roleNameInput: {
       width: "100%",
@@ -98,7 +94,7 @@ const AddRole = (): React.ReactElement => {
   const history = useHistory();
   const { retrievePermissions, createNewRole } = useRole();
   const [role, setRole] = useState<RoleType>({ name: "", permissions: [] });
-  const [permissions, setPermissions] = useState([] as any[]);
+  const [permissionGroups, setPermissionGroups] = useState([] as any[]);
   const [loading, setLoading] = useState(false);
   const [submitResponse, setSubmitResponse] = useState({
     type: "success",
@@ -114,7 +110,7 @@ const AddRole = (): React.ReactElement => {
       const permissionList = await retrievePermissions();
 
       if (!unmounted) {
-        setPermissions(permissionList);
+        setPermissionGroups(permissionList);
       }
     };
 
@@ -157,6 +153,7 @@ const AddRole = (): React.ReactElement => {
     setShowAlert(false);
     await createNewRole(role)
       .then((data: string) => {
+        console.log("response data: ", data);
         if (data !== "") {
           setSubmitResponse({
             type: "success",
@@ -202,32 +199,58 @@ const AddRole = (): React.ReactElement => {
                   </Grid>
                 </Grid>
                 <Grid container>
-                  {permissions.map((perm: PermissionType) => (
-                    <Grid item key={perm.name} xs={12}>
+                  {permissionGroups.map((permissionGroup: Permission) => (
+                    <Grid item key={permissionGroup.name} xs={12}>
                       <FormGroup className={classes.permissionContainer}>
                         <FormLabel
                           component="legend"
                           className={classes.permissionName}
                         >
-                          {perm.name}
+                          {permissionGroup.name}
                         </FormLabel>
                         <Grid container>
-                          {perm.permissions.map(
-                            (avail: { name: string; code: string }) => (
-                              <Grid item key={avail.code} xs={2}>
+                          {permissionGroup.permissions.map(
+                            (permission: {
+                              name: string;
+                              code: string;
+                              description?: string;
+                              dependsOn?: string[];
+                            }) => (
+                              <Grid item key={permission.code} xs={2}>
                                 <FormControlLabel
                                   className={classes.checkboxLabel}
                                   control={
                                     <Checkbox
                                       color="primary"
-                                      name={avail.code}
+                                      name={permission.code}
                                       checked={Boolean(
-                                        role.permissions.includes(avail.code)
+                                        role.permissions.includes(
+                                          permission.code
+                                        )
                                       )}
                                       onChange={onPermissionChange}
                                     />
                                   }
-                                  label={avail.name}
+                                  label={
+                                    permission.description ? (
+                                      <Tooltip
+                                        title={permission.description}
+                                        placement="top-start"
+                                        arrow
+                                      >
+                                        <Typography
+                                          variant="body2"
+                                          className={classes.link}
+                                        >
+                                          {permission.name}
+                                        </Typography>
+                                      </Tooltip>
+                                    ) : (
+                                      <Typography variant="body2">
+                                        {permission.name}
+                                      </Typography>
+                                    )
+                                  }
                                 />
                               </Grid>
                             )
