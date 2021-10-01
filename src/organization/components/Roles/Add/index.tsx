@@ -22,6 +22,7 @@ import {
   Grid,
   makeStyles,
   Theme,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import { useNewOrgRoleSlice } from "./slice";
@@ -41,6 +42,7 @@ import { createOrgRole, updateOrgRole } from "../../../../services/roleService";
 import vault, { VaultPermissions } from "../../../../vault";
 import { PermissionOwnerType } from "../../../../vault/enum/permission-owner-type";
 import { VaultAssetType } from "../../../../vault/enum/asset-type";
+import Permission from "../../../../types/Permission";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
 
 interface RoleType {
@@ -82,6 +84,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     permissionName: {
       fontWeight: "bold",
+      marginBottom: "10px",
     },
     checkboxLabel: {
       margin: "0px",
@@ -104,9 +107,7 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: theme.palette.primary.main,
       textDecoration: "none",
-      "&:hover": {
-        textDecoration: "underline",
-      },
+      cursor: "pointer",
     },
     roleNameInput: {
       width: "100%",
@@ -372,12 +373,8 @@ const NewOrgRole = (): React.ReactElement => {
                             {orgRoles
                               .concat(multiDeskRoles, deskRoles)
                               .map((x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
+                                <Grid item key={x.vaultGroupId} xs={3}>
+                                  <Grid container wrap="nowrap" spacing={1}>
                                     <Grid item>
                                       <Field
                                         name="addRemoveUser[]"
@@ -409,12 +406,8 @@ const NewOrgRole = (): React.ReactElement => {
                             {orgRoles
                               .concat(multiDeskRoles, deskRoles)
                               .map((x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
+                                <Grid item key={x.vaultGroupId} xs={3}>
+                                  <Grid container wrap="nowrap" spacing={1}>
                                     <Grid item>
                                       <Field
                                         name="createDeleteRuleTree[]"
@@ -446,12 +439,8 @@ const NewOrgRole = (): React.ReactElement => {
                             {orgRoles
                               .concat(multiDeskRoles, deskRoles)
                               .map((x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
+                                <Grid item key={x.vaultGroupId} xs={3}>
+                                  <Grid container wrap="nowrap" spacing={1}>
                                     <Grid item>
                                       <Field
                                         name="getRuleTrees[]"
@@ -528,50 +517,89 @@ const NewOrgRole = (): React.ReactElement => {
                       {!orgPermissionsLoading && (
                         <Grid item xs={12}>
                           <Grid container>
-                            {orgPermissions.map((perm: PermissionType) => (
-                              <Grid item key={perm.name} xs={12}>
-                                <FormGroup
-                                  className={classes.permissionContainer}
-                                >
-                                  <FormLabel
-                                    component="legend"
-                                    className={classes.permissionName}
+                            {orgPermissions.map(
+                              (permissionGroup: Permission) => (
+                                <Grid item key={permissionGroup.name} xs={12}>
+                                  <FormGroup
+                                    className={classes.permissionContainer}
                                   >
-                                    {perm.name}
-                                  </FormLabel>
-                                  <Grid container>
-                                    {perm.permissions.map(
-                                      (avail: {
-                                        name: string;
-                                        code: string;
-                                      }) => (
-                                        <Grid item key={avail.code} xs={2}>
+                                    {permissionGroup.description ? (
+                                      <Tooltip
+                                        title={permissionGroup.description}
+                                        placement="top-start"
+                                        arrow
+                                      >
+                                        <FormLabel
+                                          component="legend"
+                                          className={`${classes.permissionName} ${classes.link}`}
+                                        >
+                                          {permissionGroup.name}
+                                        </FormLabel>
+                                      </Tooltip>
+                                    ) : (
+                                      <FormLabel
+                                        component="legend"
+                                        className={classes.permissionName}
+                                      >
+                                        {permissionGroup.name}
+                                      </FormLabel>
+                                    )}
+                                    <Grid container>
+                                      {permissionGroup.permissions.map(
+                                        (permission: {
+                                          name: string;
+                                          description?: string;
+                                          code: string;
+                                        }) => (
                                           <Grid
-                                            container
-                                            alignItems="center"
-                                            spacing={1}
+                                            item
+                                            key={permission.code}
+                                            xs={2}
                                           >
-                                            <Grid item>
-                                              <Field
-                                                name="permissions[]"
-                                                component="input"
-                                                type="checkbox"
-                                                value={avail.code}
-                                              />
-                                            </Grid>
-                                            <Grid item>
-                                              <Typography variant="body1">
-                                                {avail.name}
-                                              </Typography>
+                                            <Grid
+                                              container
+                                              wrap="nowrap"
+                                              spacing={1}
+                                            >
+                                              <Grid item>
+                                                <Field
+                                                  name="permissions[]"
+                                                  component="input"
+                                                  type="checkbox"
+                                                  value={permission.code}
+                                                />
+                                              </Grid>
+                                              <Grid item>
+                                                {permission.description ? (
+                                                  <Tooltip
+                                                    title={
+                                                      permission.description
+                                                    }
+                                                    placement="top-start"
+                                                    arrow
+                                                  >
+                                                    <Typography
+                                                      variant="body2"
+                                                      className={classes.link}
+                                                    >
+                                                      {permission.name}
+                                                    </Typography>
+                                                  </Tooltip>
+                                                ) : (
+                                                  <Typography variant="body2">
+                                                    {permission.name}
+                                                  </Typography>
+                                                )}
+                                              </Grid>
                                             </Grid>
                                           </Grid>
-                                        </Grid>
-                                      )
-                                    )}
-                                  </Grid>
-                                </FormGroup>
-                              </Grid>
-                            ))}
+                                        )
+                                      )}
+                                    </Grid>
+                                  </FormGroup>
+                                </Grid>
+                              )
+                            )}
                           </Grid>
                         </Grid>
                       )}
