@@ -170,7 +170,7 @@ const AddOrganizer = (): React.ReactElement => {
       values.zip,
       values.city,
       values.country,
-      avatar,
+      values.logo,
       values.commissionOrganization,
       values.commissionClearer
     )
@@ -190,10 +190,10 @@ const AddOrganizer = (): React.ReactElement => {
           message: "Organization has been created successfully.",
         });
         setShowAlert(true);
-        timer.current = window.setTimeout(() => {
-          setLoading(false);
-          history.push("/organizations");
-        }, 2000);
+        // timer.current = window.setTimeout(() => {
+        //   setLoading(false);
+        //   history.push("/organizations");
+        // }, 2000);
       })
       .catch((err: any) => {
         setLoading(false);
@@ -355,7 +355,7 @@ const AddOrganizer = (): React.ReactElement => {
                       </Grid>
                     </Grid>
                     <Grid item xs={6}>
-                      <Field name="avatar" render={AvatarInput} />
+                      <Field name="logo" render={AvatarInput} />
                     </Grid>
                   </Grid>
                 </CardContent>
