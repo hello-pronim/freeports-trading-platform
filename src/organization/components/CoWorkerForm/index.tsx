@@ -531,27 +531,25 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
               </Grid>
               <Grid item xs={12}>
                 <Grid container alignItems="center" justify="flex-end">
-                  {canCreateVaultUser && (
-                    <Grid item>
-                      <div className={classes.progressButtonWrapper}>
-                        <Button
-                          variant="contained"
-                          disabled={addingUserToVault}
-                          fullWidth
-                          color="primary"
-                          onClick={handleAddVaultUser}
-                        >
-                          Add to vault
-                        </Button>
-                        {addingUserToVault && (
-                          <CircularProgress
-                            size={24}
-                            className={classes.progressButton}
-                          />
-                        )}
-                      </div>
-                    </Grid>
-                  )}
+                  <Grid item>
+                    <div className={classes.progressButtonWrapper}>
+                      <Button
+                        variant="contained"
+                        disabled={!canCreateVaultUser || addingUserToVault}
+                        fullWidth
+                        color="primary"
+                        onClick={handleAddVaultUser}
+                      >
+                        Add to vault
+                      </Button>
+                      {addingUserToVault && (
+                        <CircularProgress
+                          size={24}
+                          className={classes.progressButton}
+                        />
+                      )}
+                    </div>
+                  </Grid>
                   {canRemoveVaultUser && (
                     <Grid item>
                       <div className={classes.progressButtonWrapper}>
