@@ -39,13 +39,14 @@ import {
   Snackbar,
   TextField,
   Theme,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SearchIcon from "@material-ui/icons/Search";
-import Lock from '@material-ui/icons/Lock';
+import Lock from "@material-ui/icons/Lock";
 
 import { useRolesSlice } from "./slice";
 import { useDesksSlice } from "../Desks/slice";
@@ -115,11 +116,11 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     permissionDetails: {
       maxHeight: "40px",
-      alignItems: "center",
       padding: "0px",
     },
     permissionName: {
       fontWeight: "bold",
+      marginBottom: "10px",
     },
     checkboxLabel: {
       margin: "0px",
@@ -141,6 +142,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     link: {
       color: theme.palette.primary.main,
+      textDecoration: "none",
+      cursor: "pointer",
     },
     roleNameInput: {
       width: "100%",
@@ -252,7 +255,7 @@ const Roles = (): React.ReactElement => {
     createDeleteRuleTree: [],
     getRuleTrees: [],
   });
-  const [lockUsability , setLockUsability] = useState(false);
+  const [lockUsability, setLockUsability] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [submitResponse, setSubmitResponse] = useState({
     type: "success",
@@ -405,10 +408,10 @@ const Roles = (): React.ReactElement => {
       const request = await vault.getAssetPermissions(
         VaultAssetType.GROUP,
         role.vaultGroupId,
-        true,
+        true
       );
       const permissions = await vault.sendRequest(request);
-      
+
       const addRemoveUser: string[] = [];
       const createDeleteRuleTree: string[] = [];
       const getRuleTrees: string[] = [];
@@ -426,13 +429,13 @@ const Roles = (): React.ReactElement => {
           default:
             break;
         }
-      })
+      });
       setLockPermissions({
         addRemoveUser,
         createDeleteRuleTree,
-        getRuleTrees
-      })
-      setLockModalView(true); 
+        getRuleTrees,
+      });
+      setLockModalView(true);
     } catch (error) {
       setSubmitResponse({
         type: "error",
@@ -440,7 +443,7 @@ const Roles = (): React.ReactElement => {
       });
       setShowAlert(true);
     }
-  }
+  };
 
   const handleLockPermission = async (values: any) => {
     setLockModalProcessing(true);
@@ -454,29 +457,33 @@ const Roles = (): React.ReactElement => {
         } else {
           addRemoveUserNew.push(x);
         }
-      })
-      await Promise.all(addRemoveUserOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.GROUP,
-          lockingRole.vaultGroupId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.AddRemoveUser,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(addRemoveUserNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.GROUP,
-          lockingRole.vaultGroupId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.AddRemoveUser,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        addRemoveUserOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.GROUP,
+            lockingRole.vaultGroupId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.AddRemoveUser,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        addRemoveUserNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.GROUP,
+            lockingRole.vaultGroupId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.AddRemoveUser,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       const createDeleteRuleTreeOld = [...lockPermissions.createDeleteRuleTree];
       const createDeleteRuleTreeNew: string[] = [];
@@ -487,29 +494,33 @@ const Roles = (): React.ReactElement => {
         } else {
           createDeleteRuleTreeNew.push(x);
         }
-      })
-      await Promise.all(createDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.GROUP,
-          lockingRole.vaultGroupId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.CreateDeleteRuleTree,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(createDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.GROUP,
-          lockingRole.vaultGroupId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.CreateDeleteRuleTree,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        createDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.GROUP,
+            lockingRole.vaultGroupId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.CreateDeleteRuleTree,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        createDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.GROUP,
+            lockingRole.vaultGroupId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.CreateDeleteRuleTree,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       const getRuleTreesOld = [...lockPermissions.getRuleTrees];
       const getRuleTreesNew: string[] = [];
@@ -520,29 +531,33 @@ const Roles = (): React.ReactElement => {
         } else {
           getRuleTreesNew.push(x);
         }
-      })
-      await Promise.all(getRuleTreesOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.GROUP,
-          lockingRole.vaultGroupId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetRuleTrees,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(getRuleTreesNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.GROUP,
-          lockingRole.vaultGroupId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetRuleTrees,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        getRuleTreesOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.GROUP,
+            lockingRole.vaultGroupId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetRuleTrees,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        getRuleTreesNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.GROUP,
+            lockingRole.vaultGroupId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetRuleTrees,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       setSubmitResponse({
         type: "success",
@@ -557,7 +572,7 @@ const Roles = (): React.ReactElement => {
     }
     setShowAlert(true);
     setLockModalProcessing(false);
-  }
+  };
 
   return (
     <div className="main-wrapper">
@@ -695,9 +710,11 @@ const Roles = (): React.ReactElement => {
                                                         }
                                                       />
                                                     </Grid>
-                                                    <Grid 
+                                                    <Grid
                                                       item
-                                                      style={{ marginLeft: "auto" }}
+                                                      style={{
+                                                        marginLeft: "auto",
+                                                      }}
                                                     >
                                                       <IconButton
                                                         style={{ padding: 0 }}
@@ -705,7 +722,9 @@ const Roles = (): React.ReactElement => {
                                                           event.stopPropagation();
                                                           openLockModal(role);
                                                         }}
-                                                        disabled={!lockUsability}
+                                                        disabled={
+                                                          !lockUsability
+                                                        }
                                                       >
                                                         <Lock fontSize="default" />
                                                       </IconButton>
@@ -736,14 +755,33 @@ const Roles = (): React.ReactElement => {
                                                             classes.permissionContainer
                                                           }
                                                         >
-                                                          <FormLabel
-                                                            component="legend"
-                                                            className={
-                                                              classes.permissionName
-                                                            }
-                                                          >
-                                                            {perm.name}
-                                                          </FormLabel>
+                                                          {perm.description ? (
+                                                            <Tooltip
+                                                              title={
+                                                                perm.description
+                                                              }
+                                                              placement="top-start"
+                                                              arrow
+                                                            >
+                                                              <FormLabel
+                                                                component="legend"
+                                                                className={
+                                                                  classes.permissionName
+                                                                }
+                                                              >
+                                                                {perm.name}
+                                                              </FormLabel>
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <FormLabel
+                                                              component="legend"
+                                                              className={
+                                                                classes.permissionName
+                                                              }
+                                                            >
+                                                              {perm.name}
+                                                            </FormLabel>
+                                                          )}
                                                           <AccordionDetails
                                                             className={
                                                               classes.permissionDetails
@@ -752,6 +790,7 @@ const Roles = (): React.ReactElement => {
                                                             {perm.permissions.map(
                                                               (avail: {
                                                                 name: string;
+                                                                description?: string;
                                                                 code: string;
                                                               }) => (
                                                                 <Grid
@@ -763,7 +802,7 @@ const Roles = (): React.ReactElement => {
                                                                 >
                                                                   <Grid
                                                                     container
-                                                                    alignItems="center"
+                                                                    wrap="nowrap"
                                                                     spacing={1}
                                                                   >
                                                                     <Grid item>
@@ -777,11 +816,32 @@ const Roles = (): React.ReactElement => {
                                                                       />
                                                                     </Grid>
                                                                     <Grid item>
-                                                                      <Typography variant="body1">
-                                                                        {
-                                                                          avail.name
-                                                                        }
-                                                                      </Typography>
+                                                                      {avail.description ? (
+                                                                        <Tooltip
+                                                                          title={
+                                                                            avail.description
+                                                                          }
+                                                                          placement="top-start"
+                                                                          arrow
+                                                                        >
+                                                                          <Typography
+                                                                            variant="body2"
+                                                                            className={
+                                                                              classes.link
+                                                                            }
+                                                                          >
+                                                                            {
+                                                                              avail.name
+                                                                            }
+                                                                          </Typography>
+                                                                        </Tooltip>
+                                                                      ) : (
+                                                                        <Typography variant="body2">
+                                                                          {
+                                                                            avail.name
+                                                                          }
+                                                                        </Typography>
+                                                                      )}
                                                                     </Grid>
                                                                   </Grid>
                                                                 </Grid>
@@ -949,9 +1009,11 @@ const Roles = (): React.ReactElement => {
                                                         {role.name}
                                                       </Typography>
                                                     </Grid>
-                                                    <Grid 
+                                                    <Grid
                                                       item
-                                                      style={{ marginLeft: "auto" }}
+                                                      style={{
+                                                        marginLeft: "auto",
+                                                      }}
                                                     >
                                                       <IconButton
                                                         style={{ padding: 0 }}
@@ -959,7 +1021,9 @@ const Roles = (): React.ReactElement => {
                                                           event.stopPropagation();
                                                           openLockModal(role);
                                                         }}
-                                                        disabled={!lockUsability}
+                                                        disabled={
+                                                          !lockUsability
+                                                        }
                                                       >
                                                         <Lock fontSize="default" />
                                                       </IconButton>
@@ -1006,6 +1070,7 @@ const Roles = (): React.ReactElement => {
                                                             {perm.permissions.map(
                                                               (avail: {
                                                                 name: string;
+                                                                description?: string;
                                                                 code: string;
                                                               }) => (
                                                                 <Grid
@@ -1017,7 +1082,7 @@ const Roles = (): React.ReactElement => {
                                                                 >
                                                                   <Grid
                                                                     container
-                                                                    alignItems="center"
+                                                                    wrap="nowrap"
                                                                     spacing={1}
                                                                   >
                                                                     <Grid item>
@@ -1031,11 +1096,32 @@ const Roles = (): React.ReactElement => {
                                                                       />
                                                                     </Grid>
                                                                     <Grid item>
-                                                                      <Typography variant="body1">
-                                                                        {
-                                                                          avail.name
-                                                                        }
-                                                                      </Typography>
+                                                                      {avail.description ? (
+                                                                        <Tooltip
+                                                                          title={
+                                                                            avail.description
+                                                                          }
+                                                                          placement="top-start"
+                                                                          arrow
+                                                                        >
+                                                                          <Typography
+                                                                            variant="body2"
+                                                                            className={
+                                                                              classes.link
+                                                                            }
+                                                                          >
+                                                                            {
+                                                                              avail.name
+                                                                            }
+                                                                          </Typography>
+                                                                        </Tooltip>
+                                                                      ) : (
+                                                                        <Typography variant="body2">
+                                                                          {
+                                                                            avail.name
+                                                                          }
+                                                                        </Typography>
+                                                                      )}
                                                                     </Grid>
                                                                   </Grid>
                                                                 </Grid>
@@ -1224,9 +1310,11 @@ const Roles = (): React.ReactElement => {
                                                         {`(${role.desk.name})`}
                                                       </Typography>
                                                     </Grid>
-                                                    <Grid 
+                                                    <Grid
                                                       item
-                                                      style={{ marginLeft: "auto" }}
+                                                      style={{
+                                                        marginLeft: "auto",
+                                                      }}
                                                     >
                                                       <IconButton
                                                         style={{ padding: 0 }}
@@ -1234,7 +1322,9 @@ const Roles = (): React.ReactElement => {
                                                           event.stopPropagation();
                                                           openLockModal(role);
                                                         }}
-                                                        disabled={!lockUsability}
+                                                        disabled={
+                                                          !lockUsability
+                                                        }
                                                       >
                                                         <Lock fontSize="default" />
                                                       </IconButton>
@@ -1293,14 +1383,31 @@ const Roles = (): React.ReactElement => {
                                                             classes.permissionContainer
                                                           }
                                                         >
-                                                          <FormLabel
-                                                            component="legend"
-                                                            className={
-                                                              classes.permissionName
-                                                            }
-                                                          >
-                                                            {perm.name}
-                                                          </FormLabel>
+                                                          {perm.description ? (
+                                                            <Tooltip
+                                                              title={
+                                                                perm.description
+                                                              }
+                                                              placement="top-start"
+                                                              arrow
+                                                            >
+                                                              <FormLabel
+                                                                component="legend"
+                                                                className={`${classes.permissionName} ${classes.link}`}
+                                                              >
+                                                                {perm.name}
+                                                              </FormLabel>
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <FormLabel
+                                                              component="legend"
+                                                              className={
+                                                                classes.permissionName
+                                                              }
+                                                            >
+                                                              {perm.name}
+                                                            </FormLabel>
+                                                          )}
                                                           <AccordionDetails
                                                             className={
                                                               classes.permissionDetails
@@ -1309,6 +1416,7 @@ const Roles = (): React.ReactElement => {
                                                             {perm.permissions.map(
                                                               (avail: {
                                                                 name: string;
+                                                                description?: string;
                                                                 code: string;
                                                               }) => (
                                                                 <Grid
@@ -1320,7 +1428,7 @@ const Roles = (): React.ReactElement => {
                                                                 >
                                                                   <Grid
                                                                     container
-                                                                    alignItems="center"
+                                                                    wrap="nowrap"
                                                                     spacing={1}
                                                                   >
                                                                     <Grid item>
@@ -1334,11 +1442,32 @@ const Roles = (): React.ReactElement => {
                                                                       />
                                                                     </Grid>
                                                                     <Grid item>
-                                                                      <Typography variant="body1">
-                                                                        {
-                                                                          avail.name
-                                                                        }
-                                                                      </Typography>
+                                                                      {avail.description ? (
+                                                                        <Tooltip
+                                                                          title={
+                                                                            avail.description
+                                                                          }
+                                                                          placement="top-start"
+                                                                          arrow
+                                                                        >
+                                                                          <Typography
+                                                                            variant="body2"
+                                                                            className={
+                                                                              classes.link
+                                                                            }
+                                                                          >
+                                                                            {
+                                                                              avail.name
+                                                                            }
+                                                                          </Typography>
+                                                                        </Tooltip>
+                                                                      ) : (
+                                                                        <Typography variant="body2">
+                                                                          {
+                                                                            avail.name
+                                                                          }
+                                                                        </Typography>
+                                                                      )}
                                                                     </Grid>
                                                                   </Grid>
                                                                 </Grid>
@@ -1440,9 +1569,7 @@ const Roles = (): React.ReactElement => {
           <Form
             onSubmit={handleLockPermission}
             initialValues={lockPermissions}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <DialogTitle id="form-dialog-title">
                   {`Permission of ${lockingRole.name}`}
@@ -1451,9 +1578,7 @@ const Roles = (): React.ReactElement => {
                 <DialogContent>
                   <Grid container spacing={2}>
                     <Grid item xs={12}>
-                      <FormGroup
-                        className={classes.permissionContainer}
-                      >
+                      <FormGroup className={classes.permissionContainer}>
                         <FormLabel
                           component="legend"
                           className={classes.permissionName}
@@ -1461,14 +1586,11 @@ const Roles = (): React.ReactElement => {
                           Assign Users (AddRemoveUser)
                         </FormLabel>
                         <Grid container>
-                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                            (x) => (
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
                               <Grid item key={x.vaultGroupId} xs={2}>
-                                <Grid
-                                  container
-                                  alignItems="center"
-                                  spacing={1}
-                                >
+                                <Grid container alignItems="center" spacing={1}>
                                   <Grid item>
                                     <Field
                                       name="addRemoveUser[]"
@@ -1484,15 +1606,12 @@ const Roles = (): React.ReactElement => {
                                   </Grid>
                                 </Grid>
                               </Grid>
-                            )
-                          )}
+                            ))}
                         </Grid>
                       </FormGroup>
                     </Grid>
                     <Grid item xs={12}>
-                      <FormGroup
-                        className={classes.permissionContainer}
-                      >
+                      <FormGroup className={classes.permissionContainer}>
                         <FormLabel
                           component="legend"
                           className={classes.permissionName}
@@ -1500,14 +1619,11 @@ const Roles = (): React.ReactElement => {
                           Create Rules (CreateDeleteRuleTree)
                         </FormLabel>
                         <Grid container>
-                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                            (x) => (
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
                               <Grid item key={x.vaultGroupId} xs={2}>
-                                <Grid
-                                  container
-                                  alignItems="center"
-                                  spacing={1}
-                                >
+                                <Grid container alignItems="center" spacing={1}>
                                   <Grid item>
                                     <Field
                                       name="createDeleteRuleTree[]"
@@ -1523,15 +1639,12 @@ const Roles = (): React.ReactElement => {
                                   </Grid>
                                 </Grid>
                               </Grid>
-                            )
-                          )}
+                            ))}
                         </Grid>
                       </FormGroup>
                     </Grid>
                     <Grid item xs={12}>
-                      <FormGroup
-                        className={classes.permissionContainer}
-                      >
+                      <FormGroup className={classes.permissionContainer}>
                         <FormLabel
                           component="legend"
                           className={classes.permissionName}
@@ -1539,14 +1652,11 @@ const Roles = (): React.ReactElement => {
                           Display Rules (GetRuleTrees)
                         </FormLabel>
                         <Grid container>
-                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                            (x) => (
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
                               <Grid item key={x.vaultGroupId} xs={2}>
-                                <Grid
-                                  container
-                                  alignItems="center"
-                                  spacing={1}
-                                >
+                                <Grid container alignItems="center" spacing={1}>
                                   <Grid item>
                                     <Field
                                       name="getRuleTrees[]"
@@ -1562,8 +1672,7 @@ const Roles = (): React.ReactElement => {
                                   </Grid>
                                 </Grid>
                               </Grid>
-                            )
-                          )}
+                            ))}
                         </Grid>
                       </FormGroup>
                     </Grid>
