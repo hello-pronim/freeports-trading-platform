@@ -3,7 +3,7 @@ export default interface Operation {
 
   account?: string;
 
-  amount: number;
+  quantity: string;
 
   date: string;
 

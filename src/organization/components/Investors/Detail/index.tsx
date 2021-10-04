@@ -826,7 +826,7 @@ const InvestorDetail = (): React.ReactElement => {
                                   },
                                   {
                                     field: "quantity",
-                                    title: "Amount",
+                                    title: "Quantity",
                                   },
                                   {
                                     field: "status",

@@ -29,9 +29,8 @@ const getClearerRoles = (): Promise<Array<RoleType>> => {
 
 const addNewRole = async (
   name: string,
-  permissions: Array<string>,
   vaultUserId: string
-): Promise<string> => {
+): Promise<any> => {
   const vaultCreateGroupRequest = await vault.createGroup();
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
@@ -45,21 +44,14 @@ const addNewRole = async (
   );
   await vault.sendRequest(request);
 
-  const vaultGrantPermissionRequest = await vault.grantPermissions(
-    PermissionOwnerType.group, 
-    vaultGroupId, 
-    permissions
-  );
   return new Promise((resolve, reject) => {
     axios
       .post(`/role`, {
         name,
-        permissions,
         vaultGroupId,
-        vaultGrantPermissionRequest,
       })
       .then((res: any) => {
-        return resolve(res.data);
+        return resolve({...res.data, vaultGroupId});
       })
       .catch((err) => {
         return reject(err.response.data);
@@ -74,16 +66,6 @@ const modifyRole = async (
   oldPermissions: Array<string>,
   vaultGroupId: string,
 ): Promise<string> => {
-  const newPermissions: string[] = [];
-  permissions.forEach(x => {
-    const index = oldPermissions.indexOf(x);
-    if (index !== -1) {
-      oldPermissions.splice(index, 1);
-    } else {
-      newPermissions.push(x);
-    }
-  })
-
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
@@ -93,7 +75,7 @@ const modifyRole = async (
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    newPermissions
+    permissions
   );
 
   return new Promise((resolve, reject) => {
@@ -230,28 +212,17 @@ const updateOrgRole = async (
   oldPermissions: Array<string>,
   role: RoleType,
 ): Promise<string> => {
-  const oldPermissionsList = [...oldPermissions];
-  const newPermissionsList: string[] = [];
-  role.permissions.forEach(x => {
-    const index = oldPermissionsList.indexOf(x);
-    if (index !== -1) {
-      oldPermissionsList.splice(index, 1);
-    } else {
-      newPermissionsList.push(x);
-    }
-  })
-
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    oldPermissionsList,
+    oldPermissions,
     true
   );
 
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    newPermissionsList,
+    role.permissions,
     true
   );
   
@@ -400,28 +371,17 @@ const updateMultiDeskRole = async (
   oldPermissions: Array<string>,
   role: RoleType,
 ): Promise<string> => {
-  const oldPermissionsList = [...oldPermissions];
-  const newPermissionsList: string[] = [];
-  role.permissions.forEach(x => {
-    const index = oldPermissionsList.indexOf(x);
-    if (index !== -1) {
-      oldPermissionsList.splice(index, 1);
-    } else {
-      newPermissionsList.push(x);
-    }
-  })
-
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    oldPermissionsList,
+    oldPermissions,
     true
   );
 
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    newPermissionsList,
+    role.permissions,
     true
   );
 
@@ -577,28 +537,17 @@ const updateDeskRole = async (
   oldPermissions: Array<string>,
   role: RoleType,
 ): Promise<string> => {
-  const oldPermissionsList = [...oldPermissions];
-  const newPermissionsList: string[] = [];
-  role.permissions.forEach(x => {
-    const index = oldPermissionsList.indexOf(x);
-    if (index !== -1) {
-      oldPermissionsList.splice(index, 1);
-    } else {
-      newPermissionsList.push(x);
-    }
-  })
-
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    oldPermissionsList,
+    oldPermissions,
     true
   );
 
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
-    newPermissionsList,
+    role.permissions,
     true
   );
 

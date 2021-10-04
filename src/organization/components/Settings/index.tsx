@@ -16,35 +16,59 @@ import {
   CircularProgress,
   Container,
   createStyles,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
+  FormGroup,
+  FormLabel,
   Grid,
   IconButton,
   Input,
   InputAdornment,
   makeStyles,
-  Snackbar,
   TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+import Lock from '@material-ui/icons/Lock';
 
 import { TradeLevel } from "../../../types/Organization";
 import { useOrgSettingsSlice } from "./slice";
 import {
   selectIsTradeLevelsUpdating,
-  selectIsAccountsTrusting,
 } from "./slice/selectors";
 import { useOrganization } from "../../../hooks";
-import { setOrgAddressBook } from "../../../services/organizationService";
+import vault, { VaultPermissions } from "../../../vault";
+import { PermissionOwnerType } from "../../../vault/enum/permission-owner-type";
+import { VaultAssetType } from "../../../vault/enum/asset-type";
+import { VaultWalletType } from "../../../vault/enum/wallet-type";
+import { selectUser } from "../../../slice/selectors";
+import { snackbarActions } from "../../../components/Snackbar/slice";
+import {
+  selectOrgRoles,
+  selectMultiDeskRoles,
+  selectDeskRoles,
+} from "../Roles/slice/selectors";
+import { useRolesSlice } from "../Roles/slice";
 
 interface accountType {
   currency: string;
   iban: string;
   account: string;
+  publicAddress: string;
+  name: string;
 }
+
+interface LockPermissionsType {
+  addRemoveAddress: Array<string>;
+  createDeleteRuleTree: Array<string>;
+  getRuleTrees: Array<string>;
+}
+
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -93,7 +117,6 @@ const useStyle = makeStyles((theme: Theme) =>
       left: 0,
       cursor: "pointer",
     },
-
     progressButtonWrapper: {
       margin: theme.spacing(1),
       position: "relative",
@@ -106,6 +129,12 @@ const useStyle = makeStyles((theme: Theme) =>
       marginTop: -12,
       marginLeft: -12,
     },
+    roleContainer: {
+      padding: theme.spacing(2),
+    },
+    roleName: {
+      fontWeight: "bold",
+    },
   })
 );
 
@@ -113,7 +142,7 @@ const Settings = (): React.ReactElement => {
   const classes = useStyle();
   const dispatch = useDispatch();
   const { organizationId } = Lockr.get("USER_DATA");
-  const { getOrganization, updateOrganization } = useOrganization();
+  const { getOrganization, addAddressbook } = useOrganization();
   const [orgDetail, setOrgDetail] = useState({
     id: "",
     name: "",
@@ -125,21 +154,38 @@ const Settings = (): React.ReactElement => {
     userSuspended: 0,
     accountList: [],
     tradeLevels: [],
+    vaultAddressbookId: "",
   });
   const [accounts, setAccounts] = useState<Array<accountType>>([]);
-  const [creatingAddressBook, setCreatingAddressBook] = useState(false);
   const [cryptoAccounts, setCryptoAccounts] = useState<Array<accountType>>([]);
   const { actions: orgSettingsActions } = useOrgSettingsSlice();
   const tradeLevelsUpdating = useSelector(selectIsTradeLevelsUpdating);
-  const accountsTrusting = useSelector(selectIsAccountsTrusting);
   const currencyList = ["CHF", "USD", "EUR", "BTC", "ETH"];
+  
+  const currentUser = useSelector(selectUser);
+
+  const [addingToVault, setAddingToVault] = useState(false);
+  const [loadingVaultPermission, setLoadingVaultPermission] = useState(false);
+  const [trustingAccounts, setTrustingAccounts] = useState(false);
+
+  const [lockModalView, setLockModalView] = useState(false);
+  const [lockPermissions, setLockPermissions] = useState<LockPermissionsType>({
+    addRemoveAddress: [],
+    createDeleteRuleTree: [],
+    getRuleTrees: [],
+  });
+  const [lockModalProcessing, setLockModalProcessing] = useState(false);
+
+  const { actions: rolesActions } = useRolesSlice();
+  const orgRoles = useSelector(selectOrgRoles);
+  const multiDeskRoles = useSelector(selectMultiDeskRoles);
+  const deskRoles = useSelector(selectDeskRoles);
 
   useEffect(() => {
     let mounted = false;
     const init = async () => {
-      const detail = await getOrganization(organizationId);
-
       if (!mounted) {
+        const detail = await getOrganization(organizationId);
         if (detail) {
           setOrgDetail({
             id: detail.id,
@@ -152,12 +198,14 @@ const Settings = (): React.ReactElement => {
             userSuspended: detail.userSuspended,
             accountList: detail.clearing,
             tradeLevels: detail.tradeLevels,
+            vaultAddressbookId: detail.vaultAddressbookId,
           });
           setAccounts(detail.clearing);
-          setCryptoAccounts(
-            detail.clearing.filter((x: accountType) => x.iban === undefined)
-          );
+          setCryptoAccounts(detail.clearing.filter((x: accountType) => x.iban === undefined));
         }
+        dispatch(rolesActions.getOrgRoles(organizationId));
+        dispatch(rolesActions.getMultiDeskRoles(organizationId));
+        dispatch(rolesActions.getDeskRoles(organizationId));
       }
     };
     init();
@@ -178,15 +226,263 @@ const Settings = (): React.ReactElement => {
       reader.readAsDataURL(files[0]);
     }
   };
-  const handleAccountsTrust = () => {
-    const cryptoAccountList = cryptoAccounts.map(({ account }) => account);
 
-    dispatch(
-      orgSettingsActions.trustAccounts({
-        organizationId,
-        address: cryptoAccountList,
+  const onClickAddToVault = async () => {
+    setAddingToVault(true);
+    const response = await addAddressbook(organizationId);
+    if (response) {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Successfully created addressbook",
+          type: "success",
+        })
+      );
+      setOrgDetail({
+        ...orgDetail,
+        vaultAddressbookId : response.vaultAddressbookId
+      });
+    } else {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Sorry, failed to create an addressbook",
+          type: "error",
+        })
+      );
+    }
+    setAddingToVault(false);
+  };
+
+  const onClickLockPermission = async () => {
+    try {
+      const request = await vault.getAssetPermissions(
+        VaultAssetType.ADDRESS_BOOK,
+        orgDetail.vaultAddressbookId,
+        true,
+      );
+      const permissions = await vault.sendRequest(request);
+      
+      const addRemoveAddress: string[] = [];
+      const createDeleteRuleTree: string[] = [];
+      const getRuleTrees: string[] = [];
+      permissions.groupPermissions.forEach((x: any) => {
+        switch (x.permissionType) {
+          case VaultPermissions.AddRemoveAddress:
+            addRemoveAddress.push(x.groupId);
+            break;
+          case VaultPermissions.CreateDeleteRuleTree:
+            createDeleteRuleTree.push(x.groupId);
+            break;
+          case VaultPermissions.GetRuleTrees:
+            getRuleTrees.push(x.groupId);
+            break;
+          default:
+            break;
+        }
       })
-    );
+      setLockPermissions({
+        addRemoveAddress,
+        createDeleteRuleTree,
+        getRuleTrees
+      })
+      setLockModalView(true); 
+    } catch (error) {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: error.message,
+          type: "error",
+        })
+      );
+    }
+  };
+
+  const handleLockPermission = async (values: any) => {
+    setLockModalProcessing(true);
+    try {
+      const addRemoveAddressOld = [...lockPermissions.addRemoveAddress];
+      const addRemoveAddressNew: string[] = [];
+      values.addRemoveAddress.forEach((x: string) => {
+        const index = addRemoveAddressOld.indexOf(x);
+        if (index !== -1) {
+          addRemoveAddressOld.splice(index, 1);
+        } else {
+          addRemoveAddressNew.push(x);
+        }
+      })
+      await Promise.all(addRemoveAddressOld.map(async (vaultGroupId: string) => {
+        const request1 = await vault.revokePermissionFromAsset(
+          VaultAssetType.ADDRESS_BOOK,
+          orgDetail.vaultAddressbookId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.AddRemoveAddress,
+          true,
+        );
+        await vault.sendRequest(request1);
+
+        const request2 = await vault.revokePermissionFromAsset(
+          VaultAssetType.ADDRESS_BOOK,
+          orgDetail.vaultAddressbookId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.GetAddressBookDetails,
+          true,
+        );
+        await vault.sendRequest(request2);
+      }));
+      await Promise.all(addRemoveAddressNew.map(async (vaultGroupId: string) => {
+        const request1 = await vault.grantPermissionToAsset(
+          VaultAssetType.ADDRESS_BOOK,
+          orgDetail.vaultAddressbookId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.AddRemoveAddress,
+          true,
+        );
+        await vault.sendRequest(request1);
+
+        const request2 = await vault.grantPermissionToAsset(
+          VaultAssetType.ADDRESS_BOOK,
+          orgDetail.vaultAddressbookId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.GetAddressBookDetails,
+          true,
+        );
+        await vault.sendRequest(request2);
+      }));
+
+      const createDeleteRuleTreeOld = [...lockPermissions.createDeleteRuleTree];
+      const createDeleteRuleTreeNew: string[] = [];
+      values.createDeleteRuleTree.forEach((x: string) => {
+        const index = createDeleteRuleTreeOld.indexOf(x);
+        if (index !== -1) {
+          createDeleteRuleTreeOld.splice(index, 1);
+        } else {
+          createDeleteRuleTreeNew.push(x);
+        }
+      })
+      await Promise.all(createDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
+        const request = await vault.revokePermissionFromAsset(
+          VaultAssetType.ADDRESS_BOOK,
+          orgDetail.vaultAddressbookId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.CreateDeleteRuleTree,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(createDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
+        const request = await vault.grantPermissionToAsset(
+          VaultAssetType.ADDRESS_BOOK,
+          orgDetail.vaultAddressbookId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.CreateDeleteRuleTree,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      const getRuleTreesOld = [...lockPermissions.getRuleTrees];
+      const getRuleTreesNew: string[] = [];
+      values.getRuleTrees.forEach((x: string) => {
+        const index = getRuleTreesOld.indexOf(x);
+        if (index !== -1) {
+          getRuleTreesOld.splice(index, 1);
+        } else {
+          getRuleTreesNew.push(x);
+        }
+      })
+      await Promise.all(getRuleTreesOld.map(async (vaultGroupId: string) => {
+        const request = await vault.revokePermissionFromAsset(
+          VaultAssetType.ADDRESS_BOOK,
+          orgDetail.vaultAddressbookId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.GetRuleTrees,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(getRuleTreesNew.map(async (vaultGroupId: string) => {
+        const request = await vault.grantPermissionToAsset(
+          VaultAssetType.ADDRESS_BOOK,
+          orgDetail.vaultAddressbookId,
+          PermissionOwnerType.group,
+          vaultGroupId,
+          VaultPermissions.GetRuleTrees,
+          true,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Successfully updated!",
+          type: "success",
+        })
+      );
+      setLockModalView(false);
+    } catch (error) {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: error.message,
+          type: "error",
+        })
+      );
+    }
+    setLockModalProcessing(false);
+  }
+
+  const onClickTrustAccounts = async () => {
+    setTrustingAccounts(true);
+    try {
+      const vaultRequest = await vault.getAddressbook(orgDetail.vaultAddressbookId);
+      const response = await vault.sendRequest(vaultRequest);
+      
+      const addressesOld = response.addresses.map((x: any) => x.address);
+      const addressesNew: Array<accountType> = [];
+      cryptoAccounts.forEach((x: accountType) => {
+        const index = addressesOld.indexOf(x.publicAddress);
+        if (index !== -1) {
+          addressesOld.splice(index, 1);
+        } else {
+          addressesNew.push(x);
+        }
+      })
+      await Promise.all(addressesOld.map(async (address: string) => {
+        const request = await vault.deleteAddressbookEntry(
+          orgDetail.vaultAddressbookId,
+          address,
+        );
+        await vault.sendRequest(request);
+      }));
+      await Promise.all(addressesNew.map(async (x: accountType) => {
+        const request = await vault.createAddressbookEntry(
+          orgDetail.vaultAddressbookId,
+          x.publicAddress,
+          x.name,
+          x.currency === "BTC" ? VaultWalletType.Bitcoin : VaultWalletType.Ethereum,
+        );
+        await vault.sendRequest(request);
+      }));
+
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Successfully done!",
+          type: "success",
+        })
+      );
+    } catch (error) {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: error.message,
+          type: "error",
+        })
+      );
+    }
+    setTrustingAccounts(false);
   };
 
   const handleTradeLevelsUpdate = (values: any) => {
@@ -228,12 +524,38 @@ const Settings = (): React.ReactElement => {
                   <Grid item xs={12}>
                     {accounts.length > 0 ? (
                       <Card variant="outlined">
-                        <CardHeader
-                          title={<Typography variant="h6">Accounts</Typography>}
-                        />
-                        <Divider />
                         <CardContent>
-                          <Grid container spacing={1}>
+                          <Grid
+                            container
+                            alignItems="center"
+                            style={{ paddingBottom: 10 }}
+                          >
+                            <Grid item>
+                              <Typography variant="h6">Accounts</Typography>
+                            </Grid>
+                            <Grid 
+                              item
+                              style={{ marginLeft: "auto" }}
+                            >
+                              <IconButton
+                                style={{ padding: 0 }}
+                                onClick={onClickLockPermission}
+                                disabled={
+                                  loadingVaultPermission || 
+                                  !vault.checkUserLockUsability(currentUser) ||
+                                  !orgDetail.vaultAddressbookId
+                                }
+                              >
+                                <Lock fontSize="default" />
+                              </IconButton>
+                            </Grid>
+                          </Grid>
+                          <Divider />
+                          <Grid 
+                            container 
+                            spacing={1}
+                            style={{ paddingTop: 10 }}
+                          >
                             <Grid item xs={12}>
                               {accounts.map((account) => (
                                 <Typography
@@ -250,16 +572,43 @@ const Settings = (): React.ReactElement => {
                                 <Button
                                   variant="contained"
                                   color="primary"
-                                  onClick={handleAccountsTrust}
+                                  onClick={onClickAddToVault}
                                   disabled={
-                                    accountsTrusting ||
-                                    cryptoAccounts.length === 0
+                                    addingToVault ||
+                                    !vault.checkUserVaultPermission(
+                                      currentUser, 
+                                      VaultPermissions.CreateDeleteAddressBook
+                                    ) || 
+                                    !!orgDetail.vaultAddressbookId
+                                  }
+                                >
+                                  Add To Vault
+                                </Button>
+
+                                {addingToVault && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                            </Grid>
+                            <Grid item>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={onClickTrustAccounts}
+                                  disabled={
+                                    trustingAccounts ||
+                                    !cryptoAccounts.length ||
+                                    !orgDetail.vaultAddressbookId
                                   }
                                 >
                                   Trust Nostro Accounts
                                 </Button>
 
-                                {accountsTrusting && (
+                                {trustingAccounts && (
                                   <CircularProgress
                                     size={24}
                                     className={classes.progressButton}
@@ -601,6 +950,176 @@ const Settings = (): React.ReactElement => {
           </CardActions> */}
         </Card>
       </Container>
+      <Dialog
+          open={lockModalView}
+          onClose={() => {
+            setLockModalView(false);
+          }}
+          aria-labelledby="form-dialog-title"
+        >
+          <Form
+            onSubmit={handleLockPermission}
+            initialValues={lockPermissions}
+            render={({
+              handleSubmit,
+            }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <DialogTitle id="form-dialog-title">
+                  Permission of Addressbook
+                </DialogTitle>
+                <Divider />
+                <DialogContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.roleContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          Trust accounts (AddRemoveAddress)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="addRemoveAddress[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.roleContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          Create Rules (CreateDeleteRuleTree)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="createDeleteRuleTree[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup
+                        className={classes.roleContainer}
+                      >
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          Display Rules (GetRuleTrees)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles.concat(multiDeskRoles, deskRoles).map(
+                            (x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid
+                                  container
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Grid item>
+                                    <Field
+                                      name="getRuleTrees[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            )
+                          )}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <Divider />
+                <DialogActions>
+                  <Button
+                    onClick={() => {
+                      setLockModalView(false);
+                    }}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                  <div className={classes.progressButtonWrapper}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      type="submit"
+                      disabled={lockModalProcessing}
+                    >
+                      Save
+                    </Button>
+                    {lockModalProcessing && (
+                      <CircularProgress
+                        size={24}
+                        className={classes.progressButton}
+                      />
+                    )}
+                  </div>
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
     </div>
   );
 };

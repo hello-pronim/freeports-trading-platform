@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
   Button,
@@ -17,22 +18,35 @@ import {
   FormLabel,
   Grid,
   makeStyles,
-  Popover,
-  Snackbar,
-  TextField,
   Theme,
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import { Form, Field } from "react-final-form";
+import { TextField } from "mui-rff";
 
-import Permission from "../../../types/Permission";
 import { useRole } from "../../../hooks";
+import { selectUser } from "../../../slice/selectors";
+import vault, { VaultPermissions } from "../../../vault";
+import { PermissionOwnerType } from "../../../vault/enum/permission-owner-type";
+import { VaultAssetType } from "../../../vault/enum/asset-type";
+import Permission from "../../../types/Permission";
+import { snackbarActions } from "../../../components/Snackbar/slice";
 
 interface RoleType {
   name: string;
   permissions: Array<string>;
 }
+
+const validate = (values: any) => {
+  const errors: Partial<RoleType> = {};
+
+  if (!values.name) {
+    errors.name = "This Field Required";
+  }
+
+  return errors;
+};
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -77,6 +91,7 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: theme.palette.primary.main,
       textDecoration: "none",
+      cursor: "pointer",
     },
     roleNameInput: {
       width: "100%",
@@ -85,32 +100,35 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Alert = (props: AlertProps) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-};
-
 const AddRole = (): React.ReactElement => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const history = useHistory();
-  const { retrievePermissions, createNewRole } = useRole();
-  const [role, setRole] = useState<RoleType>({ name: "", permissions: [] });
-  const [permissionGroups, setPermissionGroups] = useState([] as any[]);
-  const [loading, setLoading] = useState(false);
-  const [submitResponse, setSubmitResponse] = useState({
-    type: "success",
-    message: "",
+
+  const { retrievePermissions, createNewRole, retrieveRoles, updateRole } =
+    useRole();
+  const [permissions, setPermissions] = useState([] as any[]);
+  const [roles, setRoles] = useState([] as any[]);
+  const currentUser = useSelector(selectUser);
+  const [wizardStep, setWizardStep] = useState(0);
+  const [wizardProccessing, setWizardProccessing] = useState(false);
+  const [lockUsability, setLockUsability] = useState(false);
+  const [newRole, setNewRole] = useState({
+    name: "",
+    id: "",
+    vaultGroupId: "",
   });
-  const [showAlert, setShowAlert] = useState(false);
-  const timer = React.useRef<number>();
 
   useEffect(() => {
     let unmounted = false;
 
     const init = async () => {
       const permissionList = await retrievePermissions();
-
+      const rolesList = await retrieveRoles();
       if (!unmounted) {
-        setPermissionGroups(permissionList);
+        setPermissions(permissionList);
+        setRoles(rolesList);
+        setLockUsability(vault.checkUserLockUsability(currentUser));
       }
     };
 
@@ -121,188 +139,435 @@ const AddRole = (): React.ReactElement => {
     };
   }, []);
 
-  const onPermissionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
-
-    const newRole = { ...role };
-
-    if (checked) newRole.permissions.push(name);
-    else {
-      for (let i = 0; i < newRole.permissions.length; i += 1) {
-        if (newRole.permissions[i] === name) {
-          newRole.permissions.splice(i, 1);
-          break;
-        }
-      }
-    }
-    console.log(newRole);
-
-    setRole(newRole);
-  };
-
-  const onRoleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
-    const newRole = { ...role };
-    newRole.name = value;
-
-    setRole(newRole);
-  };
-
-  const onRoleCreate = async () => {
-    setLoading(true);
-    setShowAlert(false);
-    await createNewRole(role)
-      .then((data: string) => {
-        console.log("response data: ", data);
-        if (data !== "") {
-          setSubmitResponse({
-            type: "success",
-            message: "New role has been created successfully.",
-          });
-          setShowAlert(true);
-          timer.current = window.setTimeout(() => {
-            history.push("/roles");
-          }, 2000);
-        }
-      })
-      .catch((err: any) => {
-        setLoading(false);
-        setSubmitResponse({
-          type: "error",
-          message: err.message,
-        });
-        setShowAlert(true);
+  const handleRoleCreate = async (values: any) => {
+    setWizardProccessing(true);
+    const response = await createNewRole(values.name);
+    if (response) {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Role has been created successfully",
+          type: "success",
+        })
+      );
+      setNewRole({
+        name: values.name,
+        id: response.id,
+        vaultGroupId: response.vaultGroupId,
       });
+      if (lockUsability) {
+        setWizardStep(1);
+      } else {
+        setWizardStep(2);
+      }
+    } else {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Sorry, failed to create a role",
+          type: "error",
+        })
+      );
+    }
+    setWizardProccessing(false);
   };
 
-  const handleAlertClose = () => {
-    setShowAlert(false);
+  const handleLockPermission = async (values: any) => {
+    if (
+      values.addRemoveUser.length ||
+      values.createDeleteRuleTree.length ||
+      values.getRuleTrees.length
+    ) {
+      setWizardProccessing(true);
+      try {
+        await Promise.all(
+          values.addRemoveUser.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.AddRemoveUser
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        await Promise.all(
+          values.createDeleteRuleTree.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.CreateDeleteRuleTree
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        await Promise.all(
+          values.getRuleTrees.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.GetRuleTrees
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        setWizardStep(2);
+      } catch (error) {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: error.message,
+            type: "error",
+          })
+        );
+      }
+      setWizardProccessing(false);
+    } else {
+      setWizardStep(2);
+    }
+  };
+
+  const handleDefinePermission = async (values: any) => {
+    setWizardProccessing(true);
+    const response = await updateRole(
+      newRole.id,
+      {
+        ...newRole,
+        permissions: values.permissions,
+      },
+      []
+    );
+    if (response) {
+      history.push("/roles");
+    } else {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Sorry, failed to create a role",
+          type: "error",
+        })
+      );
+      setWizardProccessing(false);
+    }
+  };
+
+  const handleCancelClick = () => {
+    history.push("/roles");
   };
 
   return (
     <div className="main-wrapper">
       <Container>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader title="Create new Organization role" />
-              <Divider />
-              <CardContent>
-                <Grid container>
-                  <Grid item xs={4}>
-                    <TextField
-                      className={classes.roleNameInput}
-                      label="Role Name"
-                      value={role.name}
-                      onChange={onRoleNameChange}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container>
-                  {permissionGroups.map((permissionGroup: Permission) => (
-                    <Grid item key={permissionGroup.name} xs={12}>
-                      <FormGroup className={classes.permissionContainer}>
-                        <FormLabel
-                          component="legend"
-                          className={classes.permissionName}
-                        >
-                          {permissionGroup.name}
-                        </FormLabel>
+        {wizardStep === 0 && (
+          <Form
+            onSubmit={handleRoleCreate}
+            validate={validate}
+            render={({ handleSubmit }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <Card>
+                  <CardHeader title="Create new role" />
+                  <Divider />
+                  <CardContent>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
                         <Grid container>
-                          {permissionGroup.permissions.map(
-                            (permission: {
-                              name: string;
-                              code: string;
-                              description?: string;
-                              dependsOn?: string[];
-                            }) => (
-                              <Grid item key={permission.code} xs={2}>
-                                <FormControlLabel
-                                  className={classes.checkboxLabel}
-                                  control={
-                                    <Checkbox
-                                      color="primary"
-                                      name={permission.code}
-                                      checked={Boolean(
-                                        role.permissions.includes(
-                                          permission.code
-                                        )
-                                      )}
-                                      onChange={onPermissionChange}
-                                    />
-                                  }
-                                  label={
-                                    permission.description ? (
-                                      <Tooltip
-                                        title={permission.description}
-                                        placement="top-start"
-                                        arrow
-                                      >
-                                        <Typography
-                                          variant="body2"
-                                          className={classes.link}
-                                        >
-                                          {permission.name}
-                                        </Typography>
-                                      </Tooltip>
-                                    ) : (
-                                      <Typography variant="body2">
-                                        {permission.name}
-                                      </Typography>
-                                    )
-                                  }
-                                />
-                              </Grid>
-                            )
-                          )}
+                          <Grid item xs={4}>
+                            <TextField
+                              className={classes.roleNameInput}
+                              label="Role Name"
+                              name="name"
+                              variant="outlined"
+                            />
+                          </Grid>
                         </Grid>
-                      </FormGroup>
+                      </Grid>
                     </Grid>
-                  ))}
-                </Grid>
-              </CardContent>
-              <Divider />
-              <CardActions>
-                <Grid container justify="flex-end">
-                  <Grid item>
-                    <div className={classes.progressButtonWrapper}>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        color="primary"
-                        onClick={onRoleCreate}
-                        disabled={loading}
-                      >
-                        Create Role
-                      </Button>
-                      {loading && (
-                        <CircularProgress
-                          size={24}
-                          className={classes.progressButton}
-                        />
-                      )}
-                    </div>
-                  </Grid>
-                </Grid>
-                <Snackbar
-                  autoHideDuration={2000}
-                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                  open={showAlert}
-                  onClose={handleAlertClose}
-                >
-                  <Alert
-                    onClose={handleAlertClose}
-                    severity={
-                      submitResponse.type === "success" ? "success" : "error"
-                    }
-                  >
-                    {submitResponse.message}
-                  </Alert>
-                </Snackbar>
-              </CardActions>
-            </Card>
-          </Grid>
-        </Grid>
+                  </CardContent>
+                  <Divider />
+                  <CardActions>
+                    <Grid
+                      container
+                      alignItems="center"
+                      justify="flex-end"
+                      spacing={2}
+                    >
+                      <Grid item>
+                        <Button variant="contained" onClick={handleCancelClick}>
+                          Cancel
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <div className={classes.progressButtonWrapper}>
+                          <Button
+                            variant="contained"
+                            type="submit"
+                            color="primary"
+                            disabled={wizardProccessing && wizardStep === 0}
+                          >
+                            Next
+                          </Button>
+                          {wizardProccessing && wizardStep === 0 && (
+                            <CircularProgress
+                              size={24}
+                              className={classes.progressButton}
+                            />
+                          )}
+                        </div>
+                      </Grid>
+                    </Grid>
+                  </CardActions>
+                </Card>
+              </form>
+            )}
+          />
+        )}
+        {wizardStep === 1 && (
+          <Form
+            onSubmit={handleLockPermission}
+            initialValues={{
+              addRemoveUser: [],
+              createDeleteRuleTree: [],
+              getRuleTrees: [],
+            }}
+            render={({ handleSubmit }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <Card>
+                  <CardHeader title={`Permission of ${newRole.name}`} />
+                  <Divider />
+                  <CardContent>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <FormGroup className={classes.permissionContainer}>
+                          <FormLabel
+                            component="legend"
+                            className={classes.permissionName}
+                          >
+                            Assign Users (AddRemoveUser)
+                          </FormLabel>
+                          <Grid container>
+                            {roles.map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="addRemoveUser[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                          </Grid>
+                        </FormGroup>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <FormGroup className={classes.permissionContainer}>
+                          <FormLabel
+                            component="legend"
+                            className={classes.permissionName}
+                          >
+                            Create Rules (CreateDeleteRuleTree)
+                          </FormLabel>
+                          <Grid container>
+                            {roles.map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="createDeleteRuleTree[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                          </Grid>
+                        </FormGroup>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <FormGroup className={classes.permissionContainer}>
+                          <FormLabel
+                            component="legend"
+                            className={classes.permissionName}
+                          >
+                            Display Rules (GetRuleTrees)
+                          </FormLabel>
+                          <Grid container>
+                            {roles.map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="getRuleTrees[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                          </Grid>
+                        </FormGroup>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                  <Divider />
+                  <CardActions>
+                    <Grid
+                      container
+                      alignItems="center"
+                      justify="flex-end"
+                      spacing={2}
+                    >
+                      <Grid item>
+                        <Button variant="contained" onClick={handleCancelClick}>
+                          Cancel
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <div className={classes.progressButtonWrapper}>
+                          <Button
+                            variant="contained"
+                            type="submit"
+                            color="primary"
+                            disabled={wizardProccessing && wizardStep === 1}
+                          >
+                            Next
+                          </Button>
+                          {wizardProccessing && wizardStep === 1 && (
+                            <CircularProgress
+                              size={24}
+                              className={classes.progressButton}
+                            />
+                          )}
+                        </div>
+                      </Grid>
+                    </Grid>
+                  </CardActions>
+                </Card>
+              </form>
+            )}
+          />
+        )}
+        {wizardStep === 2 && (
+          <Form
+            onSubmit={handleDefinePermission}
+            initialValues={{
+              permissions: [],
+            }}
+            render={({ handleSubmit }) => (
+              <form onSubmit={handleSubmit} noValidate>
+                <Card>
+                  <CardHeader title="Define permissions" />
+                  <Divider />
+                  <CardContent>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <Grid container>
+                          {permissions.map((perm: Permission) => (
+                            <Grid item key={perm.name} xs={12}>
+                              <FormGroup
+                                className={classes.permissionContainer}
+                              >
+                                <FormLabel
+                                  component="legend"
+                                  className={classes.permissionName}
+                                >
+                                  {perm.name}
+                                </FormLabel>
+                                <Grid container>
+                                  {perm.permissions.map(
+                                    (avail: { name: string; code: string }) => (
+                                      <Grid item key={avail.code} xs={2}>
+                                        <Grid
+                                          container
+                                          alignItems="center"
+                                          spacing={1}
+                                        >
+                                          <Grid item>
+                                            <Field
+                                              name="permissions[]"
+                                              component="input"
+                                              type="checkbox"
+                                              value={avail.code}
+                                            />
+                                          </Grid>
+                                          <Grid item>
+                                            <Typography variant="body1">
+                                              {avail.name}
+                                            </Typography>
+                                          </Grid>
+                                        </Grid>
+                                      </Grid>
+                                    )
+                                  )}
+                                </Grid>
+                              </FormGroup>
+                            </Grid>
+                          ))}
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                  <Divider />
+                  <CardActions>
+                    <Grid
+                      container
+                      alignItems="center"
+                      justify="flex-end"
+                      spacing={2}
+                    >
+                      <Grid item>
+                        <Button variant="contained" onClick={handleCancelClick}>
+                          Cancel
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <div className={classes.progressButtonWrapper}>
+                          <Button
+                            variant="contained"
+                            type="submit"
+                            color="primary"
+                            disabled={wizardProccessing && wizardStep === 2}
+                          >
+                            Save
+                          </Button>
+                          {wizardProccessing && wizardStep === 2 && (
+                            <CircularProgress
+                              size={24}
+                              className={classes.progressButton}
+                            />
+                          )}
+                        </div>
+                      </Grid>
+                    </Grid>
+                  </CardActions>
+                </Card>
+              </form>
+            )}
+          />
+        )}
       </Container>
     </div>
   );
