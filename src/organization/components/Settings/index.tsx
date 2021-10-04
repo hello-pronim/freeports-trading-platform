@@ -524,12 +524,38 @@ const Settings = (): React.ReactElement => {
                   <Grid item xs={12}>
                     {accounts.length > 0 ? (
                       <Card variant="outlined">
-                        <CardHeader
-                          title={<Typography variant="h6">Accounts</Typography>}
-                        />
-                        <Divider />
                         <CardContent>
-                          <Grid container spacing={1}>
+                          <Grid
+                            container
+                            alignItems="center"
+                            style={{ paddingBottom: 10 }}
+                          >
+                            <Grid item>
+                              <Typography variant="h6">Accounts</Typography>
+                            </Grid>
+                            <Grid 
+                              item
+                              style={{ marginLeft: "auto" }}
+                            >
+                              <IconButton
+                                style={{ padding: 0 }}
+                                onClick={onClickLockPermission}
+                                disabled={
+                                  loadingVaultPermission || 
+                                  !vault.checkUserLockUsability(currentUser) ||
+                                  !orgDetail.vaultAddressbookId
+                                }
+                              >
+                                <Lock fontSize="default" />
+                              </IconButton>
+                            </Grid>
+                          </Grid>
+                          <Divider />
+                          <Grid 
+                            container 
+                            spacing={1}
+                            style={{ paddingTop: 10 }}
+                          >
                             <Grid item xs={12}>
                               {accounts.map((account) => (
                                 <Typography
@@ -560,29 +586,6 @@ const Settings = (): React.ReactElement => {
                                 </Button>
 
                                 {addingToVault && (
-                                  <CircularProgress
-                                    size={24}
-                                    className={classes.progressButton}
-                                  />
-                                )}
-                              </div>
-                            </Grid>
-                            <Grid item>
-                              <div className={classes.progressButtonWrapper}>
-                                <Button
-                                  variant="contained"
-                                  color="primary"
-                                  onClick={onClickLockPermission}
-                                  disabled={
-                                    loadingVaultPermission || 
-                                    !vault.checkUserLockUsability(currentUser) ||
-                                    !orgDetail.vaultAddressbookId
-                                  }
-                                >
-                                  <Lock fontSize="small" />Permission
-                                </Button>
-
-                                {loadingVaultPermission && (
                                   <CircularProgress
                                     size={24}
                                     className={classes.progressButton}
