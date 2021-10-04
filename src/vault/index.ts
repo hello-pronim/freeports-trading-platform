@@ -28,6 +28,7 @@ export enum VaultPermissions {
   "BackupMnemonic" = "BackupMnemonic",
   "RestoreMnemonic" = "RestoreMnemonic",
   "GetUserPermissions" = "GetUserPermissions",
+  "GetPermissions" = "GetPermissions",
   "GrantRevokePermission" = "GrantRevokePermission",
   "GetPublicKey" = "GetPublicKey",
   "CreateDeleteUser" = "CreateDeleteUser",
@@ -66,22 +67,18 @@ const roleVaultPermission = {
   "organization.#organizationId#.role.delete": ["GrantRevokePermission"],
   "desk.#deskId#.role.delete": ["GrantRevokePermission"],
 
-  "clearer.account.create": ["CreateWallet"],
-  "desk.#deskId#.account.create": ["CreateWallet", "CreateDeleteAddressBook"],
-
-  "clearer.account.delete": ["DeleteWallet"],
-  "desk.#deskId#.account.delete": ["DeleteWallet"],
+  "desk.#deskId#.account.create": ["CreateDeleteAddressBook"],
 
   "organization.#organizationId#.initiate_nostro_account": ["CreateDeleteAddressBook"],
   "organization.#organizationId#.approve_nostro_account": ["GrantRevokePermission"],
-  "organization.#organizationId#.role.read": ["GetUserPermissions"],
-  "desk.#deskId#.role.read": ["GetUserPermissions"],
+  "organization.#organizationId#.role.read": ["GetPermissions"],
+  "desk.#deskId#.role.read": ["GetPermissions"],
   "organization.#organizationId#.role.permission": ["GrantRevokePermission"],
   "desk.#deskId#.role.permission": ["GrantRevokePermission"],
-  "desk.#deskId#.account.read": ["GetUserPermissions"],
+  "desk.#deskId#.account.read": ["GetPermissions"],
   "desk.#deskId#.account.permission": ["GrantRevokePermission"],
 
-  "clearer.account.read": ["GetUserPermissions"],
+  "clearer.account.read": ["GetPermissions"],
   "clearer.account.permission": ["GrantRevokePermission"],
 };
 
@@ -689,15 +686,15 @@ export class Vault {
   }
 
   public checkUserLockUsability(user: any): boolean {
-    let getUserPermissions = false;
+    let getPermissions = false;
     let grantRevokePermission = false;
     if (user && user.roles) {
       user.roles.forEach((role: any) => {
         role.permissions.forEach((rPermission: string) => {
           const vPermissions = roleVaultPermission[rPermission as keyof typeof roleVaultPermission];
           if (vPermissions) {
-            if (vPermissions.includes(VaultPermissions.GetUserPermissions)) {
-              getUserPermissions = true;
+            if (vPermissions.includes(VaultPermissions.GetPermissions)) {
+              getPermissions = true;
             }
             if (vPermissions.includes(VaultPermissions.GrantRevokePermission)) {
               grantRevokePermission = true;
@@ -706,7 +703,7 @@ export class Vault {
         });
       });
     }
-    return getUserPermissions && grantRevokePermission;
+    return getPermissions && grantRevokePermission;
   }
 
   public checkUserVaultPermission(
