@@ -87,8 +87,8 @@ const validate = (values: any) => {
     errors.type = "This Field Required";
   }
 
-  if (!values.amount) {
-    errors.amount = "This Field Required";
+  if (!values.quantity) {
+    errors.quantity = "This Field Required";
   }
 
   if (!values.date) {
@@ -120,11 +120,11 @@ const Detail = (): React.ReactElement => {
   const accounts = useSelector(selectAccounts);
   const operations = useSelector(selectOperations);
   const [operation, setOperation] = useState<Operation>({
-    amount: 0,
+    quantity: "0",
     date: "",
     label: "",
     type: "credit",
-    importId: "",
+    // importId: "",
   });
   const selectedAccount = useSelector(selectAccountDetail);
   const accountsLoading = useSelector(selectIsAccountsLoading);
@@ -208,7 +208,7 @@ const Detail = (): React.ReactElement => {
         for (let i = 0; i < entries.length; i += 1) {
           const entry = entries[i];
           const entryObj = {
-            amount: Number(entry.querySelector("Amt")?.textContent),
+            quantity: String(entry.querySelector("Amt")?.textContent),
             date: String(entry.querySelector("BookgDt Dt")?.textContent),
             label: String(
               entry.querySelector("NtryDtls RmtInf Ustrd")?.textContent ||
@@ -430,10 +430,10 @@ const Detail = (): React.ReactElement => {
                                   width: "15%",
                                 },
                                 render: (rowData: any) => {
-                                  const { type, amount } = rowData;
+                                  const { type, quantity } = rowData;
 
                                   return type === "credit"
-                                    ? `${selectedAccount.currency} ${amount}`
+                                    ? `${selectedAccount.currency} ${quantity}`
                                     : "";
                                 },
                               },
@@ -443,10 +443,10 @@ const Detail = (): React.ReactElement => {
                                   width: "15%",
                                 },
                                 render: (rowData: any) => {
-                                  const { type, amount } = rowData;
+                                  const { type, quantity } = rowData;
 
                                   return type === "debit"
-                                    ? `${selectedAccount.currency} ${amount}`
+                                    ? `${selectedAccount.currency} ${quantity}`
                                     : "";
                                 },
                               },
@@ -669,13 +669,13 @@ const Detail = (): React.ReactElement => {
                     <Grid item xs={4}>
                       <MuiTextField
                         required
-                        label="Amount"
+                        label="Quantity"
                         type="number"
-                        name="amount"
+                        name="quantity"
                         variant="outlined"
-                        fieldProps={{
-                          parse: (value) => parseInt(value, 10),
-                        }}
+                        // fieldProps={{
+                        //   parse: (value) => parseInt(value, 10),
+                        // }}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
