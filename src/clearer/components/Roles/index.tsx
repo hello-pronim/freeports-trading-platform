@@ -75,6 +75,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     permissionName: {
       fontWeight: "bold",
+      marginBottom: "10px",
     },
     checkboxLabel: {
       margin: "0px",
