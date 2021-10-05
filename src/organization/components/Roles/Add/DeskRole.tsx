@@ -200,6 +200,7 @@ const NewDeskRole = (): React.ReactElement => {
           vaultGroupId: data.vaultGroupId,
           deskId: values.deskId,
         });
+        dispatch(rolesActions.getDeskRoles(organizationId));
         if (lockUsability) {
           setWizardStep(1);
         } else {

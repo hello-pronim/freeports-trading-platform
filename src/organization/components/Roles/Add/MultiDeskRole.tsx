@@ -183,6 +183,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
           id: data.id,
           vaultGroupId: data.vaultGroupId,
         });
+        dispatch(rolesActions.getMultiDeskRoles(organizationId));
         if (lockUsability) {
           setWizardStep(1);
         } else {

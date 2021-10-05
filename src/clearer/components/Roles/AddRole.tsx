@@ -156,6 +156,15 @@ const AddRole = (): React.ReactElement => {
         id: response.id,
         vaultGroupId: response.vaultGroupId,
       });
+      setRoles([
+        ...roles,
+        {
+          name: values.name,
+          id: response.id,
+          vaultGroupId: response.vaultGroupId,
+          permissions: []
+        }
+      ]);
       if (lockUsability) {
         setWizardStep(1);
       } else {
