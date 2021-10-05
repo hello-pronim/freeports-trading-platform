@@ -67,10 +67,17 @@ const roleVaultPermission = {
   "organization.#organizationId#.role.delete": ["GrantRevokePermission"],
   "desk.#deskId#.role.delete": ["GrantRevokePermission"],
 
-  "desk.#deskId#.account.create": ["CreateDeleteAddressBook"],
+  "desk.#deskId#.account.create": [
+    "CreateDeleteAddressBook",
+    "CreateWallet"
+  ],
 
-  "organization.#organizationId#.initiate_nostro_account": ["CreateDeleteAddressBook"],
-  "organization.#organizationId#.approve_nostro_account": ["GrantRevokePermission"],
+  "organization.#organizationId#.initiate_nostro_account": [
+    "CreateDeleteAddressBook"
+  ],
+  "organization.#organizationId#.approve_nostro_account": [
+    "GrantRevokePermission"
+  ],
   "organization.#organizationId#.role.read": ["GetPermissions"],
   "desk.#deskId#.role.read": ["GetPermissions"],
   "organization.#organizationId#.role.permission": ["GrantRevokePermission"],
