@@ -278,9 +278,9 @@ const Roles = (): React.ReactElement => {
       setLockPermissions({
         addRemoveUser,
         createDeleteRuleTree,
-        getRuleTrees,
-      });
-      setLockModalView(true);
+        getRuleTrees
+      })
+      setLockModalView(true); 
     } catch (error) {
       dispatch(
         snackbarActions.showSnackbar({
@@ -304,6 +304,7 @@ const Roles = (): React.ReactElement => {
           addRemoveUserNew.push(x);
         }
       });
+      await vault.authenticate();
       await Promise.all(
         addRemoveUserOld.map(async (vaultGroupId: string) => {
           const request = await vault.revokePermissionFromAsset(

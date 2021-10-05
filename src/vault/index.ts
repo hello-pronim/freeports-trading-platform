@@ -268,7 +268,7 @@ export class Vault {
   ): Promise<VaultRequestDto> => {
     if (
       (!this.accessToken ||
-        Date.now() - this.tokenObtainedAt > 14 * 60 * 60 * 1000) &&
+        Date.now() - this.tokenObtainedAt > 14 * 60 * 1000) &&
       path !== "/token"
     ) {
       await this.authenticate();

@@ -54,6 +54,8 @@ const updateClearerUser = async (
   oldVaultGroup: string[],
   newVaultGroup: string[]
 ): Promise<User> => {
+  await vault.authenticate();
+  
   const removeFromGroupRequests = await vault.removeUserFromMultipleGroup(
     vaultUserId,
     oldVaultGroup
