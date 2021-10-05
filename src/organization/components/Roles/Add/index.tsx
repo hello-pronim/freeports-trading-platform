@@ -176,6 +176,7 @@ const NewOrgRole = (): React.ReactElement => {
           id: data.id,
           vaultGroupId: data.vaultGroupId,
         });
+        dispatch(rolesActions.getOrgRoles(organizationId));
         if (lockUsability) {
           setWizardStep(1);
         } else {
