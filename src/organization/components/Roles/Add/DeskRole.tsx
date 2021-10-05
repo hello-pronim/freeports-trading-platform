@@ -95,9 +95,8 @@ const useStyles = makeStyles((theme: Theme) =>
       border: theme.palette.warning.main,
     },
     permissionDetails: {
-      maxHeight: "40px",
-      alignItems: "center",
       padding: "0px",
+      height: "60px",
     },
     permissionName: {
       fontWeight: "bold",
@@ -225,7 +224,7 @@ const NewDeskRole = (): React.ReactElement => {
     ) {
       setWizardProccessing(true);
       try {
-      	await vault.authenticate();
+        await vault.authenticate();
         await Promise.all(
           values.addRemoveUser.map(async (vaultGroupId: string) => {
             const request = await vault.grantPermissionToAsset(
@@ -409,7 +408,9 @@ const NewDeskRole = (): React.ReactElement => {
                   <CardContent>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
-                        <FormGroup className={classes.permissionContainer}>
+                        <FormGroup
+                          className={`permission-container ${classes.permissionContainer}`}
+                        >
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -440,9 +441,9 @@ const NewDeskRole = (): React.ReactElement => {
                               ))}
                           </Grid>
                         </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup className={classes.permissionContainer}>
+                        <FormGroup
+                          className={`permission-container ${classes.permissionContainer}`}
+                        >
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -473,9 +474,9 @@ const NewDeskRole = (): React.ReactElement => {
                               ))}
                           </Grid>
                         </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup className={classes.permissionContainer}>
+                        <FormGroup
+                          className={`permission-container ${classes.permissionContainer}`}
+                        >
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -564,11 +565,12 @@ const NewDeskRole = (): React.ReactElement => {
                       {!deskPermissionsLoading && (
                         <Grid item xs={12}>
                           <Grid container>
-                            {deskPermissions.map(
-                              (permissionGroup: Permission) => (
-                                <Grid item key={permissionGroup.name} xs={12}>
+                            <Grid item xs={12}>
+                              {deskPermissions.map(
+                                (permissionGroup: Permission) => (
                                   <FormGroup
-                                    className={classes.permissionContainer}
+                                    key={permissionGroup.name}
+                                    className={`permission-container ${classes.permissionContainer}`}
                                   >
                                     {permissionGroup.description ? (
                                       <Tooltip
@@ -644,9 +646,9 @@ const NewDeskRole = (): React.ReactElement => {
                                       )}
                                     </Grid>
                                   </FormGroup>
-                                </Grid>
-                              )
-                            )}
+                                )
+                              )}
+                            </Grid>
                           </Grid>
                         </Grid>
                       )}

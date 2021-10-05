@@ -180,7 +180,7 @@ const AddRole = (): React.ReactElement => {
     ) {
       setWizardProccessing(true);
       try {
-      	await vault.authenticate();
+        await vault.authenticate();
         await Promise.all(
           values.addRemoveUser.map(async (vaultGroupId: string) => {
             const request = await vault.grantPermissionToAsset(
@@ -341,7 +341,9 @@ const AddRole = (): React.ReactElement => {
                   <CardContent>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
-                        <FormGroup className={classes.permissionContainer}>
+                        <FormGroup
+                          className={`permission-container ${classes.permissionContainer}`}
+                        >
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -370,9 +372,9 @@ const AddRole = (): React.ReactElement => {
                             ))}
                           </Grid>
                         </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup className={classes.permissionContainer}>
+                        <FormGroup
+                          className={`permission-container ${classes.permissionContainer}`}
+                        >
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -401,9 +403,9 @@ const AddRole = (): React.ReactElement => {
                             ))}
                           </Grid>
                         </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup className={classes.permissionContainer}>
+                        <FormGroup
+                          className={`permission-container ${classes.permissionContainer}`}
+                        >
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -488,11 +490,12 @@ const AddRole = (): React.ReactElement => {
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <Grid container>
-                          {permissionGroups.map(
-                            (permissionGroup: Permission) => (
-                              <Grid item key={permissionGroup.name} xs={12}>
+                          <Grid item xs={12}>
+                            {permissionGroups.map(
+                              (permissionGroup: Permission) => (
                                 <FormGroup
-                                  className={classes.permissionContainer}
+                                  key={permissionGroup.name}
+                                  className={`permission-container ${classes.permissionContainer}`}
                                 >
                                   {permissionGroup.description ? (
                                     <Tooltip
@@ -562,9 +565,9 @@ const AddRole = (): React.ReactElement => {
                                     )}
                                   </Grid>
                                 </FormGroup>
-                              </Grid>
-                            )
-                          )}
+                              )
+                            )}
+                          </Grid>
                         </Grid>
                       </Grid>
                     </Grid>

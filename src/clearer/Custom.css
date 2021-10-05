@@ -97,3 +97,8 @@
 .btn-disable {
   color: #f44336;
 }
+
+/* stripped permissions */
+.theme-light .permission-container:nth-child(odd) {
+  background-color: #e9e9e9;
+}

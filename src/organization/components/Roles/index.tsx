@@ -115,8 +115,8 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2),
     },
     permissionDetails: {
-      maxHeight: "40px",
       padding: "0px",
+      height: "60px",
     },
     permissionName: {
       fontWeight: "bold",
@@ -142,6 +142,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     link: {
       color: theme.palette.primary.main,
+      // color: "#599DE9",
       textDecoration: "none",
       cursor: "pointer",
     },
@@ -732,8 +733,10 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionSummary>
-                                                <AccordionDetails>
-                                                  <Grid container item xs={12}>
+                                                <AccordionDetails
+                                                  className={`permission-container ${classes.permissionContainer}`}
+                                                >
+                                                  <Grid container>
                                                     <Grid item xs={4}>
                                                       <MuiTextField
                                                         label="Role Name"
@@ -743,27 +746,36 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionDetails>
-                                                {orgPermissionsLoading && (
-                                                  <Loader />
-                                                )}
-                                                {!orgPermissionsLoading && (
-                                                  <>
-                                                    {orgPermissions.map(
-                                                      (perm: Permission) => (
-                                                        <FormGroup
-                                                          key={perm.name}
-                                                          className={
-                                                            classes.permissionContainer
-                                                          }
-                                                        >
-                                                          {perm.description ? (
-                                                            <Tooltip
-                                                              title={
-                                                                perm.description
-                                                              }
-                                                              placement="top-start"
-                                                              arrow
-                                                            >
+                                                <div>
+                                                  {orgPermissionsLoading && (
+                                                    <Loader />
+                                                  )}
+                                                  {!orgPermissionsLoading && (
+                                                    <>
+                                                      {orgPermissions.map(
+                                                        (perm: Permission) => (
+                                                          <FormGroup
+                                                            key={perm.name}
+                                                            className={`permission-container ${classes.permissionContainer}`}
+                                                          >
+                                                            {perm.description ? (
+                                                              <Tooltip
+                                                                title={
+                                                                  perm.description
+                                                                }
+                                                                placement="top-start"
+                                                                arrow
+                                                              >
+                                                                <FormLabel
+                                                                  component="legend"
+                                                                  className={
+                                                                    classes.permissionName
+                                                                  }
+                                                                >
+                                                                  {perm.name}
+                                                                </FormLabel>
+                                                              </Tooltip>
+                                                            ) : (
                                                               <FormLabel
                                                                 component="legend"
                                                                 className={
@@ -772,88 +784,85 @@ const Roles = (): React.ReactElement => {
                                                               >
                                                                 {perm.name}
                                                               </FormLabel>
-                                                            </Tooltip>
-                                                          ) : (
-                                                            <FormLabel
-                                                              component="legend"
+                                                            )}
+                                                            <AccordionDetails
                                                               className={
-                                                                classes.permissionName
+                                                                classes.permissionDetails
                                                               }
                                                             >
-                                                              {perm.name}
-                                                            </FormLabel>
-                                                          )}
-                                                          <AccordionDetails
-                                                            className={
-                                                              classes.permissionDetails
-                                                            }
-                                                          >
-                                                            {perm.permissions.map(
-                                                              (avail: {
-                                                                name: string;
-                                                                description?: string;
-                                                                code: string;
-                                                              }) => (
-                                                                <Grid
-                                                                  item
-                                                                  key={
-                                                                    avail.code
-                                                                  }
-                                                                  xs={2}
-                                                                >
+                                                              {perm.permissions.map(
+                                                                (avail: {
+                                                                  name: string;
+                                                                  description?: string;
+                                                                  code: string;
+                                                                }) => (
                                                                   <Grid
-                                                                    container
-                                                                    wrap="nowrap"
-                                                                    spacing={1}
+                                                                    item
+                                                                    key={
+                                                                      avail.code
+                                                                    }
+                                                                    xs={2}
                                                                   >
-                                                                    <Grid item>
-                                                                      <Field
-                                                                        name="permissions[]"
-                                                                        component="input"
-                                                                        type="checkbox"
-                                                                        value={
-                                                                          avail.code
-                                                                        }
-                                                                      />
-                                                                    </Grid>
-                                                                    <Grid item>
-                                                                      {avail.description ? (
-                                                                        <Tooltip
-                                                                          title={
-                                                                            avail.description
+                                                                    <Grid
+                                                                      container
+                                                                      wrap="nowrap"
+                                                                      spacing={
+                                                                        1
+                                                                      }
+                                                                    >
+                                                                      <Grid
+                                                                        item
+                                                                      >
+                                                                        <Field
+                                                                          name="permissions[]"
+                                                                          component="input"
+                                                                          type="checkbox"
+                                                                          value={
+                                                                            avail.code
                                                                           }
-                                                                          placement="top-start"
-                                                                          arrow
-                                                                        >
-                                                                          <Typography
-                                                                            variant="body2"
-                                                                            className={
-                                                                              classes.link
+                                                                        />
+                                                                      </Grid>
+                                                                      <Grid
+                                                                        item
+                                                                      >
+                                                                        {avail.description ? (
+                                                                          <Tooltip
+                                                                            title={
+                                                                              avail.description
                                                                             }
+                                                                            placement="top-start"
+                                                                            arrow
                                                                           >
+                                                                            <Typography
+                                                                              variant="body2"
+                                                                              className={
+                                                                                classes.link
+                                                                              }
+                                                                            >
+                                                                              {
+                                                                                avail.name
+                                                                              }
+                                                                            </Typography>
+                                                                          </Tooltip>
+                                                                        ) : (
+                                                                          <Typography variant="body2">
                                                                             {
                                                                               avail.name
                                                                             }
                                                                           </Typography>
-                                                                        </Tooltip>
-                                                                      ) : (
-                                                                        <Typography variant="body2">
-                                                                          {
-                                                                            avail.name
-                                                                          }
-                                                                        </Typography>
-                                                                      )}
+                                                                        )}
+                                                                      </Grid>
                                                                     </Grid>
                                                                   </Grid>
-                                                                </Grid>
-                                                              )
-                                                            )}
-                                                          </AccordionDetails>
-                                                        </FormGroup>
-                                                      )
-                                                    )}
-                                                  </>
-                                                )}
+                                                                )
+                                                              )}
+                                                            </AccordionDetails>
+                                                          </FormGroup>
+                                                        )
+                                                      )}
+                                                    </>
+                                                  )}
+                                                </div>
                                                 <Divider />
                                                 <AccordionActions>
                                                   <div
@@ -1031,7 +1040,9 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionSummary>
-                                                <AccordionDetails>
+                                                <AccordionDetails
+                                                  className={`permission-container ${classes.permissionContainer}`}
+                                                >
                                                   <Grid container item xs={12}>
                                                     <Grid item xs={4}>
                                                       <MuiTextField
@@ -1042,98 +1053,104 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionDetails>
-                                                {multiDeskPermissionsLoading && (
-                                                  <Loader />
-                                                )}
-                                                {!multiDeskPermissionsLoading && (
-                                                  <>
-                                                    {multiDeskPermissions.map(
-                                                      (perm: Permission) => (
-                                                        <FormGroup
-                                                          key={perm.name}
-                                                          className={
-                                                            classes.permissionContainer
-                                                          }
-                                                        >
-                                                          <FormLabel
-                                                            component="legend"
-                                                            className={
-                                                              classes.permissionName
-                                                            }
+                                                <div>
+                                                  {multiDeskPermissionsLoading && (
+                                                    <Loader />
+                                                  )}
+                                                  {!multiDeskPermissionsLoading && (
+                                                    <>
+                                                      {multiDeskPermissions.map(
+                                                        (perm: Permission) => (
+                                                          <FormGroup
+                                                            key={perm.name}
+                                                            className={`permission-container ${classes.permissionContainer}`}
                                                           >
-                                                            {perm.name}
-                                                          </FormLabel>
-                                                          <AccordionDetails
-                                                            className={
-                                                              classes.permissionDetails
-                                                            }
-                                                          >
-                                                            {perm.permissions.map(
-                                                              (avail: {
-                                                                name: string;
-                                                                description?: string;
-                                                                code: string;
-                                                              }) => (
-                                                                <Grid
-                                                                  item
-                                                                  key={
-                                                                    avail.code
-                                                                  }
-                                                                  xs={2}
-                                                                >
+                                                            <FormLabel
+                                                              component="legend"
+                                                              className={
+                                                                classes.permissionName
+                                                              }
+                                                            >
+                                                              {perm.name}
+                                                            </FormLabel>
+                                                            <AccordionDetails
+                                                              className={
+                                                                classes.permissionDetails
+                                                              }
+                                                            >
+                                                              {perm.permissions.map(
+                                                                (avail: {
+                                                                  name: string;
+                                                                  description?: string;
+                                                                  code: string;
+                                                                }) => (
                                                                   <Grid
-                                                                    container
-                                                                    wrap="nowrap"
-                                                                    spacing={1}
+                                                                    item
+                                                                    key={
+                                                                      avail.code
+                                                                    }
+                                                                    xs={2}
                                                                   >
-                                                                    <Grid item>
-                                                                      <Field
-                                                                        name="permissions[]"
-                                                                        component="input"
-                                                                        type="checkbox"
-                                                                        value={
-                                                                          avail.code
-                                                                        }
-                                                                      />
-                                                                    </Grid>
-                                                                    <Grid item>
-                                                                      {avail.description ? (
-                                                                        <Tooltip
-                                                                          title={
-                                                                            avail.description
+                                                                    <Grid
+                                                                      container
+                                                                      wrap="nowrap"
+                                                                      spacing={
+                                                                        1
+                                                                      }
+                                                                    >
+                                                                      <Grid
+                                                                        item
+                                                                      >
+                                                                        <Field
+                                                                          name="permissions[]"
+                                                                          component="input"
+                                                                          type="checkbox"
+                                                                          value={
+                                                                            avail.code
                                                                           }
-                                                                          placement="top-start"
-                                                                          arrow
-                                                                        >
-                                                                          <Typography
-                                                                            variant="body2"
-                                                                            className={
-                                                                              classes.link
+                                                                        />
+                                                                      </Grid>
+                                                                      <Grid
+                                                                        item
+                                                                      >
+                                                                        {avail.description ? (
+                                                                          <Tooltip
+                                                                            title={
+                                                                              avail.description
                                                                             }
+                                                                            placement="top-start"
+                                                                            arrow
                                                                           >
+                                                                            <Typography
+                                                                              variant="body2"
+                                                                              className={
+                                                                                classes.link
+                                                                              }
+                                                                            >
+                                                                              {
+                                                                                avail.name
+                                                                              }
+                                                                            </Typography>
+                                                                          </Tooltip>
+                                                                        ) : (
+                                                                          <Typography variant="body2">
                                                                             {
                                                                               avail.name
                                                                             }
                                                                           </Typography>
-                                                                        </Tooltip>
-                                                                      ) : (
-                                                                        <Typography variant="body2">
-                                                                          {
-                                                                            avail.name
-                                                                          }
-                                                                        </Typography>
-                                                                      )}
+                                                                        )}
+                                                                      </Grid>
                                                                     </Grid>
                                                                   </Grid>
-                                                                </Grid>
-                                                              )
-                                                            )}
-                                                          </AccordionDetails>
-                                                        </FormGroup>
-                                                      )
-                                                    )}
-                                                  </>
-                                                )}
+                                                                )
+                                                              )}
+                                                            </AccordionDetails>
+                                                          </FormGroup>
+                                                        )
+                                                      )}
+                                                    </>
+                                                  )}
+                                                </div>
                                                 <Divider />
                                                 <AccordionActions>
                                                   <div
@@ -1332,7 +1349,9 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionSummary>
-                                                <AccordionDetails>
+                                                <AccordionDetails
+                                                  className={`permission-container ${classes.permissionContainer}`}
+                                                >
                                                   <Grid container spacing={2}>
                                                     <Grid item xs={4}>
                                                       <MuiTextField
@@ -1371,115 +1390,121 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionDetails>
-                                                {deskPermissionsLoading && (
-                                                  <Loader />
-                                                )}
-                                                {!deskPermissionsLoading && (
-                                                  <>
-                                                    {deskPermissions.map(
-                                                      (perm: Permission) => (
-                                                        <FormGroup
-                                                          key={perm.name}
-                                                          className={
-                                                            classes.permissionContainer
-                                                          }
-                                                        >
-                                                          {perm.description ? (
-                                                            <Tooltip
-                                                              title={
-                                                                perm.description
-                                                              }
-                                                              placement="top-start"
-                                                              arrow
-                                                            >
+                                                <div>
+                                                  {deskPermissionsLoading && (
+                                                    <Loader />
+                                                  )}
+                                                  {!deskPermissionsLoading && (
+                                                    <>
+                                                      {deskPermissions.map(
+                                                        (perm: Permission) => (
+                                                          <FormGroup
+                                                            key={perm.name}
+                                                            className={`permission-container ${classes.permissionContainer}`}
+                                                          >
+                                                            {perm.description ? (
+                                                              <Tooltip
+                                                                title={
+                                                                  perm.description
+                                                                }
+                                                                placement="top-start"
+                                                                arrow
+                                                              >
+                                                                <FormLabel
+                                                                  component="legend"
+                                                                  className={`${classes.permissionName} ${classes.link}`}
+                                                                >
+                                                                  {perm.name}
+                                                                </FormLabel>
+                                                              </Tooltip>
+                                                            ) : (
                                                               <FormLabel
                                                                 component="legend"
-                                                                className={`${classes.permissionName} ${classes.link}`}
+                                                                className={
+                                                                  classes.permissionName
+                                                                }
                                                               >
                                                                 {perm.name}
                                                               </FormLabel>
-                                                            </Tooltip>
-                                                          ) : (
-                                                            <FormLabel
-                                                              component="legend"
+                                                            )}
+                                                            <AccordionDetails
                                                               className={
-                                                                classes.permissionName
+                                                                classes.permissionDetails
                                                               }
                                                             >
-                                                              {perm.name}
-                                                            </FormLabel>
-                                                          )}
-                                                          <AccordionDetails
-                                                            className={
-                                                              classes.permissionDetails
-                                                            }
-                                                          >
-                                                            {perm.permissions.map(
-                                                              (avail: {
-                                                                name: string;
-                                                                description?: string;
-                                                                code: string;
-                                                              }) => (
-                                                                <Grid
-                                                                  item
-                                                                  key={
-                                                                    avail.code
-                                                                  }
-                                                                  xs={2}
-                                                                >
+                                                              {perm.permissions.map(
+                                                                (avail: {
+                                                                  name: string;
+                                                                  description?: string;
+                                                                  code: string;
+                                                                }) => (
                                                                   <Grid
-                                                                    container
-                                                                    wrap="nowrap"
-                                                                    spacing={1}
+                                                                    item
+                                                                    key={
+                                                                      avail.code
+                                                                    }
+                                                                    xs={2}
                                                                   >
-                                                                    <Grid item>
-                                                                      <Field
-                                                                        name="permissions[]"
-                                                                        component="input"
-                                                                        type="checkbox"
-                                                                        value={
-                                                                          avail.code
-                                                                        }
-                                                                      />
-                                                                    </Grid>
-                                                                    <Grid item>
-                                                                      {avail.description ? (
-                                                                        <Tooltip
-                                                                          title={
-                                                                            avail.description
+                                                                    <Grid
+                                                                      container
+                                                                      wrap="nowrap"
+                                                                      spacing={
+                                                                        1
+                                                                      }
+                                                                    >
+                                                                      <Grid
+                                                                        item
+                                                                      >
+                                                                        <Field
+                                                                          name="permissions[]"
+                                                                          component="input"
+                                                                          type="checkbox"
+                                                                          value={
+                                                                            avail.code
                                                                           }
-                                                                          placement="top-start"
-                                                                          arrow
-                                                                        >
-                                                                          <Typography
-                                                                            variant="body2"
-                                                                            className={
-                                                                              classes.link
+                                                                        />
+                                                                      </Grid>
+                                                                      <Grid
+                                                                        item
+                                                                      >
+                                                                        {avail.description ? (
+                                                                          <Tooltip
+                                                                            title={
+                                                                              avail.description
                                                                             }
+                                                                            placement="top-start"
+                                                                            arrow
                                                                           >
+                                                                            <Typography
+                                                                              variant="body2"
+                                                                              className={
+                                                                                classes.link
+                                                                              }
+                                                                            >
+                                                                              {
+                                                                                avail.name
+                                                                              }
+                                                                            </Typography>
+                                                                          </Tooltip>
+                                                                        ) : (
+                                                                          <Typography variant="body2">
                                                                             {
                                                                               avail.name
                                                                             }
                                                                           </Typography>
-                                                                        </Tooltip>
-                                                                      ) : (
-                                                                        <Typography variant="body2">
-                                                                          {
-                                                                            avail.name
-                                                                          }
-                                                                        </Typography>
-                                                                      )}
+                                                                        )}
+                                                                      </Grid>
                                                                     </Grid>
                                                                   </Grid>
-                                                                </Grid>
-                                                              )
-                                                            )}
-                                                          </AccordionDetails>
-                                                        </FormGroup>
-                                                      )
-                                                    )}
-                                                  </>
-                                                )}
+                                                                )
+                                                              )}
+                                                            </AccordionDetails>
+                                                          </FormGroup>
+                                                        )
+                                                      )}
+                                                    </>
+                                                  )}
+                                                </div>
                                                 <Divider />
                                                 <AccordionActions>
                                                   <div

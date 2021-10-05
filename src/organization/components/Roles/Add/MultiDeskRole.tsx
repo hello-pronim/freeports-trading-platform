@@ -83,9 +83,8 @@ const useStyles = makeStyles((theme: Theme) =>
       border: theme.palette.warning.main,
     },
     permissionDetails: {
-      maxHeight: "40px",
-      alignItems: "center",
       padding: "0px",
+      height: "60px",
     },
     permissionName: {
       fontWeight: "bold",
@@ -208,7 +207,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
     ) {
       setWizardProccessing(true);
       try {
-      	await vault.authenticate();
+        await vault.authenticate();
         await Promise.all(
           values.addRemoveUser.map(async (vaultGroupId: string) => {
             const request = await vault.grantPermissionToAsset(
@@ -406,8 +405,6 @@ const NewMultiDeskRole = (): React.ReactElement => {
                               ))}
                           </Grid>
                         </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
                         <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
@@ -439,8 +436,6 @@ const NewMultiDeskRole = (): React.ReactElement => {
                               ))}
                           </Grid>
                         </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
                         <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
@@ -530,11 +525,12 @@ const NewMultiDeskRole = (): React.ReactElement => {
                       {!multiDeskPermissionsLoading && (
                         <Grid item xs={12}>
                           <Grid container>
-                            {multiDeskPermissions.map(
-                              (permissionGroup: Permission) => (
-                                <Grid item key={permissionGroup.name} xs={12}>
+                            <Grid item xs={12}>
+                              {multiDeskPermissions.map(
+                                (permissionGroup: Permission) => (
                                   <FormGroup
-                                    className={classes.permissionContainer}
+                                    key={permissionGroup.name}
+                                    className={`permission-container ${classes.permissionContainer}`}
                                   >
                                     {permissionGroup.description ? (
                                       <Tooltip
@@ -610,9 +606,9 @@ const NewMultiDeskRole = (): React.ReactElement => {
                                       )}
                                     </Grid>
                                   </FormGroup>
-                                </Grid>
-                              )
-                            )}
+                                )
+                              )}
+                            </Grid>
                           </Grid>
                         </Grid>
                       )}

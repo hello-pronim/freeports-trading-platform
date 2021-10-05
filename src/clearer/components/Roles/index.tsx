@@ -69,9 +69,8 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2),
     },
     permissionDetails: {
-      maxHeight: "40px",
-      alignItems: "center",
       padding: "0px",
+      maxHeight: "60px",
     },
     permissionName: {
       fontWeight: "bold",
@@ -278,9 +277,9 @@ const Roles = (): React.ReactElement => {
       setLockPermissions({
         addRemoveUser,
         createDeleteRuleTree,
-        getRuleTrees
-      })
-      setLockModalView(true); 
+        getRuleTrees,
+      });
+      setLockModalView(true);
     } catch (error) {
       dispatch(
         snackbarActions.showSnackbar({
@@ -485,90 +484,94 @@ const Roles = (): React.ReactElement => {
                             </Grid>
                           </Grid>
                         </AccordionDetails>
-                        {permissionGroups.map((permissionGroup: Permission) => (
-                          <FormGroup
-                            key={permissionGroup.name}
-                            className={classes.permissionContainer}
-                          >
-                            {permissionGroup.description ? (
-                              <Tooltip
-                                title={permissionGroup.description}
-                                placement="top-start"
-                                arrow
+                        <div>
+                          {permissionGroups.map(
+                            (permissionGroup: Permission) => (
+                              <FormGroup
+                                key={permissionGroup.name}
+                                className={`permission-container ${classes.permissionContainer}`}
                               >
-                                <FormLabel
-                                  component="legend"
-                                  className={`${classes.permissionName} ${classes.link}`}
-                                >
-                                  {permissionGroup.name}
-                                </FormLabel>
-                              </Tooltip>
-                            ) : (
-                              <FormLabel
-                                component="legend"
-                                className={classes.permissionName}
-                              >
-                                {permissionGroup.name}
-                              </FormLabel>
-                            )}
-                            {permissionGroup.description}
-                            <AccordionDetails
-                              className={classes.permissionDetails}
-                            >
-                              {permissionGroup.permissions.map(
-                                (permission: {
-                                  name: string;
-                                  code: string;
-                                  description?: string;
-                                  dependsOn?: string[];
-                                }) => (
-                                  <div
-                                    key={permission.code}
-                                    className={classes.column}
+                                {permissionGroup.description ? (
+                                  <Tooltip
+                                    title={permissionGroup.description}
+                                    placement="top-start"
+                                    arrow
                                   >
-                                    <FormControlLabel
-                                      className={classes.checkboxLabel}
-                                      control={
-                                        <Checkbox
-                                          color="primary"
-                                          name={permission.code}
-                                          checked={Boolean(
-                                            role.permissions.includes(
-                                              permission.code
+                                    <FormLabel
+                                      component="legend"
+                                      className={`${classes.permissionName} ${classes.link}`}
+                                    >
+                                      {permissionGroup.name}
+                                    </FormLabel>
+                                  </Tooltip>
+                                ) : (
+                                  <FormLabel
+                                    component="legend"
+                                    className={classes.permissionName}
+                                  >
+                                    {permissionGroup.name}
+                                  </FormLabel>
+                                )}
+                                {permissionGroup.description}
+                                <AccordionDetails
+                                  className={classes.permissionDetails}
+                                >
+                                  {permissionGroup.permissions.map(
+                                    (permission: {
+                                      name: string;
+                                      code: string;
+                                      description?: string;
+                                      dependsOn?: string[];
+                                    }) => (
+                                      <div
+                                        key={permission.code}
+                                        className={classes.column}
+                                      >
+                                        <FormControlLabel
+                                          className={classes.checkboxLabel}
+                                          control={
+                                            <Checkbox
+                                              color="primary"
+                                              name={permission.code}
+                                              checked={Boolean(
+                                                role.permissions.includes(
+                                                  permission.code
+                                                )
+                                              )}
+                                              onChange={(e) =>
+                                                onPermissionChange(e, role.id)
+                                              }
+                                            />
+                                          }
+                                          label={
+                                            permission.description ? (
+                                              <Tooltip
+                                                title={permission.description}
+                                                placement="top-start"
+                                                arrow
+                                              >
+                                                <Typography
+                                                  variant="body2"
+                                                  className={classes.link}
+                                                >
+                                                  {permission.name}
+                                                </Typography>
+                                              </Tooltip>
+                                            ) : (
+                                              <Typography variant="body2">
+                                                {permission.name}
+                                              </Typography>
                                             )
-                                          )}
-                                          onChange={(e) =>
-                                            onPermissionChange(e, role.id)
                                           }
                                         />
-                                      }
-                                      label={
-                                        permission.description ? (
-                                          <Tooltip
-                                            title={permission.description}
-                                            placement="top-start"
-                                            arrow
-                                          >
-                                            <Typography
-                                              variant="body2"
-                                              className={classes.link}
-                                            >
-                                              {permission.name}
-                                            </Typography>
-                                          </Tooltip>
-                                        ) : (
-                                          <Typography variant="body2">
-                                            {permission.name}
-                                          </Typography>
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                )
-                              )}
-                            </AccordionDetails>
-                          </FormGroup>
-                        ))}
+                                      </div>
+                                    )
+                                  )}
+                                </AccordionDetails>
+                              </FormGroup>
+                            )
+                          )}
+                        </div>
                         <Divider />
                         <AccordionActions>
                           <div className={classes.progressButtonWrapper}>
