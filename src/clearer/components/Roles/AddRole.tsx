@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
   Button,
@@ -18,11 +18,10 @@ import {
   FormLabel,
   Grid,
   makeStyles,
-  Snackbar,
   Theme,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { Form, Field } from "react-final-form";
 import { TextField } from "mui-rff";
 
@@ -31,15 +30,13 @@ import { selectUser } from "../../../slice/selectors";
 import vault, { VaultPermissions } from "../../../vault";
 import { PermissionOwnerType } from "../../../vault/enum/permission-owner-type";
 import { VaultAssetType } from "../../../vault/enum/asset-type";
+import Permission from "../../../types/Permission";
+import { snackbarActions } from "../../../components/Snackbar/slice";
+import permissions from "../../../hooks/permissions";
 
 interface RoleType {
   name: string;
   permissions: Array<string>;
-}
-
-interface PermissionType {
-  name: string;
-  permissions: Array<{ code: string; name: string }>;
 }
 
 const validate = (values: any) => {
@@ -73,6 +70,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     permissionName: {
       fontWeight: "bold",
+      marginBottom: "10px",
     },
     checkboxLabel: {
       margin: "0px",
@@ -95,9 +93,7 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: theme.palette.primary.main,
       textDecoration: "none",
-      "&:hover": {
-        textDecoration: "underline",
-      },
+      cursor: "pointer",
     },
     roleNameInput: {
       width: "100%",
@@ -106,30 +102,19 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Alert = (props: AlertProps) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-};
-
 const AddRole = (): React.ReactElement => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const history = useHistory();
-  const { 
-    retrievePermissions, 
-    createNewRole, 
-    retrieveRoles, 
-    updateRole 
-  } = useRole();
-  const [permissions, setPermissions] = useState([] as any[]);
-  const [submitResponse, setSubmitResponse] = useState({
-    type: "success",
-    message: "",
-  });
-  const [showAlert, setShowAlert] = useState(false);
+
+  const { retrievePermissions, createNewRole, retrieveRoles, updateRole } =
+    useRole();
+  const [permissionGroups, setPermissionGroups] = useState([] as any[]);
   const [roles, setRoles] = useState([] as any[]);
   const currentUser = useSelector(selectUser);
   const [wizardStep, setWizardStep] = useState(0);
   const [wizardProccessing, setWizardProccessing] = useState(false);
-  const [lockUsability , setLockUsability] = useState(false);
+  const [lockUsability, setLockUsability] = useState(false);
   const [newRole, setNewRole] = useState({
     name: "",
     id: "",
@@ -143,7 +128,7 @@ const AddRole = (): React.ReactElement => {
       const permissionList = await retrievePermissions();
       const rolesList = await retrieveRoles();
       if (!unmounted) {
-        setPermissions(permissionList);
+        setPermissionGroups(permissionList);
         setRoles(rolesList);
         setLockUsability(vault.checkUserLockUsability(currentUser));
       }
@@ -160,10 +145,12 @@ const AddRole = (): React.ReactElement => {
     setWizardProccessing(true);
     const response = await createNewRole(values.name);
     if (response) {
-      setSubmitResponse({
-        type: "success",
-        message: "Successfully created a role",
-      });
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Role has been created successfully",
+          type: "success",
+        })
+      );
       setNewRole({
         name: values.name,
         id: response.id,
@@ -175,65 +162,75 @@ const AddRole = (): React.ReactElement => {
         setWizardStep(2);
       }
     } else {
-      setSubmitResponse({
-        type: "error",
-        message: "Sorry, failed to create a role",
-      });
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Sorry, failed to create a role",
+          type: "error",
+        })
+      );
     }
     setWizardProccessing(false);
-    setShowAlert(true);
   };
 
   const handleLockPermission = async (values: any) => {
-    if (values.addRemoveUser.length 
-      || values.createDeleteRuleTree.length 
-      || values.getRuleTrees.length) {
+    if (
+      values.addRemoveUser.length ||
+      values.createDeleteRuleTree.length ||
+      values.getRuleTrees.length
+    ) {
       setWizardProccessing(true);
       try {
-        await vault.authenticate();
-        await Promise.all(values.addRemoveUser.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.AddRemoveUser,
-          );
-          await vault.sendRequest(request);
-        }));
-        await Promise.all(values.createDeleteRuleTree.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.CreateDeleteRuleTree,
-          );
-          await vault.sendRequest(request);
-        }));
-        await Promise.all(values.getRuleTrees.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.GetRuleTrees,
-          );
-          await vault.sendRequest(request);
-        }));
+      	await vault.authenticate();
+        await Promise.all(
+          values.addRemoveUser.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.AddRemoveUser
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        await Promise.all(
+          values.createDeleteRuleTree.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.CreateDeleteRuleTree
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        await Promise.all(
+          values.getRuleTrees.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.GetRuleTrees
+            );
+            await vault.sendRequest(request);
+          })
+        );
         setWizardStep(2);
       } catch (error) {
-        setSubmitResponse({
-          type: "error",
-          message: error.message,
-        });
-        setShowAlert(true);
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: error.message,
+            type: "error",
+          })
+        );
       }
       setWizardProccessing(false);
     } else {
       setWizardStep(2);
     }
-  }
+  };
 
   const handleDefinePermission = async (values: any) => {
     setWizardProccessing(true);
@@ -243,22 +240,19 @@ const AddRole = (): React.ReactElement => {
         ...newRole,
         permissions: values.permissions,
       },
-      [],
+      []
     );
     if (response) {
       history.push("/roles");
     } else {
-      setSubmitResponse({
-        type: "error",
-        message: "Sorry, failed",
-      });
-      setShowAlert(true);
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "Sorry, failed to create a role",
+          type: "error",
+        })
+      );
       setWizardProccessing(false);
     }
-  }
-
-  const handleAlertClose = () => {
-    setShowAlert(false);
   };
 
   const handleCancelClick = () => {
@@ -272,9 +266,7 @@ const AddRole = (): React.ReactElement => {
           <Form
             onSubmit={handleRoleCreate}
             validate={validate}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title="Create new role" />
@@ -341,9 +333,7 @@ const AddRole = (): React.ReactElement => {
               createDeleteRuleTree: [],
               getRuleTrees: [],
             }}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title={`Permission of ${newRole.name}`} />
@@ -351,9 +341,7 @@ const AddRole = (): React.ReactElement => {
                   <CardContent>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -361,38 +349,30 @@ const AddRole = (): React.ReactElement => {
                             Assign Users (AddRemoveUser)
                           </FormLabel>
                           <Grid container>
-                            {roles.map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="addRemoveUser[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
+                            {roles.map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="addRemoveUser[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              </Grid>
+                            ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -400,38 +380,30 @@ const AddRole = (): React.ReactElement => {
                             Create Rules (CreateDeleteRuleTree)
                           </FormLabel>
                           <Grid container>
-                            {roles.map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="createDeleteRuleTree[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
+                            {roles.map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="createDeleteRuleTree[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              </Grid>
+                            ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -439,31 +411,25 @@ const AddRole = (): React.ReactElement => {
                             Display Rules (GetRuleTrees)
                           </FormLabel>
                           <Grid container>
-                            {roles.map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="getRuleTrees[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
+                            {roles.map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="getRuleTrees[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              </Grid>
+                            ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
@@ -513,9 +479,7 @@ const AddRole = (): React.ReactElement => {
             initialValues={{
               permissions: [],
             }}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title="Define permissions" />
@@ -524,47 +488,83 @@ const AddRole = (): React.ReactElement => {
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <Grid container>
-                          {permissions.map((perm: PermissionType) => (
-                            <Grid item key={perm.name} xs={12}>
-                              <FormGroup
-                                className={classes.permissionContainer}
-                              >
-                                <FormLabel
-                                  component="legend"
-                                  className={classes.permissionName}
+                          {permissionGroups.map(
+                            (permissionGroup: Permission) => (
+                              <Grid item key={permissionGroup.name} xs={12}>
+                                <FormGroup
+                                  className={classes.permissionContainer}
                                 >
-                                  {perm.name}
-                                </FormLabel>
-                                <Grid container>
-                                  {perm.permissions.map(
-                                    (avail: { name: string; code: string }) => (
-                                      <Grid item key={avail.code} xs={2}>
-                                        <Grid
-                                          container
-                                          alignItems="center"
-                                          spacing={1}
-                                        >
-                                          <Grid item>
-                                            <Field
-                                              name="permissions[]"
-                                              component="input"
-                                              type="checkbox"
-                                              value={avail.code}
-                                            />
-                                          </Grid>
-                                          <Grid item>
-                                            <Typography variant="body1">
-                                              {avail.name}
-                                            </Typography>
+                                  {permissionGroup.description ? (
+                                    <Tooltip
+                                      title={permissionGroup.description}
+                                      placement="top-start"
+                                      arrow
+                                    >
+                                      <FormLabel
+                                        component="legend"
+                                        className={classes.permissionName}
+                                      >
+                                        {permissionGroup.name}
+                                      </FormLabel>
+                                    </Tooltip>
+                                  ) : (
+                                    <FormLabel
+                                      component="legend"
+                                      className={classes.permissionName}
+                                    >
+                                      {permissionGroup.name}
+                                    </FormLabel>
+                                  )}
+                                  <Grid container>
+                                    {permissionGroup.permissions.map(
+                                      (permission: {
+                                        name: string;
+                                        description?: string;
+                                        code: string;
+                                      }) => (
+                                        <Grid item key={permission.code} xs={2}>
+                                          <Grid
+                                            container
+                                            wrap="nowrap"
+                                            spacing={1}
+                                          >
+                                            <Grid item>
+                                              <Field
+                                                name="permissions[]"
+                                                component="input"
+                                                type="checkbox"
+                                                value={permission.code}
+                                              />
+                                            </Grid>
+                                            <Grid item>
+                                              {permission.description ? (
+                                                <Tooltip
+                                                  title={permission.description}
+                                                  placement="top-start"
+                                                  arrow
+                                                >
+                                                  <Typography
+                                                    variant="body2"
+                                                    className={classes.link}
+                                                  >
+                                                    {permission.name}
+                                                  </Typography>
+                                                </Tooltip>
+                                              ) : (
+                                                <Typography variant="body2">
+                                                  {permission.name}
+                                                </Typography>
+                                              )}
+                                            </Grid>
                                           </Grid>
                                         </Grid>
-                                      </Grid>
-                                    )
-                                  )}
-                                </Grid>
-                              </FormGroup>
-                            </Grid>
-                          ))}
+                                      )
+                                    )}
+                                  </Grid>
+                                </FormGroup>
+                              </Grid>
+                            )
+                          )}
                         </Grid>
                       </Grid>
                     </Grid>
@@ -607,21 +607,6 @@ const AddRole = (): React.ReactElement => {
             )}
           />
         )}
-        <Snackbar
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={showAlert}
-          onClose={handleAlertClose}
-        >
-          <Alert
-            onClose={handleAlertClose}
-            severity={
-              submitResponse.type === "success" ? "success" : "error"
-            }
-          >
-            {submitResponse.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </div>
   );

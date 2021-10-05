@@ -21,11 +21,10 @@ import {
   FormLabel,
   Grid,
   makeStyles,
-  Snackbar,
   Theme,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useNewOrgRoleSlice } from "./slice";
 import {
   selectMultiDeskPermissions,
@@ -39,13 +38,15 @@ import {
   selectDeskRoles,
 } from "../slice/selectors";
 import { useRolesSlice } from "../slice";
-import { 
-  createMultiDeskRole, 
-  updateMultiDeskRole 
+import {
+  createMultiDeskRole,
+  updateMultiDeskRole,
 } from "../../../../services/roleService";
 import vault, { VaultPermissions } from "../../../../vault";
 import { PermissionOwnerType } from "../../../../vault/enum/permission-owner-type";
 import { VaultAssetType } from "../../../../vault/enum/asset-type";
+import { snackbarActions } from "../../../../components/Snackbar/slice";
+import Permission from "../../../../types/Permission";
 
 interface RoleType {
   name: string;
@@ -88,6 +89,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     permissionName: {
       fontWeight: "bold",
+      marginBottom: "10px",
     },
     checkboxLabel: {
       margin: "0px",
@@ -110,9 +112,7 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: theme.palette.primary.main,
       textDecoration: "none",
-      "&:hover": {
-        textDecoration: "underline",
-      },
+      cursor: "pointer",
     },
     roleNameInput: {
       width: "100%",
@@ -120,10 +120,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
-const Alert = (props: AlertProps) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-};
 
 const NewMultiDeskRole = (): React.ReactElement => {
   const classes = useStyles();
@@ -148,12 +144,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
     id: "",
     vaultGroupId: "",
   });
-  const [lockUsability , setLockUsability] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [submitResponse, setSubmitResponse] = useState({
-    type: "success",
-    message: "",
-  });
+  const [lockUsability, setLockUsability] = useState(false);
 
   useEffect(() => {
     let unmounted = false;
@@ -176,110 +167,127 @@ const NewMultiDeskRole = (): React.ReactElement => {
   const handleRoleCreate = async (values: any) => {
     setWizardProccessing(true);
     await createMultiDeskRole(
-      organizationId, 
-      values.name, 
+      organizationId,
+      values.name,
       currentUser?.vaultUserId as string
-    ).then((data) => {
-      setSubmitResponse({
-        type: "success",
-        message: "Successfully created a role",
+    )
+      .then((data) => {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: "Role has been created successfully",
+            type: "success",
+          })
+        );
+        setNewRole({
+          name: values.name,
+          id: data.id,
+          vaultGroupId: data.vaultGroupId,
+        });
+        if (lockUsability) {
+          setWizardStep(1);
+        } else {
+          setWizardStep(2);
+        }
+      })
+      .catch((err) => {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: err.message,
+            type: "error",
+          })
+        );
       });
-      setNewRole({
-        name: values.name,
-        id: data.id,
-        vaultGroupId: data.vaultGroupId,
-      });
-      if (lockUsability) {
-        setWizardStep(1);
-      } else {
-        setWizardStep(2);
-      }
-    }).catch((err) => {
-      setSubmitResponse({
-        type: "error",
-        message: err.message,
-      });
-    });
     setWizardProccessing(false);
-    setShowAlert(true);
   };
 
   const handleLockPermission = async (values: any) => {
-    if (values.addRemoveUser.length 
-      || values.createDeleteRuleTree.length 
-      || values.getRuleTrees.length) {
+    if (
+      values.addRemoveUser.length ||
+      values.createDeleteRuleTree.length ||
+      values.getRuleTrees.length
+    ) {
       setWizardProccessing(true);
       try {
-        await vault.authenticate();
-        await Promise.all(values.addRemoveUser.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.AddRemoveUser,
-            true,
-          );
-          await vault.sendRequest(request);
-        }));
-        await Promise.all(values.createDeleteRuleTree.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.CreateDeleteRuleTree,
-            true,
-          );
-          await vault.sendRequest(request);
-        }));
-        await Promise.all(values.getRuleTrees.map(async (vaultGroupId: string) => {
-          const request = await vault.grantPermissionToAsset(
-            VaultAssetType.GROUP,
-            newRole.vaultGroupId,
-            PermissionOwnerType.group,
-            vaultGroupId,
-            VaultPermissions.GetRuleTrees,
-            true,
-          );
-          await vault.sendRequest(request);
-        }));
+      	await vault.authenticate();
+        await Promise.all(
+          values.addRemoveUser.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.AddRemoveUser,
+              true
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        await Promise.all(
+          values.createDeleteRuleTree.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.CreateDeleteRuleTree,
+              true
+            );
+            await vault.sendRequest(request);
+          })
+        );
+        await Promise.all(
+          values.getRuleTrees.map(async (vaultGroupId: string) => {
+            const request = await vault.grantPermissionToAsset(
+              VaultAssetType.GROUP,
+              newRole.vaultGroupId,
+              PermissionOwnerType.group,
+              vaultGroupId,
+              VaultPermissions.GetRuleTrees,
+              true
+            );
+            await vault.sendRequest(request);
+          })
+        );
         setWizardStep(2);
-      } catch (error) {
-        setSubmitResponse({
-          type: "error",
-          message: error.message,
-        });
-        setShowAlert(true);
+      } catch (err) {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: err.message,
+            type: "error",
+          })
+        );
       }
       setWizardProccessing(false);
     } else {
       setWizardStep(2);
     }
-  }
+  };
 
   const handleDefinePermission = async (values: any) => {
     setWizardProccessing(true);
     await updateMultiDeskRole(
-      organizationId, 
-      newRole.id, 
+      organizationId,
+      newRole.id,
       newRole.vaultGroupId,
       [],
       {
         name: newRole.name,
         permissions: values.permissions,
       }
-    ).then((data) => {
-      history.push("/roles");
-    }).catch((err) => {
-      setSubmitResponse({
-        type: "error",
-        message: err.message,
+    )
+      .then((data) => {
+        history.push("/roles");
+      })
+      .catch((err) => {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: err.message,
+            type: "error",
+          })
+        );
+        setWizardProccessing(false);
       });
-      setShowAlert(true);
-      setWizardProccessing(false);
-    });
-  }
+  };
 
   const handleCancelClick = () => {
     history.push("/roles");
@@ -292,9 +300,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
           <Form
             onSubmit={handleRoleCreate}
             validate={validate}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title="Create new Multi-desk role" />
@@ -361,9 +367,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
               createDeleteRuleTree: [],
               getRuleTrees: [],
             }}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title={`Permission of ${newRole.name}`} />
@@ -371,9 +375,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
                   <CardContent>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -381,14 +383,11 @@ const NewMultiDeskRole = (): React.ReactElement => {
                             Assign Users (AddRemoveUser)
                           </FormLabel>
                           <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
+                            {orgRoles
+                              .concat(multiDeskRoles, deskRoles)
+                              .map((x) => (
+                                <Grid item key={x.vaultGroupId} xs={3}>
+                                  <Grid container wrap="nowrap" spacing={1}>
                                     <Grid item>
                                       <Field
                                         name="addRemoveUser[]"
@@ -404,15 +403,12 @@ const NewMultiDeskRole = (): React.ReactElement => {
                                     </Grid>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -420,14 +416,11 @@ const NewMultiDeskRole = (): React.ReactElement => {
                             Create Rules (CreateDeleteRuleTree)
                           </FormLabel>
                           <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
+                            {orgRoles
+                              .concat(multiDeskRoles, deskRoles)
+                              .map((x) => (
+                                <Grid item key={x.vaultGroupId} xs={3}>
+                                  <Grid container wrap="nowrap" spacing={1}>
                                     <Grid item>
                                       <Field
                                         name="createDeleteRuleTree[]"
@@ -443,15 +436,12 @@ const NewMultiDeskRole = (): React.ReactElement => {
                                     </Grid>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
                       <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.permissionContainer}
-                        >
+                        <FormGroup className={classes.permissionContainer}>
                           <FormLabel
                             component="legend"
                             className={classes.permissionName}
@@ -459,14 +449,11 @@ const NewMultiDeskRole = (): React.ReactElement => {
                             Display Rules (GetRuleTrees)
                           </FormLabel>
                           <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
+                            {orgRoles
+                              .concat(multiDeskRoles, deskRoles)
+                              .map((x) => (
+                                <Grid item key={x.vaultGroupId} xs={3}>
+                                  <Grid container wrap="nowrap" spacing={1}>
                                     <Grid item>
                                       <Field
                                         name="getRuleTrees[]"
@@ -482,8 +469,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
                                     </Grid>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
+                              ))}
                           </Grid>
                         </FormGroup>
                       </Grid>
@@ -533,9 +519,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
             initialValues={{
               permissions: [],
             }}
-            render={({
-              handleSubmit,
-            }) => (
+            render={({ handleSubmit }) => (
               <form onSubmit={handleSubmit} noValidate>
                 <Card>
                   <CardHeader title="Define permissions" />
@@ -546,47 +530,89 @@ const NewMultiDeskRole = (): React.ReactElement => {
                       {!multiDeskPermissionsLoading && (
                         <Grid item xs={12}>
                           <Grid container>
-                            {multiDeskPermissions.map((perm: PermissionType) => (
-                              <Grid item key={perm.name} xs={12}>
-                                <FormGroup
-                                  className={classes.permissionContainer}
-                                >
-                                  <FormLabel
-                                    component="legend"
-                                    className={classes.permissionName}
+                            {multiDeskPermissions.map(
+                              (permissionGroup: Permission) => (
+                                <Grid item key={permissionGroup.name} xs={12}>
+                                  <FormGroup
+                                    className={classes.permissionContainer}
                                   >
-                                    {perm.name}
-                                  </FormLabel>
-                                  <Grid container>
-                                    {perm.permissions.map(
-                                      (avail: { name: string; code: string }) => (
-                                        <Grid item key={avail.code} xs={2}>
+                                    {permissionGroup.description ? (
+                                      <Tooltip
+                                        title={permissionGroup.description}
+                                        placement="top-start"
+                                        arrow
+                                      >
+                                        <FormLabel
+                                          component="legend"
+                                          className={`${classes.permissionName} ${classes.link}`}
+                                        >
+                                          {permissionGroup.name}
+                                        </FormLabel>
+                                      </Tooltip>
+                                    ) : (
+                                      <FormLabel
+                                        component="legend"
+                                        className={classes.permissionName}
+                                      >
+                                        {permissionGroup.name}
+                                      </FormLabel>
+                                    )}
+                                    <Grid container>
+                                      {permissionGroup.permissions.map(
+                                        (permission: {
+                                          name: string;
+                                          description?: string;
+                                          code: string;
+                                        }) => (
                                           <Grid
-                                            container
-                                            alignItems="center"
-                                            spacing={1}
+                                            item
+                                            key={permission.code}
+                                            xs={2}
                                           >
-                                            <Grid item>
-                                              <Field
-                                                name="permissions[]"
-                                                component="input"
-                                                type="checkbox"
-                                                value={avail.code}
-                                              />
-                                            </Grid>
-                                            <Grid item>
-                                              <Typography variant="body1">
-                                                {avail.name}
-                                              </Typography>
+                                            <Grid
+                                              container
+                                              wrap="nowrap"
+                                              spacing={1}
+                                            >
+                                              <Grid item>
+                                                <Field
+                                                  name="permissions[]"
+                                                  component="input"
+                                                  type="checkbox"
+                                                  value={permission.code}
+                                                />
+                                              </Grid>
+                                              <Grid item>
+                                                {permission.description ? (
+                                                  <Tooltip
+                                                    title={
+                                                      permission.description
+                                                    }
+                                                    placement="top-start"
+                                                    arrow
+                                                  >
+                                                    <Typography
+                                                      variant="body2"
+                                                      className={classes.link}
+                                                    >
+                                                      {permission.name}
+                                                    </Typography>
+                                                  </Tooltip>
+                                                ) : (
+                                                  <Typography variant="body2">
+                                                    {permission.name}
+                                                  </Typography>
+                                                )}
+                                              </Grid>
                                             </Grid>
                                           </Grid>
-                                        </Grid>
-                                      )
-                                    )}
-                                  </Grid>
-                                </FormGroup>
-                              </Grid>
-                            ))}
+                                        )
+                                      )}
+                                    </Grid>
+                                  </FormGroup>
+                                </Grid>
+                              )
+                            )}
                           </Grid>
                         </Grid>
                       )}
@@ -630,23 +656,6 @@ const NewMultiDeskRole = (): React.ReactElement => {
             )}
           />
         )}
-        <Snackbar
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={showAlert}
-          onClose={() => {
-            setShowAlert(false);
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowAlert(false);
-            }}
-            severity={submitResponse.type === "success" ? "success" : "error"}
-          >
-            {submitResponse.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </div>
   );

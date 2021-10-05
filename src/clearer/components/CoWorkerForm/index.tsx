@@ -405,31 +405,29 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
               </Grid>
               <Grid item xs={12}>
                 <Grid container justify="flex-end" spacing={1}>
-                  {canCreateVaultUser && (
-                    <Grid item>
-                      <div className={classes.progressButtonWrapper}>
-                        <Button
-                          fullWidth
-                          color="primary"
-                          variant="outlined"
-                          disabled={addingUserToVault}
-                          onClick={() =>
-                            onViewPublicKey(
-                              coWorker.publicKey ? coWorker.publicKey.key : ""
-                            )
-                          }
-                        >
-                          Add to vault
-                        </Button>
-                        {addingUserToVault && (
-                          <CircularProgress
-                            size={24}
-                            className={classes.progressButton}
-                          />
-                        )}
-                      </div>
-                    </Grid>
-                  )}
+                  <Grid item>
+                    <div className={classes.progressButtonWrapper}>
+                      <Button
+                        fullWidth
+                        color="primary"
+                        variant="outlined"
+                        disabled={!canCreateVaultUser || addingUserToVault}
+                        onClick={() =>
+                          onViewPublicKey(
+                            coWorker.publicKey ? coWorker.publicKey.key : ""
+                          )
+                        }
+                      >
+                        Add to vault
+                      </Button>
+                      {addingUserToVault && (
+                        <CircularProgress
+                          size={24}
+                          className={classes.progressButton}
+                        />
+                      )}
+                    </div>
+                  </Grid>
                   {canRemoveVaultUser && (
                     <Grid item>
                       <div className={classes.progressButtonWrapper}>

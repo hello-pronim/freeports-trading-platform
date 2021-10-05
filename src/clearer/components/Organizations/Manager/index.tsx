@@ -432,19 +432,18 @@ const Manager = (props: any): React.ReactElement => {
       <Divider />
       <AccordionActions>
         <Grid container justify="flex-end">
-          {viewAddToVault && (
-            <Grid item>
-              <div className={classes.progressButtonWrapper}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={onViewPublicKey}
-                >
-                  Add to Vault
-                </Button>
-              </div>
-            </Grid>
-          )}
+          <Grid item>
+            <div className={classes.progressButtonWrapper}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={onViewPublicKey}
+                disabled={!viewAddToVault}
+              >
+                Add to Vault
+              </Button>
+            </div>
+          </Grid>
           <Grid item>
             <div className={classes.progressButtonWrapper}>
               <Button
