@@ -308,6 +308,7 @@ const Settings = (): React.ReactElement => {
           addRemoveAddressNew.push(x);
         }
       })
+      await vault.authenticate();
       await Promise.all(addRemoveAddressOld.map(async (vaultGroupId: string) => {
         const request1 = await vault.revokePermissionFromAsset(
           VaultAssetType.ADDRESS_BOOK,
@@ -451,6 +452,7 @@ const Settings = (): React.ReactElement => {
           addressesNew.push(x);
         }
       })
+      await vault.authenticate();
       await Promise.all(addressesOld.map(async (address: string) => {
         const request = await vault.deleteAddressbookEntry(
           orgDetail.vaultAddressbookId,

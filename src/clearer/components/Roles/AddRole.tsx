@@ -190,6 +190,7 @@ const AddRole = (): React.ReactElement => {
       || values.getRuleTrees.length) {
       setWizardProccessing(true);
       try {
+        await vault.authenticate();
         await Promise.all(values.addRemoveUser.map(async (vaultGroupId: string) => {
           const request = await vault.grantPermissionToAsset(
             VaultAssetType.GROUP,

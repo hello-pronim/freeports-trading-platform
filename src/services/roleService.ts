@@ -31,6 +31,8 @@ const addNewRole = async (
   name: string,
   vaultUserId: string
 ): Promise<any> => {
+  await vault.authenticate();
+
   const vaultCreateGroupRequest = await vault.createGroup();
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
@@ -66,6 +68,8 @@ const modifyRole = async (
   oldPermissions: Array<string>,
   vaultGroupId: string,
 ): Promise<string> => {
+  await vault.authenticate();
+
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
@@ -176,6 +180,8 @@ const createOrgRole = async (
   roleName: string,
   vaultUserId: string
 ): Promise<any> => {
+  await vault.authenticate();
+  
   const vaultCreateGroupRequest = await vault.createGroup(true);
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
@@ -212,6 +218,8 @@ const updateOrgRole = async (
   oldPermissions: Array<string>,
   role: RoleType,
 ): Promise<string> => {
+  await vault.authenticate();
+  
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
@@ -335,6 +343,8 @@ const createMultiDeskRole = async (
   roleName: string,
   vaultUserId: string,
 ): Promise<any> => {
+  await vault.authenticate();
+
   const vaultCreateGroupRequest = await vault.createGroup(true);
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
@@ -371,6 +381,8 @@ const updateMultiDeskRole = async (
   oldPermissions: Array<string>,
   role: RoleType,
 ): Promise<string> => {
+  await vault.authenticate();
+
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 
@@ -500,6 +512,8 @@ const createDeskRole = async (
   roleName: string,
   vaultUserId: string,
 ): Promise<any> => {
+  await vault.authenticate();
+
   const vaultCreateGroupRequest = await vault.createGroup(true);
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
@@ -537,6 +551,8 @@ const updateDeskRole = async (
   oldPermissions: Array<string>,
   role: RoleType,
 ): Promise<string> => {
+  await vault.authenticate();
+
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
     vaultGroupId, 

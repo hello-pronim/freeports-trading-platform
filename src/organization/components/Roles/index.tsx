@@ -455,6 +455,7 @@ const Roles = (): React.ReactElement => {
           addRemoveUserNew.push(x);
         }
       })
+      await vault.authenticate();
       await Promise.all(addRemoveUserOld.map(async (vaultGroupId: string) => {
         const request = await vault.revokePermissionFromAsset(
           VaultAssetType.GROUP,
