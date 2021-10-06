@@ -44,6 +44,8 @@ import {
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import CheckIcon from "@material-ui/icons/Check";
+import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SearchIcon from "@material-ui/icons/Search";
 import Lock from "@material-ui/icons/Lock";
@@ -262,6 +264,15 @@ const Roles = (): React.ReactElement => {
     type: "success",
     message: "",
   });
+  const [orgRoleNameEditable, setOrgRoleNameEditable] = useState<
+    Array<boolean>
+  >([false]);
+  const [multiDeskRoleNameEditable, setMultiDeskRoleNameEditable] = useState<
+    Array<boolean>
+  >([false]);
+  const [deskRoleNameEditable, setDeskRoleNameEditable] = useState<
+    Array<boolean>
+  >([false]);
 
   useEffect(() => {
     let unmounted = false;
@@ -347,6 +358,10 @@ const Roles = (): React.ReactElement => {
           role: values,
         })
       );
+
+      let temp = [...orgRoleNameEditable];
+      temp = [false];
+      setOrgRoleNameEditable(temp);
     }
   };
 
@@ -366,6 +381,10 @@ const Roles = (): React.ReactElement => {
           role: values,
         })
       );
+
+      let temp = [...multiDeskRoleNameEditable];
+      temp = [false];
+      setMultiDeskRoleNameEditable(temp);
     }
   };
 
@@ -388,6 +407,10 @@ const Roles = (): React.ReactElement => {
           role,
         })
       );
+
+      let temp = [...deskRoleNameEditable];
+      temp = [false];
+      setDeskRoleNameEditable(temp);
     }
   };
 
@@ -576,6 +599,69 @@ const Roles = (): React.ReactElement => {
     setLockModalProcessing(false);
   };
 
+  const handleOrgRoleNameEditClick = (e: any, index: number) => {
+    const temp = [...orgRoleNameEditable];
+    temp[index] = true;
+    setOrgRoleNameEditable(temp);
+  };
+
+  const handleOrgRoleNameConfirmClick = (
+    e: any,
+    index: number,
+    values: any,
+    roleId: string,
+    vaultGroupId: string,
+    permissions: string[]
+  ) => {
+    const temp = [...orgRoleNameEditable];
+    temp[index] = false;
+    setOrgRoleNameEditable(temp);
+
+    handleOrgRoleUpdate(values, roleId, vaultGroupId, permissions);
+  };
+
+  const handleMultiDeskRoleNameEditClick = (e: any, index: number) => {
+    const temp = [...multiDeskRoleNameEditable];
+    temp[index] = true;
+    setMultiDeskRoleNameEditable(temp);
+  };
+
+  const handleMultiDeskRoleNameConfirmClick = (
+    e: any,
+    index: number,
+    values: any,
+    roleId: string,
+    vaultGroupId: string,
+    permissions: string[]
+  ) => {
+    const temp = [...multiDeskRoleNameEditable];
+    temp[index] = false;
+    setMultiDeskRoleNameEditable(temp);
+
+    handleMultiDeskRoleUpdate(values, roleId, vaultGroupId, permissions);
+  };
+
+  const handleDeskRoleNameEditClick = (e: any, index: number) => {
+    const temp = [...deskRoleNameEditable];
+    temp[index] = true;
+    setDeskRoleNameEditable(temp);
+  };
+
+  const handleDeskRoleNameConfirmClick = (
+    e: any,
+    index: number,
+    values: any,
+    roleId: string,
+    vaultGroupId: string,
+    permissions: string[]
+  ) => {
+    const temp = [...deskRoleNameEditable];
+    temp[index] = false;
+    setDeskRoleNameEditable(temp);
+
+    handleDeskRoleUpdate(values, roleId, vaultGroupId, permissions);
+  };
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -656,7 +742,7 @@ const Roles = (): React.ReactElement => {
                                     .filter(
                                       (role: Role) => role.name !== "_default"
                                     )
-                                    .map((role: Role) => (
+                                    .map((role: Role, index: number) => (
                                       <div className={classes.roleWrapper}>
                                         <Form
                                           onSubmit={(values) =>
@@ -694,30 +780,78 @@ const Roles = (): React.ReactElement => {
                                                 >
                                                   <Grid
                                                     container
+                                                    justify="space-between"
                                                     alignItems="center"
                                                   >
                                                     <Grid item>
-                                                      <Typography
-                                                        className={
-                                                          classes.roleName
-                                                        }
-                                                      >
-                                                        {role.name}
-                                                      </Typography>
+                                                      {!orgRoleNameEditable[
+                                                        index
+                                                      ] ? (
+                                                        <Grid
+                                                          container
+                                                          alignItems="center"
+                                                          spacing={2}
+                                                        >
+                                                          <Grid item>
+                                                            <Typography
+                                                              className={
+                                                                classes.roleName
+                                                              }
+                                                            >
+                                                              {values.name}
+                                                            </Typography>
+                                                          </Grid>
+                                                          <Grid item>
+                                                            <IconButton
+                                                              color="primary"
+                                                              onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleOrgRoleNameEditClick(
+                                                                  e,
+                                                                  index
+                                                                );
+                                                              }}
+                                                            >
+                                                              <EditOutlinedIcon />
+                                                            </IconButton>
+                                                          </Grid>
+                                                        </Grid>
+                                                      ) : (
+                                                        <Grid
+                                                          container
+                                                          alignItems="center"
+                                                          spacing={2}
+                                                        >
+                                                          <Grid item>
+                                                            <MuiTextField
+                                                              label="Role Name"
+                                                              name="name"
+                                                              variant="outlined"
+                                                              size="small"
+                                                            />
+                                                          </Grid>
+                                                          <Grid item>
+                                                            <IconButton
+                                                              color="primary"
+                                                              onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleOrgRoleNameConfirmClick(
+                                                                  e,
+                                                                  index,
+                                                                  values,
+                                                                  role.id as string,
+                                                                  role.vaultGroupId as string,
+                                                                  role.permissions
+                                                                );
+                                                              }}
+                                                            >
+                                                              <CheckIcon />
+                                                            </IconButton>
+                                                          </Grid>
+                                                        </Grid>
+                                                      )}
                                                     </Grid>
                                                     <Grid item>
-                                                      <Typography
-                                                        className={
-                                                          classes.roleDescription
-                                                        }
-                                                      />
-                                                    </Grid>
-                                                    <Grid
-                                                      item
-                                                      style={{
-                                                        marginLeft: "auto",
-                                                      }}
-                                                    >
                                                       <IconButton
                                                         style={{ padding: 0 }}
                                                         onClick={(event) => {
@@ -733,9 +867,7 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionSummary>
-                                                <AccordionDetails
-                                                  className={`permission-container ${classes.permissionContainer}`}
-                                                >
+                                                {/* <AccordionDetails>
                                                   <Grid container>
                                                     <Grid item xs={4}>
                                                       <MuiTextField
@@ -745,7 +877,7 @@ const Roles = (): React.ReactElement => {
                                                       />
                                                     </Grid>
                                                   </Grid>
-                                                </AccordionDetails>
+                                                </AccordionDetails> */}
                                                 <div>
                                                   {orgPermissionsLoading && (
                                                     <Loader />
@@ -970,7 +1102,7 @@ const Roles = (): React.ReactElement => {
                                     .filter(
                                       (role: Role) => role.name !== "_default"
                                     )
-                                    .map((role: Role) => (
+                                    .map((role: Role, index: number) => (
                                       <div className={classes.roleWrapper}>
                                         <Form
                                           onSubmit={(values) =>
@@ -1008,23 +1140,78 @@ const Roles = (): React.ReactElement => {
                                                 >
                                                   <Grid
                                                     container
+                                                    justify="space-between"
                                                     alignItems="center"
                                                   >
                                                     <Grid item>
-                                                      <Typography
-                                                        className={
-                                                          classes.roleName
-                                                        }
-                                                      >
-                                                        {role.name}
-                                                      </Typography>
+                                                      {!multiDeskRoleNameEditable[
+                                                        index
+                                                      ] ? (
+                                                        <Grid
+                                                          container
+                                                          alignItems="center"
+                                                          spacing={2}
+                                                        >
+                                                          <Grid item>
+                                                            <Typography
+                                                              className={
+                                                                classes.roleName
+                                                              }
+                                                            >
+                                                              {values.name}
+                                                            </Typography>
+                                                          </Grid>
+                                                          <Grid item>
+                                                            <IconButton
+                                                              color="primary"
+                                                              onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleMultiDeskRoleNameEditClick(
+                                                                  e,
+                                                                  index
+                                                                );
+                                                              }}
+                                                            >
+                                                              <EditOutlinedIcon />
+                                                            </IconButton>
+                                                          </Grid>
+                                                        </Grid>
+                                                      ) : (
+                                                        <Grid
+                                                          container
+                                                          alignItems="center"
+                                                          spacing={2}
+                                                        >
+                                                          <Grid item>
+                                                            <MuiTextField
+                                                              label="Role Name"
+                                                              name="name"
+                                                              variant="outlined"
+                                                              size="small"
+                                                            />
+                                                          </Grid>
+                                                          <Grid item>
+                                                            <IconButton
+                                                              color="primary"
+                                                              onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleMultiDeskRoleNameConfirmClick(
+                                                                  e,
+                                                                  index,
+                                                                  values,
+                                                                  role.id as string,
+                                                                  role.vaultGroupId as string,
+                                                                  role.permissions
+                                                                );
+                                                              }}
+                                                            >
+                                                              <CheckIcon />
+                                                            </IconButton>
+                                                          </Grid>
+                                                        </Grid>
+                                                      )}
                                                     </Grid>
-                                                    <Grid
-                                                      item
-                                                      style={{
-                                                        marginLeft: "auto",
-                                                      }}
-                                                    >
+                                                    <Grid item>
                                                       <IconButton
                                                         style={{ padding: 0 }}
                                                         onClick={(event) => {
@@ -1040,7 +1227,7 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionSummary>
-                                                <AccordionDetails
+                                                {/* <AccordionDetails
                                                   className={`permission-container ${classes.permissionContainer}`}
                                                 >
                                                   <Grid container item xs={12}>
@@ -1052,7 +1239,7 @@ const Roles = (): React.ReactElement => {
                                                       />
                                                     </Grid>
                                                   </Grid>
-                                                </AccordionDetails>
+                                                </AccordionDetails> */}
                                                 <div>
                                                   {multiDeskPermissionsLoading && (
                                                     <Loader />
@@ -1264,7 +1451,7 @@ const Roles = (): React.ReactElement => {
                                       (role: DeskRole) =>
                                         role.name !== "_default"
                                     )
-                                    .map((role: DeskRole) => (
+                                    .map((role: DeskRole, index: number) => (
                                       <div className={classes.roleWrapper}>
                                         <Form
                                           onSubmit={(values) =>
@@ -1306,34 +1493,79 @@ const Roles = (): React.ReactElement => {
                                                 >
                                                   <Grid
                                                     container
+                                                    justify="space-between"
                                                     alignItems="center"
                                                     spacing={2}
                                                   >
                                                     <Grid item>
-                                                      <Typography
-                                                        className={
-                                                          classes.roleName
-                                                        }
-                                                      >
-                                                        {role.name}
-                                                      </Typography>
+                                                      {!deskRoleNameEditable[
+                                                        index
+                                                      ] ? (
+                                                        <Grid
+                                                          container
+                                                          alignItems="center"
+                                                          spacing={2}
+                                                        >
+                                                          <Grid item>
+                                                            <Typography
+                                                              className={
+                                                                classes.roleName
+                                                              }
+                                                            >
+                                                              {values.name}
+                                                            </Typography>
+                                                          </Grid>
+                                                          <Grid item>
+                                                            <IconButton
+                                                              color="primary"
+                                                              onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeskRoleNameEditClick(
+                                                                  e,
+                                                                  index
+                                                                );
+                                                              }}
+                                                            >
+                                                              <EditOutlinedIcon />
+                                                            </IconButton>
+                                                          </Grid>
+                                                        </Grid>
+                                                      ) : (
+                                                        <Grid
+                                                          container
+                                                          alignItems="center"
+                                                          spacing={2}
+                                                        >
+                                                          <Grid item>
+                                                            <MuiTextField
+                                                              label="Role Name"
+                                                              name="name"
+                                                              variant="outlined"
+                                                              size="small"
+                                                            />
+                                                          </Grid>
+                                                          <Grid item>
+                                                            <IconButton
+                                                              color="primary"
+                                                              onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeskRoleNameConfirmClick(
+                                                                  e,
+                                                                  index,
+                                                                  values,
+                                                                  role.id as string,
+                                                                  role.vaultGroupId as string,
+                                                                  role.permissions
+                                                                );
+                                                              }}
+                                                            >
+                                                              <CheckIcon />
+                                                            </IconButton>
+                                                          </Grid>
+                                                        </Grid>
+                                                      )}
                                                     </Grid>
                                                     <Grid item>
-                                                      <Typography
-                                                        color="textSecondary"
-                                                        className={
-                                                          classes.roleDescription
-                                                        }
-                                                      >
-                                                        {`(${role.desk.name})`}
-                                                      </Typography>
-                                                    </Grid>
-                                                    <Grid
-                                                      item
-                                                      style={{
-                                                        marginLeft: "auto",
-                                                      }}
-                                                    >
                                                       <IconButton
                                                         style={{ padding: 0 }}
                                                         onClick={(event) => {
@@ -1349,7 +1581,7 @@ const Roles = (): React.ReactElement => {
                                                     </Grid>
                                                   </Grid>
                                                 </AccordionSummary>
-                                                <AccordionDetails
+                                                {/* <AccordionDetails
                                                   className={`permission-container ${classes.permissionContainer}`}
                                                 >
                                                   <Grid container spacing={2}>
@@ -1389,7 +1621,7 @@ const Roles = (): React.ReactElement => {
                                                       </MuiSelect>
                                                     </Grid>
                                                   </Grid>
-                                                </AccordionDetails>
+                                                </AccordionDetails> */}
                                                 <div>
                                                   {deskPermissionsLoading && (
                                                     <Loader />

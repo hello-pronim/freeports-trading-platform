@@ -30,7 +30,9 @@ import {
   Typography,
 } from "@material-ui/core";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import CheckIcon from "@material-ui/icons/Check";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import Lock from "@material-ui/icons/Lock";
 import { Form, Field } from "react-final-form";
 
@@ -131,6 +133,9 @@ const Roles = (): React.ReactElement => {
     createDeleteRuleTree: [],
     getRuleTrees: [],
   });
+  const [roleNameEditable, setRoleNameEditable] = useState<Array<boolean>>([
+    false,
+  ]);
 
   useEffect(() => {
     let unmounted = false;
@@ -217,6 +222,10 @@ const Roles = (): React.ReactElement => {
       );
     }
     setSaving(false);
+
+    let temp = [...roleNameEditable];
+    temp = [false];
+    setRoleNameEditable(temp);
   };
 
   const onRoleRemove = async (roleId: string, vaultGroupId: string) => {
@@ -417,6 +426,24 @@ const Roles = (): React.ReactElement => {
     setLockModalProcessing(false);
   };
 
+  const handleRoleNameEditClick = (e: any, index: number) => {
+    const temp = [...roleNameEditable];
+    temp[index] = true;
+    setRoleNameEditable(temp);
+  };
+
+  const handleRoleNameConfirmClick = (
+    e: any,
+    index: number,
+    roleId: string
+  ) => {
+    const temp = [...roleNameEditable];
+    temp[index] = false;
+    setRoleNameEditable(temp);
+
+    onRoleSave(roleId);
+  };
+
   return (
     <div className="main-wrapper">
       <Container>
@@ -442,48 +469,85 @@ const Roles = (): React.ReactElement => {
               <Grid container spacing={1}>
                 {roles
                   .filter((role: RoleType) => role.name !== "_default")
-                  .map((role: RoleType) => (
-                    <Grid item xs={12}>
-                      <Accordion key={role.id}>
+                  .map((role: RoleType, index: number) => (
+                    <Grid item xs={12} key={role.id}>
+                      <Accordion>
                         <AccordionSummary
                           expandIcon={<ExpandMoreIcon />}
                           aria-controls="panel1c-content"
                         >
-                          <div className={classes.column}>
-                            <Typography className={classes.roleName}>
-                              {role.name}
-                            </Typography>
-                          </div>
-                          <div className={classes.column}>
-                            <Typography className={classes.roleDescription} />
-                          </div>
-                          <Grid style={{ marginLeft: "auto" }}>
-                            <IconButton
-                              style={{ padding: 0 }}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                openLockModal(role);
-                              }}
-                              disabled={
-                                !vault.checkUserLockUsability(currentUser)
-                              }
-                            >
-                              <Lock fontSize="default" />
-                            </IconButton>
-                          </Grid>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          <Grid container item xs={12}>
-                            <Grid item xs={4}>
-                              <TextField
-                                className={classes.roleNameInput}
-                                label="Role Name"
-                                value={role.name}
-                                onChange={(e) => onRoleNameChange(e, role.id)}
-                              />
+                          <Grid
+                            container
+                            alignItems="center"
+                            justify="space-between"
+                          >
+                            <Grid item>
+                              {!roleNameEditable[index] ? (
+                                <Grid container alignItems="center" spacing={2}>
+                                  <Grid item>
+                                    <Typography className={classes.roleName}>
+                                      {role.name}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item>
+                                    <IconButton
+                                      color="primary"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRoleNameEditClick(e, index);
+                                      }}
+                                    >
+                                      <EditOutlinedIcon />
+                                    </IconButton>
+                                  </Grid>
+                                </Grid>
+                              ) : (
+                                <Grid container alignItems="center" spacing={2}>
+                                  <Grid item>
+                                    <TextField
+                                      variant="outlined"
+                                      size="small"
+                                      label="Role Name"
+                                      value={role.name}
+                                      onChange={(e) =>
+                                        onRoleNameChange(e, role.id)
+                                      }
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <IconButton
+                                      color="primary"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRoleNameConfirmClick(
+                                          e,
+                                          index,
+                                          role.id
+                                        );
+                                      }}
+                                    >
+                                      <CheckIcon />
+                                    </IconButton>
+                                  </Grid>
+                                </Grid>
+                              )}
+                            </Grid>
+                            <Grid item>
+                              <IconButton
+                                style={{ padding: 0 }}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  openLockModal(role);
+                                }}
+                                disabled={
+                                  !vault.checkUserLockUsability(currentUser)
+                                }
+                              >
+                                <Lock fontSize="default" />
+                              </IconButton>
                             </Grid>
                           </Grid>
-                        </AccordionDetails>
+                        </AccordionSummary>
                         <div>
                           {permissionGroups.map(
                             (permissionGroup: Permission) => (
