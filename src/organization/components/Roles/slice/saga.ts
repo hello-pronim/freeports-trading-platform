@@ -70,12 +70,21 @@ export function* editOrgRole({
     }
   } catch (error) {
     yield put(actions.editOrgRoleFailed());
-    yield put(
-      snackbarActions.showSnackbar({
-        message: error.message,
-        type: "error",
-      })
-    );
+    if (Array.isArray(error.message)) {
+      yield put(
+        snackbarActions.showSnackbar({
+          message: error.message[0].constraints[Object.keys(error.message[0].constraints)[0]],
+          type: "error",
+        })
+      );
+    } else {
+      yield put(
+        snackbarActions.showSnackbar({
+          message: error.message,
+          type: "error",
+        })
+      );
+    }
   }
 }
 
@@ -182,12 +191,21 @@ export function* editMultiDeskRole({
     }
   } catch (error) {
     yield put(actions.editMultiDeskRoleFailed());
-    yield put(
-      snackbarActions.showSnackbar({
-        message: error.message,
-        type: "error",
-      })
-    );
+    if (Array.isArray(error.message)) {
+      yield put(
+        snackbarActions.showSnackbar({
+          message: error.message[0].constraints[Object.keys(error.message[0].constraints)[0]],
+          type: "error",
+        })
+      );
+    } else {
+      yield put(
+        snackbarActions.showSnackbar({
+          message: error.message,
+          type: "error",
+        })
+      );
+    }
   }
 }
 
@@ -302,12 +320,21 @@ export function* editDeskRole({
     }
   } catch (error) {
     yield put(actions.editDeskRoleFailed());
-    yield put(
-      snackbarActions.showSnackbar({
-        message: error.message,
-        type: "error",
-      })
-    );
+    if (Array.isArray(error.message)) {
+      yield put(
+        snackbarActions.showSnackbar({
+          message: error.message[0].constraints[Object.keys(error.message[0].constraints)[0]],
+          type: "error",
+        })
+      );
+    } else {
+      yield put(
+        snackbarActions.showSnackbar({
+          message: error.message,
+          type: "error",
+        })
+      );
+    }
   }
 }
 

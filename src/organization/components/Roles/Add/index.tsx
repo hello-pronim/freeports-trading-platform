@@ -266,13 +266,22 @@ const NewOrgRole = (): React.ReactElement => {
       .then((data) => {
         history.push("/roles");
       })
-      .catch((err) => {
-        dispatch(
-          snackbarActions.showSnackbar({
-            message: err.message,
-            type: "error",
-          })
-        );
+      .catch((error) => {
+        if (Array.isArray(error.message)) {
+          dispatch(
+            snackbarActions.showSnackbar({
+              message: error.message[0].constraints[Object.keys(error.message[0].constraints)[0]],
+              type: "error",
+            })
+          );
+        } else {
+          dispatch(
+            snackbarActions.showSnackbar({
+              message: error.message,
+              type: "error",
+            })
+          );
+        }
         setWizardProccessing(false);
       });
   };

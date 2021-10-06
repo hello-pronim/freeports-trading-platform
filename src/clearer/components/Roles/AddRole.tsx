@@ -251,16 +251,25 @@ const AddRole = (): React.ReactElement => {
       },
       []
     );
-    if (response) {
-      history.push("/roles");
-    } else {
-      dispatch(
-        snackbarActions.showSnackbar({
-          message: "Sorry, failed to create a role",
-          type: "error",
-        })
-      );
+    if (response.errorType) {
+      if (Array.isArray(response.message)) {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: response.message[0].constraints[Object.keys(response.message[0].constraints)[0]],
+            type: "error",
+          })
+        );
+      } else {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: response.message,
+            type: "error",
+          })
+        );
+      }
       setWizardProccessing(false);
+    } else {
+      history.push("/roles");
     }
   };
 
