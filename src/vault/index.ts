@@ -69,7 +69,8 @@ const roleVaultPermission = {
 
   "desk.#deskId#.account.create": [
     "CreateDeleteAddressBook",
-    "CreateWallet"
+    "CreateWallet",
+    "GetWallets"
   ],
 
   "organization.#organizationId#.initiate_nostro_account": [
