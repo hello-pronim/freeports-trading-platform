@@ -13,7 +13,7 @@ export default interface Operation {
 
   createdAt?: string;
 
-  importId?: string;
+  txId?: string;
 
   reconciledId?: string;
 }
