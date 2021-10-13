@@ -1,7 +1,7 @@
 export default interface Clearer {
   id?: string;
 
-  name: string;
+  name?: string;
 
   street?: string;
 

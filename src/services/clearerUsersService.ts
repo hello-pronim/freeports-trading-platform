@@ -115,11 +115,15 @@ const resumeClearerUser = (id: string): Promise<any> => {
 
 const createVaultUser = (
   id: string,
-  vaultRequest: VaultRequestDto
+  vaultRequest: VaultRequestDto,
+  createOrgUserRequest: VaultRequestDto | null = null,
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`/user/${id}/public-key/approve`, { vaultRequest })
+      .post(`/user/${id}/public-key/approve`, { 
+        vaultRequest, 
+        createOrgUserRequest
+      })
       .then((res: any) => {
         console.log(" user update response ", res.data);
 
@@ -189,10 +193,9 @@ const getClearerSettings = (): Promise<Clearer> => {
 };
 
 const updateClearerSettings = async (settings: Clearer): Promise<any> => {
-  const vaultRequest = await vault.createOrganization();
   return new Promise((resolve, reject) => {
     axios
-      .post(`/settings`, { ...settings, vaultRequest })
+      .post(`/settings`, settings)
       .then((res: any) => {
         return resolve(res.data);
       })

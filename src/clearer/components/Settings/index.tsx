@@ -16,6 +16,10 @@ import {
   CardContent,
   CircularProgress,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Grid,
   Theme,
@@ -29,6 +33,8 @@ import {
 } from "./slice/selectors";
 import AvatarInput from "../../../components/AvatarInput";
 import Loader from "../../../components/Loader";
+import vault from "../../../vault";
+import { snackbarActions } from "../../../components/Snackbar/slice";
 
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
@@ -111,6 +117,8 @@ const Settings = (): React.ReactElement => {
   const clearerSettings = useSelector(selectClearerSettings);
   const formLoading = useSelector(selectIsFormLoading);
   const formSubmitting = useSelector(selectIsFormSubmitting);
+  const [initVaultView, setInitVaultView] = useState(false);
+  const [initializingVault, setInitializingVault] = useState(false);
 
   useEffect(() => {
     let mounted = false;
@@ -125,14 +133,78 @@ const Settings = (): React.ReactElement => {
 
   const handleOnSubmit = (values: any) => {
     console.log(values);
-    dispatch(clearerSettingsActions.saveClearerSettings(values));
+    const settings = { ...values };
+    delete settings.vaultOrganizationId;
+    dispatch(clearerSettingsActions.saveClearerSettings(settings));
+  };
+
+  const onInitializeVault = async () => {
+    setInitializingVault(true);
+
+    try {
+      const vaultRequest = await vault.joinFirstUser();
+      const response = await vault.sendRequest(vaultRequest);
+      console.log("joinFirstUser", response);
+    } catch (error) {
+      dispatch(
+        snackbarActions.showSnackbar({
+          message: "First user is already defined",
+          type: "error",
+        })
+      );
+    }
+
+    await vault.authenticate();
+    await vault.grantClearerDefaultPermissions();
+
+    if (!clearerSettings.vaultOrganizationId) {
+      try {
+        const vaultRequest1 = await vault.createOrganization();
+        const response1 = await vault.sendRequest(vaultRequest1);
+        const vaultOrganizationId = response1.organization.id;
+
+        const vaultRequest2 = await vault.createOrganizationManager(
+          vaultOrganizationId
+        );
+        await vault.sendRequest(vaultRequest2);
+
+        await vault.grantOrganizationManagerPermissions(vaultOrganizationId);
+
+        dispatch(clearerSettingsActions.saveClearerSettings({
+          vaultOrganizationId
+        }));
+      } catch (error) {
+        dispatch(
+          snackbarActions.showSnackbar({
+            message: "Error occurred during organization creation",
+            type: "error",
+          })
+        );
+      }
+    }
+
+    setInitializingVault(false);
+    setInitVaultView(false);
   };
 
   return (
     <div className="main-wrapper">
       <Container>
         <Card>
-          <CardHeader title="Settings" />
+          <CardHeader 
+            title="Settings"
+            action={
+              <Button
+                onClick={() => {
+                  setInitVaultView(true);
+                }}
+                color="primary"
+                variant="contained"
+              >
+                Initialize Vault
+              </Button>
+            }
+          />
           <Divider />
           <CardContent>
             {formLoading && <Loader />}
@@ -248,6 +320,45 @@ const Settings = (): React.ReactElement => {
           </CardContent>
         </Card>
       </Container>
+      <Dialog
+        open={initVaultView}
+        onClose={() => {
+          setInitVaultView(false);
+        }}
+      >
+        <DialogTitle>Initialize Vault</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            You are about to initialize the vault and this will declare you as first user. Are you sure?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => {
+              setInitVaultView(false);
+            }} 
+            variant="contained"
+          >
+            No
+          </Button>
+          <div className={classes.progressButtonWrapper}>
+            <Button
+              onClick={onInitializeVault}
+              color="primary"
+              variant="contained"
+              disabled={initializingVault}
+            >
+              Yes
+            </Button>
+            {initializingVault && (
+              <CircularProgress
+                size={24}
+                className={classes.progressButton}
+              />
+            )}
+          </div>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

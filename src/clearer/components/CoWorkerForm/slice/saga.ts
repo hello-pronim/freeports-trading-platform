@@ -28,10 +28,11 @@ export function* getRoles(): Generator<any> {
 }
 
 export function* addUserToVault({
-  payload: { publicKey, userId },
+  payload: { publicKey, userId, vaultOrgId },
 }: PayloadAction<{
   userId: string;
   publicKey: PublicKeyDoc;
+  vaultOrgId: string;
 }>): Generator<any> {
   try {
     const createVaultUserRequest = yield call(
@@ -39,11 +40,18 @@ export function* addUserToVault({
       publicKey.key
     );
 
+    const createOrgUserRequest = yield call(
+      vault.createClearerOrgUser,
+      publicKey.key,
+      vaultOrgId
+    );
+
     console.log("create vault user req ", createVaultUserRequest);
     const response = yield call(
       createVaultUser,
       userId,
-      createVaultUserRequest as VaultRequestDto
+      createVaultUserRequest as VaultRequestDto,
+      createOrgUserRequest as VaultRequestDto
     );
     if (response) {
       yield put(actions.addUserToVaultSuccess());

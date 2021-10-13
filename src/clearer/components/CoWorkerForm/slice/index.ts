@@ -32,7 +32,11 @@ const slice = createSlice({
     },
     addUserToVault(
       state,
-      action: PayloadAction<{ userId: string; publicKey: PublicKeyDoc }>
+      action: PayloadAction<{ 
+        userId: string; 
+        publicKey: PublicKeyDoc; 
+        vaultOrgId: string; 
+    }>
     ) {
       state.addingUserToVault = true;
     },

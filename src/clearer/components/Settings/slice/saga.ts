@@ -35,6 +35,7 @@ export function* saveClearerSettings({
     const response = yield call(updateClearerSettings, payload);
     if (response) {
       yield put(actions.saveClearerSettingsSuccess());
+      yield put(actions.retrieveClearerSettings());
       yield put(
         snackbarActions.showSnackbar({
           message: "Settings has been updated successfully",

@@ -36,6 +36,10 @@ import { userPublicKeyStatus } from "../../../util/constants";
 import { publicKeyToString } from "../../../util/keyStore/functions";
 import { generateCertificationEmojis } from "../../../util/sas";
 import AvatarInput from "../../../components/AvatarInput";
+import {
+  selectClearerSettings,
+} from "../Settings/slice/selectors";
+import { useClearerSettingsSlice } from "../Settings/slice";
 
 const useStyles = makeStyles((theme) => ({
   sideMenu: {
@@ -168,6 +172,8 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
   const [publicKeyEmojisDialog, setPublicKeyEmojisDialog] = useState(false);
   const [publicKeyEmojis, setPublicKeyEmojis] = useState<any>([]);
   const currentUser = useSelector(selectUser);
+  const clearerSettings = useSelector(selectClearerSettings);
+  const { actions: clearerSettingsActions } = useClearerSettingsSlice();
 
   const canCreateVaultUser =
     currentUser &&
@@ -191,11 +197,15 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     let unmounted = false;
 
     dispatch(actions.getRoles());
-
+    
     return () => {
       unmounted = true;
     };
   }, [coWorker]);
+
+  useEffect(() => {
+    dispatch(clearerSettingsActions.retrieveClearerSettings());
+  }, []);
 
   const handleOnSubmit = (values: any) => {
     const updates: Partial<User> = diff(coWorker, values);
@@ -236,6 +246,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
         actions.addUserToVault({
           userId: coWorker.id,
           publicKey: coWorker.publicKey,
+          vaultOrgId: clearerSettings.vaultOrganizationId as string,
         })
       );
     }

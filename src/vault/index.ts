@@ -109,6 +109,8 @@ interface RequestBody {
 export class Vault {
   private API_PREFIX = "/api/v1";
 
+  private PIN = "1234";
+
   publicKey!: string;
 
   privateKey!: CryptoKey;
@@ -120,6 +122,21 @@ export class Vault {
   private hashingAlgorithm = "SHA-256";
 
   private static _instance: Vault;
+
+  private clearerDefaultPermissions = [
+    VaultPermissions.CreateDeleteUser,
+    VaultPermissions.CreateDeleteGroup,
+    VaultPermissions.JoinOrganizationUser,
+    VaultPermissions.GetUsers,
+    VaultPermissions.GrantRevokePermission,
+    VaultPermissions.CreateDeleteOrganization,
+    VaultPermissions.GetPermissions
+  ];
+
+  private organizationManagerDefaultPermissions = [
+    VaultPermissions.CreateDeleteUser,
+    VaultPermissions.CreateDeleteGroup
+  ];
 
   constructor() {
     if (Vault._instance) {
@@ -170,12 +187,14 @@ export class Vault {
 
   public async createOrganizationManager(
     vaultOrganizationId: string,
-    publicKey: string
+    publicKey = ""
   ): Promise<VaultRequestDto> {
     const request = await this.createRequest(
       Method.POST,
       `/vault/organization/${vaultOrganizationId}/user`,
-      { publicKey }
+      { 
+        publicKey: publicKey === "" ? this.publicKey : publicKey
+      }
     );
     return request;
   }
@@ -612,7 +631,7 @@ export class Vault {
 
   public createWallet = async (type: string): Promise<VaultRequestDto> => {
     const getWalletsRequest = await this.getAllWallets();
-    const response = await sendRequest(getWalletsRequest);
+    const response = await this.sendRequest(getWalletsRequest);
 
     let addressIndex = 0;
     if (response.wallets && response.wallets.length) {
@@ -784,6 +803,105 @@ export class Vault {
     );
     return request;
   }
+
+  public async joinFirstUser(): Promise<VaultRequestDto> {
+    const message = new TextEncoder().encode(this.PIN + this.publicKey);
+    const signature = await this.signMessage(message);
+
+    return {
+      method: Method.POST,
+      path: '/join-first-user',
+      body: { 
+        publicKey: this.publicKey,
+        signature
+      },
+    };
+  }
+
+  public async grantClearerDefaultPermissions() {
+    Promise.all(this.clearerDefaultPermissions.map(async (permission: VaultPermissions) => {
+      const request = await this.grantPermission(
+        permission,
+        PermissionOwnerType.user,
+        "1",
+      );
+      await this.sendRequest(request);
+    }));
+  }
+
+  public createClearerOrgUser = async (
+    publicKey: string,
+    organizationId: string
+  ): Promise<VaultRequestDto> => {
+    const tokenRequest = await this.createRequest(
+      Method.POST, 
+      "/token", 
+      {
+        publicKey: this.publicKey,
+        organizationId,
+      }
+    );
+    const tokenResponse = await this.sendRequest(tokenRequest);
+
+    const method = Method.POST;
+    const path = '/organization/user';
+    const body = {
+      publicKey
+    };
+
+    const signature = await this.hashRequest(method, path, body);
+
+    return {
+      method,
+      path,
+      body,
+      headers: {
+        "signature-type": "raw",
+        authorization: tokenResponse.tokenString,
+        signature,
+      },
+    };
+  };
+
+  public async grantOrganizationManagerPermissions(
+    organizationId: string,
+    publicKey = "",
+  ) {
+    const tokenRequest = await this.createRequest(
+      Method.POST, 
+      "/token", 
+      {
+        publicKey: publicKey === "" ? this.publicKey : publicKey,
+        organizationId
+      }
+    );
+    const tokenResponse = await this.sendRequest(tokenRequest);
+
+    const method = Method.POST;
+    const path = '/organization/permission';
+
+    Promise.all(this.organizationManagerDefaultPermissions.map(
+      async (permission: VaultPermissions) => {
+        const body = {
+          ownerType: PermissionOwnerType.user,
+          ownerId: "1",
+          permissionType: permission
+        };
+        const signature = await this.hashRequest(method, path, body);
+    
+        await this.sendRequest({
+          method,
+          path,
+          body,
+          headers: {
+            "signature-type": "raw",
+            authorization: tokenResponse.tokenString,
+            signature,
+          },
+        });
+      }
+    ));
+  };
 }
 
 const vault = new Vault();
