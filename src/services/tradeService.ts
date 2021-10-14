@@ -40,7 +40,12 @@ const getTradeRequest = (
   deskId: string,
   investorId: string,
   tradeId: string
-): Promise<TradeRequest> => {
+): Promise<
+  TradeRequest & {
+    currencyFrom: string;
+    currencyTo: string;
+  }
+> => {
   return new Promise((resolve, reject) => {
     axios
       .get(
