@@ -5,9 +5,12 @@ import {
   debounce,
   takeLatest,
   select,
-} from "redux-saga/effects";
+  take,
+} from "typed-redux-saga";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { BigNumber } from "bignumber.js";
+import { Socket } from "socket.io-client";
+import { eventChannel, END } from "redux-saga";
 import TradeRequest from "../../../../../types/TradeRequest";
 
 import { tradeDetailActions as actions } from ".";
@@ -25,6 +28,59 @@ import {
 } from "../../../../../types/TradeOrderResponse";
 import { selectRemainingQuantity, selectTradeAmount } from "./selectors";
 
+import { createSocket } from "../../../../../util/socket";
+
+let ws: Socket; // define it here so it's available in return function
+
+function createEventChannel(currencyFrom: string, currencyTo: string) {
+  return eventChannel((emit) => {
+    function createWs() {
+      // Subscribe to websocket
+      ws = createSocket();
+
+      ws.on("connect", () => {
+        console.log("ws.connected"); // true
+        ws.emit("subscribeToPrice", {
+          event: "subscribeToPrice",
+          currencyFrom,
+          currencyTo,
+        });
+
+        ws.on("message", (data) => {
+          console.log("message", data);
+          return emit({ data: JSON.parse(data) });
+        });
+        ws.on("price", (data) => {
+          console.log("price", data);
+        });
+        ws.on("close", (e) => {
+          console.log("disonnected");
+          if (e.code === 1005) {
+            console.log("WebSocket: closed");
+            // you probably want to end the channel in this case
+            emit(END);
+          } else {
+            console.log(
+              `Socket is closed Unexpectedly. 
+              Reconnect will be attempted in 4 second.`,
+              e.reason
+            );
+            setTimeout(() => {
+              createWs();
+            }, 4000);
+          }
+        });
+      });
+    }
+    createWs();
+
+    return () => {
+      console.log("Closing Websocket");
+      ws.close();
+    };
+  });
+}
+
 export function* retrieveTradeRequest({
   payload,
 }: PayloadAction<{
@@ -34,16 +90,33 @@ export function* retrieveTradeRequest({
   tradeId: string;
 }>): Generator<any> {
   try {
-    const response = yield call(
+    const response = yield* call(
       getTradeRequest,
       payload.organizationId,
       payload.deskId,
       payload.investorId,
       payload.tradeId
     );
-    if (response)
-      yield put(actions.getTradeRequestDetailSuccess(response as TradeRequest));
-  } catch (error) {
+    if (response) {
+      yield put(actions.getTradeRequestDetailSuccess(response));
+      const chan = yield* call(
+        createEventChannel,
+        response.currencyFrom,
+        response.currencyTo
+      );
+
+      try {
+        while (true) {
+          const price = yield take(chan);
+          // put price event
+          // yield put()
+        }
+      } finally {
+        console.log("Channel closed");
+      }
+    }
+    // subscribe to price
+  } catch (error: any) {
     yield put(
       snackbarActions.showSnackbar({
         message: error.data.message,
