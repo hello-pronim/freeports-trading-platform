@@ -135,7 +135,9 @@ export class Vault {
 
   private organizationManagerDefaultPermissions = [
     VaultPermissions.CreateDeleteUser,
-    VaultPermissions.CreateDeleteGroup
+    VaultPermissions.CreateDeleteGroup,
+    VaultPermissions.CreateWallet,
+    VaultPermissions.GetWallets
   ];
 
   constructor() {
@@ -270,8 +272,8 @@ export class Vault {
     return request;
   }
 
-  public async authenticate(): Promise<string> {
-    const { tokenString } = await this.createToken();
+  public async authenticate(organizationId = ""): Promise<string> {
+    const { tokenString } = await this.createToken(organizationId);
     this.accessToken = tokenString;
     this.tokenObtainedAt = Date.now();
 
@@ -382,14 +384,17 @@ export class Vault {
     return signature;
   }
 
-  private async createToken() {
+  private async createToken(orgId = "") {
     // const publicKeyDER = this.publicKey.export({ type: "spki", format: "der" });
 
-    let organizationId = 0;
-
-    const { vaultOrganizationId } = Lockr.get("USER_DATA");
-    if (vaultOrganizationId) {
-      organizationId = vaultOrganizationId;
+    let organizationId = orgId;
+    
+    if (organizationId === "") {
+      organizationId = "0";
+      const { vaultOrganizationId } = Lockr.get("USER_DATA");
+      if (vaultOrganizationId) {
+        organizationId = vaultOrganizationId;
+      }
     }
 
     const reqBody = {
@@ -402,6 +407,11 @@ export class Vault {
     const response = await sendRequest(request);
 
     return response;
+  }
+
+  public clearToken(): void {
+    this.accessToken = "";
+    this.tokenObtainedAt = 0;
   }
 
   private async grantPermission(
@@ -833,74 +843,40 @@ export class Vault {
     publicKey: string,
     organizationId: string
   ): Promise<VaultRequestDto> => {
-    const tokenRequest = await this.createRequest(
-      Method.POST, 
-      "/token", 
+    await this.authenticate(organizationId);
+    
+    const request = await this.createRequest(
+      Method.POST,
+      '/organization/user',
       {
-        publicKey: this.publicKey,
-        organizationId,
+        publicKey
       }
     );
-    const tokenResponse = await this.sendRequest(tokenRequest);
-
-    const method = Method.POST;
-    const path = '/organization/user';
-    const body = {
-      publicKey
-    };
-
-    const signature = await this.hashRequest(method, path, body);
-
-    return {
-      method,
-      path,
-      body,
-      headers: {
-        "signature-type": "raw",
-        authorization: tokenResponse.tokenString,
-        signature,
-      },
-    };
+    this.clearToken();
+    return request;
   };
 
   public async grantOrganizationManagerPermissions(
-    organizationId: string,
-    publicKey = "",
+    organizationId: string
   ) {
-    const tokenRequest = await this.createRequest(
-      Method.POST, 
-      "/token", 
-      {
-        publicKey: publicKey === "" ? this.publicKey : publicKey,
-        organizationId
-      }
-    );
-    const tokenResponse = await this.sendRequest(tokenRequest);
+    await this.authenticate(organizationId);
 
-    const method = Method.POST;
-    const path = '/organization/permission';
-
-    Promise.all(this.organizationManagerDefaultPermissions.map(
+    await Promise.all(this.organizationManagerDefaultPermissions.map(
       async (permission: VaultPermissions) => {
-        const body = {
-          ownerType: PermissionOwnerType.user,
-          ownerId: "1",
-          permissionType: permission
-        };
-        const signature = await this.hashRequest(method, path, body);
-    
-        await this.sendRequest({
-          method,
-          path,
-          body,
-          headers: {
-            "signature-type": "raw",
-            authorization: tokenResponse.tokenString,
-            signature,
-          },
-        });
+        const request = await this.createRequest(
+          Method.POST,
+          '/organization/permission',
+          {
+            ownerType: PermissionOwnerType.user,
+            ownerId: "1",
+            permissionType: permission
+          }
+        );
+        await this.sendRequest(request);
       }
     ));
+
+    this.clearToken();
   };
 }
 

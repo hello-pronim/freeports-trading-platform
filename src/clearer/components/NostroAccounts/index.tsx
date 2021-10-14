@@ -38,6 +38,10 @@ import {
 } from "./slice/selectors";
 import Loader from "../../../components/Loader";
 import vault from "../../../vault";
+import {
+  selectClearerSettings,
+} from "../Settings/slice/selectors";
+import { useClearerSettingsSlice } from "../Settings/slice";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -121,6 +125,8 @@ const NostroAccounts = (): React.ReactElement => {
     type: "success",
     message: "",
   });
+  const clearerSettings = useSelector(selectClearerSettings);
+  const { actions: clearerSettingsActions } = useClearerSettingsSlice();
 
   const handleDeclareAccountModalOpen = () => {
     setDeclareAccountModalOpen(true);
@@ -132,6 +138,7 @@ const NostroAccounts = (): React.ReactElement => {
 
   useEffect(() => {
     dispatch(actions.getAccounts());
+    dispatch(clearerSettingsActions.retrieveClearerSettings());
   }, []);
 
   const handleAccountCreate = async (values: accountType) => {
@@ -226,13 +233,22 @@ const NostroAccounts = (): React.ReactElement => {
     delete newAccount.iban;
 
     try {
+      await vault.authenticate(clearerSettings.vaultOrganizationId);
       const vaultCreateWalletRequest = await vault.createWallet(
         newAccount.currency === "BTC" ? "Bitcoin" : "Ethereum"
       );
       const response = await vault.sendRequest(vaultCreateWalletRequest);
       newAccount.vaultWalletId = response.wallet.id;
 
+      const vaultGetWalletsRequest = await vault.getAllWallets();
+      const response2 = await vault.sendRequest(vaultGetWalletsRequest);
+      newAccount.publicAddress = response2.wallets.filter(
+        (x: any) => x.id === newAccount.vaultWalletId
+      )[0].address;
+      vault.clearToken();
+
       await dispatch(actions.addAccount(newAccount));
+      setCryptoAdrDlgView(false);
     } catch (err) {
       setSubmitResponse({
         type: "error",
@@ -402,6 +418,10 @@ const NostroAccounts = (): React.ReactElement => {
                       <Form
                         onSubmit={onSubmitCryptoAdr}
                         validate={cryptoAddressFormvalidate}
+                        initialValues={{
+                          name: "",
+                          currency: "BTC"
+                        }}
                         render={({ handleSubmit, pristine }) => (
                           <form onSubmit={handleSubmit} noValidate>
                             <DialogTitle id="form-dialog-title">
