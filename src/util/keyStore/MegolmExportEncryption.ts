@@ -66,6 +66,7 @@ function decodeBase64(base64: string) {
  */
 function friendlyError(msg: string | undefined, friendlyText: string) {
   const e = new Error(msg);
+  e.name = msg || "";
   e.message = friendlyText;
   return e;
 }

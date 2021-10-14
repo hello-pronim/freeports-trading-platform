@@ -128,6 +128,7 @@ const importPrivateKeyFromFile = async (
     arrayBuffer,
     importKeyPassword
   );
+
   console.log("decrypted key", decryptedKey);
   const keyArrayBuffer = base64ToArrayBuffer(decryptedKey);
   const format = "pkcs8";
@@ -162,33 +163,36 @@ const importPrivateKeyFromFile = async (
 const generateKeyPair = async (
   name: string,
   passphrase: string
-): Promise<SavedKeyObject> => {
+): Promise<SavedKeyObject | undefined> => {
   const keyPair = await crypto.subtle.generateKey(params, true, usages);
-  const keyArrayBuffer = await window.crypto.subtle.exportKey(
-    "pkcs8",
-    keyPair.privateKey
-  );
-  const exportedAsBase64 = arrayBufferToBase64(keyArrayBuffer);
-  console.log("exported key ", exportedAsBase64, passphrase);
-  const encryptedKey = await encryptMegolmKeyFile(
-    exportedAsBase64,
-    passphrase,
-    {}
-  );
+  if (keyPair.privateKey) {
+    const keyArrayBuffer = await window.crypto.subtle.exportKey(
+      "pkcs8",
+      keyPair.privateKey
+    );
+    const exportedAsBase64 = arrayBufferToBase64(keyArrayBuffer);
+    console.log("exported key ", exportedAsBase64, passphrase);
+    const encryptedKey = await encryptMegolmKeyFile(
+      exportedAsBase64,
+      passphrase,
+      {}
+    );
 
-  downloadString(encryptedKey, "pem", name);
+    downloadString(encryptedKey, "pem", name);
 
-  const privateKey = await window.crypto.subtle.importKey(
-    "pkcs8",
-    keyArrayBuffer,
-    params,
-    false,
-    ["sign"]
-  );
+    const privateKey = await window.crypto.subtle.importKey(
+      "pkcs8",
+      keyArrayBuffer,
+      params,
+      false,
+      ["sign"]
+    );
 
-  console.log("generatePublicKeyFromPrivateKey ");
-  const publicKey = await generatePublicKeyFromPrivateKey(keyPair.privateKey);
-  return { publicKey, privateKey, name };
+    console.log("generatePublicKeyFromPrivateKey ");
+    const publicKey = await generatePublicKeyFromPrivateKey(keyPair.privateKey);
+    return { publicKey, privateKey, name };
+  }
+  return undefined;
 };
 
 const escapeHTML = (s: string): string => {
