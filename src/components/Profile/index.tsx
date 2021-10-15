@@ -42,6 +42,7 @@ import { globalActions } from "../../slice";
 import { addPublicKey, revokeKey } from "../../services/profileService";
 import { userPublicKeyStatus } from "../../util/constants";
 import { useAuth } from "../../hooks";
+import { snackbarActions } from "../Snackbar/slice";
 
 const useStyles = makeStyles((theme) => ({
   saveBtn: {
@@ -162,6 +163,8 @@ const Profile = (): React.ReactElement => {
   const [revokeKeyDlgOpen, setRevokeKeyDlgOpen] = useState(false);
   const { checkPublicKey } = useAuth();
 
+  const [importKeyError, setImportKeyError] = useState("");
+
   useEffect(() => {
     dispatch(actions.getProfile());
   }, []);
@@ -256,17 +259,35 @@ const Profile = (): React.ReactElement => {
   const onImportKey = async () => {
     if (importedFile !== null) {
       setLoading(true);
+      setImportKeyError("");
 
-      const results = await importPrivateKeyFromFile(
-        importedFile,
-        importKeyPassword
-      );
-      const saveToServer =
-        remoteKey && remoteKey.status === userPublicKeyStatus.approved;
-      await addCertification(results, !saveToServer);
+      try {
+        const results = await importPrivateKeyFromFile(
+          importedFile,
+          importKeyPassword
+        );
+        const saveToServer =
+          remoteKey && remoteKey.status === userPublicKeyStatus.approved;
+        await addCertification(results, !saveToServer);
 
-      setLoading(false);
-      setImportKeyDialogOpen(false);
+        setLoading(false);
+        setImportKeyDialogOpen(false);
+      } catch (err: any) {
+        if (err.name === "hmac mismatch") {
+          setLoading(false);
+          setImportKeyError(err.message);
+        } else {
+          setLoading(false);
+          setImportKeyDialogOpen(false);
+          setImportedFile(null);
+          dispatch(
+            snackbarActions.showSnackbar({
+              type: "error",
+              message: `Error importing key ${err.message}`,
+            })
+          );
+        }
+      }
     }
   };
 
@@ -675,6 +696,8 @@ const Profile = (): React.ReactElement => {
                     fullWidth
                     value={importKeyPassword}
                     onChange={onImportKeyPasswordChange}
+                    error={importKeyError !== ""}
+                    helperText={importKeyError}
                   />
                 </Grid>
               </Grid>
