@@ -162,6 +162,7 @@ const InvestorDetail = (): React.ReactElement => {
   );
   const [searchText, setSearchText] = useState("");
   const [createAccountModalOpen, setCreateAccountModalOpen] = useState(false);
+  const [accountCreating, setAccountCreating] = useState(false);
   const [defaultAccount, setDefaultAccount] = useState<Account>({
     name: "",
     currency: "",
@@ -184,6 +185,8 @@ const InvestorDetail = (): React.ReactElement => {
     useState(false);
   const btcRate = 100000000;
   const ethRate = 1000000000000000000;
+  const [whitelist, setWhitelist] = useState([]);
+  const [loadingWhitelist, setLoadingWhitelist] = useState(false);
 
   useEffect(() => {
     dispatch(
@@ -222,6 +225,30 @@ const InvestorDetail = (): React.ReactElement => {
     );
   }, [accountId]);
 
+  useEffect(() => {
+    const loadWhitelist = async () => {
+      if (selectedInvestorAccount.vaultAddressbookId) {
+        setLoadingWhitelist(true);
+        try {
+          const vaultRequest = await vault.getAddressbook(
+            selectedInvestorAccount.vaultAddressbookId
+          );
+          const response = await vault.sendRequest(vaultRequest);
+          setWhitelist(response.addresses); 
+        } catch (error) {
+          dispatch(
+            snackbarActions.showSnackbar({
+              message: "You don't have permissions to get whitelist.",
+              type: "error",
+            })
+          );
+        }
+        setLoadingWhitelist(false);
+      }
+    };
+    loadWhitelist();
+  }, [selectedInvestorAccount]);
+
   const onSearchTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     setSearchText(value);
@@ -245,6 +272,7 @@ const InvestorDetail = (): React.ReactElement => {
         })
       );
     } else {
+      setAccountCreating(true);
       try {
         const newAccount = { ...values };
         const vaultCreateWalletRequest = await vault.createWallet(
@@ -258,6 +286,12 @@ const InvestorDetail = (): React.ReactElement => {
         newAccount.publicAddress = response2.wallets.filter(
           (x: any) => x.id === newAccount.vaultWalletId
         )[0].address;
+
+        const createAddressbookRequest = await vault.createAddressbook();
+        const response3 = await vault.sendRequest(createAddressbookRequest);
+        newAccount.vaultAddressbookId = response3.addressBook.id;
+
+        // Manage asset permission
   
         await dispatch(
           investorDetailActions.addInvestorAccount({
@@ -275,7 +309,8 @@ const InvestorDetail = (): React.ReactElement => {
             type: "error",
           })
         );
-      } 
+      }
+      setAccountCreating(false);
     }
   };
 
@@ -502,6 +537,47 @@ const InvestorDetail = (): React.ReactElement => {
                         </Grid>
                       </Grid>
                     </Grid>
+                    <Grid item xs={12}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Grid container alignItems="center" spacing={1}>
+                            <Grid item>
+                              <Typography variant="h6">Whitelist</Typography>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                        <Grid item xs={12}>
+                          {loadingWhitelist && <Loader />}
+                          {!loadingWhitelist && (
+                            <MaterialTable
+                              columns={[
+                                {
+                                  field: "name",
+                                  title: "Name",
+                                  render: (rowData: any) => {
+                                    const { name } = rowData;
+                                    return name;
+                                  },
+                                },
+                                {
+                                  field: "address",
+                                  title: "Address",
+                                  render: (rowData: any) => {
+                                    const { address } = rowData;
+                                    return address;
+                                  },
+                                }
+                              ]}
+                              data={whitelist}
+                              options={{
+                                sorting: false,
+                                toolbar: false,
+                              }}
+                            />
+                          )}
+                        </Grid>
+                      </Grid>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
@@ -572,11 +648,11 @@ const InvestorDetail = (): React.ReactElement => {
                       variant="contained"
                       color="primary"
                       type="submit"
-                      disabled={investorAccountCreating}
+                      disabled={investorAccountCreating || accountCreating}
                     >
                       Create
                     </Button>
-                    {investorAccountCreating && (
+                    {(investorAccountCreating || accountCreating) && (
                       <CircularProgress
                         size={24}
                         className={classes.progressButton}

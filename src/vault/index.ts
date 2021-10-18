@@ -46,6 +46,8 @@ export enum VaultPermissions {
   "WalletTransaction" = "WalletTransaction",
   "CreateDeleteRuleTree" = "CreateDeleteRuleTree",
   "GetRuleTrees" = "GetRuleTrees",
+  "Execution" = "Execution",
+  "SignMessage" = "SignMessage",
   // 'Wipe' = 'Wipe',
 }
 

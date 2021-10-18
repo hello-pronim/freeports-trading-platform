@@ -33,6 +33,7 @@ const defaultInvestorAccount = {
   hdPath: "",
   balance: 0,
   balanceUpdatedAt: "",
+  vaultAddressbookId: "",
 };
 
 export const initialState: InvestorDetailState = {

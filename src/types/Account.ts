@@ -16,4 +16,6 @@ export default interface Account {
   publicAddress?: string;
 
   vaultWalletId?: string;
+
+  vaultAddressbookId?: string;
 }
