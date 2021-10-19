@@ -90,3 +90,8 @@ export const selectTradeAmount = createSelector(
   [selectDomain],
   (tradeRequestDetailState) => tradeRequestDetailState.tradeAmount
 );
+
+export const selectPriceEvents = createSelector(
+  [selectDomain],
+  (tradeRequestDetailState) => tradeRequestDetailState.priceEvents
+);

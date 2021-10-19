@@ -29,10 +29,15 @@ import {
 import { selectRemainingQuantity, selectTradeAmount } from "./selectors";
 
 import { createSocket } from "../../../../../util/socket";
+import { PriceEvent } from "./types";
 
 let ws: Socket; // define it here so it's available in return function
 
-function createEventChannel(currencyFrom: string, currencyTo: string) {
+function createEventChannel(
+  currencyFrom: string,
+  currencyTo: string,
+  tradeId: string
+) {
   return eventChannel((emit) => {
     function createWs() {
       // Subscribe to websocket
@@ -44,6 +49,7 @@ function createEventChannel(currencyFrom: string, currencyTo: string) {
           event: "subscribeToPrice",
           currencyFrom,
           currencyTo,
+          tradeId,
         });
 
         ws.on("message", (data) => {
@@ -51,7 +57,8 @@ function createEventChannel(currencyFrom: string, currencyTo: string) {
           return emit({ data: JSON.parse(data) });
         });
         ws.on("price", (data) => {
-          console.log("price", data);
+          // console.log("price", data);
+          return emit(data);
         });
         ws.on("close", (e) => {
           console.log("disonnected");
@@ -102,14 +109,15 @@ export function* retrieveTradeRequest({
       const chan = yield* call(
         createEventChannel,
         response.currencyFrom,
-        response.currencyTo
+        response.currencyTo,
+        payload.tradeId
       );
 
       try {
         while (true) {
           const price = yield take(chan);
           // put price event
-          // yield put()
+          yield put(actions.priceEvent(price as PriceEvent));
         }
       } finally {
         console.log("Channel closed");

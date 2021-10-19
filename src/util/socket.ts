@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import Lockr from "lockr";
 
 let socket: Socket;
 const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL;
