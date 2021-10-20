@@ -16,13 +16,13 @@ import {
   DialogTitle,
   Divider,
   Grid,
-  makeStyles,
   Snackbar,
   TextField,
   Typography,
   Tooltip,
-} from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { Form } from "react-final-form";
 import { TextField as MuiTextField } from "mui-rff";
 import { useProfileSlice } from "./slice";
@@ -523,7 +523,7 @@ const Profile = (): React.ReactElement => {
                     </Grid>
                   </Grid>
                   <Grid item sm={12} md={6}>
-                    <Grid container alignItems="center" justify="center">
+                    <Grid container alignItems="center" justifyContent="center">
                       <div className={classes.profileImageContainer}>
                         <Avatar
                           src={profile.avatar}

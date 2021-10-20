@@ -18,12 +18,13 @@ import {
   Grid,
   FormControl,
   ListItemText,
-  makeStyles,
   MenuItem,
   Select,
   Snackbar,
-} from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+  SelectChangeEvent,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
 
 import { useOrganization, useAccounts } from "../../../../hooks";
 import AvatarInput from "../../../../components/AvatarInput";
@@ -144,9 +145,7 @@ const AddOrganizer = (): React.ReactElement => {
     return valid;
   };
 
-  const onHandleAccountSelect = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
+  const onHandleAccountSelect = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;
     if (handleAssignCheck(value as string[]))
       setSelectedAccounts(value as string[]);
@@ -361,7 +360,7 @@ const AddOrganizer = (): React.ReactElement => {
                 </CardContent>
                 <Divider />
                 <CardActions>
-                  <Grid container justify="flex-end">
+                  <Grid container justifyContent="flex-end">
                     <div className={classes.progressButtonWrapper}>
                       <Button
                         variant="contained"

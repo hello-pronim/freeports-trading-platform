@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Avatar,
   Button,
@@ -23,12 +23,13 @@ import {
   ListItemText,
   MenuItem,
   Select,
+  SelectChangeEvent,
   Snackbar,
   TextField,
   Typography,
-} from "@material-ui/core";
-import { AddCircle, RemoveCircle } from "@material-ui/icons";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+} from "@mui/material";
+import { AddCircle, RemoveCircle } from "@mui/icons-material";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import ImageUploader from "react-images-upload";
 import { useParams, useHistory } from "react-router";
 
@@ -288,9 +289,7 @@ const EditOrganizer = (): React.ReactElement => {
     return valid;
   };
 
-  const onHandleAccountSelect = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
+  const onHandleAccountSelect = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;
     if (handleAssignCheck(value as string[]))
       setSelectedAccounts(value as string[]);
@@ -414,7 +413,11 @@ const EditOrganizer = (): React.ReactElement => {
             <Card className={classes.fullCard}>
               <CardHeader
                 title={
-                  <Grid container justify="space-between" alignItems="center">
+                  <Grid
+                    container
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
                     <Grid item>
                       <Typography variant="h5">Edit Organization</Typography>
                     </Grid>
@@ -430,7 +433,7 @@ const EditOrganizer = (): React.ReactElement => {
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <Grid container justify="center">
+                    <Grid container justifyContent="center">
                       <Grid item xs={6}>
                         <div className={classes.profileImageContainer}>
                           <Avatar
@@ -558,6 +561,7 @@ const EditOrganizer = (): React.ReactElement => {
                                   onHandleAccountUnassign(account.account)
                                 }
                                 disabled={unassigning}
+                                size="large"
                               >
                                 <RemoveCircle />
                               </IconButton>
@@ -674,7 +678,7 @@ const EditOrganizer = (): React.ReactElement => {
               </CardContent>
               <Divider />
               <CardActions>
-                <Grid container justify="flex-end">
+                <Grid container justifyContent="flex-end">
                   <Grid item>
                     <div className={classes.progressButtonWrapper}>
                       <Button
@@ -711,6 +715,7 @@ const EditOrganizer = (): React.ReactElement => {
                           aria-label="Add manager"
                           onClick={newManager}
                           className={classes.iconButton}
+                          size="large"
                         >
                           <AddCircle fontSize="large" color="primary" />
                         </IconButton>

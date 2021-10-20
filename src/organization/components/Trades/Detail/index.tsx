@@ -15,24 +15,24 @@ import {
   CardHeader,
   CircularProgress,
   Container,
-  createStyles,
   Divider,
   Grid,
-  makeStyles,
   Tabs,
   Tab,
   Theme,
   Typography,
   TextField,
-} from "@material-ui/core";
-import HistoryOutlinedIcon from "@material-ui/icons/HistoryOutlined";
-import ChatBubbleOutlineOutlinedIcon from "@material-ui/icons/ChatBubbleOutlineOutlined";
-import InsertDriveFileOutlinedIcon from "@material-ui/icons/InsertDriveFileOutlined";
-import grey from "@material-ui/core/colors/grey";
-import purple from "@material-ui/core/colors/purple";
+  useTheme,
+} from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import { BigNumber } from "bignumber.js";
 
 import { DateTime } from "luxon";
+import { green, grey, purple, red } from "@mui/material/colors";
 import brokers from "./data";
 import { useTradeDetailSlice } from "./slice";
 import {
@@ -45,6 +45,7 @@ import {
   selectRemainingQuantity,
   selectBaseCurrency,
   selectTradeAmount,
+  selectPriceEvents,
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
 import { RfqResponse } from "../../../../types/RfqResponse";
@@ -123,6 +124,12 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: -12,
       marginLeft: -12,
     },
+    bestBroker: {
+      backgroundColor: theme.palette.secondary.main,
+    },
+    bid: {
+      color: green[500],
+    },
   })
 );
 
@@ -151,10 +158,10 @@ const TradeDetail = (): React.ReactElement => {
   const dispatch = useDispatch();
   const { organizationId } = Lockr.get("USER_DATA");
   const { deskId, investorId, tradeId }: any = useParams();
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
   const tradeRequest = useSelector(selectTradeRequestDetail);
-  const tradeRequestLoading = useSelector(selectIsDetailLoading);
   const { actions: tradeDetailActions } = useTradeDetailSlice();
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const tradeRequestLoading = useSelector(selectIsDetailLoading);
   const rfqsLoading = useSelector(selectRfqsLoading);
   const orderLoading = useSelector(selectOrderLoading);
   const rfqs = useSelector(selectRfqs);
@@ -164,6 +171,9 @@ const TradeDetail = (): React.ReactElement => {
   const remainingQuantity = useSelector(selectRemainingQuantity);
   const baseCurrency = useSelector(selectBaseCurrency);
   // const tradeAmount = useSelector(selectTradeAmount);
+
+  const priceEvents = useSelector(selectPriceEvents);
+  const theme = useTheme();
 
   useEffect(() => {
     let mounted = false;
@@ -220,484 +230,265 @@ const TradeDetail = (): React.ReactElement => {
 
   return (
     <div className="main-wrapper">
-      {tradeRequestLoading && <Loader />}
-      {!tradeRequestLoading && (
-        <Container>
-          <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <Typography variant="h5">MANUAL TRADE</Typography>
-            </Grid>
-            {remainingQuantity === "0" && (
-              <Grid item xs={12}>
-                <Typography variant="h5">TRADE COMPLETED</Typography>
+      <Grid container direction="column">
+        <Grid item xs={12}>
+          <Grid container>
+            <Grid item xs={4}>
+              <Grid>
+                <Typography>Current best broker value</Typography>
               </Grid>
-            )}
-            {remainingQuantity !== "0" && (
-              <Grid item xs={12}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" style={{ fontWeight: 600 }}>
-                      {`(Amount) from (${tradeRequest.accountFrom}) to (${tradeRequest.accountTo}) (Estimated account)`}
-                    </Typography>
+              <Grid container className={classes.bestBroker}>
+                <Grid container justifyContent="space-between">
+                  <Grid item>Rate</Grid>
+                  <Grid item />
+                  <Grid item>Cumberland</Grid>
+                </Grid>
+                <Grid container justifyContent="center">
+                  <Grid container justifyContent="center">
+                    <Typography align="center">Bid</Typography>
                   </Grid>
-                  <Grid item xs={12}>
-                    <Card>
-                      <CardContent>
-                        <Grid container justify="space-between">
-                          <Grid item xs={4} md={2}>
-                            <Grid
-                              container
-                              direction="column"
-                              justify="space-between"
-                              className="h-100"
-                            >
-                              <Typography variant="subtitle2">
-                                Trade value
-                              </Typography>
-                              {/* <ButtonGroup
-                                className={classes.currencyBtnGroup}
-                                variant="contained"
-                                color="primary"
-                                size="small"
-                              >
-                                <Button>{tradeRequest.currencyTo}</Button>
-                                <Button disabled>
-                                  {tradeRequest.currencyFrom}
-                                </Button>
-                              </ButtonGroup> */}
-                            </Grid>
-                          </Grid>
-                          <Grid item xs={8} md={4}>
-                            <Box
-                              className={classes.numberInput}
-                              display="flex"
-                              flexDirection="row"
-                              alignItems="flex-end"
-                              // bgcolor="grey.300"
-                              borderRadius={16}
-                              height={100}
-                              p={2}
-                            >
-                              <Typography
-                                variant="subtitle2"
-                                color="textSecondary"
-                              >
-                                {baseCurrency}
-                              </Typography>
-                              {/* <Typography variant="h3">30</Typography> */}
-                              {/* <input
-                                onChange={handleAmountChange}
-                                type="number"
-                                value={tradeAmount}
-                                max={tradeRequest.quantity}
-                              /> */}
-                              <AmountInput />
-                            </Box>
-                          </Grid>
-                          <Grid item xs={12} md={6}>
-                            <Grid container justify="flex-end" spacing={2}>
-                              <Grid item>
-                                <Divider orientation="vertical" />
-                              </Grid>
-                              <Grid item>
-                                <Box
-                                  display="flex"
-                                  flexDirection="row"
-                                  alignItems="flex-end"
-                                  height={100}
-                                  p={2}
-                                >
-                                  <Typography
-                                    variant="subtitle2"
-                                    color="textSecondary"
-                                  >
-                                    {baseCurrency}
-                                  </Typography>
-                                  <Typography variant="h3">
-                                    {remainingQuantity}
-                                  </Typography>
-                                </Box>
-                              </Grid>
-                              <Grid item>
-                                <Box
-                                  display="flex"
-                                  flexDirection="row"
-                                  alignItems="flex-end"
-                                  height={100}
-                                  p={2}
-                                >
-                                  <Typography variant="subtitle2">
-                                    remaining of
-                                  </Typography>
-                                </Box>
-                              </Grid>
-                              <Grid item>
-                                <Box
-                                  display="flex"
-                                  flexDirection="row"
-                                  alignItems="flex-end"
-                                  height={100}
-                                  p={2}
-                                >
-                                  <Typography
-                                    variant="subtitle2"
-                                    color="textSecondary"
-                                  >
-                                    {baseCurrency}
-                                  </Typography>
-                                  <Typography variant="h3">
-                                    {tradeRequest.quantity}
-                                  </Typography>
-                                </Box>
-                              </Grid>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-                      </CardContent>
-                      <Divider className={classes.dividerColor} />
-                      <CardActions>
-                        <Grid container spacing={2}>
-                          <Grid item>
-                            <Typography variant="subtitle2">
-                              Source account balance
-                            </Typography>
-                          </Grid>
-                          <Grid item>
-                            <Typography
-                              variant="subtitle2"
-                              style={{ fontWeight: 600 }}
-                            >
-                              {tradeRequest.currencyFrom} 120&#39;000
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </CardActions>
-                    </Card>
+                  <Grid container justifyContent="center">
+                    <Typography align="center">0.074234 BTC/ETH</Typography>
                   </Grid>
                 </Grid>
-              </Grid>
-            )}
-            {rfqsLoading && <Loader />}
-            {remainingQuantity !== "0" && !rfqsLoading && rfqs.length > 0 && (
-              <Grid item xs={12}>
-                <Grid container spacing={4}>
-                  <Grid item xs={12}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <Typography variant="h6">BEST BROKER VALUE</Typography>
-                      </Grid>
-                      <Grid item xs={3}>
-                        <Card>
-                          <CardHeader
-                            title={
-                              <Typography variant="h6" align="right">
-                                {bestRfq.brokerId}
-                              </Typography>
-                            }
-                          />
-                          <Divider />
-                          <CardContent>
-                            <Grid container justify="flex-end">
-                              <Grid item>
-                                <Typography
-                                  variant="body2"
-                                  style={{
-                                    fontWeight: 600,
-                                    marginRight: "10px",
-                                  }}
-                                >
-                                  Rate
-                                </Typography>
-                                <Typography variant="h5">
-                                  {`${tradeRequest.currencyTo} `}
-                                  <AccurateNumber number={bestRfq.price} />
-                                  {`/${tradeRequest.currencyFrom}`}
-                                </Typography>
-                              </Grid>
-                            </Grid>
-                            <Grid
-                              container
-                              alignItems="center"
-                              justify="flex-end"
-                              xs={12}
-                            >
-                              <Typography
-                                variant="body2"
-                                style={{
-                                  fontWeight: 600,
-                                  marginRight: "10px",
-                                }}
-                              >
-                                {tradeRequest.currencyFrom !== baseCurrency
-                                  ? tradeRequest.currencyFrom
-                                  : tradeRequest.currencyTo}
-                              </Typography>
-                              <Typography variant="body2">
-                                <AccurateNumber
-                                  number={new BigNumber(bestRfq.price)
-                                    .times(new BigNumber(bestRfq.quantity))
-                                    .toString()}
-                                />
-                              </Typography>
-                            </Grid>
-                          </CardContent>
-                          <Divider className={classes.dividerColor} />
-                          <CardActions disableSpacing>
-                            <Grid container>
-                              <Grid item xs={12}>
-                                <div className={classes.progressButtonWrapper}>
-                                  <Button
-                                    variant="contained"
-                                    className="w-100"
-                                    color="primary"
-                                    onClick={() => handleOnOrder(bestRfq)}
-                                    disabled={orderLoading}
-                                  >
-                                    Click to order!
-                                  </Button>
-                                  {orderLoading && (
-                                    <CircularProgress
-                                      size={24}
-                                      className={classes.progressButton}
-                                    />
-                                  )}
-                                </div>
-                              </Grid>
-                            </Grid>
-                          </CardActions>
-                        </Card>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <Typography variant="h6">ALL BROKERS</Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Grid container spacing={2}>
-                          {rfqs.map((rfq: any) => (
-                            <Grid key={rfq.id} item xs={3}>
-                              <Card className="w-100">
-                                <CardContent>
-                                  <Grid container justify="flex-end">
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {rfq.brokerId}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    justify="flex-end"
-                                    xs={12}
-                                  >
-                                    <Typography
-                                      variant="body2"
-                                      style={{
-                                        fontWeight: 600,
-                                        marginRight: "10px",
-                                      }}
-                                    >
-                                      {tradeRequest.currencyFrom !==
-                                      baseCurrency
-                                        ? tradeRequest.currencyFrom
-                                        : tradeRequest.currencyTo}
-                                    </Typography>
-                                    <Typography variant="h5">
-                                      <AccurateNumber
-                                        number={new BigNumber(rfq.price)
-                                          .times(new BigNumber(rfq.quantity))
-                                          .toString()}
-                                      />
-                                    </Typography>
-                                  </Grid>
-                                  <Grid container justify="flex-end">
-                                    <Grid item>
-                                      <Grid container spacing={1}>
-                                        <Grid item>
-                                          <Typography
-                                            variant="body2"
-                                            style={{
-                                              fontWeight: 600,
-                                              marginRight: "10px",
-                                            }}
-                                          >
-                                            Rate
-                                          </Typography>
-                                        </Grid>
-                                        <Grid item>
-                                          <Typography variant="body2">
-                                            {`${tradeRequest.currencyTo} `}
-                                            <AccurateNumber
-                                              number={rfq.price}
-                                            />
-                                            {`/${tradeRequest.currencyFrom}`}
-                                          </Typography>
-                                        </Grid>
-                                      </Grid>
-                                    </Grid>
-                                  </Grid>
-                                </CardContent>
-                                <Divider className={classes.dividerColor} />
-                                <CardActions disableSpacing>
-                                  <Grid container>
-                                    <Grid item xs={12}>
-                                      <div
-                                        className={
-                                          classes.progressButtonWrapper
-                                        }
-                                      >
-                                        <Button
-                                          variant="outlined"
-                                          color="primary"
-                                          className="w-100"
-                                          onClick={() => handleOnOrder(rfq)}
-                                          disabled={orderLoading}
-                                        >
-                                          Click to order!
-                                        </Button>
-                                        {orderLoading && (
-                                          <CircularProgress
-                                            size={24}
-                                            className={classes.progressButton}
-                                          />
-                                        )}
-                                      </div>
-                                    </Grid>
-                                  </Grid>
-                                </CardActions>
-                              </Card>
-                            </Grid>
-                          ))}
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            )}
-
-            <Grid item xs={12}>
-              <AppBar position="static" color="inherit">
-                <Tabs
-                  value={activeTabIndex}
-                  onChange={handleTabChange}
-                  variant="scrollable"
-                  scrollButtons="off"
-                  indicatorColor="primary"
-                  aria-label="tabs"
+                <Grid
+                  container
+                  alignItems="center"
+                  justifyContent="center"
+                  direction="row"
                 >
-                  <Tab
-                    icon={<HistoryOutlinedIcon />}
-                    aria-label="phone"
-                    id="scrollable-prevent-tab-0"
-                  />
-                  <Tab
-                    icon={<ChatBubbleOutlineOutlinedIcon />}
-                    aria-label="favorite"
-                    id="scrollable-prevent-tab-1"
-                  />
-                  <Tab
-                    icon={<InsertDriveFileOutlinedIcon />}
-                    aria-label="person"
-                    id="scrollable-prevent-tab-2"
-                  />
-                  <Tab
-                    icon={<Typography variant="subtitle2">Brokers</Typography>}
-                    aria-label="help"
-                    id="scrollable-prevent-tab-3"
-                  />
-                </Tabs>
-              </AppBar>
-              <TabPanel
-                className={classes.tabPanel}
-                value={activeTabIndex}
-                index={0}
-              >
-                <MaterialTable
-                  columns={[
-                    {
-                      field: "createdAt",
-                      title: "Date",
-                      cellStyle: {
-                        width: "12%",
-                      },
-                      render: ({ createdAt }: any) =>
-                        createdAt
-                          ? DateTime.fromISO(createdAt).toFormat(
-                              "y'-'MM'-'dd' 'HH':'mm':'ss"
-                            )
-                          : "",
-                    },
-                    {
-                      field: "brokerId",
-                      title: "Broker",
-                      cellStyle: {
-                        width: "12%",
-                      },
-                    },
-                    {
-                      field: "quantity",
-                      title: "Quantity",
-                      cellStyle: {
-                        width: "12%",
-                      },
-                    },
-                    {
-                      field: "price",
-                      title: "price",
-                      cellStyle: {
-                        width: "12%",
-                      },
-                      render: ({ price, baseCurrency: currency }: any) => (
-                        <>
-                          <AccurateNumber number={price} />
-                          {currency}
-                        </>
-                      ),
-                    },
-                  ]}
-                  data={
-                    tradeRequest.orders
-                      ? tradeRequest.orders.map((order) => ({
-                          ...order,
-                          baseCurrency,
-                        }))
-                      : []
-                  }
-                  options={{
-                    toolbar: false,
-                    paging: false,
-                  }}
-                />
-              </TabPanel>
-              <TabPanel
-                className={classes.tabPanel}
-                value={activeTabIndex}
-                index={1}
-              >
-                Tab Content 2
-              </TabPanel>
-              <TabPanel
-                className={classes.tabPanel}
-                value={activeTabIndex}
-                index={2}
-              >
-                Tab Content 3
-              </TabPanel>
-              <TabPanel
-                className={classes.tabPanel}
-                value={activeTabIndex}
-                index={3}
-              >
-                Tab Content 4
-              </TabPanel>
+                  <Button>SELECT </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={8}>
+              <Grid container direction="column">
+                <Grid item>
+                  <Typography>Current tranche Execution</Typography>
+                </Grid>
+                <Grid item>
+                  <Grid
+                    container
+                    direction="row"
+                    justifyContent="space-between"
+                  >
+                    <Grid>Broker</Grid>
+                    <Grid>Direction</Grid>
+                    <Grid>Order type</Grid>
+                  </Grid>
+                  <Grid container>
+                    <Grid item xs={5} color={theme.palette.secondary.light}>
+                      <Grid container justifyContent="center">
+                        <Grid container justifyContent="center">
+                          <Typography sx={{ color: green[600] }} align="center">
+                            Bid
+                          </Typography>
+                        </Grid>
+                        <Grid container justifyContent="center">
+                          <Typography align="center">0.074234</Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={2}>
+                      Spread
+                    </Grid>
+                    <Grid item xs={5}>
+                      <Grid container justifyContent="center">
+                        <Grid container justifyContent="center">
+                          <Typography sx={{ color: red[600] }} align="center">
+                            Ask
+                          </Typography>
+                        </Grid>
+                        <Grid container justifyContent="center">
+                          <Typography align="center">0.074234</Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
-        </Container>
-      )}{" "}
+        </Grid>
+
+        <Grid item xs={12}>
+          <Grid container>
+            {priceEvents.map((priceEvent) => (
+              <Grid item xs={12} md={4}>
+                <Grid container direction="column">
+                  <Grid item>
+                    <Grid
+                      container
+                      justifyContent="space-between"
+                      direction="row"
+                    >
+                      <Grid>Rate</Grid>
+                      <Grid>Last RFQ for value </Grid>
+                      <Grid>{priceEvent.broker}</Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid container>
+                    <Grid item xs={5} color={theme.palette.secondary.light}>
+                      <Grid container justifyContent="center">
+                        <Grid container justifyContent="center">
+                          <Typography sx={{ color: green[600] }} align="center">
+                            Bid
+                          </Typography>
+                        </Grid>
+                        <Grid container justifyContent="center">
+                          <Typography align="center">
+                            {priceEvent.buy}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={2}>
+                      Spread
+                    </Grid>
+                    <Grid item xs={5}>
+                      <Grid container justifyContent="center">
+                        <Grid container justifyContent="center">
+                          <Typography sx={{ color: red[600] }} align="center">
+                            Ask
+                          </Typography>
+                        </Grid>
+                        <Grid container justifyContent="center">
+                          <Typography align="center">
+                            {priceEvent.sell}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item>
+                    <Grid container justifyContent="center">
+                      <Button>SELECT </Button>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            ))}
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <Grid>
+            <AppBar position="static" color="inherit">
+              <Tabs
+                value={activeTabIndex}
+                onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons={false}
+                indicatorColor="primary"
+                aria-label="tabs"
+              >
+                <Tab
+                  icon={<HistoryOutlinedIcon />}
+                  aria-label="phone"
+                  id="scrollable-prevent-tab-0"
+                />
+                <Tab
+                  icon={<ChatBubbleOutlineOutlinedIcon />}
+                  aria-label="favorite"
+                  id="scrollable-prevent-tab-1"
+                />
+                <Tab
+                  icon={<InsertDriveFileOutlinedIcon />}
+                  aria-label="person"
+                  id="scrollable-prevent-tab-2"
+                />
+                <Tab
+                  icon={<Typography variant="subtitle2">Brokers</Typography>}
+                  aria-label="help"
+                  id="scrollable-prevent-tab-3"
+                />
+              </Tabs>
+            </AppBar>
+            <TabPanel
+              className={classes.tabPanel}
+              value={activeTabIndex}
+              index={0}
+            >
+              <MaterialTable
+                columns={[
+                  {
+                    field: "createdAt",
+                    title: "Date",
+                    cellStyle: {
+                      width: "12%",
+                    },
+                    render: ({ createdAt }: any) =>
+                      createdAt
+                        ? DateTime.fromISO(createdAt).toFormat(
+                            "y'-'MM'-'dd' 'HH':'mm':'ss"
+                          )
+                        : "",
+                  },
+                  {
+                    field: "brokerId",
+                    title: "Broker",
+                    cellStyle: {
+                      width: "12%",
+                    },
+                  },
+                  {
+                    field: "quantity",
+                    title: "Quantity",
+                    cellStyle: {
+                      width: "12%",
+                    },
+                  },
+                  {
+                    field: "price",
+                    title: "price",
+                    cellStyle: {
+                      width: "12%",
+                    },
+                    render: ({ price, baseCurrency: currency }: any) => (
+                      <>
+                        <AccurateNumber number={price} />
+                        {currency}
+                      </>
+                    ),
+                  },
+                ]}
+                data={
+                  tradeRequest.orders
+                    ? tradeRequest.orders.map((order) => ({
+                        ...order,
+                        baseCurrency,
+                      }))
+                    : []
+                }
+                options={{
+                  toolbar: false,
+                  paging: false,
+                }}
+              />
+            </TabPanel>
+            <TabPanel
+              className={classes.tabPanel}
+              value={activeTabIndex}
+              index={1}
+            >
+              Tab Content 2
+            </TabPanel>
+            <TabPanel
+              className={classes.tabPanel}
+              value={activeTabIndex}
+              index={2}
+            >
+              Tab Content 3
+            </TabPanel>
+            <TabPanel
+              className={classes.tabPanel}
+              value={activeTabIndex}
+              index={3}
+            >
+              Tab Content 4
+            </TabPanel>
+          </Grid>
+        </Grid>
+      </Grid>
     </div>
   );
 };

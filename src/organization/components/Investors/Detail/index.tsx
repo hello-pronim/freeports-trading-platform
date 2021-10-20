@@ -8,12 +8,13 @@ import { Link } from "react-router-dom";
 import { Field, Form } from "react-final-form";
 import arrayMutators from "final-form-arrays";
 import { TextField as MuiTextField, Select as MuiSelect } from "mui-rff";
+import Lock from "@mui/icons-material/Lock";
+
 import {
   Box,
   Button,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -28,7 +29,6 @@ import {
   ListItem,
   ListItemText,
   List,
-  makeStyles,
   Snackbar,
   Tabs,
   Tab,
@@ -36,15 +36,17 @@ import {
   Theme,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import CompareArrowsIcon from "@material-ui/icons/CompareArrows";
-import SearchIcon from "@material-ui/icons/Search";
-import DeleteIcon from "@material-ui/icons/Delete";
-import Lock from "@material-ui/icons/Lock";
-import VisibilityIcon from "@material-ui/icons/Visibility";
+} from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
+import SearchIcon from "@mui/icons-material/Search";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import MaterialTable from "material-table";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
 
 import { trades } from "./data";
 import { useInvestorsSlice } from "../slice";
@@ -272,11 +274,7 @@ const TabPanel = (props: any) => {
       aria-labelledby={`scrollable-prevent-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box>{children}</Box>}
     </div>
   );
 };
@@ -559,7 +557,9 @@ const InvestorDetail = (): React.ReactElement => {
   };
 
   const handleAccountCreate = async (values: Account) => {
-    const sameAccount = investorAccounts.filter(x => x.currency === values.currency);
+    const sameAccount = investorAccounts.filter(
+      (x) => x.currency === values.currency
+    );
     if (sameAccount.length) {
       dispatch(
         snackbarActions.showSnackbar({
@@ -576,7 +576,7 @@ const InvestorDetail = (): React.ReactElement => {
         );
         const response = await vault.sendRequest(vaultCreateWalletRequest);
         newAccount.vaultWalletId = response.wallet.id;
-  
+
         const vaultGetWalletsRequest = await vault.getAllWallets();
         const response2 = await vault.sendRequest(vaultGetWalletsRequest);
         newAccount.publicAddress = response2.wallets.filter(
@@ -586,7 +586,7 @@ const InvestorDetail = (): React.ReactElement => {
         const createAddressbookRequest = await vault.createAddressbook();
         const response3 = await vault.sendRequest(createAddressbookRequest);
         newAccount.vaultAddressbookId = response3.addressBook.id;
-  
+
         await dispatch(
           investorDetailActions.addInvestorAccount({
             organizationId,
@@ -681,10 +681,10 @@ const InvestorDetail = (): React.ReactElement => {
       const request = await vault.getAssetPermissions(
         VaultAssetType.ADDRESS_BOOK,
         account.vaultAddressbookId as string,
-        true,
+        true
       );
       const permissions = await vault.sendRequest(request);
-      
+
       const addRemoveAddress: string[] = [];
       const aCreateDeleteRuleTree: string[] = [];
       const aGetRuleTrees: string[] = [];
@@ -707,10 +707,10 @@ const InvestorDetail = (): React.ReactElement => {
       const request2 = await vault.getAssetPermissions(
         VaultAssetType.WALLET,
         account.vaultWalletId as string,
-        true,
+        true
       );
       const permissions2 = await vault.sendRequest(request2);
-      
+
       const execution: string[] = [];
       const getWalletDetails: string[] = [];
       const transaction: string[] = [];
@@ -751,9 +751,9 @@ const InvestorDetail = (): React.ReactElement => {
         transaction,
         wCreateDeleteRuleTree,
         wGetRuleTrees,
-        signMessage
-      })
-      setLockModalView(true); 
+        signMessage,
+      });
+      setLockModalView(true);
     } catch (error) {
       dispatch(
         snackbarActions.showSnackbar({
@@ -776,52 +776,58 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           addRemoveAddressNew.push(x);
         }
-      })
+      });
       await vault.authenticate();
-      await Promise.all(addRemoveAddressOld.map(async (vaultGroupId: string) => {
-        const request1 = await vault.revokePermissionFromAsset(
-          VaultAssetType.ADDRESS_BOOK,
-          lockingAccount.vaultAddressbookId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.AddRemoveAddress,
-          true,
-        );
-        await vault.sendRequest(request1);
+      await Promise.all(
+        addRemoveAddressOld.map(async (vaultGroupId: string) => {
+          const request1 = await vault.revokePermissionFromAsset(
+            VaultAssetType.ADDRESS_BOOK,
+            lockingAccount.vaultAddressbookId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.AddRemoveAddress,
+            true
+          );
+          await vault.sendRequest(request1);
 
-        const request2 = await vault.revokePermissionFromAsset(
-          VaultAssetType.ADDRESS_BOOK,
-          lockingAccount.vaultAddressbookId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetAddressBookDetails,
-          true,
-        );
-        await vault.sendRequest(request2);
-      }));
-      await Promise.all(addRemoveAddressNew.map(async (vaultGroupId: string) => {
-        const request1 = await vault.grantPermissionToAsset(
-          VaultAssetType.ADDRESS_BOOK,
-          lockingAccount.vaultAddressbookId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.AddRemoveAddress,
-          true,
-        );
-        await vault.sendRequest(request1);
+          const request2 = await vault.revokePermissionFromAsset(
+            VaultAssetType.ADDRESS_BOOK,
+            lockingAccount.vaultAddressbookId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetAddressBookDetails,
+            true
+          );
+          await vault.sendRequest(request2);
+        })
+      );
+      await Promise.all(
+        addRemoveAddressNew.map(async (vaultGroupId: string) => {
+          const request1 = await vault.grantPermissionToAsset(
+            VaultAssetType.ADDRESS_BOOK,
+            lockingAccount.vaultAddressbookId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.AddRemoveAddress,
+            true
+          );
+          await vault.sendRequest(request1);
 
-        const request2 = await vault.grantPermissionToAsset(
-          VaultAssetType.ADDRESS_BOOK,
-          lockingAccount.vaultAddressbookId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetAddressBookDetails,
-          true,
-        );
-        await vault.sendRequest(request2);
-      }));
+          const request2 = await vault.grantPermissionToAsset(
+            VaultAssetType.ADDRESS_BOOK,
+            lockingAccount.vaultAddressbookId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetAddressBookDetails,
+            true
+          );
+          await vault.sendRequest(request2);
+        })
+      );
 
-      const aCreateDeleteRuleTreeOld = [...lockPermissions.aCreateDeleteRuleTree];
+      const aCreateDeleteRuleTreeOld = [
+        ...lockPermissions.aCreateDeleteRuleTree,
+      ];
       const aCreateDeleteRuleTreeNew: string[] = [];
       values.aCreateDeleteRuleTree.forEach((x: string) => {
         const index = aCreateDeleteRuleTreeOld.indexOf(x);
@@ -830,29 +836,33 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           aCreateDeleteRuleTreeNew.push(x);
         }
-      })
-      await Promise.all(aCreateDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.ADDRESS_BOOK,
-          lockingAccount.vaultAddressbookId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.CreateDeleteRuleTree,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(aCreateDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.ADDRESS_BOOK,
-          lockingAccount.vaultAddressbookId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.CreateDeleteRuleTree,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        aCreateDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.ADDRESS_BOOK,
+            lockingAccount.vaultAddressbookId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.CreateDeleteRuleTree,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        aCreateDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.ADDRESS_BOOK,
+            lockingAccount.vaultAddressbookId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.CreateDeleteRuleTree,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       const aGetRuleTreesOld = [...lockPermissions.aGetRuleTrees];
       const aGetRuleTreesNew: string[] = [];
@@ -863,29 +873,33 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           aGetRuleTreesNew.push(x);
         }
-      })
-      await Promise.all(aGetRuleTreesOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.ADDRESS_BOOK,
-          lockingAccount.vaultAddressbookId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetRuleTrees,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(aGetRuleTreesNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.ADDRESS_BOOK,
-          lockingAccount.vaultAddressbookId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetRuleTrees,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        aGetRuleTreesOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.ADDRESS_BOOK,
+            lockingAccount.vaultAddressbookId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetRuleTrees,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        aGetRuleTreesNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.ADDRESS_BOOK,
+            lockingAccount.vaultAddressbookId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetRuleTrees,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       const executionOld = [...lockPermissions.execution];
       const executionNew: string[] = [];
@@ -896,29 +910,33 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           executionNew.push(x);
         }
-      })
-      await Promise.all(executionOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.Execution,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(executionNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.Execution,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        executionOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.Execution,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        executionNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.Execution,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       const getWalletDetailsOld = [...lockPermissions.getWalletDetails];
       const getWalletDetailsNew: string[] = [];
@@ -929,29 +947,33 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           getWalletDetailsNew.push(x);
         }
-      })
-      await Promise.all(getWalletDetailsOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetWalletDetails,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(getWalletDetailsNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetWalletDetails,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        getWalletDetailsOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetWalletDetails,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        getWalletDetailsNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetWalletDetails,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       const transactionOld = [...lockPermissions.transaction];
       const transactionNew: string[] = [];
@@ -962,31 +984,37 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           transactionNew.push(x);
         }
-      })
-      await Promise.all(transactionOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.Transaction,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(transactionNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.Transaction,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        transactionOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.Transaction,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        transactionNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.Transaction,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
-      const wCreateDeleteRuleTreeOld = [...lockPermissions.wCreateDeleteRuleTree];
+      const wCreateDeleteRuleTreeOld = [
+        ...lockPermissions.wCreateDeleteRuleTree,
+      ];
       const wCreateDeleteRuleTreeNew: string[] = [];
       values.wCreateDeleteRuleTree.forEach((x: string) => {
         const index = wCreateDeleteRuleTreeOld.indexOf(x);
@@ -995,29 +1023,33 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           wCreateDeleteRuleTreeNew.push(x);
         }
-      })
-      await Promise.all(wCreateDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.CreateDeleteRuleTree,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(wCreateDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.CreateDeleteRuleTree,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        wCreateDeleteRuleTreeOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.CreateDeleteRuleTree,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        wCreateDeleteRuleTreeNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.CreateDeleteRuleTree,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       const wGetRuleTreesOld = [...lockPermissions.wGetRuleTrees];
       const wGetRuleTreesNew: string[] = [];
@@ -1028,29 +1060,33 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           wGetRuleTreesNew.push(x);
         }
-      })
-      await Promise.all(wGetRuleTreesOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetRuleTrees,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(wGetRuleTreesNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.GetRuleTrees,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        wGetRuleTreesOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetRuleTrees,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        wGetRuleTreesNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.GetRuleTrees,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       const signMessageOld = [...lockPermissions.signMessage];
       const signMessageNew: string[] = [];
@@ -1061,29 +1097,33 @@ const InvestorDetail = (): React.ReactElement => {
         } else {
           signMessageNew.push(x);
         }
-      })
-      await Promise.all(signMessageOld.map(async (vaultGroupId: string) => {
-        const request = await vault.revokePermissionFromAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.SignMessage,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
-      await Promise.all(signMessageNew.map(async (vaultGroupId: string) => {
-        const request = await vault.grantPermissionToAsset(
-          VaultAssetType.WALLET,
-          lockingAccount.vaultWalletId,
-          PermissionOwnerType.group,
-          vaultGroupId,
-          VaultPermissions.SignMessage,
-          true,
-        );
-        await vault.sendRequest(request);
-      }));
+      });
+      await Promise.all(
+        signMessageOld.map(async (vaultGroupId: string) => {
+          const request = await vault.revokePermissionFromAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.SignMessage,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
+      await Promise.all(
+        signMessageNew.map(async (vaultGroupId: string) => {
+          const request = await vault.grantPermissionToAsset(
+            VaultAssetType.WALLET,
+            lockingAccount.vaultWalletId,
+            PermissionOwnerType.group,
+            vaultGroupId,
+            VaultPermissions.SignMessage,
+            true
+          );
+          await vault.sendRequest(request);
+        })
+      );
 
       dispatch(
         snackbarActions.showSnackbar({
@@ -1101,7 +1141,7 @@ const InvestorDetail = (): React.ReactElement => {
       );
     }
     setLockModalProcessing(false);
-  }
+  };
 
   const handleTabChange = (event: any, newValue: number) => {
     setActiveTabIndex(newValue);
@@ -1118,6 +1158,7 @@ const InvestorDetail = (): React.ReactElement => {
                   color="inherit"
                   aria-label="Back"
                   onClick={handleBackClick}
+                  size="large"
                 >
                   <ArrowBackIosIcon fontSize="small" color="primary" />
                 </IconButton>
@@ -1127,7 +1168,7 @@ const InvestorDetail = (): React.ReactElement => {
                   container
                   item
                   alignItems="center"
-                  justify="space-between"
+                  justifyContent="space-between"
                 >
                   <Typography variant="h5">
                     {`Investor ID: ${selectedInvestor.id}`}
@@ -1199,7 +1240,7 @@ const InvestorDetail = (): React.ReactElement => {
                           <Grid
                             container
                             alignItems="center"
-                            justify="space-between"
+                            justifyContent="space-between"
                           >
                             <Grid item>
                               <Typography variant="h6">
@@ -1384,6 +1425,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 aria-label="Add"
                                 className={classes.addButton}
                                 onClick={handleCreateAccountModalOpen}
+                                size="large"
                               >
                                 <Icon fontSize="large">add_circle</Icon>
                               </IconButton>
@@ -1455,16 +1497,19 @@ const InvestorDetail = (): React.ReactElement => {
                                             onClickLockPermission(rowData)
                                           }
                                           disabled={
-                                            !vault.checkUserLockUsability(currentUser)
+                                            !vault.checkUserLockUsability(
+                                              currentUser
+                                            )
                                           }
                                         >
-                                          <Lock fontSize="default" />
+                                          <Lock fontSize="medium" />
                                         </IconButton>
                                         <IconButton
                                           color="inherit"
                                           onClick={() =>
                                             handleAccountDelete(id)
                                           }
+                                          size="large"
                                         >
                                           <DeleteIcon
                                             fontSize="small"
@@ -1498,7 +1543,7 @@ const InvestorDetail = (): React.ReactElement => {
                         <Grid item xs={12}>
                           <Grid
                             container
-                            justify="space-between"
+                            justifyContent="space-between"
                             alignItems="center"
                           >
                             <Grid item>
@@ -1513,6 +1558,7 @@ const InvestorDetail = (): React.ReactElement => {
                                     color="primary"
                                     aria-label="Add"
                                     className={classes.addButton}
+                                    size="large"
                                   >
                                     <Icon fontSize="large">add_circle</Icon>
                                   </IconButton>
@@ -1755,9 +1801,7 @@ const InvestorDetail = (): React.ReactElement => {
               values,
             }) => (
               <form onSubmit={handleSubmit} noValidate>
-                <DialogTitle id="form-dialog-title">
-                  Create account
-                </DialogTitle>
+                <DialogTitle id="form-dialog-title">Create account</DialogTitle>
                 <Divider />
                 <DialogContent>
                   <Grid container spacing={2}>
@@ -2162,440 +2206,378 @@ const InvestorDetail = (): React.ReactElement => {
         </Dialog>
       </Container>
       <Dialog
-          open={lockModalView}
-          onClose={() => {
-            setLockModalView(false);
-          }}
-          aria-labelledby="form-dialog-title"
-        >
-          <Form
-            onSubmit={handleLockPermission}
-            initialValues={lockPermissions}
-            render={({
-              handleSubmit,
-            }) => (
-              <form onSubmit={handleSubmit} noValidate>
-                <DialogTitle id="form-dialog-title">
-                  Unlock Permissions ({lockingAccount.id})
-                </DialogTitle>
-                <Divider />
-                <DialogContent>
-                  <Tabs
-                    value={activeTabIndex}
-                    onChange={handleTabChange}  
-                    variant="scrollable"
-                    scrollButtons="off"
-                    indicatorColor="primary"
-                    aria-label="tabs"
-                  >
-                    <Tab
-                      label="Wallet"
-                      id="scrollable-prevent-tab-0"
-                    />
-                    <Tab
-                      label="Addressbook"
-                      id="scrollable-prevent-tab-1"
-                    />
-                  </Tabs>
-                  <TabPanel
-                    className={classes.tabPanel}
-                    value={activeTabIndex}
-                    index={0}
-                  >
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
+        open={lockModalView}
+        onClose={() => {
+          setLockModalView(false);
+        }}
+        aria-labelledby="form-dialog-title"
+      >
+        <Form
+          onSubmit={handleLockPermission}
+          initialValues={lockPermissions}
+          render={({ handleSubmit }) => (
+            <form onSubmit={handleSubmit} noValidate>
+              <DialogTitle id="form-dialog-title">
+                Unlock Permissions ({lockingAccount.id})
+              </DialogTitle>
+              <Divider />
+              <DialogContent>
+                <Tabs
+                  value={activeTabIndex}
+                  onChange={handleTabChange}
+                  variant="scrollable"
+                  scrollButtons={false}
+                  indicatorColor="primary"
+                  aria-label="tabs"
+                >
+                  <Tab label="Wallet" id="scrollable-prevent-tab-0" />
+                  <Tab label="Addressbook" id="scrollable-prevent-tab-1" />
+                </Tabs>
+                <TabPanel
+                  className={classes.tabPanel}
+                  value={activeTabIndex}
+                  index={0}
+                >
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
                         >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            Execution
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="execution[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
+                          Execution
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="execution[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
-                        >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            GetWalletDetails
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="getWalletDetails[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
-                        >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            Transaction
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="transaction[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
-                        >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            Create Rules (CreateDeleteRuleTree)
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="wCreateDeleteRuleTree[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
-                        >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            Display Rules (GetRuleTrees)
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="wGetRuleTrees[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
-                        >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            SignMessage
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="signMessage[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
                     </Grid>
-                  </TabPanel>
-                  <TabPanel
-                    className={classes.tabPanel}
-                    value={activeTabIndex}
-                    index={1}
-                  >
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
                         >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            AddRemoveAddress
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="addRemoveAddress[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
+                          GetWalletDetails
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="getWalletDetails[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
                                   </Grid>
                                 </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
-                        >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            Create Rules (CreateDeleteRuleTree)
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="aCreateDeleteRuleTree[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormGroup
-                          className={classes.roleContainer}
-                        >
-                          <FormLabel
-                            component="legend"
-                            className={classes.roleName}
-                          >
-                            Display Rules (GetRuleTrees)
-                          </FormLabel>
-                          <Grid container>
-                            {orgRoles.concat(multiDeskRoles, deskRoles).map(
-                              (x) => (
-                                <Grid item key={x.vaultGroupId} xs={2}>
-                                  <Grid
-                                    container
-                                    alignItems="center"
-                                    spacing={1}
-                                  >
-                                    <Grid item>
-                                      <Field
-                                        name="aGetRuleTrees[]"
-                                        component="input"
-                                        type="checkbox"
-                                        value={x.vaultGroupId}
-                                      />
-                                    </Grid>
-                                    <Grid item>
-                                      <Typography variant="body1">
-                                        {x.name}
-                                      </Typography>
-                                    </Grid>
-                                  </Grid>
-                                </Grid>
-                              )
-                            )}
-                          </Grid>
-                        </FormGroup>
-                      </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
                     </Grid>
-                  </TabPanel>
-                </DialogContent>
-                <Divider />
-                <DialogActions>
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          Transaction
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="transaction[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          Create Rules (CreateDeleteRuleTree)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="wCreateDeleteRuleTree[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          Display Rules (GetRuleTrees)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="wGetRuleTrees[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          SignMessage
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="signMessage[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                  </Grid>
+                </TabPanel>
+                <TabPanel
+                  className={classes.tabPanel}
+                  value={activeTabIndex}
+                  index={1}
+                >
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          AddRemoveAddress
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="addRemoveAddress[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          Create Rules (CreateDeleteRuleTree)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="aCreateDeleteRuleTree[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormGroup className={classes.roleContainer}>
+                        <FormLabel
+                          component="legend"
+                          className={classes.roleName}
+                        >
+                          Display Rules (GetRuleTrees)
+                        </FormLabel>
+                        <Grid container>
+                          {orgRoles
+                            .concat(multiDeskRoles, deskRoles)
+                            .map((x) => (
+                              <Grid item key={x.vaultGroupId} xs={2}>
+                                <Grid container alignItems="center" spacing={1}>
+                                  <Grid item>
+                                    <Field
+                                      name="aGetRuleTrees[]"
+                                      component="input"
+                                      type="checkbox"
+                                      value={x.vaultGroupId}
+                                    />
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant="body1">
+                                      {x.name}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            ))}
+                        </Grid>
+                      </FormGroup>
+                    </Grid>
+                  </Grid>
+                </TabPanel>
+              </DialogContent>
+              <Divider />
+              <DialogActions>
+                <Button
+                  onClick={() => {
+                    setLockModalView(false);
+                  }}
+                  variant="contained"
+                >
+                  Cancel
+                </Button>
+                <div className={classes.progressButtonWrapper}>
                   <Button
-                    onClick={() => {
-                      setLockModalView(false);
-                    }}
                     variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={lockModalProcessing}
                   >
-                    Cancel
+                    Save
                   </Button>
-                  <div className={classes.progressButtonWrapper}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      type="submit"
-                      disabled={lockModalProcessing}
-                    >
-                      Save
-                    </Button>
-                    {lockModalProcessing && (
-                      <CircularProgress
-                        size={24}
-                        className={classes.progressButton}
-                      />
-                    )}
-                  </div>
-                </DialogActions>
-              </form>
-            )}
-          />
-        </Dialog>
+                  {lockModalProcessing && (
+                    <CircularProgress
+                      size={24}
+                      className={classes.progressButton}
+                    />
+                  )}
+                </div>
+              </DialogActions>
+            </form>
+          )}
+        />
+      </Dialog>
     </div>
   );
 };

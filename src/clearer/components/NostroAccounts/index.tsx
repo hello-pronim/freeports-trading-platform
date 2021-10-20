@@ -9,7 +9,6 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -17,19 +16,20 @@ import {
   Divider,
   Grid,
   IconButton,
-  makeStyles,
   CircularProgress,
   Theme,
   Typography,
   Snackbar,
-} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
-import red from "@material-ui/core/colors/red";
+} from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialTable from "material-table";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
-
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import { red } from "@mui/material/colors";
 import { useAccountsSlice } from "./slice";
+
 import {
   selectAccounts,
   selectIsAccountsLoading,
@@ -38,9 +38,7 @@ import {
 } from "./slice/selectors";
 import Loader from "../../../components/Loader";
 import vault from "../../../vault";
-import {
-  selectClearerSettings,
-} from "../Settings/slice/selectors";
+import { selectClearerSettings } from "../Settings/slice/selectors";
 import { useClearerSettingsSlice } from "../Settings/slice";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -218,6 +216,7 @@ const NostroAccounts = (): React.ReactElement => {
             className={classes.deleteButton}
             onClick={() => handleAccountDelete(id)}
             disabled={deletingAccount}
+            size="large"
           >
             <DeleteIcon />
           </IconButton>
@@ -264,7 +263,7 @@ const NostroAccounts = (): React.ReactElement => {
       <Container>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <Grid container justify="space-between">
+            <Grid container justifyContent="space-between">
               <Grid item>
                 <Typography variant="h5">NOSTRO ACCOUNTS</Typography>
               </Grid>
@@ -420,7 +419,7 @@ const NostroAccounts = (): React.ReactElement => {
                         validate={cryptoAddressFormvalidate}
                         initialValues={{
                           name: "",
-                          currency: "BTC"
+                          currency: "BTC",
                         }}
                         render={({ handleSubmit, pristine }) => (
                           <form onSubmit={handleSubmit} noValidate>

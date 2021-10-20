@@ -1,13 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Suspense } from "react";
 import { Route } from "react-router-dom";
-import {
-  Backdrop,
-  CircularProgress,
-  createStyles,
-  makeStyles,
-  Theme,
-} from "@material-ui/core";
+import { Backdrop, CircularProgress, Theme } from "@mui/material";
+
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 
 import RouteCompProps from "./routeCompProps";
 

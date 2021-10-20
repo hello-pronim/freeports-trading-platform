@@ -6,7 +6,8 @@ import { Field, Form } from "react-final-form";
 import { TextField, Select } from "mui-rff";
 import arrayMutators from "final-form-arrays";
 import { FieldArray } from "react-final-form-arrays";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import {
   Avatar,
   Button,
@@ -24,7 +25,7 @@ import {
   Grid,
   Theme,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { useClearerSettingsSlice } from "./slice";
 import {
   selectClearerSettings,
@@ -291,7 +292,7 @@ const Settings = (): React.ReactElement => {
                         <Divider />
                       </Grid>
                       <Grid item xs={12}>
-                        <Grid container justify="flex-end" spacing={1}>
+                        <Grid container justifyContent="flex-end" spacing={1}>
                           <Grid item>
                             <div className={classes.progressButtonWrapper}>
                               <Button

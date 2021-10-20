@@ -12,11 +12,11 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  makeStyles,
   Menu,
   MenuItem,
   Toolbar,
-} from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   ChevronRight,
   ExpandMore,
@@ -24,13 +24,13 @@ import {
   Notifications,
   Person,
   Settings,
-} from "@material-ui/icons";
-import Brightness4Icon from "@material-ui/icons/Brightness4";
-import Brightness7Icon from "@material-ui/icons/Brightness7";
-import ContactsIcon from "@material-ui/icons/Contacts";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import GroupIcon from "@material-ui/icons/Group";
-import SendIcon from "@material-ui/icons/Send";
+} from "@mui/icons-material";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import ContactsIcon from "@mui/icons-material/Contacts";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import GroupIcon from "@mui/icons-material/Group";
+import SendIcon from "@mui/icons-material/Send";
 import { useAuth, useTheme } from "../../../hooks";
 import { useGlobalSlice } from "../../../slice";
 import { selectTheme } from "../../../slice/selectors";
@@ -96,7 +96,12 @@ const Header = ({
       <Toolbar>
         <Container className={classes.navDisplayFlex}>
           <div className={classes.navDisplayFlex}>
-            <IconButton edge="start" color="inherit" aria-label="home">
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="home"
+              size="large"
+            >
               <Home fontSize="large" />
             </IconButton>
             {isAuthenticated ? (
@@ -124,6 +129,7 @@ const Header = ({
               color="inherit"
               aria-label="theme"
               onClick={switchTheme}
+              size="large"
             >
               {theme === "light" ? (
                 <Brightness4Icon fontSize="large" />
@@ -140,6 +146,7 @@ const Header = ({
                   color="inherit"
                   aria-label="settings"
                   onClick={handleNotificationDrawerOpen}
+                  size="large"
                 >
                   <Badge badgeContent={4} color="error">
                     <Notifications fontSize="large" />
@@ -152,6 +159,7 @@ const Header = ({
                   color="inherit"
                   aria-label="settings"
                   onClick={handleSettingsMenuClick}
+                  size="large"
                 >
                   <Person fontSize="large" />
                 </IconButton>
@@ -166,7 +174,7 @@ const Header = ({
                     vertical: "bottom",
                     horizontal: "left",
                   }}
-                  getContentAnchorEl={null}
+                  // getContentAnchorEl={null}
                   transformOrigin={{
                     vertical: "top",
                     horizontal: "center",
@@ -185,18 +193,21 @@ const Header = ({
                     </ListItemIcon>
                     <ListItemText primary="Roles" />
                   </MenuItem>
+                  <Divider />
                   <MenuItem onClick={() => redirect("/co-workers")}>
                     <ListItemIcon>
                       <GroupIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary="Co-workers" />
                   </MenuItem>
+                  <Divider />
                   <MenuItem onClick={() => redirect("/desks")}>
                     <ListItemIcon>
                       <GroupIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary="Desks" />
                   </MenuItem>
+                  <Divider />
                   <MenuItem onClick={() => redirect("/settings")}>
                     <ListItemIcon>
                       <Settings fontSize="small" />

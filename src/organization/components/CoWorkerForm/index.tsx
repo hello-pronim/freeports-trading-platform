@@ -15,11 +15,11 @@ import {
   Grid,
   IconButton,
   ListItemText,
-  makeStyles,
   MenuItem,
-} from "@material-ui/core";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
 import { useCoWorkerFormSlice } from "./slice";
 import {
@@ -439,10 +439,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                               <Grid container spacing={1}>
                                 {fields.length !== 1 && (
                                   <Grid item>
-                                    <IconButton
-                                      onClick={() => fields.remove(i)}
-                                      aria-label="Remove role"
-                                    >
+                                    <IconButton onClick={() => fields.remove(i)} aria-label="Remove role" size="large">
                                       <DeleteForeverIcon />
                                     </IconButton>
                                   </Grid>
@@ -463,7 +460,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                                           })
                                         }
                                         aria-label="Add role"
-                                      >
+                                        size="large">
                                         <AddCircleOutlineIcon />
                                       </IconButton>
                                     </Grid>
@@ -530,7 +527,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Divider />
               </Grid>
               <Grid item xs={12}>
-                <Grid container alignItems="center" justify="flex-end">
+                <Grid container alignItems="center" justifyContent="flex-end">
                   <Grid item>
                     <div className={classes.progressButtonWrapper}>
                       <Button

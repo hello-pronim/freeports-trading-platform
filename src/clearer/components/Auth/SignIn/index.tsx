@@ -9,11 +9,11 @@ import {
   Container,
   CssBaseline,
   FormControlLabel,
-  makeStyles,
   TextField,
   Typography,
-} from "@material-ui/core";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { useAuth } from "../../../../hooks";
 

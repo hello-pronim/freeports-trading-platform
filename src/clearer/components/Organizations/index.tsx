@@ -2,16 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import {
-  Container,
-  createStyles,
-  Grid,
-  IconButton,
-  Icon,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
+import { Container, Grid, IconButton, Icon, Theme, Typography } from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import MaterialTable from "material-table";
 
 import axios from "../../../util/axios";
@@ -63,7 +56,7 @@ const Organizations = (): React.ReactElement => {
                   className={classes.addButton}
                   color="primary"
                   onClick={newOrganizer}
-                >
+                  size="large">
                   <Icon fontSize="large">add_circle</Icon>
                 </IconButton>
               </Grid>

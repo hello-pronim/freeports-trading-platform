@@ -10,7 +10,7 @@ import {
 } from "../../../../../util/redux-injectors";
 import TradeRequest from "../../../../../types/TradeRequest";
 import { tradeDetailSaga } from "./saga";
-import { TradeDetailState } from "./types";
+import { PriceEvent, TradeDetailState } from "./types";
 import { RfqResponse } from "../../../../../types/RfqResponse";
 import { TradeOrderResponse } from "../../../../../types/TradeOrderResponse";
 
@@ -35,7 +35,9 @@ export const initialState: TradeDetailState = {
   loadingRfqs: false,
   orderLoading: false,
   tradeAmount: "",
+  priceEvents: [],
 };
+
 export const MAX_TRADE_AMOUNT = 10;
 const slice = createSlice({
   name: "tradeDetail",
@@ -107,6 +109,21 @@ const slice = createSlice({
     },
     setTradeAmount(state, action: PayloadAction<any>) {
       state.tradeAmount = action.payload;
+    },
+    priceEvent(state, action: PayloadAction<PriceEvent>) {
+      const brokerExists = state.priceEvents.find(
+        (e) => e.broker === action.payload.broker
+      );
+      if (!brokerExists) {
+        state.priceEvents = [...state.priceEvents, action.payload];
+      } else {
+        state.priceEvents = state.priceEvents.map((event) => {
+          if (event.broker !== action.payload.broker) {
+            return event;
+          }
+          return action.payload;
+        });
+      }
     },
   },
 });

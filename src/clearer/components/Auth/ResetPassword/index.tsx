@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from '@mui/styles/makeStyles';
 
 import { 
   Avatar,
@@ -9,10 +9,10 @@ import {
   CssBaseline,
   Button,
   Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import { Form } from "react-final-form";
 import { TextField } from "mui-rff";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useParams, useHistory } from "react-router";
 import { resetPassword } from "../../../../services/authService";
 

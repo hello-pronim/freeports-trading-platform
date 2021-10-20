@@ -12,7 +12,6 @@ import {
   Button,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -25,15 +24,16 @@ import {
   ListItem,
   ListItemText,
   List,
-  makeStyles,
   TextField,
   Theme,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import SearchIcon from "@material-ui/icons/Search";
-import VisibilityIcon from "@material-ui/icons/Visibility";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import SearchIcon from "@mui/icons-material/Search";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import MaterialTable from "material-table";
 
 import { snackbarActions } from "../../../../../components/Snackbar/slice";
@@ -338,11 +338,7 @@ const InvestorDetail = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container alignItems="center" spacing={4}>
               <Grid item xs={3}>
-                <IconButton
-                  color="inherit"
-                  aria-label="Back"
-                  onClick={handleBackClick}
-                >
+                <IconButton color="inherit" aria-label="Back" onClick={handleBackClick} size="large">
                   <ArrowBackIosIcon fontSize="small" color="primary" />
                 </IconButton>
               </Grid>
@@ -353,7 +349,7 @@ const InvestorDetail = (): React.ReactElement => {
                     container
                     item
                     alignItems="center"
-                    justify="space-between"
+                    justifyContent="space-between"
                   >
                     {currency === "BTC" && (
                       <Typography variant="h5">
@@ -395,7 +391,7 @@ const InvestorDetail = (): React.ReactElement => {
                             aria-label="Add"
                             className={classes.addButton}
                             onClick={handleCreateAccountModalOpen}
-                          >
+                            size="large">
                             <Icon fontSize="large">add_circle</Icon>
                           </IconButton>
                         </Grid>

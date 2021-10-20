@@ -11,17 +11,17 @@ import {
   Checkbox,
   CircularProgress,
   Container,
-  createStyles,
   Divider,
   FormControlLabel,
   FormGroup,
   FormLabel,
   Grid,
-  makeStyles,
   Theme,
   Tooltip,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import { Form, Field } from "react-final-form";
 import { TextField } from "mui-rff";
 
@@ -310,7 +310,7 @@ const AddRole = (): React.ReactElement => {
                     <Grid
                       container
                       alignItems="center"
-                      justify="flex-end"
+                      justifyContent="flex-end"
                       spacing={2}
                     >
                       <Grid item>
@@ -460,7 +460,7 @@ const AddRole = (): React.ReactElement => {
                     <Grid
                       container
                       alignItems="center"
-                      justify="flex-end"
+                      justifyContent="flex-end"
                       spacing={2}
                     >
                       <Grid item>
@@ -595,7 +595,7 @@ const AddRole = (): React.ReactElement => {
                     <Grid
                       container
                       alignItems="center"
-                      justify="flex-end"
+                      justifyContent="flex-end"
                       spacing={2}
                     >
                       <Grid item>

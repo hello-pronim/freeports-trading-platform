@@ -11,7 +11,6 @@ import {
   Checkbox,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -23,17 +22,18 @@ import {
   Grid,
   Icon,
   IconButton,
-  makeStyles,
   TextField,
   Theme,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
-import CheckIcon from "@material-ui/icons/Check";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
-import Lock from "@material-ui/icons/Lock";
+} from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import CheckIcon from "@mui/icons-material/Check";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import Lock from "@mui/icons-material/Lock";
 import { Form, Field } from "react-final-form";
 
 import { useRole } from "../../../hooks";
@@ -210,7 +210,10 @@ const Roles = (): React.ReactElement => {
       if (Array.isArray(response.message)) {
         dispatch(
           snackbarActions.showSnackbar({
-            message: response.message[0].constraints[Object.keys(response.message[0].constraints)[0]],
+            message:
+              response.message[0].constraints[
+                Object.keys(response.message[0].constraints)[0]
+              ],
             type: "error",
           })
         );
@@ -298,7 +301,7 @@ const Roles = (): React.ReactElement => {
         getRuleTrees,
       });
       setLockModalView(true);
-    } catch (error) {
+    } catch (error: any) {
       dispatch(
         snackbarActions.showSnackbar({
           message: error.message,
@@ -424,7 +427,7 @@ const Roles = (): React.ReactElement => {
         })
       );
       setLockModalView(false);
-    } catch (error) {
+    } catch (error: any) {
       dispatch(
         snackbarActions.showSnackbar({
           message: error.message,
@@ -467,6 +470,7 @@ const Roles = (): React.ReactElement => {
                   className={classes.addButton}
                   color="primary"
                   onClick={handleNewRoleClick}
+                  size="large"
                 >
                   <Icon fontSize="large">add_circle</Icon>
                 </IconButton>
@@ -488,7 +492,7 @@ const Roles = (): React.ReactElement => {
                           <Grid
                             container
                             alignItems="center"
-                            justify="space-between"
+                            justifyContent="space-between"
                           >
                             <Grid item>
                               {!roleNameEditable[index] ? (
@@ -505,6 +509,7 @@ const Roles = (): React.ReactElement => {
                                         e.stopPropagation();
                                         handleRoleNameEditClick(e, index);
                                       }}
+                                      size="large"
                                     >
                                       <EditOutlinedIcon />
                                     </IconButton>
@@ -534,6 +539,7 @@ const Roles = (): React.ReactElement => {
                                           role.id
                                         );
                                       }}
+                                      size="large"
                                     >
                                       <CheckIcon />
                                     </IconButton>
@@ -551,8 +557,9 @@ const Roles = (): React.ReactElement => {
                                 disabled={
                                   !vault.checkUserLockUsability(currentUser)
                                 }
+                                size="large"
                               >
-                                <Lock fontSize="default" />
+                                <Lock fontSize="medium" />
                               </IconButton>
                             </Grid>
                           </Grid>

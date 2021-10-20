@@ -16,12 +16,12 @@ import {
   DialogTitle,
   Divider,
   Grid,
-  makeStyles,
   Snackbar,
   TextField,
   Typography,
-} from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { Form } from "react-final-form";
 import { TextField as MuiTextField, Select } from "mui-rff";
 import { useVaultRequestSlice } from "./slice";

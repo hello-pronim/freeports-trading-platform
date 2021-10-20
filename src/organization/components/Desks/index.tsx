@@ -11,7 +11,6 @@ import {
   Button,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,13 +20,14 @@ import {
   Grid,
   Icon,
   IconButton,
-  makeStyles,
   MenuItem,
   Select,
   Theme,
   Typography,
-} from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialTable from "material-table";
 
 import data from "./data";
@@ -129,7 +129,7 @@ const Desks = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Grid container alignItems="center" justify="space-between">
+                <Grid container alignItems="center" justifyContent="space-between">
                   <Grid item>
                     <Grid container alignItems="center" spacing={2}>
                       <Grid item>
@@ -140,7 +140,7 @@ const Desks = (): React.ReactElement => {
                           className={classes.addButton}
                           color="primary"
                           onClick={handleDialogOpen}
-                        >
+                          size="large">
                           <Icon fontSize="large">add_circle</Icon>
                         </IconButton>
                       </Grid>
@@ -223,7 +223,7 @@ const Desks = (): React.ReactElement => {
                                 color="inherit"
                                 onClick={() => handleDeskDelete(id)}
                                 disabled={deskDeleting}
-                              >
+                                size="large">
                                 <DeleteIcon
                                   fontSize="small"
                                   color="error"

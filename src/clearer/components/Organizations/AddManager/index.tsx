@@ -15,10 +15,10 @@ import {
   Divider,
   Grid,
   FormControl,
-  makeStyles,
   Snackbar,
-} from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 import { useOrganization } from "../../../../hooks";
 
@@ -218,7 +218,7 @@ const AddManager = (): React.ReactElement => {
                       </Grid>
                     </Grid>
                     <Grid item xs={6}>
-                      <Grid container justify="center" alignItems="center">
+                      <Grid container justifyContent="center" alignItems="center">
                         <div className={classes.profileImageContainer}>
                           <Avatar
                             src={managerAvatar}
@@ -238,7 +238,7 @@ const AddManager = (): React.ReactElement => {
                 </CardContent>
                 <Divider />
                 <CardActions>
-                  <Grid container justify="flex-end">
+                  <Grid container justifyContent="flex-end">
                     <Grid item>
                       <Button variant="contained" color="primary" type="submit">
                         Submit

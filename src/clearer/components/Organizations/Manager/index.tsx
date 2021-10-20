@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from '@mui/styles/makeStyles';
 import {
   Accordion,
   AccordionActions,
@@ -23,9 +23,9 @@ import {
   Snackbar,
   TextField,
   Typography,
-} from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useOrganization } from "../../../../hooks";
 import {
   sendResetPasswordEmail,
@@ -334,13 +334,13 @@ const Manager = (props: any): React.ReactElement => {
         aria-controls="panel1a-content"
         id="panel1a-header"
       >
-        <Grid container justify="space-between" alignItems="center">
+        <Grid container justifyContent="space-between" alignItems="center">
           <Grid item>
             <Grid
               container
               direction="row"
               alignItems="center"
-              justify="flex-start"
+              justifyContent="flex-start"
               spacing={2}
             >
               <Grid item>
@@ -381,7 +381,7 @@ const Manager = (props: any): React.ReactElement => {
       <AccordionDetails>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <Grid container justify="center">
+            <Grid container justifyContent="center">
               <div className={classes.profileImageContainer}>
                 <Avatar
                   src={manager.avatar}
@@ -431,7 +431,7 @@ const Manager = (props: any): React.ReactElement => {
       </AccordionDetails>
       <Divider />
       <AccordionActions>
-        <Grid container justify="flex-end">
+        <Grid container justifyContent="flex-end">
           <Grid item>
             <div className={classes.progressButtonWrapper}>
               <Button

@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Button,
-  createStyles,
   Divider,
   Drawer,
   FormControl,
@@ -10,13 +9,14 @@ import {
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   MenuItem,
   Theme,
   Select,
   Typography,
-} from "@material-ui/core";
-import { ChevronRight } from "@material-ui/icons";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import { ChevronRight } from "@mui/icons-material";
 
 import data from "./data";
 
@@ -97,9 +97,9 @@ const NotificationCenter = ({
       }}
     >
       <div className={classes.drawerHeader}>
-        <Grid container justify="space-between">
+        <Grid container justifyContent="space-between">
           <Grid item xs={2}>
-            <IconButton onClick={handleNotificationDrawerOpen}>
+            <IconButton onClick={handleNotificationDrawerOpen} size="large">
               <ChevronRight />
             </IconButton>
           </Grid>

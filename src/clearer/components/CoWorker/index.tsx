@@ -14,15 +14,15 @@ import {
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   TextField,
   Typography,
-} from "@material-ui/core";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
-import BlockIcon from "@material-ui/icons/Block";
-import DoneIcon from "@material-ui/icons/Done";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import SearchIcon from "@material-ui/icons/Search";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import BlockIcon from "@mui/icons-material/Block";
+import DoneIcon from "@mui/icons-material/Done";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import SearchIcon from "@mui/icons-material/Search";
 
 import profile from "../../../assets/images/profile.jpg";
 import CoWorkerForm from "../CoWorkerForm";
@@ -205,7 +205,7 @@ const CoWorker = (): React.ReactElement => {
                   color="inherit"
                   aria-label="Add Co-worker"
                   onClick={handleAddCoWorker}
-                >
+                  size="large">
                   <AddCircleIcon fontSize="large" color="primary" />
                 </IconButton>
               </Grid>
@@ -261,7 +261,7 @@ const CoWorker = (): React.ReactElement => {
                       <Grid
                         container
                         alignItems="center"
-                        justify="space-between"
+                        justifyContent="space-between"
                       >
                         <Grid item>
                           <Grid container spacing={3} alignItems="center">
