@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Snackbar } from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
+import { Snackbar } from "@mui/material";
+import Alert from '@mui/material/Alert';
 import { useAuth } from "../../hooks";
 import {
   open,

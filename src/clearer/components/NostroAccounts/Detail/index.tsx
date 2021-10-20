@@ -13,7 +13,6 @@ import {
   Button,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,27 +21,27 @@ import {
   Grid,
   IconButton,
   InputAdornment,
-  makeStyles,
   TextField,
   Theme,
   Typography,
-} from "@material-ui/core";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
-import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
-import FlashOnIcon from "@material-ui/icons/FlashOn";
-import SearchIcon from "@material-ui/icons/Search";
-import red from "@material-ui/core/colors/red";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import FlashOnIcon from "@mui/icons-material/FlashOn";
+import SearchIcon from "@mui/icons-material/Search";
 import MaterialTable from "material-table";
+import ListItem from "@mui/material/ListItem";
 
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import List from "@material-ui/core/List";
-
+import ListItemText from "@mui/material/ListItemText";
+import List from "@mui/material/List";
 import { passedTransactionsData } from "../data";
 
 import { useAccountsSlice } from "../slice";
+
 import { useAccountDetailSlice } from "./slice";
 import { selectAccounts, selectIsAccountsLoading } from "../slice/selectors";
 import {
@@ -55,6 +54,7 @@ import {
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
 import Operation from "../../../../types/Operation";
+import { red } from '@mui/material/colors';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -247,16 +247,12 @@ const Detail = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container>
               <Grid item xs={3}>
-                <IconButton
-                  color="inherit"
-                  aria-label="Back"
-                  onClick={handleBackClick}
-                >
+                <IconButton color="inherit" aria-label="Back" onClick={handleBackClick} size="large">
                   <ArrowBackIosIcon fontSize="small" color="primary" />
                 </IconButton>
               </Grid>
               <Grid item xs={9}>
-                <Grid container alignItems="center" justify="space-between">
+                <Grid container alignItems="center" justifyContent="space-between">
                   <Grid item>
                     <Grid container direction="column">
                       <Grid item>
@@ -282,7 +278,7 @@ const Detail = (): React.ReactElement => {
                             </Typography>
                           </Grid>
                           <Grid item>
-                            <IconButton color="inherit" aria-label="Edit">
+                            <IconButton color="inherit" aria-label="Edit" size="large">
                               <EditIcon fontSize="small" color="primary" />
                             </IconButton>
                           </Grid>
@@ -359,7 +355,7 @@ const Detail = (): React.ReactElement => {
                         <Grid item xs={12}>
                           <Grid
                             container
-                            justify="space-between"
+                            justifyContent="space-between"
                             alignItems="center"
                           >
                             <Grid item>
@@ -461,7 +457,7 @@ const Detail = (): React.ReactElement => {
                                   return (
                                     <Grid container spacing={1}>
                                       <Grid item xs={6}>
-                                        <IconButton color="inherit">
+                                        <IconButton color="inherit" size="large">
                                           <FlashOnIcon
                                             fontSize="small"
                                             color="primary"
@@ -475,7 +471,7 @@ const Detail = (): React.ReactElement => {
                                             handleOperationDelete(id)
                                           }
                                           disabled={operationDeleting}
-                                        >
+                                          size="large">
                                           <DeleteIcon
                                             fontSize="small"
                                             className="icon-delete"

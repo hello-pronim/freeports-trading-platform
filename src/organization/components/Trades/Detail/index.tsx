@@ -15,26 +15,24 @@ import {
   CardHeader,
   CircularProgress,
   Container,
-  createStyles,
   Divider,
   Grid,
-  makeStyles,
   Tabs,
   Tab,
   Theme,
   Typography,
   TextField,
   useTheme,
-} from "@material-ui/core";
-import HistoryOutlinedIcon from "@material-ui/icons/HistoryOutlined";
-import ChatBubbleOutlineOutlinedIcon from "@material-ui/icons/ChatBubbleOutlineOutlined";
-import InsertDriveFileOutlinedIcon from "@material-ui/icons/InsertDriveFileOutlined";
-import grey from "@material-ui/core/colors/grey";
-import purple from "@material-ui/core/colors/purple";
+} from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import { BigNumber } from "bignumber.js";
 
 import { DateTime } from "luxon";
-import { green } from "@material-ui/core/colors";
+import { green, grey, purple, red } from "@mui/material/colors";
 import brokers from "./data";
 import { useTradeDetailSlice } from "./slice";
 import {
@@ -240,23 +238,23 @@ const TradeDetail = (): React.ReactElement => {
                 <Typography>Current best broker value</Typography>
               </Grid>
               <Grid container className={classes.bestBroker}>
-                <Grid container justify="space-between">
+                <Grid container justifyContent="space-between">
                   <Grid item>Rate</Grid>
                   <Grid item />
                   <Grid item>Cumberland</Grid>
                 </Grid>
-                <Grid container justify="center">
-                  <Grid container justify="center">
+                <Grid container justifyContent="center">
+                  <Grid container justifyContent="center">
                     <Typography align="center">Bid</Typography>
                   </Grid>
-                  <Grid container justify="center">
+                  <Grid container justifyContent="center">
                     <Typography align="center">0.074234 BTC/ETH</Typography>
                   </Grid>
                 </Grid>
                 <Grid
                   container
                   alignItems="center"
-                  justify="center"
+                  justifyContent="center"
                   direction="row"
                 >
                   <Button>SELECT </Button>
@@ -269,18 +267,24 @@ const TradeDetail = (): React.ReactElement => {
                   <Typography>Current tranche Execution</Typography>
                 </Grid>
                 <Grid item>
-                  <Grid container direction="row" justify="space-between">
+                  <Grid
+                    container
+                    direction="row"
+                    justifyContent="space-between"
+                  >
                     <Grid>Broker</Grid>
                     <Grid>Direction</Grid>
                     <Grid>Order type</Grid>
                   </Grid>
                   <Grid container>
                     <Grid item xs={5} color={theme.palette.secondary.light}>
-                      <Grid container justify="center">
-                        <Grid container justify="center">
-                          <Typography align="center">bid</Typography>
+                      <Grid container justifyContent="center">
+                        <Grid container justifyContent="center">
+                          <Typography sx={{ color: green[600] }} align="center">
+                            Bid
+                          </Typography>
                         </Grid>
-                        <Grid container justify="center">
+                        <Grid container justifyContent="center">
                           <Typography align="center">0.074234</Typography>
                         </Grid>
                       </Grid>
@@ -289,11 +293,13 @@ const TradeDetail = (): React.ReactElement => {
                       Spread
                     </Grid>
                     <Grid item xs={5}>
-                      <Grid container justify="center">
-                        <Grid container justify="center">
-                          <Typography align="center">bid</Typography>
+                      <Grid container justifyContent="center">
+                        <Grid container justifyContent="center">
+                          <Typography sx={{ color: red[600] }} align="center">
+                            Ask
+                          </Typography>
                         </Grid>
-                        <Grid container justify="center">
+                        <Grid container justifyContent="center">
                           <Typography align="center">0.074234</Typography>
                         </Grid>
                       </Grid>
@@ -311,7 +317,11 @@ const TradeDetail = (): React.ReactElement => {
               <Grid item xs={12} md={4}>
                 <Grid container direction="column">
                   <Grid item>
-                    <Grid container justify="space-between" direction="row">
+                    <Grid
+                      container
+                      justifyContent="space-between"
+                      direction="row"
+                    >
                       <Grid>Rate</Grid>
                       <Grid>Last RFQ for value </Grid>
                       <Grid>{priceEvent.broker}</Grid>
@@ -319,11 +329,13 @@ const TradeDetail = (): React.ReactElement => {
                   </Grid>
                   <Grid container>
                     <Grid item xs={5} color={theme.palette.secondary.light}>
-                      <Grid container justify="center">
-                        <Grid container justify="center">
-                          <Typography align="center">bid</Typography>
+                      <Grid container justifyContent="center">
+                        <Grid container justifyContent="center">
+                          <Typography sx={{ color: green[600] }} align="center">
+                            Bid
+                          </Typography>
                         </Grid>
-                        <Grid container justify="center">
+                        <Grid container justifyContent="center">
                           <Typography align="center">
                             {priceEvent.buy}
                           </Typography>
@@ -334,11 +346,13 @@ const TradeDetail = (): React.ReactElement => {
                       Spread
                     </Grid>
                     <Grid item xs={5}>
-                      <Grid container justify="center">
-                        <Grid container justify="center">
-                          <Typography align="center">bid</Typography>
+                      <Grid container justifyContent="center">
+                        <Grid container justifyContent="center">
+                          <Typography sx={{ color: red[600] }} align="center">
+                            Ask
+                          </Typography>
                         </Grid>
-                        <Grid container justify="center">
+                        <Grid container justifyContent="center">
                           <Typography align="center">
                             {priceEvent.sell}
                           </Typography>
@@ -347,7 +361,7 @@ const TradeDetail = (): React.ReactElement => {
                     </Grid>
                   </Grid>
                   <Grid item>
-                    <Grid container justify="center">
+                    <Grid container justifyContent="center">
                       <Button>SELECT </Button>
                     </Grid>
                   </Grid>
@@ -363,7 +377,7 @@ const TradeDetail = (): React.ReactElement => {
                 value={activeTabIndex}
                 onChange={handleTabChange}
                 variant="scrollable"
-                scrollButtons="off"
+                scrollButtons={false}
                 indicatorColor="primary"
                 aria-label="tabs"
               >

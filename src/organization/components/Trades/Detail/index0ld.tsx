@@ -15,21 +15,19 @@ import {
   CardHeader,
   CircularProgress,
   Container,
-  createStyles,
   Divider,
   Grid,
-  makeStyles,
   Tabs,
   Tab,
   Theme,
   Typography,
   TextField,
-} from "@material-ui/core";
-import HistoryOutlinedIcon from "@material-ui/icons/HistoryOutlined";
-import ChatBubbleOutlineOutlinedIcon from "@material-ui/icons/ChatBubbleOutlineOutlined";
-import InsertDriveFileOutlinedIcon from "@material-ui/icons/InsertDriveFileOutlined";
-import grey from "@material-ui/core/colors/grey";
-import purple from "@material-ui/core/colors/purple";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import { BigNumber } from "bignumber.js";
 
 import { DateTime } from "luxon";
@@ -51,6 +49,8 @@ import { RfqResponse } from "../../../../types/RfqResponse";
 import AccurateNumber from "../../../../components/AccurateNumber";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
 import AmountInput from "../AmountInput";
+
+import { grey, purple } from '@mui/material/colors';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -243,12 +243,12 @@ const TradeDetail = (): React.ReactElement => {
                   <Grid item xs={12}>
                     <Card>
                       <CardContent>
-                        <Grid container justify="space-between">
+                        <Grid container justifyContent="space-between">
                           <Grid item xs={4} md={2}>
                             <Grid
                               container
                               direction="column"
-                              justify="space-between"
+                              justifyContent="space-between"
                               className="h-100"
                             >
                               <Typography variant="subtitle2">
@@ -274,7 +274,7 @@ const TradeDetail = (): React.ReactElement => {
                               flexDirection="row"
                               alignItems="flex-end"
                               // bgcolor="grey.300"
-                              borderRadius={16}
+                              borderRadius="16px"
                               height={100}
                               p={2}
                             >
@@ -295,7 +295,7 @@ const TradeDetail = (): React.ReactElement => {
                             </Box>
                           </Grid>
                           <Grid item xs={12} md={6}>
-                            <Grid container justify="flex-end" spacing={2}>
+                            <Grid container justifyContent="flex-end" spacing={2}>
                               <Grid item>
                                 <Divider orientation="vertical" />
                               </Grid>
@@ -397,7 +397,7 @@ const TradeDetail = (): React.ReactElement => {
                           />
                           <Divider />
                           <CardContent>
-                            <Grid container justify="flex-end">
+                            <Grid container justifyContent="flex-end">
                               <Grid item>
                                 <Typography
                                   variant="body2"
@@ -418,7 +418,7 @@ const TradeDetail = (): React.ReactElement => {
                             <Grid
                               container
                               alignItems="center"
-                              justify="flex-end"
+                              justifyContent="flex-end"
                               xs={12}
                             >
                               <Typography
@@ -480,7 +480,7 @@ const TradeDetail = (): React.ReactElement => {
                             <Grid key={rfq.id} item xs={3}>
                               <Card className="w-100">
                                 <CardContent>
-                                  <Grid container justify="flex-end">
+                                  <Grid container justifyContent="flex-end">
                                     <Grid item>
                                       <Typography variant="body1">
                                         {rfq.brokerId}
@@ -490,7 +490,7 @@ const TradeDetail = (): React.ReactElement => {
                                   <Grid
                                     container
                                     alignItems="center"
-                                    justify="flex-end"
+                                    justifyContent="flex-end"
                                     xs={12}
                                   >
                                     <Typography
@@ -513,7 +513,7 @@ const TradeDetail = (): React.ReactElement => {
                                       />
                                     </Typography>
                                   </Grid>
-                                  <Grid container justify="flex-end">
+                                  <Grid container justifyContent="flex-end">
                                     <Grid item>
                                       <Grid container spacing={1}>
                                         <Grid item>
@@ -585,7 +585,7 @@ const TradeDetail = (): React.ReactElement => {
                   value={activeTabIndex}
                   onChange={handleTabChange}
                   variant="scrollable"
-                  scrollButtons="off"
+                  scrollButtons={false}
                   indicatorColor="primary"
                   aria-label="tabs"
                 >

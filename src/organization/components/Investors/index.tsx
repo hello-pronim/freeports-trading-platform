@@ -10,7 +10,6 @@ import {
   Button,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -20,12 +19,13 @@ import {
   Grid,
   Icon,
   IconButton,
-  makeStyles,
   MenuItem,
   Select,
   Theme,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import MaterialTable from "material-table";
 
 import { useInvestorsSlice } from "./slice";
@@ -288,7 +288,7 @@ const Investors = (): React.ReactElement => {
       <Container>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <Grid container alignItems="center" justify="space-between">
+            <Grid container alignItems="center" justifyContent="space-between">
               <Grid item>
                 <Grid container alignItems="center" spacing={2}>
                   <Grid item>
@@ -299,7 +299,7 @@ const Investors = (): React.ReactElement => {
                       className={classes.addButton}
                       color="primary"
                       onClick={handleCreateInvestorDialogOpen}
-                    >
+                      size="large">
                       <Icon fontSize="large">add_circle</Icon>
                     </IconButton>
                   </Grid>

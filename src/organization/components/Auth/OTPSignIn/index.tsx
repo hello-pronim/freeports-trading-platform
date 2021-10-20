@@ -6,10 +6,11 @@ import {
   CircularProgress,
   Container,
   CssBaseline,
-  makeStyles,
   TextField,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import { useAuth } from "../../../../hooks";
 

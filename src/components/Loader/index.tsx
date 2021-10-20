@@ -1,15 +1,11 @@
-import { CircularProgress, Grid, makeStyles } from "@material-ui/core";
+import { CircularProgress, Grid } from "@mui/material";
 import React from "react";
 
-const useStyles = makeStyles((theme) => ({
-  loader: {
-    padding: theme.spacing(4),
-  },
-}));
+// DON't use makeStyles here as this will be loaded before the ThemeProvider
+
 const Loader = (): React.ReactElement => {
-  const classes = useStyles();
   return (
-    <Grid className={classes.loader} container justify="center">
+    <Grid container justifyContent="center">
       <CircularProgress />
     </Grid>
   );

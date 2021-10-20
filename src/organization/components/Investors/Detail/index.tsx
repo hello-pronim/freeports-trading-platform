@@ -12,7 +12,6 @@ import {
   Button,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -25,21 +24,22 @@ import {
   ListItem,
   ListItemText,
   List,
-  makeStyles,
   Snackbar,
   TextField,
   Theme,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import CompareArrowsIcon from "@material-ui/icons/CompareArrows";
-import SearchIcon from "@material-ui/icons/Search";
-import DeleteIcon from "@material-ui/icons/Delete";
-import VisibilityIcon from "@material-ui/icons/Visibility";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
+import SearchIcon from "@mui/icons-material/Search";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import MaterialTable from "material-table";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 import { trades } from "./data";
 import { useInvestorsSlice } from "../slice";
@@ -605,11 +605,7 @@ const InvestorDetail = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container alignItems="center" spacing={4}>
               <Grid item xs={3}>
-                <IconButton
-                  color="inherit"
-                  aria-label="Back"
-                  onClick={handleBackClick}
-                >
+                <IconButton color="inherit" aria-label="Back" onClick={handleBackClick} size="large">
                   <ArrowBackIosIcon fontSize="small" color="primary" />
                 </IconButton>
               </Grid>
@@ -618,7 +614,7 @@ const InvestorDetail = (): React.ReactElement => {
                   container
                   item
                   alignItems="center"
-                  justify="space-between"
+                  justifyContent="space-between"
                 >
                   <Typography variant="h5">
                     {`Investor ID: ${selectedInvestor.id}`}
@@ -690,7 +686,7 @@ const InvestorDetail = (): React.ReactElement => {
                           <Grid
                             container
                             alignItems="center"
-                            justify="space-between"
+                            justifyContent="space-between"
                           >
                             <Grid item>
                               <Typography variant="h6">
@@ -875,7 +871,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 aria-label="Add"
                                 className={classes.addButton}
                                 onClick={handleCreateAccountModalOpen}
-                              >
+                                size="large">
                                 <Icon fontSize="large">add_circle</Icon>
                               </IconButton>
                             </Grid>
@@ -945,7 +941,7 @@ const InvestorDetail = (): React.ReactElement => {
                                           onClick={() =>
                                             handleAccountDelete(id)
                                           }
-                                        >
+                                          size="large">
                                           <DeleteIcon
                                             fontSize="small"
                                             color="error"
@@ -978,7 +974,7 @@ const InvestorDetail = (): React.ReactElement => {
                         <Grid item xs={12}>
                           <Grid
                             container
-                            justify="space-between"
+                            justifyContent="space-between"
                             alignItems="center"
                           >
                             <Grid item>
@@ -993,7 +989,7 @@ const InvestorDetail = (): React.ReactElement => {
                                     color="primary"
                                     aria-label="Add"
                                     className={classes.addButton}
-                                  >
+                                    size="large">
                                     <Icon fontSize="large">add_circle</Icon>
                                   </IconButton>
                                 </Grid>

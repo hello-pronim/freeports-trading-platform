@@ -14,17 +14,17 @@ import {
   CardHeader,
   CircularProgress,
   Container,
-  createStyles,
   Divider,
   FormControlLabel,
   FormGroup,
   FormLabel,
   Grid,
-  makeStyles,
   Theme,
   Tooltip,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useNewOrgRoleSlice } from "./slice";
 import {
   selectMultiDeskPermissions,
@@ -335,7 +335,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
                     <Grid
                       container
                       alignItems="center"
-                      justify="flex-end"
+                      justifyContent="flex-end"
                       spacing={2}
                     >
                       <Grid item>
@@ -485,7 +485,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
                     <Grid
                       container
                       alignItems="center"
-                      justify="flex-end"
+                      justifyContent="flex-end"
                       spacing={2}
                     >
                       <Grid item>
@@ -629,7 +629,7 @@ const NewMultiDeskRole = (): React.ReactElement => {
                     <Grid
                       container
                       alignItems="center"
-                      justify="flex-end"
+                      justifyContent="flex-end"
                       spacing={2}
                     >
                       <Grid item>

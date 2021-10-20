@@ -1,7 +1,12 @@
 import React, { useEffect } from "react";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
-
+import CssBaseline from "@mui/material/CssBaseline";
+import {
+  createTheme,
+  ThemeProvider,
+  Theme,
+  StyledEngineProvider,
+} from "@mui/material/styles";
+// import { Theme } from '@mui/material/styles';
 import { useDispatch, useSelector } from "react-redux";
 import Routes from "./routes";
 
@@ -15,6 +20,11 @@ import "./Custom.css";
 import authActions from "../store/auth/actions";
 import { useGlobalSlice } from "../slice";
 import { selectTheme } from "../slice/selectors";
+
+declare module "@mui/styles/defaultTheme" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const App = (): React.ReactElement => {
   useInjectReducer({ key: "auth", reducer: auth });
@@ -30,7 +40,7 @@ const App = (): React.ReactElement => {
     dispatch(actions.getCurrentClearerUser());
   }, []);
 
-  const themeLight = createMuiTheme({
+  const themeLight = createTheme({
     palette: {
       primary: {
         main: "#006BDE",
@@ -38,10 +48,10 @@ const App = (): React.ReactElement => {
       secondary: {
         main: "#6D6E70",
       },
-      type: "light",
+      mode: "light",
     },
   });
-  const themeDark = createMuiTheme({
+  const themeDark = createTheme({
     palette: {
       background: {
         default: "#1D1E3C",
@@ -56,16 +66,18 @@ const App = (): React.ReactElement => {
       info: {
         main: "#599de9",
       },
-      type: "dark",
+      mode: "dark",
     },
   });
 
   return (
-    <MuiThemeProvider theme={theme === "light" ? themeLight : themeDark}>
-      <CssBaseline />
-      <Routes />
-      <Snackbar />
-    </MuiThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme === "light" ? themeLight : themeDark}>
+        <CssBaseline />
+        <Routes />
+        <Snackbar />
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 };
 

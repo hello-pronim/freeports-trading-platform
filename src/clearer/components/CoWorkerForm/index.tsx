@@ -17,10 +17,10 @@ import {
   Divider,
   Grid,
   IconButton,
-  makeStyles,
-} from "@material-ui/core";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
 import profile from "../../../assets/images/profile.jpg";
 import { useCoWorkerFormSlice } from "./slice";
@@ -336,10 +336,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                             </Grid>
                             {fields.length !== 1 && (
                               <Grid item xs={1}>
-                                <IconButton
-                                  onClick={() => fields.remove(i)}
-                                  aria-label="Add role"
-                                >
+                                <IconButton onClick={() => fields.remove(i)} aria-label="Add role" size="large">
                                   <DeleteForeverIcon />
                                 </IconButton>
                               </Grid>
@@ -350,7 +347,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                                   <IconButton
                                     onClick={() => push("roles", { id: "" })}
                                     aria-label="Add role"
-                                  >
+                                    size="large">
                                     <AddCircleOutlineIcon />
                                   </IconButton>
                                 </Grid>
@@ -415,7 +412,7 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
                 <Divider />
               </Grid>
               <Grid item xs={12}>
-                <Grid container justify="flex-end" spacing={1}>
+                <Grid container justifyContent="flex-end" spacing={1}>
                   <Grid item>
                     <div className={classes.progressButtonWrapper}>
                       <Button

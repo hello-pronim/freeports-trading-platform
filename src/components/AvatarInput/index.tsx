@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Avatar, makeStyles } from "@material-ui/core";
+import { Avatar } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
 import { FieldRenderProps, FormRenderProps } from "react-final-form";
 
 import profile from "../../assets/images/profile.jpg";

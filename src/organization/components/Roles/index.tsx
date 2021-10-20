@@ -20,7 +20,6 @@ import {
   Checkbox,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -35,20 +34,21 @@ import {
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   Snackbar,
   TextField,
   Theme,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
-import CheckIcon from "@material-ui/icons/Check";
-import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import SearchIcon from "@material-ui/icons/Search";
-import Lock from "@material-ui/icons/Lock";
+} from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import CheckIcon from "@mui/icons-material/Check";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import SearchIcon from "@mui/icons-material/Search";
+import Lock from "@mui/icons-material/Lock";
 
 import { useRolesSlice } from "./slice";
 import { useDesksSlice } from "../Desks/slice";
@@ -724,6 +724,7 @@ const Roles = (): React.ReactElement => {
                             aria-label="Add Organization Role"
                             className={classes.addButton}
                             onClick={handleNewOrgRoleClick}
+                            size="large"
                           >
                             <AddCircleIcon fontSize="large" />
                           </IconButton>
@@ -780,7 +781,7 @@ const Roles = (): React.ReactElement => {
                                                 >
                                                   <Grid
                                                     container
-                                                    justify="space-between"
+                                                    justifyContent="space-between"
                                                     alignItems="center"
                                                   >
                                                     <Grid item>
@@ -811,6 +812,7 @@ const Roles = (): React.ReactElement => {
                                                                   index
                                                                 );
                                                               }}
+                                                              size="large"
                                                             >
                                                               <EditOutlinedIcon />
                                                             </IconButton>
@@ -844,6 +846,7 @@ const Roles = (): React.ReactElement => {
                                                                   role.permissions
                                                                 );
                                                               }}
+                                                              size="large"
                                                             >
                                                               <CheckIcon />
                                                             </IconButton>
@@ -861,8 +864,9 @@ const Roles = (): React.ReactElement => {
                                                         disabled={
                                                           !lockUsability
                                                         }
+                                                        size="large"
                                                       >
-                                                        <Lock fontSize="default" />
+                                                        <Lock fontSize="medium" />
                                                       </IconButton>
                                                     </Grid>
                                                   </Grid>
@@ -1084,6 +1088,7 @@ const Roles = (): React.ReactElement => {
                             aria-label="Add Multi-Desk Role"
                             className={classes.addButton}
                             onClick={handleNewMultiDeskRoleClick}
+                            size="large"
                           >
                             <AddCircleIcon fontSize="large" />
                           </IconButton>
@@ -1140,7 +1145,7 @@ const Roles = (): React.ReactElement => {
                                                 >
                                                   <Grid
                                                     container
-                                                    justify="space-between"
+                                                    justifyContent="space-between"
                                                     alignItems="center"
                                                   >
                                                     <Grid item>
@@ -1171,6 +1176,7 @@ const Roles = (): React.ReactElement => {
                                                                   index
                                                                 );
                                                               }}
+                                                              size="large"
                                                             >
                                                               <EditOutlinedIcon />
                                                             </IconButton>
@@ -1204,6 +1210,7 @@ const Roles = (): React.ReactElement => {
                                                                   role.permissions
                                                                 );
                                                               }}
+                                                              size="large"
                                                             >
                                                               <CheckIcon />
                                                             </IconButton>
@@ -1221,8 +1228,9 @@ const Roles = (): React.ReactElement => {
                                                         disabled={
                                                           !lockUsability
                                                         }
+                                                        size="large"
                                                       >
-                                                        <Lock fontSize="default" />
+                                                        <Lock fontSize="medium" />
                                                       </IconButton>
                                                     </Grid>
                                                   </Grid>
@@ -1431,6 +1439,7 @@ const Roles = (): React.ReactElement => {
                               aria-label="Add Desk Role"
                               className={classes.addButton}
                               onClick={handleNewDeskRoleClick}
+                              size="large"
                             >
                               <AddCircleIcon fontSize="large" />
                             </IconButton>
@@ -1493,7 +1502,7 @@ const Roles = (): React.ReactElement => {
                                                 >
                                                   <Grid
                                                     container
-                                                    justify="space-between"
+                                                    justifyContent="space-between"
                                                     alignItems="center"
                                                     spacing={2}
                                                   >
@@ -1525,6 +1534,7 @@ const Roles = (): React.ReactElement => {
                                                                   index
                                                                 );
                                                               }}
+                                                              size="large"
                                                             >
                                                               <EditOutlinedIcon />
                                                             </IconButton>
@@ -1558,6 +1568,7 @@ const Roles = (): React.ReactElement => {
                                                                   role.permissions
                                                                 );
                                                               }}
+                                                              size="large"
                                                             >
                                                               <CheckIcon />
                                                             </IconButton>
@@ -1575,8 +1586,9 @@ const Roles = (): React.ReactElement => {
                                                         disabled={
                                                           !lockUsability
                                                         }
+                                                        size="large"
                                                       >
-                                                        <Lock fontSize="default" />
+                                                        <Lock fontSize="medium" />
                                                       </IconButton>
                                                     </Grid>
                                                   </Grid>

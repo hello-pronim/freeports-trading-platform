@@ -2,17 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Button,
-  Container,
-  createStyles,
-  Grid,
-  makeStyles,
-  Theme,
-  Typography,
-} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import SyncAltIcon from "@material-ui/icons/SyncAlt";
+import { Button, Container, Grid, Theme, Typography } from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import AddIcon from "@mui/icons-material/Add";
+import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import MaterialTable from "material-table";
 
 import data from "./data";
@@ -72,7 +66,11 @@ const Trades = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Grid container alignItems="center" justify="space-between">
+                <Grid
+                  container
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
                   <Grid item>
                     <Typography variant="h5">ORDER REQUESTS</Typography>
                   </Grid>
@@ -99,7 +97,7 @@ const Trades = (): React.ReactElement => {
                             <Link
                               to={`/desks/${investor.desk}/investors/${investor.id}/trades/${id}`}
                             >
-                             {id}
+                              {id}
                             </Link>
                           );
                         },
@@ -142,11 +140,11 @@ const Trades = (): React.ReactElement => {
                       },
                       {
                         field: "currencyFrom",
-                        title: "from"
+                        title: "from",
                       },
                       {
                         title: "Commission",
-                      }
+                      },
                     ]}
                     data={tradeRequests.map((investorItem: any) => ({
                       ...investorItem,

@@ -16,7 +16,6 @@ import {
   CardActions,
   CircularProgress,
   Container,
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
@@ -29,18 +28,19 @@ import {
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   MenuItem,
   Theme,
   TextField,
   Typography,
-} from "@material-ui/core";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
-import SearchIcon from "@material-ui/icons/Search";
-import red from "@material-ui/core/colors/red";
-
+} from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import SearchIcon from "@mui/icons-material/Search";
+import { red } from "@mui/material/colors";
 import { useDesksSlice } from "../slice";
+
 import { useDeskDetailSlice } from "./slice";
 import {
   selectDesks,
@@ -191,6 +191,7 @@ const Detail = (): React.ReactElement => {
                       className={classes.addButton}
                       color="primary"
                       onClick={handleDialogOpen}
+                      size="large"
                     >
                       <Icon fontSize="large">add_circle</Icon>
                     </IconButton>
@@ -247,7 +248,11 @@ const Detail = (): React.ReactElement => {
             {!deskDetailLoading && (
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <Grid container justify="space-between" alignItems="center">
+                  <Grid
+                    container
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
                     <Grid item>
                       <Typography variant="h5">{selectedDesk.name}</Typography>
                     </Grid>
@@ -365,6 +370,7 @@ const Detail = (): React.ReactElement => {
                                               <IconButton
                                                 onClick={() => fields.remove(i)}
                                                 aria-label="Remove"
+                                                size="large"
                                               >
                                                 <DeleteForeverIcon />
                                               </IconButton>
@@ -383,6 +389,7 @@ const Detail = (): React.ReactElement => {
                                                     })
                                                   }
                                                   aria-label="Add"
+                                                  size="large"
                                                 >
                                                   <AddCircleOutlineIcon />
                                                 </IconButton>
@@ -402,7 +409,7 @@ const Detail = (): React.ReactElement => {
                               <Grid
                                 container
                                 alignItems="center"
-                                justify="flex-end"
+                                justifyContent="flex-end"
                               >
                                 <Grid item>
                                   <div

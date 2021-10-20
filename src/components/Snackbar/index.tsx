@@ -1,6 +1,6 @@
-import { Snackbar as MUISnackbar } from "@material-ui/core";
+import { Snackbar as MUISnackbar } from "@mui/material";
 import React from "react";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectShowSnackbar,
