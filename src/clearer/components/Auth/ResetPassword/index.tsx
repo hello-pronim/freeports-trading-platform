@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import makeStyles from '@mui/styles/makeStyles';
+import makeStyles from "@mui/styles/makeStyles";
 
-import { 
+import {
   Avatar,
   Box,
   CircularProgress,
-  Container, 
+  Container,
   CssBaseline,
   Button,
-  Typography
+  Typography,
 } from "@mui/material";
 import { Form } from "react-final-form";
 import { TextField } from "mui-rff";
@@ -78,7 +78,7 @@ const Copyright = (): React.ReactElement => {
 const ResetPassword = (): React.ReactElement => {
   const history = useHistory();
   const classes = useStyles();
-  
+
   const { userId, token }: any = useParams();
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -88,7 +88,7 @@ const ResetPassword = (): React.ReactElement => {
     setLoading(true);
     await resetPassword(userId, {
       password: values.password,
-      token
+      token,
     })
       .then((data) => {
         history.push(`/signin`);
@@ -114,9 +114,7 @@ const ResetPassword = (): React.ReactElement => {
         <Form
           onSubmit={handleOnSubmit}
           validate={validate}
-          render={({
-            handleSubmit
-          }) => (
+          render={({ handleSubmit }) => (
             <form onSubmit={handleSubmit} noValidate className={classes.form}>
               <TextField
                 variant="outlined"
@@ -157,9 +155,9 @@ const ResetPassword = (): React.ReactElement => {
                   Reset
                 </Button>
                 {loading && (
-                  <CircularProgress 
-                    size={24} 
-                    className={classes.progressButton} 
+                  <CircularProgress
+                    size={24}
+                    className={classes.progressButton}
                   />
                 )}
               </div>
