@@ -52,6 +52,7 @@ import { RfqResponse } from "../../../../types/RfqResponse";
 import AccurateNumber from "../../../../components/AccurateNumber";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
 import AmountInput from "../AmountInput";
+import { PriceEvent } from "./slice/types";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -197,23 +198,79 @@ const TradeDetail = (): React.ReactElement => {
   const handleTabChange = (event: any, newValue: number) => {
     setActiveTabIndex(newValue);
   };
-
-  // const handleAmountChange = (event: any) => {
-  //   console.log("input change ", event.target.value);
-  //   if (event.target.value !== tradeAmount) {
-  //     dispatch(tradeDetailActions.setTradeAmount(event.target.value));
-  //   }
-  //   // dispatch(
-  //   //   tradeDetailActions.getRfqs({
-  //   //     organizationId,
-  //   //     deskId,
-  //   //     investorId,
-  //   //     tradeId,
-  //   //   })
-  //   // );
-
-  //   console.log("input change handeled");
-  // };
+  const BrokerCard = ({
+    priceEvent,
+    onSelected,
+  }: {
+    priceEvent: PriceEvent;
+    onSelected: () => void;
+  }): React.ReactElement => {
+    return (
+      <Grid item xs={12} md={4} sx={{ padding: theme.spacing(2) }}>
+        <Grid container direction="column">
+          <Grid item>
+            <Grid container justifyContent="space-between" direction="row">
+              <Grid>Rate</Grid>
+              <Grid>Last RFQ for value </Grid>
+              <Grid>{priceEvent.broker}</Grid>
+            </Grid>
+          </Grid>
+          <Divider />
+          <Grid
+            container
+            sx={{
+              padding: theme.spacing(2),
+              backgroundColor: grey[200],
+              margin: theme.spacing(1),
+            }}
+          >
+            <Grid item xs={5}>
+              <Grid container justifyContent="center">
+                <Grid container justifyContent="center">
+                  <Typography sx={{ color: green[600] }} align="center">
+                    Bid
+                  </Typography>
+                </Grid>
+                <Grid container justifyContent="center">
+                  <Typography align="center">{priceEvent.buy}</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={2}>
+              <Grid container direction="column">
+                <Grid item xs={5}>
+                  <Grid container justifyContent="center">
+                    <Grid item>Spread</Grid>
+                    <Grid item>0.000435</Grid>
+                  </Grid>
+                </Grid>
+                <Grid sx={{ backgroundColor: "white" }} item xs={5} />
+              </Grid>
+            </Grid>
+            <Grid item xs={5}>
+              <Grid container justifyContent="center">
+                <Grid container justifyContent="center">
+                  <Typography sx={{ color: red[600] }} align="center">
+                    Ask
+                  </Typography>
+                </Grid>
+                <Grid container justifyContent="center">
+                  <Typography align="center">{priceEvent.sell}</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Grid container justifyContent="center">
+              <Button onClick={onSelected} sx={{ backgroundColor: grey[200] }}>
+                SELECT BROKER
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
+  };
 
   const handleOnOrder = (rfq: RfqResponse) => {
     dispatch(
@@ -310,63 +367,10 @@ const TradeDetail = (): React.ReactElement => {
             </Grid>
           </Grid>
         </Grid>
-
         <Grid item xs={12}>
           <Grid container>
             {priceEvents.map((priceEvent) => (
-              <Grid item xs={12} md={4}>
-                <Grid container direction="column">
-                  <Grid item>
-                    <Grid
-                      container
-                      justifyContent="space-between"
-                      direction="row"
-                    >
-                      <Grid>Rate</Grid>
-                      <Grid>Last RFQ for value </Grid>
-                      <Grid>{priceEvent.broker}</Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid container>
-                    <Grid item xs={5} color={theme.palette.secondary.light}>
-                      <Grid container justifyContent="center">
-                        <Grid container justifyContent="center">
-                          <Typography sx={{ color: green[600] }} align="center">
-                            Bid
-                          </Typography>
-                        </Grid>
-                        <Grid container justifyContent="center">
-                          <Typography align="center">
-                            {priceEvent.buy}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                    <Grid item xs={2}>
-                      Spread
-                    </Grid>
-                    <Grid item xs={5}>
-                      <Grid container justifyContent="center">
-                        <Grid container justifyContent="center">
-                          <Typography sx={{ color: red[600] }} align="center">
-                            Ask
-                          </Typography>
-                        </Grid>
-                        <Grid container justifyContent="center">
-                          <Typography align="center">
-                            {priceEvent.sell}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item>
-                    <Grid container justifyContent="center">
-                      <Button>SELECT </Button>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
+              <BrokerCard priceEvent={priceEvent} onSelected={console.log} />
             ))}
           </Grid>
         </Grid>
