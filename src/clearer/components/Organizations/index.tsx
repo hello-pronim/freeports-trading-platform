@@ -2,14 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import { Container, Grid, IconButton, Icon, Theme, Typography } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import {
+  Container,
+  Grid,
+  IconButton,
+  Icon,
+  Theme,
+  Typography,
+} from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
 import MaterialTable from "material-table";
 
 import axios from "../../../util/axios";
 import { useOrganizationsSlice } from "./slice";
 import { selectOrganizations } from "./slice/selectors";
+import PatchedPagination from "../../../util/patchedPagination";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -56,7 +64,8 @@ const Organizations = (): React.ReactElement => {
                   className={classes.addButton}
                   color="primary"
                   onClick={newOrganizer}
-                  size="large">
+                  size="large"
+                >
                   <Icon fontSize="large">add_circle</Icon>
                 </IconButton>
               </Grid>
@@ -107,6 +116,7 @@ const Organizations = (): React.ReactElement => {
                 search: true,
                 showTitle: false,
               }}
+              components={{ Pagination: PatchedPagination }}
             />
           </Grid>
         </Grid>

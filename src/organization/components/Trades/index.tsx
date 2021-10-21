@@ -17,6 +17,7 @@ import {
   selectIsTradeRequestsLoading,
 } from "./slice/selectors";
 import Loader from "../../../components/Loader";
+import PatchedPagination from "../../../util/patchedPagination";
 
 const { manualTrades, tradeHistory } = data;
 
@@ -150,6 +151,7 @@ const Trades = (): React.ReactElement => {
                       ...investorItem,
                     }))}
                     options={{ showTitle: false }}
+                    components={{ Pagination: PatchedPagination }}
                   />
                 )}
               </Grid>
@@ -215,6 +217,7 @@ const Trades = (): React.ReactElement => {
                   ]}
                   data={tradeHistory}
                   options={{ showTitle: false }}
+                  components={{ Pagination: PatchedPagination }}
                 />
               </Grid>
             </Grid>

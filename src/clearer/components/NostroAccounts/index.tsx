@@ -28,8 +28,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialTable from "material-table";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import { red } from "@mui/material/colors";
-import { useAccountsSlice } from "./slice";
 
+import { useAccountsSlice } from "./slice";
+import { useClearerSettingsSlice } from "../Settings/slice";
 import {
   selectAccounts,
   selectIsAccountsLoading,
@@ -39,7 +40,7 @@ import {
 import Loader from "../../../components/Loader";
 import vault from "../../../vault";
 import { selectClearerSettings } from "../Settings/slice/selectors";
-import { useClearerSettingsSlice } from "../Settings/slice";
+import PatchedPagination from "../../../util/patchedPagination";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -500,6 +501,7 @@ const NostroAccounts = (): React.ReactElement => {
                   search: true,
                   showTitle: false,
                 }}
+                components={{ Pagination: PatchedPagination }}
               />
             </Grid>
           )}

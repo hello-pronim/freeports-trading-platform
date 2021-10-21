@@ -29,8 +29,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -56,6 +56,7 @@ import Loader from "../../../../../components/Loader";
 import Account from "../../../../../types/Account";
 import vault from "../../../../../vault";
 import { InvestorAccountAddressTx } from "../../../../../types/InvestorAccountOperation";
+import PatchedPagination from "../../../../../util/patchedPagination";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -234,7 +235,7 @@ const InvestorDetail = (): React.ReactElement => {
             selectedInvestorAccount.vaultAddressbookId
           );
           const response = await vault.sendRequest(vaultRequest);
-          setWhitelist(response.addresses); 
+          setWhitelist(response.addresses);
         } catch (error) {
           dispatch(
             snackbarActions.showSnackbar({
@@ -263,7 +264,9 @@ const InvestorDetail = (): React.ReactElement => {
   };
 
   const handleAccountCreate = async (values: Account) => {
-    const sameAccount = investorAccounts.filter(x => x.currency === values.currency);
+    const sameAccount = investorAccounts.filter(
+      (x) => x.currency === values.currency
+    );
     if (sameAccount.length) {
       dispatch(
         snackbarActions.showSnackbar({
@@ -280,7 +283,7 @@ const InvestorDetail = (): React.ReactElement => {
         );
         const response = await vault.sendRequest(vaultCreateWalletRequest);
         newAccount.vaultWalletId = response.wallet.id;
-  
+
         const vaultGetWalletsRequest = await vault.getAllWallets();
         const response2 = await vault.sendRequest(vaultGetWalletsRequest);
         newAccount.publicAddress = response2.wallets.filter(
@@ -292,7 +295,7 @@ const InvestorDetail = (): React.ReactElement => {
         newAccount.vaultAddressbookId = response3.addressBook.id;
 
         // Manage asset permission
-  
+
         await dispatch(
           investorDetailActions.addInvestorAccount({
             organizationId,
@@ -338,7 +341,12 @@ const InvestorDetail = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container alignItems="center" spacing={4}>
               <Grid item xs={3}>
-                <IconButton color="inherit" aria-label="Back" onClick={handleBackClick} size="large">
+                <IconButton
+                  color="inherit"
+                  aria-label="Back"
+                  onClick={handleBackClick}
+                  size="large"
+                >
                   <ArrowBackIosIcon fontSize="small" color="primary" />
                 </IconButton>
               </Grid>
@@ -391,7 +399,8 @@ const InvestorDetail = (): React.ReactElement => {
                             aria-label="Add"
                             className={classes.addButton}
                             onClick={handleCreateAccountModalOpen}
-                            size="large">
+                            size="large"
+                          >
                             <Icon fontSize="large">add_circle</Icon>
                           </IconButton>
                         </Grid>
@@ -528,6 +537,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 sorting: false,
                                 toolbar: false,
                               }}
+                              components={{ Pagination: PatchedPagination }}
                             />
                           )}
                         </Grid>
@@ -562,13 +572,14 @@ const InvestorDetail = (): React.ReactElement => {
                                     const { address } = rowData;
                                     return address;
                                   },
-                                }
+                                },
                               ]}
                               data={whitelist}
                               options={{
                                 sorting: false,
                                 toolbar: false,
                               }}
+                              components={{ Pagination: PatchedPagination }}
                             />
                           )}
                         </Grid>

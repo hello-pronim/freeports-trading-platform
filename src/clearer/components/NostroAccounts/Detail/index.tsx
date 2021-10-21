@@ -25,8 +25,8 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -38,10 +38,10 @@ import ListItem from "@mui/material/ListItem";
 
 import ListItemText from "@mui/material/ListItemText";
 import List from "@mui/material/List";
+
 import { passedTransactionsData } from "../data";
 
 import { useAccountsSlice } from "../slice";
-
 import { useAccountDetailSlice } from "./slice";
 import { selectAccounts, selectIsAccountsLoading } from "../slice/selectors";
 import {
@@ -54,7 +54,7 @@ import {
 } from "./slice/selectors";
 import Loader from "../../../../components/Loader";
 import Operation from "../../../../types/Operation";
-import { red } from '@mui/material/colors';
+import PatchedPagination from "../../../../util/patchedPagination";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -247,12 +247,21 @@ const Detail = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container>
               <Grid item xs={3}>
-                <IconButton color="inherit" aria-label="Back" onClick={handleBackClick} size="large">
+                <IconButton
+                  color="inherit"
+                  aria-label="Back"
+                  onClick={handleBackClick}
+                  size="large"
+                >
                   <ArrowBackIosIcon fontSize="small" color="primary" />
                 </IconButton>
               </Grid>
               <Grid item xs={9}>
-                <Grid container alignItems="center" justifyContent="space-between">
+                <Grid
+                  container
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
                   <Grid item>
                     <Grid container direction="column">
                       <Grid item>
@@ -278,7 +287,11 @@ const Detail = (): React.ReactElement => {
                             </Typography>
                           </Grid>
                           <Grid item>
-                            <IconButton color="inherit" aria-label="Edit" size="large">
+                            <IconButton
+                              color="inherit"
+                              aria-label="Edit"
+                              size="large"
+                            >
                               <EditIcon fontSize="small" color="primary" />
                             </IconButton>
                           </Grid>
@@ -457,7 +470,10 @@ const Detail = (): React.ReactElement => {
                                   return (
                                     <Grid container spacing={1}>
                                       <Grid item xs={6}>
-                                        <IconButton color="inherit" size="large">
+                                        <IconButton
+                                          color="inherit"
+                                          size="large"
+                                        >
                                           <FlashOnIcon
                                             fontSize="small"
                                             color="primary"
@@ -471,7 +487,8 @@ const Detail = (): React.ReactElement => {
                                             handleOperationDelete(id)
                                           }
                                           disabled={operationDeleting}
-                                          size="large">
+                                          size="large"
+                                        >
                                           <DeleteIcon
                                             fontSize="small"
                                             className="icon-delete"
@@ -491,6 +508,7 @@ const Detail = (): React.ReactElement => {
                             options={{
                               toolbar: false,
                             }}
+                            components={{ Pagination: PatchedPagination }}
                           />
                         </Grid>
                       </Grid>
@@ -554,6 +572,7 @@ const Detail = (): React.ReactElement => {
                             options={{
                               toolbar: false,
                             }}
+                            components={{ Pagination: PatchedPagination }}
                           />
                         </Grid>
                       </Grid>
@@ -615,6 +634,7 @@ const Detail = (): React.ReactElement => {
                             options={{
                               toolbar: false,
                             }}
+                            components={{ Pagination: PatchedPagination }}
                           />
                         </Grid>
                       </Grid>
