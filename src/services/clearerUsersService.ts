@@ -52,10 +52,14 @@ const updateClearerUser = async (
   user: Partial<User>,
   vaultUserId: string,
   oldVaultGroup: string[],
-  newVaultGroup: string[]
+  newVaultGroup: string[],
+  vaultOrgUserId: string,
+  oldVaultOrgGroup: string[],
+  newVaultOrgGroup: string[],
+  clearerOrganizationId: string,
 ): Promise<User> => {
+
   await vault.authenticate();
-  
   const removeFromGroupRequests = await vault.removeUserFromMultipleGroup(
     vaultUserId,
     oldVaultGroup
@@ -64,6 +68,27 @@ const updateClearerUser = async (
     vaultUserId,
     newVaultGroup
   );
+
+  await vault.authenticate(clearerOrganizationId);
+  await Promise.all(
+    oldVaultOrgGroup.map(async (vaultGroupId: string) => {
+      const request = await vault.removeUserFromGroup(
+        vaultOrgUserId, 
+        vaultGroupId
+      );
+      await vault.sendRequest(request);
+    })
+  );
+  await Promise.all(
+    newVaultOrgGroup.map(async (vaultGroupId: string) => {
+      const request = await vault.addUserToGroup(
+        vaultOrgUserId, 
+        vaultGroupId
+      );
+      await vault.sendRequest(request);
+    })
+  );
+  vault.clearToken();
 
   return new Promise((resolve, reject) => {
     axios

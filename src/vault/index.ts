@@ -139,7 +139,8 @@ export class Vault {
     VaultPermissions.CreateDeleteUser,
     VaultPermissions.CreateDeleteGroup,
     VaultPermissions.CreateWallet,
-    VaultPermissions.GetWallets
+    VaultPermissions.GetWallets,
+    VaultPermissions.GetPermissions,
   ];
 
   constructor() {

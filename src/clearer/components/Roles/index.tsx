@@ -43,12 +43,15 @@ import { VaultAssetType } from "../../../vault/enum/asset-type";
 import { selectUser } from "../../../slice/selectors";
 import Permission from "../../../types/Permission";
 import { snackbarActions } from "../../../components/Snackbar/slice";
+import { selectClearerSettings } from "../Settings/slice/selectors";
+import { useClearerSettingsSlice } from "../Settings/slice";
 
 export interface RoleType {
   id: string;
   name: string;
   permissions: Array<string>;
-  vaultGroupId?: string;
+  vaultGroupId: string;
+  vaultType: string;
 }
 
 interface LockPermissionsType {
@@ -109,6 +112,9 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "100%",
       marginBottom: theme.spacing(2),
     },
+    fullWidth: {
+      width: "100%",
+    },
   })
 );
 const Roles = (): React.ReactElement => {
@@ -127,26 +133,27 @@ const Roles = (): React.ReactElement => {
   const [lockingRole, setLockingRole] = useState({
     name: "",
     vaultGroupId: "",
+    vaultType: "vault",
   });
   const [lockPermissions, setLockPermissions] = useState<LockPermissionsType>({
     addRemoveUser: [],
     createDeleteRuleTree: [],
     getRuleTrees: [],
   });
-  const [roleNameEditable, setRoleNameEditable] = useState<Array<boolean>>([
-    false,
-  ]);
+  const [roleNameEditable, setRoleNameEditable] = useState<any>({});
+  const clearerSettings = useSelector(selectClearerSettings);
+  const { actions: clearerSettingsActions } = useClearerSettingsSlice();
 
   useEffect(() => {
     let unmounted = false;
 
     const init = async () => {
-      const rolesList = await retrieveRoles();
-      const permissionList = await retrievePermissions();
-
       if (!unmounted) {
+        const rolesList = await retrieveRoles();
+        const permissionList = await retrievePermissions();
         setRoles(rolesList);
         setPermissionGroups(permissionList);
+        dispatch(clearerSettingsActions.retrieveClearerSettings());
       }
     };
 
@@ -205,7 +212,12 @@ const Roles = (): React.ReactElement => {
 
     setSaving(true);
 
-    const response = await updateRole(roleId, newRole, oldPermissions);
+    const response = await updateRole(
+      roleId, 
+      newRole, 
+      oldPermissions, 
+      clearerSettings.vaultOrganizationId
+    );
     if (response.errorType) {
       if (Array.isArray(response.message)) {
         dispatch(
@@ -235,15 +247,12 @@ const Roles = (): React.ReactElement => {
     }
     setSaving(false);
 
-    let temp = [...roleNameEditable];
-    temp = [false];
-    setRoleNameEditable(temp);
+    setRoleNameEditable({});
   };
 
-  const onRoleRemove = async (roleId: string, vaultGroupId: string) => {
-    // const newRoles = roles.filter((role: any) => role.id !== roleId);
+  const onRoleRemove = async (role: RoleType) => {
     setRemoving(true);
-    const response = await removeRole(roleId, vaultGroupId);
+    const response = await removeRole(role, clearerSettings.vaultOrganizationId);
     if (response.errorType) {
       dispatch(
         snackbarActions.showSnackbar({
@@ -258,24 +267,34 @@ const Roles = (): React.ReactElement => {
           type: "success",
         })
       );
-      const newRoles = roles.filter((role) => role.id !== roleId);
+      const newRoles = roles.filter(x => x.id !== role.id);
       setRoles(newRoles);
     }
     setRemoving(false);
   };
 
-  const handleNewRoleClick = () => {
-    history.push("/roles/add");
+  const onClickAddVaultRole = () => {
+    history.push("/roles/add/vault");
+  };
+
+  const onClickAddOrgRole = () => {
+    history.push("/roles/add/organization");
   };
 
   const openLockModal = async (role: any) => {
     setLockingRole(role);
     try {
+      const isOrg = role.vaultType === "organization";
+      if (isOrg) {
+        await vault.authenticate(clearerSettings.vaultOrganizationId);
+      }
       const request = await vault.getAssetPermissions(
         VaultAssetType.GROUP,
-        role.vaultGroupId
+        role.vaultGroupId,
+        isOrg
       );
       const assetPermissions = await vault.sendRequest(request);
+      vault.clearToken();
 
       const addRemoveUser: string[] = [];
       const createDeleteRuleTree: string[] = [];
@@ -314,6 +333,12 @@ const Roles = (): React.ReactElement => {
   const handleLockPermission = async (values: any) => {
     setLockModalProcessing(true);
     try {
+      const isOrg = lockingRole.vaultType === "organization";
+      if (isOrg) {
+        await vault.authenticate(clearerSettings.vaultOrganizationId);
+      } else {
+        await vault.authenticate();
+      }
       const addRemoveUserOld = [...lockPermissions.addRemoveUser];
       const addRemoveUserNew: string[] = [];
       values.addRemoveUser.forEach((x: string) => {
@@ -324,7 +349,6 @@ const Roles = (): React.ReactElement => {
           addRemoveUserNew.push(x);
         }
       });
-      await vault.authenticate();
       await Promise.all(
         addRemoveUserOld.map(async (vaultGroupId: string) => {
           const request = await vault.revokePermissionFromAsset(
@@ -332,7 +356,8 @@ const Roles = (): React.ReactElement => {
             lockingRole.vaultGroupId,
             PermissionOwnerType.group,
             vaultGroupId,
-            VaultPermissions.AddRemoveUser
+            VaultPermissions.AddRemoveUser,
+            isOrg
           );
           await vault.sendRequest(request);
         })
@@ -344,7 +369,8 @@ const Roles = (): React.ReactElement => {
             lockingRole.vaultGroupId,
             PermissionOwnerType.group,
             vaultGroupId,
-            VaultPermissions.AddRemoveUser
+            VaultPermissions.AddRemoveUser,
+            isOrg
           );
           await vault.sendRequest(request);
         })
@@ -367,7 +393,8 @@ const Roles = (): React.ReactElement => {
             lockingRole.vaultGroupId,
             PermissionOwnerType.group,
             vaultGroupId,
-            VaultPermissions.CreateDeleteRuleTree
+            VaultPermissions.CreateDeleteRuleTree,
+            isOrg
           );
           await vault.sendRequest(request);
         })
@@ -379,7 +406,8 @@ const Roles = (): React.ReactElement => {
             lockingRole.vaultGroupId,
             PermissionOwnerType.group,
             vaultGroupId,
-            VaultPermissions.CreateDeleteRuleTree
+            VaultPermissions.CreateDeleteRuleTree,
+            isOrg
           );
           await vault.sendRequest(request);
         })
@@ -402,7 +430,8 @@ const Roles = (): React.ReactElement => {
             lockingRole.vaultGroupId,
             PermissionOwnerType.group,
             vaultGroupId,
-            VaultPermissions.GetRuleTrees
+            VaultPermissions.GetRuleTrees,
+            isOrg
           );
           await vault.sendRequest(request);
         })
@@ -414,11 +443,14 @@ const Roles = (): React.ReactElement => {
             lockingRole.vaultGroupId,
             PermissionOwnerType.group,
             vaultGroupId,
-            VaultPermissions.GetRuleTrees
+            VaultPermissions.GetRuleTrees,
+            isOrg
           );
           await vault.sendRequest(request);
         })
       );
+
+      vault.clearToken();
 
       dispatch(
         snackbarActions.showSnackbar({
@@ -438,19 +470,18 @@ const Roles = (): React.ReactElement => {
     setLockModalProcessing(false);
   };
 
-  const handleRoleNameEditClick = (e: any, index: number) => {
-    const temp = [...roleNameEditable];
-    temp[index] = true;
+  const handleRoleNameEditClick = (e: any, roleId: string) => {
+    const temp = {...roleNameEditable};
+    temp[roleId] = true;
     setRoleNameEditable(temp);
   };
 
   const handleRoleNameConfirmClick = (
     e: any,
-    index: number,
     roleId: string
   ) => {
-    const temp = [...roleNameEditable];
-    temp[index] = false;
+    const temp = {...roleNameEditable};
+    temp[roleId] = true;
     setRoleNameEditable(temp);
 
     onRoleSave(roleId);
@@ -459,247 +490,489 @@ const Roles = (): React.ReactElement => {
   return (
     <div className="main-wrapper">
       <Container>
-        <Grid container spacing={2}>
+        <Grid container spacing={6}>
           <Grid item xs={12}>
-            <Grid container alignItems="center" spacing={2}>
-              <Grid item>
-                <Typography variant="h5">Roles</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Grid container alignItems="center" spacing={2}>
+                  <Grid item>
+                    <Typography variant="h5">Roles (Vault)</Typography>
+                  </Grid>
+                  <Grid item>
+                    <IconButton
+                      className={classes.addButton}
+                      color="primary"
+                      onClick={onClickAddVaultRole}
+                      size="large"
+                    >
+                      <Icon fontSize="large">add_circle</Icon>
+                    </IconButton>
+                  </Grid>
+                </Grid>
               </Grid>
-              <Grid item>
-                <IconButton
-                  className={classes.addButton}
-                  color="primary"
-                  onClick={handleNewRoleClick}
-                  size="large"
-                >
-                  <Icon fontSize="large">add_circle</Icon>
-                </IconButton>
+              <Grid item xs={12}>
+                {roles.length > 0 ? (
+                  <Grid container spacing={1}>
+                    {roles
+                      .filter((role: RoleType) => role.name !== "_default" && role.vaultType === "vault")
+                      .map((role: RoleType) => (
+                        <Grid item xs={12} key={role.id}>
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1c-content"
+                            >
+                              <Grid
+                                container
+                                alignItems="center"
+                                justifyContent="space-between"
+                              >
+                                <Grid item>
+                                  {!roleNameEditable[role.id] ? (
+                                    <Grid container alignItems="center" spacing={2}>
+                                      <Grid item>
+                                        <Typography className={classes.roleName}>
+                                          {role.name}
+                                        </Typography>
+                                      </Grid>
+                                      <Grid item>
+                                        <IconButton
+                                          color="primary"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRoleNameEditClick(e, role.id);
+                                          }}
+                                          size="large"
+                                        >
+                                          <EditOutlinedIcon />
+                                        </IconButton>
+                                      </Grid>
+                                    </Grid>
+                                  ) : (
+                                    <Grid container alignItems="center" spacing={2}>
+                                      <Grid item>
+                                        <TextField
+                                          variant="outlined"
+                                          size="small"
+                                          label="Role Name"
+                                          value={role.name}
+                                          onChange={(e) =>
+                                            onRoleNameChange(e, role.id)
+                                          }
+                                        />
+                                      </Grid>
+                                      <Grid item>
+                                        <IconButton
+                                          color="primary"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRoleNameConfirmClick(
+                                              e,
+                                              role.id
+                                            );
+                                          }}
+                                          size="large"
+                                        >
+                                          <CheckIcon />
+                                        </IconButton>
+                                      </Grid>
+                                    </Grid>
+                                  )}
+                                </Grid>
+                                <Grid item>
+                                  <IconButton
+                                    style={{ padding: 0 }}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      openLockModal(role);
+                                    }}
+                                    disabled={
+                                      !vault.checkUserLockUsability(currentUser)
+                                    }
+                                    size="large"
+                                  >
+                                    <Lock fontSize="medium" />
+                                  </IconButton>
+                                </Grid>
+                              </Grid>
+                            </AccordionSummary>
+                            <div>
+                              {permissionGroups.filter(x=>x.vaultType === "vault").map(
+                                (permissionGroup: Permission) => (
+                                  <FormGroup
+                                    key={permissionGroup.name}
+                                    className={`permission-container ${classes.permissionContainer}`}
+                                  >
+                                    {permissionGroup.description ? (
+                                      <Tooltip
+                                        title={permissionGroup.description}
+                                        placement="top-start"
+                                        arrow
+                                      >
+                                        <FormLabel
+                                          component="legend"
+                                          className={`${classes.permissionName} ${classes.link}`}
+                                        >
+                                          {permissionGroup.name}
+                                        </FormLabel>
+                                      </Tooltip>
+                                    ) : (
+                                      <FormLabel
+                                        component="legend"
+                                        className={classes.permissionName}
+                                      >
+                                        {permissionGroup.name}
+                                      </FormLabel>
+                                    )}
+                                    {permissionGroup.description}
+                                    <AccordionDetails
+                                      className={classes.permissionDetails}
+                                    >
+                                      {permissionGroup.permissions.map(
+                                        (permission: {
+                                          name: string;
+                                          code: string;
+                                          description?: string;
+                                          dependsOn?: string[];
+                                        }) => (
+                                          <div
+                                            key={permission.code}
+                                            className={classes.column}
+                                          >
+                                            <FormControlLabel
+                                              className={classes.checkboxLabel}
+                                              control={
+                                                <Checkbox
+                                                  color="primary"
+                                                  name={permission.code}
+                                                  checked={Boolean(
+                                                    role.permissions.includes(
+                                                      permission.code
+                                                    )
+                                                  )}
+                                                  onChange={(e) =>
+                                                    onPermissionChange(e, role.id)
+                                                  }
+                                                />
+                                              }
+                                              label={
+                                                permission.description ? (
+                                                  <Tooltip
+                                                    title={permission.description}
+                                                    placement="top-start"
+                                                    arrow
+                                                  >
+                                                    <Typography
+                                                      variant="body2"
+                                                      className={classes.link}
+                                                    >
+                                                      {permission.name}
+                                                    </Typography>
+                                                  </Tooltip>
+                                                ) : (
+                                                  <Typography variant="body2">
+                                                    {permission.name}
+                                                  </Typography>
+                                                )
+                                              }
+                                            />
+                                          </div>
+                                        )
+                                      )}
+                                    </AccordionDetails>
+                                  </FormGroup>
+                                )
+                              )}
+                            </div>
+                            <Divider />
+                            <AccordionActions>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  disabled={removing}
+                                  onClick={() =>
+                                    onRoleRemove(role)
+                                  }
+                                >
+                                  Remove
+                                </Button>
+                                {removing && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => onRoleSave(role.id)}
+                                  disabled={saving}
+                                >
+                                  Save
+                                </Button>
+                                {saving && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                            </AccordionActions>
+                          </Accordion>
+                        </Grid>
+                      ))}
+                  </Grid>
+                ) : (
+                  <></>
+                )}
               </Grid>
             </Grid>
           </Grid>
+          <Divider className={classes.fullWidth} />
           <Grid item xs={12}>
-            {roles.length > 0 ? (
-              <Grid container spacing={1}>
-                {roles
-                  .filter((role: RoleType) => role.name !== "_default")
-                  .map((role: RoleType, index: number) => (
-                    <Grid item xs={12} key={role.id}>
-                      <Accordion>
-                        <AccordionSummary
-                          expandIcon={<ExpandMoreIcon />}
-                          aria-controls="panel1c-content"
-                        >
-                          <Grid
-                            container
-                            alignItems="center"
-                            justifyContent="space-between"
-                          >
-                            <Grid item>
-                              {!roleNameEditable[index] ? (
-                                <Grid container alignItems="center" spacing={2}>
-                                  <Grid item>
-                                    <Typography className={classes.roleName}>
-                                      {role.name}
-                                    </Typography>
-                                  </Grid>
-                                  <Grid item>
-                                    <IconButton
-                                      color="primary"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRoleNameEditClick(e, index);
-                                      }}
-                                      size="large"
-                                    >
-                                      <EditOutlinedIcon />
-                                    </IconButton>
-                                  </Grid>
-                                </Grid>
-                              ) : (
-                                <Grid container alignItems="center" spacing={2}>
-                                  <Grid item>
-                                    <TextField
-                                      variant="outlined"
-                                      size="small"
-                                      label="Role Name"
-                                      value={role.name}
-                                      onChange={(e) =>
-                                        onRoleNameChange(e, role.id)
-                                      }
-                                    />
-                                  </Grid>
-                                  <Grid item>
-                                    <IconButton
-                                      color="primary"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRoleNameConfirmClick(
-                                          e,
-                                          index,
-                                          role.id
-                                        );
-                                      }}
-                                      size="large"
-                                    >
-                                      <CheckIcon />
-                                    </IconButton>
-                                  </Grid>
-                                </Grid>
-                              )}
-                            </Grid>
-                            <Grid item>
-                              <IconButton
-                                style={{ padding: 0 }}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  openLockModal(role);
-                                }}
-                                disabled={
-                                  !vault.checkUserLockUsability(currentUser)
-                                }
-                                size="large"
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Grid container alignItems="center" spacing={2}>
+                  <Grid item>
+                    <Typography variant="h5">Roles (Organization)</Typography>
+                  </Grid>
+                  <Grid item>
+                    <IconButton
+                      className={classes.addButton}
+                      color="primary"
+                      onClick={onClickAddOrgRole}
+                      size="large"
+                    >
+                      <Icon fontSize="large">add_circle</Icon>
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                {roles.length > 0 ? (
+                  <Grid container spacing={1}>
+                    {roles
+                      .filter((role: RoleType) => role.name !== "_default" && role.vaultType === "organization")
+                      .map((role: RoleType) => (
+                        <Grid item xs={12} key={role.id}>
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1c-content"
+                            >
+                              <Grid
+                                container
+                                alignItems="center"
+                                justifyContent="space-between"
                               >
-                                <Lock fontSize="medium" />
-                              </IconButton>
-                            </Grid>
-                          </Grid>
-                        </AccordionSummary>
-                        <div>
-                          {permissionGroups.map(
-                            (permissionGroup: Permission) => (
-                              <FormGroup
-                                key={permissionGroup.name}
-                                className={`permission-container ${classes.permissionContainer}`}
-                              >
-                                {permissionGroup.description ? (
-                                  <Tooltip
-                                    title={permissionGroup.description}
-                                    placement="top-start"
-                                    arrow
-                                  >
-                                    <FormLabel
-                                      component="legend"
-                                      className={`${classes.permissionName} ${classes.link}`}
-                                    >
-                                      {permissionGroup.name}
-                                    </FormLabel>
-                                  </Tooltip>
-                                ) : (
-                                  <FormLabel
-                                    component="legend"
-                                    className={classes.permissionName}
-                                  >
-                                    {permissionGroup.name}
-                                  </FormLabel>
-                                )}
-                                {permissionGroup.description}
-                                <AccordionDetails
-                                  className={classes.permissionDetails}
-                                >
-                                  {permissionGroup.permissions.map(
-                                    (permission: {
-                                      name: string;
-                                      code: string;
-                                      description?: string;
-                                      dependsOn?: string[];
-                                    }) => (
-                                      <div
-                                        key={permission.code}
-                                        className={classes.column}
-                                      >
-                                        <FormControlLabel
-                                          className={classes.checkboxLabel}
-                                          control={
-                                            <Checkbox
-                                              color="primary"
-                                              name={permission.code}
-                                              checked={Boolean(
-                                                role.permissions.includes(
-                                                  permission.code
-                                                )
-                                              )}
-                                              onChange={(e) =>
-                                                onPermissionChange(e, role.id)
-                                              }
-                                            />
-                                          }
-                                          label={
-                                            permission.description ? (
-                                              <Tooltip
-                                                title={permission.description}
-                                                placement="top-start"
-                                                arrow
-                                              >
-                                                <Typography
-                                                  variant="body2"
-                                                  className={classes.link}
-                                                >
-                                                  {permission.name}
-                                                </Typography>
-                                              </Tooltip>
-                                            ) : (
-                                              <Typography variant="body2">
-                                                {permission.name}
-                                              </Typography>
-                                            )
+                                <Grid item>
+                                  {!roleNameEditable[role.id] ? (
+                                    <Grid container alignItems="center" spacing={2}>
+                                      <Grid item>
+                                        <Typography className={classes.roleName}>
+                                          {role.name}
+                                        </Typography>
+                                      </Grid>
+                                      <Grid item>
+                                        <IconButton
+                                          color="primary"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRoleNameEditClick(e, role.id);
+                                          }}
+                                          size="large"
+                                        >
+                                          <EditOutlinedIcon />
+                                        </IconButton>
+                                      </Grid>
+                                    </Grid>
+                                  ) : (
+                                    <Grid container alignItems="center" spacing={2}>
+                                      <Grid item>
+                                        <TextField
+                                          variant="outlined"
+                                          size="small"
+                                          label="Role Name"
+                                          value={role.name}
+                                          onChange={(e) =>
+                                            onRoleNameChange(e, role.id)
                                           }
                                         />
-                                      </div>
-                                    )
+                                      </Grid>
+                                      <Grid item>
+                                        <IconButton
+                                          color="primary"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRoleNameConfirmClick(
+                                              e,
+                                              role.id
+                                            );
+                                          }}
+                                          size="large"
+                                        >
+                                          <CheckIcon />
+                                        </IconButton>
+                                      </Grid>
+                                    </Grid>
                                   )}
-                                </AccordionDetails>
-                              </FormGroup>
-                            )
-                          )}
-                        </div>
-                        <Divider />
-                        <AccordionActions>
-                          <div className={classes.progressButtonWrapper}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              disabled={removing}
-                              onClick={() =>
-                                onRoleRemove(
-                                  role.id,
-                                  role.vaultGroupId as string
+                                </Grid>
+                                <Grid item>
+                                  <IconButton
+                                    style={{ padding: 0 }}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      openLockModal(role);
+                                    }}
+                                    disabled={
+                                      !vault.checkUserLockUsability(currentUser)
+                                    }
+                                    size="large"
+                                  >
+                                    <Lock fontSize="medium" />
+                                  </IconButton>
+                                </Grid>
+                              </Grid>
+                            </AccordionSummary>
+                            <div>
+                              {permissionGroups.filter(x=>x.vaultType === "organization").map(
+                                (permissionGroup: Permission) => (
+                                  <FormGroup
+                                    key={permissionGroup.name}
+                                    className={`permission-container ${classes.permissionContainer}`}
+                                  >
+                                    {permissionGroup.description ? (
+                                      <Tooltip
+                                        title={permissionGroup.description}
+                                        placement="top-start"
+                                        arrow
+                                      >
+                                        <FormLabel
+                                          component="legend"
+                                          className={`${classes.permissionName} ${classes.link}`}
+                                        >
+                                          {permissionGroup.name}
+                                        </FormLabel>
+                                      </Tooltip>
+                                    ) : (
+                                      <FormLabel
+                                        component="legend"
+                                        className={classes.permissionName}
+                                      >
+                                        {permissionGroup.name}
+                                      </FormLabel>
+                                    )}
+                                    {permissionGroup.description}
+                                    <AccordionDetails
+                                      className={classes.permissionDetails}
+                                    >
+                                      {permissionGroup.permissions.map(
+                                        (permission: {
+                                          name: string;
+                                          code: string;
+                                          description?: string;
+                                          dependsOn?: string[];
+                                        }) => (
+                                          <div
+                                            key={permission.code}
+                                            className={classes.column}
+                                          >
+                                            <FormControlLabel
+                                              className={classes.checkboxLabel}
+                                              control={
+                                                <Checkbox
+                                                  color="primary"
+                                                  name={permission.code}
+                                                  checked={Boolean(
+                                                    role.permissions.includes(
+                                                      permission.code
+                                                    )
+                                                  )}
+                                                  onChange={(e) =>
+                                                    onPermissionChange(e, role.id)
+                                                  }
+                                                />
+                                              }
+                                              label={
+                                                permission.description ? (
+                                                  <Tooltip
+                                                    title={permission.description}
+                                                    placement="top-start"
+                                                    arrow
+                                                  >
+                                                    <Typography
+                                                      variant="body2"
+                                                      className={classes.link}
+                                                    >
+                                                      {permission.name}
+                                                    </Typography>
+                                                  </Tooltip>
+                                                ) : (
+                                                  <Typography variant="body2">
+                                                    {permission.name}
+                                                  </Typography>
+                                                )
+                                              }
+                                            />
+                                          </div>
+                                        )
+                                      )}
+                                    </AccordionDetails>
+                                  </FormGroup>
                                 )
-                              }
-                            >
-                              Remove
-                            </Button>
-                            {removing && (
-                              <CircularProgress
-                                size={24}
-                                className={classes.progressButton}
-                              />
-                            )}
-                          </div>
-                          <div className={classes.progressButtonWrapper}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="primary"
-                              onClick={() => onRoleSave(role.id)}
-                              disabled={saving}
-                            >
-                              Save
-                            </Button>
-                            {saving && (
-                              <CircularProgress
-                                size={24}
-                                className={classes.progressButton}
-                              />
-                            )}
-                          </div>
-                        </AccordionActions>
-                      </Accordion>
-                    </Grid>
-                  ))}
+                              )}
+                            </div>
+                            <Divider />
+                            <AccordionActions>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  disabled={removing}
+                                  onClick={() =>
+                                    onRoleRemove(role)
+                                  }
+                                >
+                                  Remove
+                                </Button>
+                                {removing && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                              <div className={classes.progressButtonWrapper}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => onRoleSave(role.id)}
+                                  disabled={saving}
+                                >
+                                  Save
+                                </Button>
+                                {saving && (
+                                  <CircularProgress
+                                    size={24}
+                                    className={classes.progressButton}
+                                  />
+                                )}
+                              </div>
+                            </AccordionActions>
+                          </Accordion>
+                        </Grid>
+                      ))}
+                  </Grid>
+                ) : (
+                  <></>
+                )}
               </Grid>
-            ) : (
-              <></>
-            )}
+            </Grid>
           </Grid>
         </Grid>
         <Dialog
@@ -729,7 +1002,7 @@ const Roles = (): React.ReactElement => {
                           Assign Users (AddRemoveUser)
                         </FormLabel>
                         <Grid container>
-                          {roles.map((x) => (
+                          {roles.filter(x=>x.vaultType === lockingRole.vaultType).map((x) => (
                             <Grid item key={x.vaultGroupId} xs={2}>
                               <Grid container alignItems="center" spacing={1}>
                                 <Grid item>
@@ -760,7 +1033,7 @@ const Roles = (): React.ReactElement => {
                           Create Rules (CreateDeleteRuleTree)
                         </FormLabel>
                         <Grid container>
-                          {roles.map((x) => (
+                          {roles.filter(x=>x.vaultType === lockingRole.vaultType).map((x) => (
                             <Grid item key={x.vaultGroupId} xs={2}>
                               <Grid container alignItems="center" spacing={1}>
                                 <Grid item>
@@ -791,7 +1064,7 @@ const Roles = (): React.ReactElement => {
                           Display Rules (GetRuleTrees)
                         </FormLabel>
                         <Grid container>
-                          {roles.map((x) => (
+                          {roles.filter(x=>x.vaultType === lockingRole.vaultType).map((x) => (
                             <Grid item key={x.vaultGroupId} xs={2}>
                               <Grid container alignItems="center" spacing={1}>
                                 <Grid item>

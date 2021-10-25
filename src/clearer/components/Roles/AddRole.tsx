@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
+import { useHistory, useParams } from "react-router";
 import {
   Button,
   Card,
@@ -33,10 +33,13 @@ import { VaultAssetType } from "../../../vault/enum/asset-type";
 import Permission from "../../../types/Permission";
 import { snackbarActions } from "../../../components/Snackbar/slice";
 import permissions from "../../../hooks/permissions";
+import { selectClearerSettings } from "../Settings/slice/selectors";
+import { useClearerSettingsSlice } from "../Settings/slice";
 
 interface RoleType {
   name: string;
   permissions: Array<string>;
+  vaultType: string;
 }
 
 const validate = (values: any) => {
@@ -106,7 +109,7 @@ const AddRole = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const history = useHistory();
-
+  const { vaultType } = useParams<{ vaultType: string }>();
   const { retrievePermissions, createNewRole, retrieveRoles, updateRole } =
     useRole();
   const [permissionGroups, setPermissionGroups] = useState([] as any[]);
@@ -119,18 +122,22 @@ const AddRole = (): React.ReactElement => {
     name: "",
     id: "",
     vaultGroupId: "",
+    vaultType
   });
+  const clearerSettings = useSelector(selectClearerSettings);
+  const { actions: clearerSettingsActions } = useClearerSettingsSlice();
 
   useEffect(() => {
     let unmounted = false;
 
     const init = async () => {
-      const permissionList = await retrievePermissions();
-      const rolesList = await retrieveRoles();
       if (!unmounted) {
+        const permissionList = await retrievePermissions();
+        const rolesList = await retrieveRoles();
         setPermissionGroups(permissionList);
         setRoles(rolesList);
         setLockUsability(vault.checkUserLockUsability(currentUser));
+        dispatch(clearerSettingsActions.retrieveClearerSettings());
       }
     };
 
@@ -143,7 +150,11 @@ const AddRole = (): React.ReactElement => {
 
   const handleRoleCreate = async (values: any) => {
     setWizardProccessing(true);
-    const response = await createNewRole(values.name);
+    const response = await createNewRole(
+      values.name,
+      vaultType,
+      clearerSettings.vaultOrganizationId
+    );
     if (response) {
       dispatch(
         snackbarActions.showSnackbar({
@@ -152,6 +163,7 @@ const AddRole = (): React.ReactElement => {
         })
       );
       setNewRole({
+        ...newRole,
         name: values.name,
         id: response.id,
         vaultGroupId: response.vaultGroupId,
@@ -162,7 +174,8 @@ const AddRole = (): React.ReactElement => {
           name: values.name,
           id: response.id,
           vaultGroupId: response.vaultGroupId,
-          permissions: []
+          permissions: [],
+          vaultType
         }
       ]);
       if (lockUsability) {
@@ -189,7 +202,12 @@ const AddRole = (): React.ReactElement => {
     ) {
       setWizardProccessing(true);
       try {
-        await vault.authenticate();
+        const isOrg = vaultType === "organization";
+        if (isOrg) {
+          await vault.authenticate(clearerSettings.vaultOrganizationId);
+        } else {
+          await vault.authenticate();
+        }
         await Promise.all(
           values.addRemoveUser.map(async (vaultGroupId: string) => {
             const request = await vault.grantPermissionToAsset(
@@ -197,7 +215,8 @@ const AddRole = (): React.ReactElement => {
               newRole.vaultGroupId,
               PermissionOwnerType.group,
               vaultGroupId,
-              VaultPermissions.AddRemoveUser
+              VaultPermissions.AddRemoveUser,
+              isOrg
             );
             await vault.sendRequest(request);
           })
@@ -209,7 +228,8 @@ const AddRole = (): React.ReactElement => {
               newRole.vaultGroupId,
               PermissionOwnerType.group,
               vaultGroupId,
-              VaultPermissions.CreateDeleteRuleTree
+              VaultPermissions.CreateDeleteRuleTree,
+              isOrg
             );
             await vault.sendRequest(request);
           })
@@ -221,11 +241,13 @@ const AddRole = (): React.ReactElement => {
               newRole.vaultGroupId,
               PermissionOwnerType.group,
               vaultGroupId,
-              VaultPermissions.GetRuleTrees
+              VaultPermissions.GetRuleTrees,
+              isOrg
             );
             await vault.sendRequest(request);
           })
         );
+        vault.clearToken();
         setWizardStep(2);
       } catch (error) {
         dispatch(
@@ -249,7 +271,8 @@ const AddRole = (): React.ReactElement => {
         ...newRole,
         permissions: values.permissions,
       },
-      []
+      [],
+      clearerSettings.vaultOrganizationId
     );
     if (response.errorType) {
       if (Array.isArray(response.message)) {
@@ -369,7 +392,9 @@ const AddRole = (): React.ReactElement => {
                             Assign Users (AddRemoveUser)
                           </FormLabel>
                           <Grid container>
-                            {roles.map((x) => (
+                            {roles
+                            .filter((role: RoleType) => role.vaultType === vaultType)
+                            .map((x) => (
                               <Grid item key={x.vaultGroupId} xs={2}>
                                 <Grid container alignItems="center" spacing={1}>
                                   <Grid item>
@@ -400,7 +425,9 @@ const AddRole = (): React.ReactElement => {
                             Create Rules (CreateDeleteRuleTree)
                           </FormLabel>
                           <Grid container>
-                            {roles.map((x) => (
+                            {roles
+                              .filter((role: RoleType) => role.vaultType === vaultType)
+                              .map((x) => (
                               <Grid item key={x.vaultGroupId} xs={2}>
                                 <Grid container alignItems="center" spacing={1}>
                                   <Grid item>
@@ -431,7 +458,9 @@ const AddRole = (): React.ReactElement => {
                             Display Rules (GetRuleTrees)
                           </FormLabel>
                           <Grid container>
-                            {roles.map((x) => (
+                            {roles
+                              .filter((role: RoleType) => role.vaultType === vaultType)
+                              .map((x) => (
                               <Grid item key={x.vaultGroupId} xs={2}>
                                 <Grid container alignItems="center" spacing={1}>
                                   <Grid item>
@@ -509,7 +538,7 @@ const AddRole = (): React.ReactElement => {
                       <Grid item xs={12}>
                         <Grid container>
                           <Grid item xs={12}>
-                            {permissionGroups.map(
+                            {permissionGroups.filter(x=>x.vaultType === vaultType).map(
                               (permissionGroup: Permission) => (
                                 <FormGroup
                                   key={permissionGroup.name}

@@ -106,6 +106,10 @@ export function* updateCoWorker({
   vaultUserId: string;
   oldVaultGroup: string[];
   newVaultGroup: string[];
+  vaultOrgUserId: string;
+  oldVaultOrgGroup: string[];
+  newVaultOrgGroup: string[];
+  clearerOrganizationId: string;
 }>): Generator<any> {
   try {
     const response = yield call(
@@ -114,7 +118,11 @@ export function* updateCoWorker({
       payload.updates,
       payload.vaultUserId,
       payload.oldVaultGroup,
-      payload.newVaultGroup
+      payload.newVaultGroup,
+      payload.vaultOrgUserId,
+      payload.oldVaultOrgGroup,
+      payload.newVaultOrgGroup,
+      payload.clearerOrganizationId,
     );
     if (payload.updates.roles) {
       const roles: Array<string> = [];

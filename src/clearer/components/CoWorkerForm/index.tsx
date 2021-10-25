@@ -145,7 +145,9 @@ interface CoWorkerFormProps {
   onSubmit: (
     coWorker: User,
     oldVaultGroup: string[],
-    newVaultGroup: string[]
+    newVaultGroup: string[],
+    oldVaultOrgGroup: string[],
+    newVaultOrgGroup: string[]
   ) => void;
   onSendResetPasswordLink: () => void;
   onResetOTP: () => void;
@@ -211,26 +213,47 @@ const CoWorkerForm: React.FC<CoWorkerFormProps> = ({
     const updates: Partial<User> = diff(coWorker, values);
     updates.roles = values.roles;
     const oldVaultGroup: string[] = [];
+    const oldVaultOrgGroup: string[] = [];
     coWorker.roles?.forEach((x: any) => {
       const exist = existingRoles.find((y) => y.id === x.id);
       if (exist && exist.vaultGroupId) {
-        oldVaultGroup.push(exist.vaultGroupId);
+        if (exist.vaultType === "organization") {
+          oldVaultOrgGroup.push(exist.vaultGroupId);
+        } else {
+          oldVaultGroup.push(exist.vaultGroupId);
+        }
       }
     });
     const newVaultGroup: string[] = [];
+    const newVaultOrgGroup: string[] = [];
     values.roles.forEach((x: any) => {
       const exist = existingRoles.find((y) => y.id === x.id);
       if (exist && exist.vaultGroupId) {
-        const index = oldVaultGroup.indexOf(exist.vaultGroupId);
-        if (index !== -1) {
-          oldVaultGroup.splice(index, 1);
+        if (exist.vaultType === "organization") {
+          const index = oldVaultOrgGroup.indexOf(exist.vaultGroupId);
+          if (index !== -1) {
+            oldVaultOrgGroup.splice(index, 1);
+          } else {
+            newVaultOrgGroup.push(exist.vaultGroupId);
+          }
         } else {
-          newVaultGroup.push(exist.vaultGroupId);
+          const index = oldVaultGroup.indexOf(exist.vaultGroupId);
+          if (index !== -1) {
+            oldVaultGroup.splice(index, 1);
+          } else {
+            newVaultGroup.push(exist.vaultGroupId);
+          }
         }
       }
     });
 
-    onSubmit(updates as User, oldVaultGroup, newVaultGroup);
+    onSubmit(
+      updates as User, 
+      oldVaultGroup, 
+      newVaultGroup, 
+      oldVaultOrgGroup, 
+      newVaultOrgGroup
+    );
   };
 
   const onViewPublicKey = async (publicKey: string) => {

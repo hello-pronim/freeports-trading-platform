@@ -64,6 +64,10 @@ const slice = createSlice({
         vaultUserId: string;
         oldVaultGroup: string[];
         newVaultGroup: string[];
+        vaultOrgUserId: string;
+        oldVaultOrgGroup: string[];
+        newVaultOrgGroup: string[];
+        clearerOrganizationId: string;
       }>
     ) {
       state.submitting = true;

@@ -64,7 +64,7 @@ export default [
     component: lazy(() => import("../components/Roles")),
   },
   {
-    path: "/roles/add",
+    path: "/roles/add/:vaultType",
     exact: true,
     auth: true,
     component: lazy(() => import("../components/Roles/AddRole")),

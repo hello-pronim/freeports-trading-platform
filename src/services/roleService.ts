@@ -8,6 +8,7 @@ interface RoleType {
   name: string;
   permissions: Array<string>;
   vaultGroupId?: string;
+  vaultType?: string;
 }
 interface PermissionType {
   name: string;
@@ -29,11 +30,18 @@ const getClearerRoles = (): Promise<Array<RoleType>> => {
 
 const addNewRole = async (
   name: string,
+  vaultType: string,
+  clearerOrganizationId: string,
   vaultUserId: string
 ): Promise<any> => {
-  await vault.authenticate();
+  const isOrg = vaultType === "organization";
+  if (isOrg) {
+    await vault.authenticate(clearerOrganizationId);
+  } else {
+    await vault.authenticate();
+  }
 
-  const vaultCreateGroupRequest = await vault.createGroup();
+  const vaultCreateGroupRequest = await vault.createGroup(isOrg);
   const response = await vault.sendRequest(vaultCreateGroupRequest);
   const vaultGroupId = response.group.id;
 
@@ -42,15 +50,18 @@ const addNewRole = async (
     vaultGroupId,
     PermissionOwnerType.user,
     vaultUserId,
-    VaultPermissions.AddRemoveUser
+    VaultPermissions.AddRemoveUser,
+    isOrg
   );
   await vault.sendRequest(request);
+  vault.clearToken();
 
   return new Promise((resolve, reject) => {
     axios
       .post(`/role`, {
         name,
         vaultGroupId,
+        vaultType,
       })
       .then((res: any) => {
         return resolve({...res.data, vaultGroupId});
@@ -63,30 +74,38 @@ const addNewRole = async (
 
 const modifyRole = async (
   id: string,
-  name: string,
-  permissions: Array<string>,
+  newRole: RoleType,
   oldPermissions: Array<string>,
-  vaultGroupId: string,
+  clearerOrganizationId: string,
 ): Promise<string> => {
-  await vault.authenticate();
+  const isOrg = newRole.vaultType === "organization";
+  if (isOrg) {
+    await vault.authenticate(clearerOrganizationId);
+  } else {
+    await vault.authenticate();
+  }
 
   const vaultRevokePermissionRequest = await vault.revokePermissions(
     PermissionOwnerType.group, 
-    vaultGroupId, 
-    oldPermissions
+    newRole.vaultGroupId as string, 
+    oldPermissions,
+    isOrg
   );
 
   const vaultGrantPermissionRequest = await vault.grantPermissions(
     PermissionOwnerType.group, 
-    vaultGroupId, 
-    permissions
+    newRole.vaultGroupId as string, 
+    newRole.permissions,
+    isOrg
   );
+
+  vault.clearToken();
 
   return new Promise((resolve, reject) => {
     axios
       .patch(`/role/${id}`, {
-        name,
-        permissions,
+        name: newRole.name,
+        permissions: newRole.permissions,
         vaultRevokePermissionRequest,
         vaultGrantPermissionRequest,
       })
@@ -100,15 +119,24 @@ const modifyRole = async (
 };
 
 const deleteRole = async (
-  id: string, 
-  vaultGroupId: string
+  role: RoleType,
+  clearerOrganizationId: string
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     axios
-      .delete(`/role/${id}`)
+      .delete(`/role/${role.id}`)
       .then(async (res: any) => {
-        const request = await vault.deleteGroup(vaultGroupId);
+        const isOrg = role.vaultType === "organization";
+        if (isOrg) {
+          await vault.authenticate(clearerOrganizationId);
+        }
+        const request = await vault.deleteGroup(
+          role.vaultGroupId as string, 
+          isOrg
+        );
         await vault.sendRequest(request);
+        vault.clearToken();
+
         return resolve(res.data);
       })
       .catch((err) => {

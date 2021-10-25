@@ -11,20 +11,32 @@ import {
 
 const { clearError, setError } = reduxActions;
 interface RoleType {
+  id: string;
   name: string;
   permissions: Array<string>;
-  vaultGroupId?: string;
+  vaultGroupId: string;
+  vaultType?: string;
 }
 
 function useRole(): any {
   const dispatch = useDispatch();
   const currentUser = useSelector(selectUser);
 
-  const createNewRole = async (roleName: string) => {
+  const createNewRole = async (
+    roleName: string,
+    vaultType: string,
+    clearerOrganizationId: string
+  ) => {
     dispatch(clearError());
+    let vaultUserId = currentUser?.vaultUserId;
+    if (vaultType === "organization") {
+      vaultUserId = currentUser?.vaultOrgUserId;
+    }
     const newRole = await addNewRole(
       roleName,
-      currentUser?.vaultUserId as string
+      vaultType,
+      clearerOrganizationId,
+      vaultUserId as string
     )
       .then((data) => {
         return data;
@@ -38,15 +50,15 @@ function useRole(): any {
   const updateRole = async (
     id: string, 
     newRole: RoleType, 
-    oldPermissions: string[]
+    oldPermissions: string[],
+    clearerOrganizationId: string,
   ) => {
     dispatch(clearError());
     const newRoleId = await modifyRole(
       id,
-      newRole.name,
-      newRole.permissions,
+      newRole,
       oldPermissions,
-      newRole.vaultGroupId as string,
+      clearerOrganizationId
     )
       .then((data) => {
         return data;
@@ -58,9 +70,12 @@ function useRole(): any {
 
     return newRoleId;
   };
-  const removeRole = async (id: string, vaultGroupId: string) => {
+  const removeRole = async (
+    role: RoleType,
+    clearerOrganizationId: string,
+  ) => {
     dispatch(clearError());
-    const oldRoleId = await deleteRole(id, vaultGroupId)
+    const oldRoleId = await deleteRole(role, clearerOrganizationId)
       .then((data) => {
         return data;
       })

@@ -41,6 +41,8 @@ export default interface User {
 
   vaultUserId?: string;
 
+  vaultOrgUserId?: string;
+
   organization?: string;
 
   hasPassword?: boolean;

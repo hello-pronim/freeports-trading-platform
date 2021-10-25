@@ -40,7 +40,8 @@ import {
 } from "./slice/selectors";
 
 import Loader from "../../../components/Loader";
-import clearerUsersService from "../../../services/clearerUsersService";
+import { selectClearerSettings } from "../Settings/slice/selectors";
+import { useClearerSettingsSlice } from "../Settings/slice";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -85,6 +86,8 @@ const CoWorker = (): React.ReactElement => {
   const history = useHistory();
   const { coWorkerId } = useParams<{ coWorkerId: string }>();
 
+  const clearerSettings = useSelector(selectClearerSettings);
+  const { actions: clearerSettingsActions } = useClearerSettingsSlice();
   const coWorkers = useSelector(selectCoWorkers);
   const coWorkersLoading = useSelector(selectIsCoWorkersLoading);
   const formLoading = useSelector(selectIsFormLoading);
@@ -129,6 +132,7 @@ const CoWorker = (): React.ReactElement => {
 
   useEffect(() => {
     window.store.dispatch(actions.getCoWorkers({ search: coWorkerSearch }));
+    dispatch(clearerSettingsActions.retrieveClearerSettings());
   }, []);
 
   const handleNewCoWorker = (coWorker: User) => {
@@ -138,20 +142,24 @@ const CoWorker = (): React.ReactElement => {
   const handleCoWorkerUpdate = (
     updates: User,
     oldVaultGroup: string[],
-    newVaultGroup: string[]
+    newVaultGroup: string[],
+    oldVaultOrgGroup: string[],
+    newVaultOrgGroup: string[]
   ) => {
     console.log("CoWorker update", updates, selectedCoWorker);
-    if (selectedCoWorker.id && selectedCoWorker.vaultUserId) {
-      dispatch(
-        actions.updateCoWorker({
-          updates,
-          id: selectedCoWorker.id,
-          vaultUserId: selectedCoWorker.vaultUserId,
-          oldVaultGroup,
-          newVaultGroup,
-        })
-      );
-    }
+    dispatch(
+      actions.updateCoWorker({
+        updates,
+        id: selectedCoWorker.id as string,
+        vaultUserId: selectedCoWorker.vaultUserId as string,
+        oldVaultGroup,
+        newVaultGroup,
+        vaultOrgUserId: selectedCoWorker.vaultOrgUserId as string,
+        oldVaultOrgGroup,
+        newVaultOrgGroup,
+        clearerOrganizationId: clearerSettings.vaultOrganizationId as string
+      })
+    );
   };
 
   const handleAddCoWorker = () => {
