@@ -9,10 +9,13 @@ import {
 } from "./slice/selectors";
 import { useSnackbarSlice } from "./slice";
 
-const Alert = (props: AlertProps) => {
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+  props,
+  ref,
+) {
   // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-};
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const Snackbar = (): React.ReactElement => {
   const dispatch = useDispatch();
