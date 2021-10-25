@@ -90,6 +90,7 @@ import {
   selectDeskRoles,
 } from "../../Roles/slice/selectors";
 import { useRolesSlice } from "../../Roles/slice";
+import PatchedPagination from "../../../../util/patchedPagination";
 
 interface tradeType {
   accountFrom: string;
@@ -1333,6 +1334,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 pageSize: 5,
                                 toolbar: false,
                               }}
+                              components={{ Pagination: PatchedPagination }}
                             />
                           )}
                         </Grid>
@@ -1405,6 +1407,7 @@ const InvestorDetail = (): React.ReactElement => {
                                   sorting: false,
                                   toolbar: false,
                                 }}
+                                components={{ Pagination: PatchedPagination }}
                               />
                             )}
                         </Grid>
@@ -1533,6 +1536,7 @@ const InvestorDetail = (): React.ReactElement => {
                                 sorting: false,
                                 toolbar: false,
                               }}
+                              components={{ Pagination: PatchedPagination }}
                             />
                           )}
                         </Grid>
@@ -1618,6 +1622,7 @@ const InvestorDetail = (): React.ReactElement => {
                               sorting: false,
                               toolbar: false,
                             }}
+                            components={{ Pagination: PatchedPagination }}
                           />
                         </Grid>
                       </Grid>

@@ -24,8 +24,8 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
 import MaterialTable from "material-table";
 
 import { useInvestorsSlice } from "./slice";
@@ -41,6 +41,7 @@ import { selectIsTradeRequestCreating } from "./Detail/slice/selectors";
 import { selectDesks } from "../Desks/slice/selectors";
 import Loader from "../../../components/Loader";
 import { useOrganization } from "../../../hooks";
+import PatchedPagination from "../../../util/patchedPagination";
 
 interface investorType {
   deskId: string;
@@ -299,7 +300,8 @@ const Investors = (): React.ReactElement => {
                       className={classes.addButton}
                       color="primary"
                       onClick={handleCreateInvestorDialogOpen}
-                      size="large">
+                      size="large"
+                    >
                       <Icon fontSize="large">add_circle</Icon>
                     </IconButton>
                   </Grid>
@@ -342,6 +344,7 @@ const Investors = (): React.ReactElement => {
                 options={{
                   showTitle: false,
                 }}
+                components={{ Pagination: PatchedPagination }}
               />
             )}
           </Grid>

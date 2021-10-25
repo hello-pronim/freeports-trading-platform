@@ -25,8 +25,8 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialTable from "material-table";
 
@@ -37,6 +37,7 @@ import {
   selectIsDeskCreating,
   selectIsDeskDeleting,
 } from "./slice/selectors";
+import PatchedPagination from "../../../util/patchedPagination";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -129,7 +130,11 @@ const Desks = (): React.ReactElement => {
           <Grid item xs={12}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Grid container alignItems="center" justifyContent="space-between">
+                <Grid
+                  container
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
                   <Grid item>
                     <Grid container alignItems="center" spacing={2}>
                       <Grid item>
@@ -140,7 +145,8 @@ const Desks = (): React.ReactElement => {
                           className={classes.addButton}
                           color="primary"
                           onClick={handleDialogOpen}
-                          size="large">
+                          size="large"
+                        >
                           <Icon fontSize="large">add_circle</Icon>
                         </IconButton>
                       </Grid>
@@ -223,7 +229,8 @@ const Desks = (): React.ReactElement => {
                                 color="inherit"
                                 onClick={() => handleDeskDelete(id)}
                                 disabled={deskDeleting}
-                                size="large">
+                                size="large"
+                              >
                                 <DeleteIcon
                                   fontSize="small"
                                   color="error"
@@ -238,6 +245,7 @@ const Desks = (): React.ReactElement => {
                   ]}
                   data={desks.map((deskItem: any) => ({ ...deskItem }))}
                   options={{ showTitle: false }}
+                  components={{ Pagination: PatchedPagination }}
                 />
               </Grid>
             </Grid>

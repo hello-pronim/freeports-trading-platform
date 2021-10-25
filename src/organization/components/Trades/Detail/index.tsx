@@ -53,6 +53,7 @@ import AccurateNumber from "../../../../components/AccurateNumber";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
 import AmountInput from "../AmountInput";
 import { PriceEvent } from "./slice/types";
+import PatchedPagination from "../../../../util/patchedPagination";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -467,6 +468,7 @@ const TradeDetail = (): React.ReactElement => {
                   toolbar: false,
                   paging: false,
                 }}
+                components={{ Pagination: PatchedPagination }}
               />
             </TabPanel>
             <TabPanel

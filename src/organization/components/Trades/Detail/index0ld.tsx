@@ -23,11 +23,12 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import { grey, purple } from "@mui/material/colors";
 import { BigNumber } from "bignumber.js";
 
 import { DateTime } from "luxon";
@@ -49,8 +50,7 @@ import { RfqResponse } from "../../../../types/RfqResponse";
 import AccurateNumber from "../../../../components/AccurateNumber";
 import { snackbarActions } from "../../../../components/Snackbar/slice";
 import AmountInput from "../AmountInput";
-
-import { grey, purple } from '@mui/material/colors';
+import PatchedPagination from "../../../../util/patchedPagination";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -295,7 +295,11 @@ const TradeDetail = (): React.ReactElement => {
                             </Box>
                           </Grid>
                           <Grid item xs={12} md={6}>
-                            <Grid container justifyContent="flex-end" spacing={2}>
+                            <Grid
+                              container
+                              justifyContent="flex-end"
+                              spacing={2}
+                            >
                               <Grid item>
                                 <Divider orientation="vertical" />
                               </Grid>
@@ -671,6 +675,7 @@ const TradeDetail = (): React.ReactElement => {
                     toolbar: false,
                     paging: false,
                   }}
+                  components={{ Pagination: PatchedPagination }}
                 />
               </TabPanel>
               <TabPanel

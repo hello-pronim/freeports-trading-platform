@@ -46,6 +46,7 @@ import { useClearerSettingsSlice } from "../Settings/slice";
 import { selectUser } from "../../../slice/selectors";
 import { snackbarActions } from "../../../components/Snackbar/slice";
 import { useRole } from "../../../hooks";
+import PatchedPagination from "../../../util/patchedPagination";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -863,6 +864,7 @@ const NostroAccounts = (): React.ReactElement => {
                   search: true,
                   showTitle: false,
                 }}
+                components={{ Pagination: PatchedPagination }}
               />
             </Grid>
           )}
